@@ -1,10 +1,10 @@
 /*!
-* @file 	Sandbox_Task.hpp
-* @author 	Christian Gehring
-* @date 	Jan 16, 2011
+* @file 	RoughTerrain_Task.hpp
+* @author 	Peter Fankhauser
+* @date 	Jul 9, 2013
 * @version 	1.0
 * @ingroup 	robotTask
-* @brief	Standing with Virtual Model at Base
+* @brief	Rough Terrain Task
 */
 
 #ifndef RoughTerrain_HPP_
@@ -12,27 +12,20 @@
 
 #include "TaskRobotBase.hpp"
 
-
-
-
 // robotUtils
 #include "TaskTimer.hpp"
 #include "DisturbRobot.hpp"
 
-
-
-
 namespace robotTask {
 
-//! Sandbox Task.
-/*! Used to test and play with stuff.
+//! Rough Terrain Task.
+/*! Walk over rough terrain
  * @ingroup robotTask
  */
 class RoughTerrain:public robotTask::TaskRobotBase
 {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 
 	/*! Constructor.
 	 * @param robotModel	reference to the robot
@@ -64,20 +57,14 @@ public:
 	virtual bool change();
 private:
 
-
-	//! sampling time of process =1/servo_rate
+	//! sampling time of process = 1/servo_rate
 	double time_step_;
 
 	robotUtils::TaskTimer timer_;
 
 	robotUtils::DisturbRobot* disturbRobot_;
-
-
-
-
-
 };
 
 }
 
-#endif /* Sandbox_HPP_ */
+#endif /* RoughTerrain_HPP_ */

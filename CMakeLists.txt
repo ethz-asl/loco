@@ -13,7 +13,7 @@
 #
 #-------------------------------------------------------------------------------
 cmake_minimum_required (VERSION 2.6)  
-message("      Including rough terrain")
+message("      Including task rough terrain")
 
 ################
 ### INCLUDES ###
