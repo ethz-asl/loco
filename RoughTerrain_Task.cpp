@@ -18,13 +18,15 @@
 using namespace std;
 using namespace robotModel;
 using namespace robotTask;
+using namespace robotController;
 using namespace robotUtils;
 
 RoughTerrain::RoughTerrain(RobotModel* robotModel)
 :TaskRobotBase("RoughTerrain",	// name of task
-		  robotModel)	// reference to robot model
+               robotModel)	// reference to robot model
 {
 	disturbRobot_ = new robotUtils::DisturbRobot;
+	virtualModelController_ = new robotController::VmcPp_Ctrl(robotModel_);
 }
 
 RoughTerrain::~RoughTerrain()
@@ -53,7 +55,8 @@ bool RoughTerrain::change()
 	int myvalue = 0;
 	int ivalue = 0;
 	double value;
-	Eigen::Vector3d force(0.0,0.0,-100.0);
+	Eigen::Vector3d disturbanceForce(1000.0,100.0,-100.0);
+  Eigen::Vector3d disturbanceTorque(0.0,0.0, 100.0);
 
 	while (true) {
 		/* show the possibilities */
@@ -72,11 +75,13 @@ bool RoughTerrain::change()
 		case 1:
 			/* disturbRobot */
 			disturbRobot_->setDisturbanceToZero();
-			disturbRobot_->addForceCSmbToMainBody(force);
+			disturbRobot_->addForceCSmbToMainBody(disturbanceForce);
+      disturbRobot_->addTorqueCSmbToMainBody(disturbanceTorque);
 			disturbRobot_->disturbOverInterval(1.0);
 			break;
 		case 3:
 			/* Reset simulation */
+		  resetSimulation();
 			break;
 		default:
 			key = 0;
