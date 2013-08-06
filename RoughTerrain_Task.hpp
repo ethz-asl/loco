@@ -1,10 +1,9 @@
-/*!
- * @file 	RoughTerrain_Task.hpp
- * @author 	Peter Fankhauser
- * @date 	Jul 9, 2013
- * @version 	1.0
- * @ingroup 	robotTask
- * @brief	Rough Terrain Task
+/*
+ * RoughTerrain_Task.hpp
+ *
+ *  Created on: Jul 9, 2013
+ *      Author: Péter Fankhauser
+ *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
 #ifndef RoughTerrain_HPP_
@@ -13,7 +12,8 @@
 #include "TaskRobotBase.hpp"
 
 // robotController
-#include "VmcPp_Ctrl.hpp"
+#include "VirtualModelController.hpp"
+#include "ContactForceDistribution.hpp"
 
 // robotUtils
 #include "TaskTimer.hpp"
@@ -26,6 +26,7 @@ namespace robotTask {
  * @ingroup robotTask
  */
 class RoughTerrain : public robotTask::TaskRobotBase {
+
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -57,15 +58,42 @@ class RoughTerrain : public robotTask::TaskRobotBase {
    * @return	true if successful
    */
   virtual bool change();
- private:
 
-  //! sampling time of process = 1/servo_rate
-  double time_step_;
+ private:
 
   robotUtils::DisturbRobot* disturbRobot_;
 
   //! Virtual model controller
-  robotController::VmcPp_Ctrl* virtualModelController_;
+  robotController::VirtualModelController* virtualModelController_;
+
+  //! Contact force distribution
+  robotController::ContactForceDistribution* contactForceDistribution_;
+
+  //! Compute virtual force and torque on main body
+  void computeVirtualModelControl();
+
+  //! Compute virtual force and torque on main body
+  void computeContactForceDistribution();
+
+  // Task parameters
+  //! Relative desired height of main body
+  double height_;
+  //! Relative desired yaw of main body
+  double yaw_;
+  //! Speed of base
+  double baseMaxSpeed_;
+
+  // Target and Desired main body variables
+  //! Target vector from inertial frame to body frame expressed in inertial frame
+  Eigen::Vector3d bodyTargetPosition_;
+  //! Desired vector from inertial frame to body frame expressed in inertial frame
+  Eigen::Vector3d bodyDesiredPosition_;
+  //! Desired velocity of body frame expressed in inertial frame
+  Eigen::Vector3d bodyDesiredVelocity_;
+  //! Desired orientation of body frame w.r.t. inertial frame (Euler angles)
+  Eigen::Vector3d bodyDesiredOrientation_;
+  //! Desired rotational rate of body frame w.r.t. inertial frame
+  Eigen::Vector3d bodyDesiredRotationalRate_;
 };
 
 }

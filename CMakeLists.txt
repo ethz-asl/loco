@@ -27,6 +27,8 @@ PARENT_SCOPE)
 ###############
 set(TASK_SRCS ${TASK_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/RoughTerrain_Task.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/VirtualModelController.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ContactForceDistribution.cpp
 PARENT_SCOPE)
 
 #################
@@ -41,7 +43,6 @@ PARENT_SCOPE)
 #################
 set(USE_UTIL_TASKTIMER ON CACHE BOOL "task timer")
 set(USE_UTIL_DISTURBROBOT ON CACHE BOOL "disturb robot")
-set(USE_CONTROLLER_VMCPP ON CACHE BOOL "virtual model controller (vmc pp)")
 set(USE_UTIL_DRAWARROW ON CACHE BOOL "draw arrow")
 set(USE_UTIL_DRAWSPHERE ON CACHE BOOL "draw sphere")
 set(USE_UTIL_DRAWFRAME ON CACHE BOOL "draw frame")
