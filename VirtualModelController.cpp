@@ -8,9 +8,14 @@
 
 #include "VirtualModelController.hpp"
 
+// robotUtils
+//#include "Logger.hpp"
+
 using namespace std;
 using namespace robotModel;
 using namespace robotController;
+using namespace robotUtils;
+using namespace Eigen;
 
 namespace robotController {
 
@@ -25,13 +30,13 @@ VirtualModelController::~VirtualModelController()
 }
 
 bool VirtualModelController::computeTorques(robotModel::VectorP baseDesiredPosition,
-               robotModel::VectorRPY baseDesiredOrientation,
-               robotModel::VectorP baseDesiredLinearVelocity,
-               robotModel::VectorO baseDesiredAngularVelocity)
+                                            Eigen::Quaterniond baseDesiredOrientation,
+                                            robotModel::VectorP baseDesiredLinearVelocity,
+                                            robotModel::VectorO baseDesiredAngularVelocity)
 {
   desiredPosition_ = baseDesiredPosition;
   desiredOrientation_ = baseDesiredOrientation;
-  desiredLinearVelocity_ = baseDesiredLinearVelocity;
+  desiredVelocity_ = baseDesiredLinearVelocity;
   desiredAngularVelocity_ = baseDesiredAngularVelocity;
 
   computePoseError();
@@ -43,7 +48,12 @@ bool VirtualModelController::computeTorques(robotModel::VectorP baseDesiredPosit
 
 bool VirtualModelController::computePoseError()
 {
+  positionError_ = desiredPosition_ - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getPos();
+  velocityError_ = desiredVelocity_ - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getVel();
+  angularVelocityError_ = desiredAngularVelocity_ - robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getOmega();
 
+  Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA());
+  orientationError_ = desiredOrientation_.conjugate() * actualOrientation;
 
   return true;
 }

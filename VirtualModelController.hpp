@@ -9,6 +9,9 @@
 #ifndef VIRTUALMODELCONTROLLER_H_
 #define VIRTUALMODELCONTROLLER_H_
 
+// Eigen
+#include <Eigen/Geometry>
+
 // robotTask
 #include "ControllerBase.hpp"
 #include "ContactForceDistribution.hpp"
@@ -30,9 +33,9 @@ class VirtualModelController : public robotController::ControllerBase
 
   //! Compute joint torques for legs in stance
   bool computeTorques(robotModel::VectorP baseDesiredPosition,
-                 robotModel::VectorRPY baseDesiredOrientation,
-                 robotModel::VectorP baseDesiredLinearVelocity,
-                 robotModel::VectorO baseDesiredAngularVelocity);
+                      Eigen::Quaterniond baseDesiredOrientation,
+                      robotModel::VectorP baseDesiredLinearVelocity,
+                      robotModel::VectorO baseDesiredAngularVelocity);
 
  private:
   //! Contact force distribution
@@ -40,19 +43,19 @@ class VirtualModelController : public robotController::ControllerBase
 
   //! Desired base position expressed in inertial frame
   robotModel::VectorP desiredPosition_;
-  //! Desired base orientation (Euler angles) w.r.t. inertial frame
-  robotModel::VectorRPY desiredOrientation_;
+  //! Desired base orientation (Quaternion) w.r.t. inertial frame
+  Eigen::Quaterniond desiredOrientation_;
   //! Desired base linear velocity expressed in inertial frame
-  robotModel::VectorP desiredLinearVelocity_;
+  robotModel::VectorP desiredVelocity_;
   //! Desired base angular velocity expressed w.r.t. inertial frame
   robotModel::VectorO desiredAngularVelocity_;
 
   //! Base position error
   robotModel::VectorP positionError_;
   //! Base orientation error
-  robotModel::VectorRPY orientationError_;
+  Eigen::Quaterniond orientationError_;
   //! Base linear velocity error
-  robotModel::VectorP linearVelocityError_;
+  robotModel::VectorP velocityError_;
   //! Base angular velocity error
   robotModel::VectorO angularVelocityError_;
 

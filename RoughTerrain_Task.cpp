@@ -8,6 +8,9 @@
 
 #include "RoughTerrain_Task.hpp"
 
+// Eigen
+#include <Eigen/Geometry>
+
 // robotUtils
 #include "DrawArrow.hpp"
 #include "DrawSphere.hpp"
@@ -19,6 +22,7 @@ using namespace robotModel;
 using namespace robotTask;
 using namespace robotController;
 using namespace robotUtils;
+using namespace Eigen;
 
 namespace robotTask {
 
@@ -48,7 +52,7 @@ bool RoughTerrain::run()
 {
 
   VectorP baseDesiredPosition = VectorP::Zero(3); // TODO Why is VectorP dynamic?
-  VectorRPY baseDesiredOrientation = VectorRPY::Zero(3);
+  Quaterniond baseDesiredOrientation = Quaterniond::Identity();
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
