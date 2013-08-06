@@ -6,9 +6,10 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#ifndef RoughTerrain_HPP_
-#define RoughTerrain_HPP_
+#ifndef ROUGHTERRAIN_HPP_
+#define ROUGHTERRAIN_HPP_
 
+// robotTask
 #include "TaskRobotBase.hpp"
 
 // robotController
@@ -61,41 +62,14 @@ class RoughTerrain : public robotTask::TaskRobotBase {
 
  private:
 
+  // Robot disturbances for testing
   robotUtils::DisturbRobot* disturbRobot_;
 
   //! Virtual model controller
   robotController::VirtualModelController* virtualModelController_;
 
-  //! Contact force distribution
-  robotController::ContactForceDistribution* contactForceDistribution_;
-
-  //! Compute virtual force and torque on main body
-  void computeVirtualModelControl();
-
-  //! Compute virtual force and torque on main body
-  void computeContactForceDistribution();
-
-  // Task parameters
-  //! Relative desired height of main body
-  double height_;
-  //! Relative desired yaw of main body
-  double yaw_;
-  //! Speed of base
-  double baseMaxSpeed_;
-
-  // Target and Desired main body variables
-  //! Target vector from inertial frame to body frame expressed in inertial frame
-  Eigen::Vector3d bodyTargetPosition_;
-  //! Desired vector from inertial frame to body frame expressed in inertial frame
-  Eigen::Vector3d bodyDesiredPosition_;
-  //! Desired velocity of body frame expressed in inertial frame
-  Eigen::Vector3d bodyDesiredVelocity_;
-  //! Desired orientation of body frame w.r.t. inertial frame (Euler angles)
-  Eigen::Vector3d bodyDesiredOrientation_;
-  //! Desired rotational rate of body frame w.r.t. inertial frame
-  Eigen::Vector3d bodyDesiredRotationalRate_;
 };
 
 }
 
-#endif /* RoughTerrain_HPP_ */
+#endif /* ROUGHTERRAIN_HPP_ */

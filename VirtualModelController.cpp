@@ -8,17 +8,55 @@
 
 #include "VirtualModelController.hpp"
 
+using namespace std;
+using namespace robotModel;
+using namespace robotController;
+
 namespace robotController {
 
-VirtualModelController::VirtualModelController()
+VirtualModelController::VirtualModelController(RobotModel* robotModel) : ControllerBase(robotModel)
 {
-  // TODO Auto-generated constructor stub
-
+  contactForceDistribution_ = new ContactForceDistribution();
 }
 
 VirtualModelController::~VirtualModelController()
 {
-  // TODO Auto-generated destructor stub
+  delete contactForceDistribution_;
+}
+
+bool VirtualModelController::computeTorques(robotModel::VectorP baseDesiredPosition,
+               robotModel::VectorRPY baseDesiredOrientation,
+               robotModel::VectorP baseDesiredLinearVelocity,
+               robotModel::VectorO baseDesiredAngularVelocity)
+{
+  desiredPosition_ = baseDesiredPosition;
+  desiredOrientation_ = baseDesiredOrientation;
+  desiredLinearVelocity_ = baseDesiredLinearVelocity;
+  desiredAngularVelocity_ = baseDesiredAngularVelocity;
+
+  computePoseError();
+  computeVirtualForce();
+  computeContactForces();
+
+  return true;
+}
+
+bool VirtualModelController::computePoseError()
+{
+
+
+  return true;
+}
+
+bool VirtualModelController::computeVirtualForce()
+{
+  return true;
+}
+
+bool VirtualModelController::computeContactForces()
+{
+//  contactForceDistribution_->run();
+  return true;
 }
 
 } /* namespace robotController */

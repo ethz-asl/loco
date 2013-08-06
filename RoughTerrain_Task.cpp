@@ -20,24 +20,18 @@ using namespace robotTask;
 using namespace robotController;
 using namespace robotUtils;
 
-RoughTerrain::RoughTerrain(RobotModel* robotModel)
-    : TaskRobotBase("RoughTerrain",  // name of task
-        robotModel)  // reference to robot model
-{
-  disturbRobot_ = new robotUtils::DisturbRobot();
-  virtualModelController_ = new robotController::VirtualModelController();
-  contactForceDistribution_ = new robotController::ContactForceDistribution();
+namespace robotTask {
 
-  // >>>>>>>>>>>>>>>>>>>>>>>>>>>> Set all parameters <<<<<<<<<<<<<<<<<<<<<<<<<<<< //
-  // Height and yaw w.r.t. to trace frame
-  height_ = 0.39;
-  yaw_ = 0.0;
-  baseMaxSpeed_ = 0.3;
+RoughTerrain::RoughTerrain(RobotModel* robotModel) : TaskRobotBase("RoughTerrain", robotModel)
+{
+  disturbRobot_ = new DisturbRobot();
+  virtualModelController_ = new VirtualModelController(robotModel_);
 }
 
 RoughTerrain::~RoughTerrain()
 {
   delete disturbRobot_;
+  delete virtualModelController_;
 }
 
 bool RoughTerrain::add()
@@ -47,13 +41,19 @@ bool RoughTerrain::add()
 
 bool RoughTerrain::init()
 {
- // virtualModelController_->init();
-
   return true;
 }
 
 bool RoughTerrain::run()
 {
+
+  VectorP baseDesiredPosition = VectorP::Zero(3); // TODO Why is VectorP dynamic?
+  VectorRPY baseDesiredOrientation = VectorRPY::Zero(3);
+  VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
+  VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
+
+  virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
+
   return true;
 }
 
@@ -103,34 +103,29 @@ bool RoughTerrain::change()
   return true;
 }
 
-void RoughTerrain::computeVirtualModelControl()
-{
-//  if (controlRelativeToTraceFrame_)
-//  {
-//    // Transform relative desired pose to absolute pose
-//    relPosDesToPosDes();
-//    relRpyDesToRpyDes();
-//  }
-
-//  //! Error vector between desired and target
-//  Eigen::Vector3d positionError = bodyTargetPosition_ - bodyDesiredPosition_;
+//void RoughTerrain::computeVirtualModelControl()
+//{
+////  //! Error vector between desired and target
+////  Eigen::Vector3d positionError = bodyTargetPosition_ - bodyDesiredPosition_;
+////
+////  // Make the desired position move towards the target position with a limited speed
+////  if (positionError.norm() > baseMaxSpeed_ * getTimeStep())
+////  {
+////    bodyDesiredPosition_ += positionError.normalized() * baseMaxSpeed_ * getTimeStep();
+////  }
+////  else
+////  {
+////    bodyDesiredPosition_ = bodyTargetPosition_;
+////  }
 //
-//  // Make the desired position move towards the target position with a limited speed
-//  if (positionError.norm() > baseMaxSpeed_ * getTimeStep())
-//  {
-//    bodyDesiredPosition_ += positionError.normalized() * baseMaxSpeed_ * getTimeStep();
-//  }
-//  else
-//  {
-//    bodyDesiredPosition_ = bodyTargetPosition_;
-//  }
+////  virtualModelController_->computeForce(F_, M_, I_rEst_IB_, I_vEst_B_, rpyEst_BI_,
+////                           I_wEst_IB_, bodyDesiredPosition_, I_vDes_B_, rpyDes_BI_,
+////                           I_wDes_IB_, I_rVec_B_Cog_);
+//}
+//
+//void RoughTerrain::computeContactForceDistribution()
+//{
+//
+//}
 
-//  virtualModelController_->computeForce(F_, M_, I_rEst_IB_, I_vEst_B_, rpyEst_BI_,
-//                           I_wEst_IB_, bodyDesiredPosition_, I_vDes_B_, rpyDes_BI_,
-//                           I_wDes_IB_, I_rVec_B_Cog_);
-}
-
-void RoughTerrain::computeContactForceDistribution()
-{
-
-}
+} /* namespace robotTask */
