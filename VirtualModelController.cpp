@@ -22,11 +22,27 @@ namespace robotController {
 VirtualModelController::VirtualModelController(RobotModel* robotModel) : ControllerBase(robotModel)
 {
   contactForceDistribution_ = new ContactForceDistribution();
+  isParametersLoaded = false;
 }
 
 VirtualModelController::~VirtualModelController()
 {
   delete contactForceDistribution_;
+}
+
+bool VirtualModelController::loadParameters()
+{
+  // TODO Replace this with proper parameters loading (XML)
+  proportionalGainTranslation_ << 500, 640, 600;
+  derivativeGainTranslation_ << 150, 100, 120;
+  feedforwardGainTranslation_ << 25, 0, 1;
+  proportionalGainRotation_ << 400, 200, 0;
+  derivativeGainRotation_ << 6, 9, 0;
+  feedforwardGainRotation_ << 0, 0, 0;
+
+  isParametersLoaded = true;
+
+  return true;
 }
 
 bool VirtualModelController::computeTorques(robotModel::VectorP baseDesiredPosition,
@@ -39,11 +55,19 @@ bool VirtualModelController::computeTorques(robotModel::VectorP baseDesiredPosit
   desiredVelocity_ = baseDesiredLinearVelocity;
   desiredAngularVelocity_ = baseDesiredAngularVelocity;
 
-  computePoseError();
-  computeVirtualForce();
-  computeContactForces();
-
-  return true;
+  if (!isParametersLoaded)
+  {
+    cout << "Virtual model control parameters are not loaded." << endl; // TODO use warning output
+    return false;
+  }
+  else
+  {
+    computePoseError();
+    computeVirtualForce();
+    computeVirtualTorque();
+    computeContactForces();
+    return true;
+  }
 }
 
 bool VirtualModelController::computePoseError()
@@ -59,6 +83,22 @@ bool VirtualModelController::computePoseError()
 }
 
 bool VirtualModelController::computeVirtualForce()
+{
+  Vector3d feedforwardTerm = Vector3d::Zero();
+  feedforwardTerm.x() = desJointVelocities_.x();
+  feedforwardTerm.y() = desJointVelocities_.y();
+  feedforwardTerm.z() = robotModel_->params().mTotal_ * robotModel_->params().gravity_;
+
+  desiredVirtualForce_ = proportionalGainTranslation_.array() * positionError_.array() // Coefficient-wise multiplication.
+                       + derivativeGainTranslation_.array()   * velocityError_.array()
+                       + feedforwardGainTranslation_.array()  * feedforwardTerm.array();
+
+  desiredVirtualForce_ = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredVirtualForce_;
+
+  return true;
+}
+
+bool VirtualModelController::computeVirtualTorque()
 {
   return true;
 }

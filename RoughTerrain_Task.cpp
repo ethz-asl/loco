@@ -56,6 +56,7 @@ bool RoughTerrain::run()
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
+  virtualModelController_->loadParameters();
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
 
   return true;
