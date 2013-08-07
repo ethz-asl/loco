@@ -51,9 +51,13 @@ bool RoughTerrain::init()
 bool RoughTerrain::run()
 {
 
+  //! Desired base position expressed in inertial frame.
   VectorP baseDesiredPosition = VectorP::Zero(3); // TODO Why is VectorP dynamic?
+  //! Desired base orientation (Quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
+  //! Desired base linear velocity expressed in inertial frame.
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
+  //! Desired base angular velocity expressed w.r.t. inertial frame.
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
   virtualModelController_->loadParameters();

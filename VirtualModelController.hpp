@@ -39,10 +39,10 @@ class VirtualModelController : public robotController::ControllerBase
   bool loadParameters();
 
   //! Compute joint torques for legs in stance.
-  bool computeTorques(robotModel::VectorP baseDesiredPosition,
-                      Eigen::Quaterniond baseDesiredOrientation,
-                      robotModel::VectorP baseDesiredLinearVelocity,
-                      robotModel::VectorO baseDesiredAngularVelocity);
+  bool computeTorques(robotModel::VectorP desiredPosition,
+                      Eigen::Quaterniond desiredOrientation,
+                      robotModel::VectorP desiredLinearVelocity,
+                      robotModel::VectorO desiredAngularVelocity);
 
  private:
   //! True when parameters are successfully loaded.
@@ -51,22 +51,13 @@ class VirtualModelController : public robotController::ControllerBase
   //! Contact force distribution.
   robotController::ContactForceDistribution* contactForceDistribution_;
 
-  //! Desired base position expressed in inertial frame.
-  robotModel::VectorP desiredPosition_;
-  //! Desired base orientation (Quaternion) w.r.t. inertial frame.
-  Eigen::Quaterniond desiredOrientation_;
-  //! Desired base linear velocity expressed in inertial frame.
-  robotModel::VectorP desiredVelocity_;
-  //! Desired base angular velocity expressed w.r.t. inertial frame.
-  robotModel::VectorO desiredAngularVelocity_;
-
-  //! Base position error.
+  //! Base position error in base frame.
   robotModel::VectorP positionError_;
-  //! Base orientation error.
-  Eigen::Quaterniond orientationError_;
-  //! Base linear velocity error.
-  robotModel::VectorP velocityError_;
-  //! Base angular velocity error.
+  //! Base orientation error vector in base frame (length of vector is angle).
+  Eigen::Vector3d orientationErrorVector_;
+  //! Base linear velocity error in base frame.
+  robotModel::VectorP linearVelocityError_;
+  //! Base angular velocity error in base frame.
   robotModel::VectorO angularVelocityError_;
 
   //! Proportional (k_p), derivative (k_d), and feedforward gain vector (k_ff) for translational error (force).
@@ -92,17 +83,23 @@ class VirtualModelController : public robotController::ControllerBase
   Eigen::Vector3d effectiveVirtualTorque_;
 
   //! Compute error between desired an actual robot pose.
-  bool computePoseError();
+  bool computePoseError(robotModel::VectorP desiredPosition,
+                        Eigen::Quaterniond desiredOrientation,
+                        robotModel::VectorP desiredLinearVelocity,
+                        robotModel::VectorO desiredAngularVelocity);
 
   //! Compute virtual force based on the form:
   //! F = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
-  bool computeVirtualForce();
+  bool computeVirtualForce(robotModel::VectorP desiredLinearVelocity);
   //! Compute virtual torque based on the form:
   //! T = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
-  bool computeVirtualTorque();
+  bool computeVirtualTorque(robotModel::VectorO desiredAngularVelocity);
 
   //! Distributes the virtual forces to the ground contact forces.
   bool computeContactForces();
+
+  //! Check if parameters loaded. True if parameters are successfully loaded.
+  bool checkIfParametersLoaded();
 };
 
 } /* namespace robotController */

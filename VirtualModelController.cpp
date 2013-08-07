@@ -45,52 +45,53 @@ bool VirtualModelController::loadParameters()
   return true;
 }
 
-bool VirtualModelController::computeTorques(robotModel::VectorP baseDesiredPosition,
-                                            Eigen::Quaterniond baseDesiredOrientation,
-                                            robotModel::VectorP baseDesiredLinearVelocity,
-                                            robotModel::VectorO baseDesiredAngularVelocity)
+bool VirtualModelController::computeTorques(robotModel::VectorP desiredPosition,
+                                            Eigen::Quaterniond desiredOrientation,
+                                            robotModel::VectorP desiredLinearVelocity,
+                                            robotModel::VectorO desiredAngularVelocity)
 {
-  desiredPosition_ = baseDesiredPosition;
-  desiredOrientation_ = baseDesiredOrientation;
-  desiredVelocity_ = baseDesiredLinearVelocity;
-  desiredAngularVelocity_ = baseDesiredAngularVelocity;
+  if (!checkIfParametersLoaded()) return false;
 
-  if (!isParametersLoaded)
-  {
-    cout << "Virtual model control parameters are not loaded." << endl; // TODO use warning output
-    return false;
-  }
-  else
-  {
-    computePoseError();
-    computeVirtualForce();
-    computeVirtualTorque();
-    computeContactForces();
-    return true;
-  }
+  computePoseError(desiredPosition, desiredOrientation, desiredLinearVelocity, desiredAngularVelocity);
+  computeVirtualForce(desiredLinearVelocity);
+  computeVirtualTorque(desiredAngularVelocity);
+  computeContactForces();
+  return true;
 }
 
-bool VirtualModelController::computePoseError()
+bool VirtualModelController::computePoseError(robotModel::VectorP desiredPosition,
+                                              Eigen::Quaterniond desiredOrientation,
+                                              robotModel::VectorP desiredLinearVelocity,
+                                              robotModel::VectorO desiredAngularVelocity)
 {
-  positionError_ = desiredPosition_ - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getPos();
-  velocityError_ = desiredVelocity_ - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getVel();
-  angularVelocityError_ = desiredAngularVelocity_ - robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getOmega();
+  MatrixA transformationFromWorldToBody = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA();
+
+  positionError_ = desiredPosition - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getPos();
+  positionError_ = transformationFromWorldToBody * positionError_;
 
   Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA());
-  orientationError_ = desiredOrientation_.conjugate() * actualOrientation;
+  Quaterniond orientationError = desiredOrientation.conjugate() * actualOrientation;
+  orientationErrorVector_ = AngleAxisd(orientationError).angle() * AngleAxisd(orientationError).axis();
+  orientationErrorVector_ = transformationFromWorldToBody * orientationErrorVector_;
+
+  linearVelocityError_ = desiredLinearVelocity - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getVel();
+  linearVelocityError_ = transformationFromWorldToBody * linearVelocityError_;
+
+  angularVelocityError_ = desiredAngularVelocity - robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getOmega();
+  angularVelocityError_ = transformationFromWorldToBody * angularVelocityError_;
 
   return true;
 }
 
-bool VirtualModelController::computeVirtualForce()
+bool VirtualModelController::computeVirtualForce(robotModel::VectorP desiredLinearVelocity)
 {
   Vector3d feedforwardTerm = Vector3d::Zero();
-  feedforwardTerm.x() = desJointVelocities_.x();
-  feedforwardTerm.y() = desJointVelocities_.y();
+  feedforwardTerm.x() = desiredLinearVelocity.x();
+  feedforwardTerm.y() = desiredLinearVelocity.y();
   feedforwardTerm.z() = robotModel_->params().mTotal_ * robotModel_->params().gravity_;
 
   desiredVirtualForce_ = proportionalGainTranslation_.array() * positionError_.array() // Coefficient-wise multiplication.
-                       + derivativeGainTranslation_.array()   * velocityError_.array()
+                       + derivativeGainTranslation_.array()   * linearVelocityError_.array()
                        + feedforwardGainTranslation_.array()  * feedforwardTerm.array();
 
   desiredVirtualForce_ = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredVirtualForce_;
@@ -98,8 +99,17 @@ bool VirtualModelController::computeVirtualForce()
   return true;
 }
 
-bool VirtualModelController::computeVirtualTorque()
+bool VirtualModelController::computeVirtualTorque(robotModel::VectorO desiredAngularVelocity)
 {
+  Vector3d feedforwardTerm = Vector3d::Zero();
+  feedforwardTerm.z() = desiredAngularVelocity.z();
+
+  desiredVirtualTorque_ = proportionalGainRotation_.array() * orientationErrorVector_.array()
+                       + derivativeGainRotation_.array()   * angularVelocityError_.array()
+                       + feedforwardGainRotation_.array()  * feedforwardTerm.array();
+
+  desiredVirtualTorque_ = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredVirtualTorque_;
+
   return true;
 }
 
@@ -107,6 +117,14 @@ bool VirtualModelController::computeContactForces()
 {
 //  contactForceDistribution_->run();
   return true;
+}
+
+bool VirtualModelController::checkIfParametersLoaded()
+{
+  if (isParametersLoaded) return true;
+
+  cout << "Virtual model control parameters are not loaded." << endl; // TODO use warning output
+  return false;
 }
 
 } /* namespace robotController */
