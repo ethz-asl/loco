@@ -35,7 +35,10 @@ class VirtualModelController : public robotController::ControllerBase
   //! Destructor.
   virtual ~VirtualModelController();
 
-  //! Load parameters.
+  //! Initialize. Returns true if successfull.
+  bool initialize();
+
+  //! Load parameters. Returns true if successfull.
   bool loadParameters();
 
   //! Compute joint torques for legs in stance.

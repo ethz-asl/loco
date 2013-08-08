@@ -30,6 +30,10 @@ RoughTerrain::RoughTerrain(RobotModel* robotModel) : TaskRobotBase("RoughTerrain
 {
   disturbRobot_ = new DisturbRobot();
   virtualModelController_ = new VirtualModelController(robotModel_);
+
+  disturbanceTime_ = 0.1;
+  disturbanceForceMagnitude_ = 5000;
+  disturbanceTorqueMagnitude_ = 1000;
 }
 
 RoughTerrain::~RoughTerrain()
@@ -45,6 +49,8 @@ bool RoughTerrain::add()
 
 bool RoughTerrain::init()
 {
+  virtualModelController_->initialize();
+  virtualModelController_->loadParameters();
   return true;
 }
 
@@ -60,7 +66,6 @@ bool RoughTerrain::run()
   //! Desired base angular velocity expressed w.r.t. inertial frame.
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
-  virtualModelController_->loadParameters();
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
 
   return true;
@@ -73,15 +78,20 @@ bool RoughTerrain::change()
   int myvalue = 0;
   int ivalue = 0;
   double value;
-  Eigen::Vector3d disturbanceForce(1000.0, 100.0, -100.0);
-  Eigen::Vector3d disturbanceTorque(0.0, 0.0, 100.0);
 
   while (true)
   {
     /* show the possibilities */
     cout << "[0]\tExit" << endl;
-    cout << "[1]\tDisturb robot" << endl;
-    cout << "[2]\tReset simulation" << endl;
+    cout << "[1]\tDisturb randomly" << endl;
+    cout << "[2]\tDisturb with force in x" << endl;
+    cout << "[3]\tDisturb with force in y" << endl;
+    cout << "[4]\tDisturb with force in z" << endl;
+    cout << "[5]\tDisturb with force in -z" << endl;
+    cout << "[6]\tDisturb with torque around x" << endl;
+    cout << "[7]\tDisturb with torque around y" << endl;
+    cout << "[8]\tDisturb with torque around z" << endl;
+    cout << "[9]\tReset simulation" << endl;
 
     get_int("What to do?", key, &key);
 
@@ -94,12 +104,37 @@ bool RoughTerrain::change()
         break;
       case 1:
         /* disturbRobot */
-        disturbRobot_->setDisturbanceToZero();
-        disturbRobot_->addForceCSmbToMainBody(disturbanceForce);
-        disturbRobot_->addTorqueCSmbToMainBody(disturbanceTorque);
-        disturbRobot_->disturbOverInterval(1.0);
+        disturbRobot();
+        break;
+      case 2:
+        /* disturbRobot */
+        disturbRobot(FORCE, Vector3i(1, 0, 0));
         break;
       case 3:
+        /* disturbRobot */
+        disturbRobot(FORCE, Vector3i(0, 1, 0));
+        break;
+      case 4:
+        /* disturbRobot */
+        disturbRobot(FORCE, Vector3i(0, 0, 1));
+        break;
+      case 5:
+        /* disturbRobot */
+        disturbRobot(FORCE, Vector3i(0, 0, -1));
+        break;
+      case 6:
+        /* disturbRobot */
+        disturbRobot(TORQUE, Vector3i(1, 0, 0));
+        break;
+      case 7:
+        /* disturbRobot */
+        disturbRobot(TORQUE, Vector3i(0, 1, 0));
+        break;
+      case 8:
+        /* disturbRobot */
+        disturbRobot(TORQUE, Vector3i(0, 0, 1));
+        break;
+      case 9:
         /* Reset simulation */
         resetSimulation();
         break;
@@ -136,5 +171,37 @@ bool RoughTerrain::change()
 //{
 //
 //}
+
+bool RoughTerrain::disturbRobot(DisturbanceType disturbanceType,
+                                Eigen::Vector3i disturbanceDirection)
+{
+  disturbRobot_->setDisturbanceToZero();
+
+  if (disturbanceType == FORCE)
+  {
+    Vector3d disturbanceForce = disturbanceForceMagnitude_ * disturbanceDirection.cast<double>().normalized();
+    disturbRobot_->addForceCSmbToMainBody(disturbanceForce);
+  }
+  if (disturbanceType == TORQUE)
+  {
+    Vector3d disturbanceTorque = disturbanceTorqueMagnitude_ * disturbanceDirection.cast<double>().normalized();
+    disturbRobot_->addTorqueCSmbToMainBody(disturbanceTorque);
+  }
+
+  disturbRobot_->disturbOverInterval(disturbanceTime_);
+}
+
+bool RoughTerrain::disturbRobot() // TODO Maybe port this to the DisturbRobot class, as it might be helpful in other situations
+{
+  disturbRobot_->setDisturbanceToZero();
+
+  Vector3d disturbanceForce = disturbanceForceMagnitude_ * Vector3d::Random();
+  disturbRobot_->addForceCSmbToMainBody(disturbanceForce);
+
+  Vector3d disturbanceTorque = disturbanceTorqueMagnitude_ * Vector3d::Random();
+  disturbRobot_->addTorqueCSmbToMainBody(disturbanceTorque);
+
+  disturbRobot_->disturbOverInterval(disturbanceTime_); // TODO Check if different timings have influence
+}
 
 } /* namespace robotTask */

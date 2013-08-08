@@ -9,7 +9,7 @@
 #include "VirtualModelController.hpp"
 
 // robotUtils
-//#include "Logger.hpp"
+#include "Logger.hpp"
 
 using namespace std;
 using namespace robotModel;
@@ -23,11 +23,23 @@ VirtualModelController::VirtualModelController(RobotModel* robotModel) : Control
 {
   contactForceDistribution_ = new ContactForceDistribution();
   isParametersLoaded = false;
+
+  desiredVirtualForce_ = Vector3d::Zero();
+  desiredVirtualTorque_ = Vector3d::Zero();
 }
 
 VirtualModelController::~VirtualModelController()
 {
   delete contactForceDistribution_;
+}
+
+bool VirtualModelController::initialize()
+{
+  addEigenMatrixToLog(desiredVirtualForce_, "VMC_desired_force", "N", true);
+  addEigenMatrixToLog(desiredVirtualTorque_, "VMC_desired_torque", "Nm", true);
+
+  updateLogger();
+  return true;
 }
 
 bool VirtualModelController::loadParameters()

@@ -61,12 +61,27 @@ class RoughTerrain : public robotTask::TaskRobotBase {
   virtual bool change();
 
  private:
+  //! Types of disturbance on the robot.
+  enum DisturbanceType {
+    FORCE,
+    TORQUE
+  };
+  //! Time at which the disturbance is applied to the robot (in s).
+  double disturbanceTime_;
+  //! Magnitude of the force (N) and torque (Nm) disturbance on the robot.
+  double disturbanceForceMagnitude_, disturbanceTorqueMagnitude_;
 
-  // Robot disturbances for testing
+  //! Robot disturbances for testing
   robotUtils::DisturbRobot* disturbRobot_;
 
   //! Virtual model controller
   robotController::VirtualModelController* virtualModelController_;
+
+  //! Disturb robot
+  bool disturbRobot(DisturbanceType disturbanceType, Eigen::Vector3i disturbanceDirection);
+
+  //! Disturb robot randomly
+  bool disturbRobot();
 
 };
 
