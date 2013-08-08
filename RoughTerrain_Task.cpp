@@ -7,11 +7,7 @@
  */
 
 #include "RoughTerrain_Task.hpp"
-
-// Eigen
 #include <Eigen/Geometry>
-
-// robotUtils
 #include "DrawArrow.hpp"
 #include "DrawSphere.hpp"
 #include "DrawFrame.hpp"
@@ -58,7 +54,7 @@ bool RoughTerrain::run()
 {
 
   //! Desired base position expressed in inertial frame.
-  VectorP baseDesiredPosition = VectorP::Zero(3); // TODO Why is VectorP dynamic?
+  Vector3d baseDesiredPosition(0.0, 0.0, 0.425); //TODO change to VectorP
   //! Desired base orientation (Quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
   //! Desired base linear velocity expressed in inertial frame.

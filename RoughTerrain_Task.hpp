@@ -9,14 +9,9 @@
 #ifndef ROUGHTERRAIN_HPP_
 #define ROUGHTERRAIN_HPP_
 
-// robotTask
 #include "TaskRobotBase.hpp"
-
-// robotController
 #include "VirtualModelController.hpp"
 #include "ContactForceDistribution.hpp"
-
-// robotUtils
 #include "TaskTimer.hpp"
 #include "DisturbRobot.hpp"
 

@@ -13,10 +13,8 @@
 #ifndef VIRTUALMODELCONTROLLER_H_
 #define VIRTUALMODELCONTROLLER_H_
 
-// Eigen
+#include <Eigen/Core>
 #include <Eigen/Geometry>
-
-// robotTask
 #include "ControllerBase.hpp"
 #include "ContactForceDistribution.hpp"
 
@@ -42,14 +40,14 @@ class VirtualModelController : public robotController::ControllerBase
   bool loadParameters();
 
   //! Compute joint torques for legs in stance.
-  bool computeTorques(robotModel::VectorP desiredPosition,
-                      Eigen::Quaterniond desiredOrientation,
-                      robotModel::VectorP desiredLinearVelocity,
-                      robotModel::VectorO desiredAngularVelocity);
+  bool computeTorques(const robotModel::VectorP& desiredPosition, // TODO pack as one struct?
+                      const Eigen::Quaterniond& desiredOrientation,
+                      const robotModel::VectorP& desiredLinearVelocity,
+                      const robotModel::VectorO& desiredAngularVelocity);
 
  private:
   //! True when parameters are successfully loaded.
-  bool isParametersLoaded;
+  bool isParametersLoaded_;
 
   //! Contact force distribution.
   robotController::ContactForceDistribution* contactForceDistribution_;
@@ -67,42 +65,34 @@ class VirtualModelController : public robotController::ControllerBase
   Eigen::Vector3d proportionalGainTranslation_, derivativeGainTranslation_, feedforwardGainTranslation_;
   //! Proportional (k_p), derivative (k_d), and feedforward gain vector (k_ff) for rotational error (torque).
   Eigen::Vector3d proportionalGainRotation_, derivativeGainRotation_, feedforwardGainRotation_;
-  //! Diagonal elements of the weighting matrix for the desired virtual forces and torques (S).
-  Eigen::Vector3d virtualForceWeightningFactors_;
-  //! Diagonal elements of the weighting matrix for the ground reaction forces ("regularizer", W).
-  Eigen::Vector3d groundForceWeightningFactors_;
-  //! Minimal normal ground force (F_min^n).
-  double minimalNormalGroundForce_;
-  //! Assumed friction coefficient (mu).
-  double frictionCoefficient_;
 
   //! Desired virtual force on base in body frame (B_F_B^d).
-  Eigen::Vector3d desiredVirtualForce_;
+  Eigen::Vector3d virtualForce_;
   //! Desired virtual torque on base in body frame (B_T_B^d).
-  Eigen::Vector3d desiredVirtualTorque_;
-  //! Effective virtual force on base in body frame (B_F_B).
-  Eigen::Vector3d effectiveVirtualForce_;
-  //! Effective virtual torque on base in body frame (B_T_B).
-  Eigen::Vector3d effectiveVirtualTorque_;
+  Eigen::Vector3d virtualTorque_;
 
   //! Compute error between desired an actual robot pose.
-  bool computePoseError(robotModel::VectorP desiredPosition,
-                        Eigen::Quaterniond desiredOrientation,
-                        robotModel::VectorP desiredLinearVelocity,
-                        robotModel::VectorO desiredAngularVelocity);
+  bool computePoseError(const robotModel::VectorP& desiredPosition,
+                        const Eigen::Quaterniond& desiredOrientation,
+                        const robotModel::VectorP& desiredLinearVelocity,
+                        const robotModel::VectorO& desiredAngularVelocity);
 
   //! Compute virtual force based on the form:
   //! F = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
-  bool computeVirtualForce(robotModel::VectorP desiredLinearVelocity);
+  bool computeVirtualForce(const robotModel::VectorP& desiredLinearVelocity);
+
   //! Compute virtual torque based on the form:
   //! T = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
-  bool computeVirtualTorque(robotModel::VectorO desiredAngularVelocity);
+  bool computeVirtualTorque(const robotModel::VectorO& desiredAngularVelocity);
 
   //! Distributes the virtual forces to the ground contact forces.
   bool computeContactForces();
 
-  //! Check if parameters loaded. True if parameters are successfully loaded.
-  bool checkIfParametersLoaded();
+  /*!
+   * Check if parameters are loaded.
+   * @return true if parameters are loaded.
+   */
+  bool areParametersLoaded();
 };
 
 } /* namespace robotController */
