@@ -46,7 +46,7 @@ class ContactForceDistribution
    * TODO move this to robot commons?
    */
   enum LegName {
-    LEFT_FRONT,
+    LEFT_FRONT = 0,
     RIGHT_FRONT,
     LEFT_HIND,
     RIGHT_HIND
@@ -86,7 +86,7 @@ class ContactForceDistribution
   bool isParametersLoaded_;
 
   //! Leg load factors
-  std::map<LegName, double> legLoadFactors_;
+  Eigen::Matrix<double, 4, 1> legLoadFactors_;
 
   //! Diagonal elements of the weighting matrix for the desired virtual forces and torques (S).
   Eigen::Matrix<double, 6, 1> virtualForceWeights_;
