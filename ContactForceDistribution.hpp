@@ -20,6 +20,7 @@
 #ifndef CONTACTFORCEDISTRIBUTION_HPP_
 #define CONTACTFORCEDISTRIBUTION_HPP_
 
+#include <map>
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 #include <Eigen/Sparse>
@@ -42,13 +43,24 @@ class ContactForceDistribution
   virtual ~ContactForceDistribution();
 
   /*!
+   * Leg enum.
+   * TODO move this to robot commons?
+   */
+  enum LegName {
+    LEFT_FRONT,
+    RIGHT_FRONT,
+    LEFT_HIND,
+    RIGHT_HIND
+  };
+
+  /*!
    * Loads the parameters. Has to be done before using this class.
    * @return true if successful
    */
   bool loadParameters();
 
   /*!
-   * Computes the contact force distribution of the virtual force and torque
+   * Computes the contact force distribution of the virtual force and torque.
    * @param desiredVirtualForce
    * @param desiredVirtualTorque
    * @return true if successful
@@ -56,9 +68,26 @@ class ContactForceDistribution
   bool computeForceDistribution(const Eigen::Vector3d& desiredVirtualForce,
                                 const Eigen::Vector3d& desiredVirtualTorque);
 
+  /*!
+   * Manually change how much a leg should be loaded.
+   * This needs to be set before calling computeForceDistribution() and
+   * is reset after each call of computeForceDistribution().
+   * @param legName defines the leg
+   * @param loadFactor sets the factor how much the leg should be loaded
+   *        value in the interval [0, 1] where 0: unloaded and 1: completely loaded
+   * @return true if successful, false if leg is not in contact with the ground (unless loadFactor=0.0)
+   */
+  bool changeLegLoad(const LegName& legName, const double& loadFactor);
+
  private:
+  //! Reference to robot model
+  robotModel::RobotModel* robotModel_;
+
   //! True when parameters are successfully loaded.
   bool isParametersLoaded_;
+
+  //! Leg load factors
+  std::map<LegName, double> legLoadFactors_;
 
   //! Diagonal elements of the weighting matrix for the desired virtual forces and torques (S).
   Eigen::Matrix<double, 6, 1> virtualForceWeights_;
@@ -69,9 +98,9 @@ class ContactForceDistribution
   //! Assumed friction coefficient (mu).
   double frictionCoefficient_;
 
-  //! The matrix A in the optimization formulation
+  //! The matrix A in the optimization formulation.
 //  Eigen::SparseMatrix optimizationMatrixA_;
-  //! The vector b in the optimization formulation (net forces and torques)
+  //! The vector b in the optimization formulation (net forces and torques).
   Eigen::Matrix<double, 6, 1> optimizationVectorB_;
   //! Constraint matrix
 //  Eigen::SparseMatrix optimizationConstraintMatrix_;
@@ -85,16 +114,24 @@ class ContactForceDistribution
   //Eigen::Matrix<double, 6, 6> virtualForceWeights_;
 
   /*!
-   * Prepare matrices for optimization problem.
-   * @return true if successful
-   */
-  bool prepareOptimization();
-
-  /*!
    * Check if parameters are loaded.
    * @return true if parameters are loaded.
    */
   bool areParametersLoaded();
+
+  /*!
+   * Reads foot contact flags and includes user leg load settings from changeLegLoad()
+   * @return true if successful
+   */
+  bool prepareDesiredLegLoading();
+
+  /*!
+   * Prepare matrices for the optimization problem.
+   * @return true if successful
+   */
+  bool prepareOptimization();
+
+
 };
 
 } /* namespace robotController */

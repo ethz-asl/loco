@@ -13,10 +13,14 @@ using namespace std;
 namespace robotController {
 
 
-ContactForceDistribution::ContactForceDistribution(
-    robotModel::RobotModel* robotModel)
+ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robotModel)
 {
+  robotModel::RobotModel* robotModel_ = robotModel;
 
+  // TODO change to C++11 foreach command
+  for (map<LegName, double>::iterator it = legLoadFactors_.begin(); it!=legLoadFactors_.end(); ++it){
+    it->second = 0.0;
+  }
 }
 
 ContactForceDistribution::~ContactForceDistribution()
@@ -40,8 +44,14 @@ bool ContactForceDistribution::areParametersLoaded()
 {
   if (isParametersLoaded_) return true;
 
-  cout << "Virtual model control parameters are not loaded." << endl; // TODO use warning output
+  cout << "Contact force distribution parameters are not loaded." << endl; // TODO use warning output
   return false;
+}
+
+bool ContactForceDistribution::changeLegLoad(const LegName& legName,
+                                             const double& loadFactor)
+{
+  legLoadFactors_[legName] = loadFactor;
 }
 
 bool ContactForceDistribution::computeForceDistribution(
@@ -49,6 +59,12 @@ bool ContactForceDistribution::computeForceDistribution(
     const Eigen::Vector3d& desiredVirtualTorque)
 {
   prepareOptimization();
+}
+
+bool ContactForceDistribution::prepareDesiredLegLoading()
+{
+//  robotModel_
+
 }
 
 bool ContactForceDistribution::prepareOptimization()
