@@ -129,8 +129,7 @@ bool VirtualModelController::computeVirtualTorque(const robotModel::VectorO& des
 
 bool VirtualModelController::computeContactForces()
 {
-//  contactForceDistribution_->run();
-  return true;
+  return contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
 }
 
 bool VirtualModelController::areParametersLoaded()

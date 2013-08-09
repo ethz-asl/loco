@@ -9,18 +9,14 @@
 #include "ContactForceDistribution.hpp"
 
 using namespace std;
+using namespace Eigen;
 
 namespace robotController {
 
-
 ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robotModel)
 {
-  robotModel::RobotModel* robotModel_ = robotModel;
-
-  // TODO change to C++11 foreach command
-  for (map<LegName, double>::iterator it = legLoadFactors_.begin(); it!=legLoadFactors_.end(); ++it){
-    it->second = 0.0;
-  }
+  robotModel_ = robotModel;
+  legLoadFactors_.setOnes();
 }
 
 ContactForceDistribution::~ContactForceDistribution()
@@ -51,20 +47,20 @@ bool ContactForceDistribution::areParametersLoaded()
 bool ContactForceDistribution::changeLegLoad(const LegName& legName,
                                              const double& loadFactor)
 {
-  legLoadFactors_[legName] = loadFactor;
+  legLoadFactors_(legName) = loadFactor; // Dangerous!
 }
 
 bool ContactForceDistribution::computeForceDistribution(
     const Eigen::Vector3d& desiredVirtualForce,
     const Eigen::Vector3d& desiredVirtualTorque)
 {
+  prepareDesiredLegLoading();
   prepareOptimization();
 }
 
 bool ContactForceDistribution::prepareDesiredLegLoading()
 {
-//  robotModel_
-
+  legLoadFactors_ = legLoadFactors_.array() * robotModel_->contacts().getCA().cast<double>().array();
 }
 
 bool ContactForceDistribution::prepareOptimization()
