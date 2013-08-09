@@ -23,7 +23,6 @@
 #include <map>
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
-#include <Eigen/Sparse>
 #include "RobotModel.hpp"
 
 namespace robotController {

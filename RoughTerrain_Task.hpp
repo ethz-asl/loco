@@ -6,8 +6,8 @@
  *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#ifndef ROUGHTERRAIN_HPP_
-#define ROUGHTERRAIN_HPP_
+#ifndef ROUGHTERRAIN_TASK_HPP_
+#define ROUGHTERRAIN_TASK_HPP_
 
 #include "TaskRobotBase.hpp"
 #include "VirtualModelController.hpp"
@@ -82,4 +82,4 @@ class RoughTerrain : public robotTask::TaskRobotBase {
 
 }
 
-#endif /* ROUGHTERRAIN_HPP_ */
+#endif /* ROUGHTERRAIN_TASK_HPP_ */
