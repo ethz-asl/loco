@@ -12,6 +12,7 @@
 #include "DrawSphere.hpp"
 #include "DrawFrame.hpp"
 #include "DrawGhost.hpp"
+#include "Rotations.hpp"
 
 using namespace std;
 using namespace robotModel;
@@ -57,12 +58,14 @@ bool RoughTerrain::run()
   Vector3d baseDesiredPosition(0.0, 0.0, 0.425); //TODO change to VectorP
   //! Desired base orientation (Quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
+  Rotations::rpyToQuat(Vector3d(0.0, 0.0, 0.4), baseDesiredOrientation);
   //! Desired base linear velocity expressed in inertial frame.
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   //! Desired base angular velocity expressed w.r.t. inertial frame.
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
+//  virtualModelController_->printDebugInformation();
 
   return true;
 }

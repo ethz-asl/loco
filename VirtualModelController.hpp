@@ -33,10 +33,10 @@ class VirtualModelController : public robotController::ControllerBase
   //! Destructor.
   virtual ~VirtualModelController();
 
-  //! Initialize. Returns true if successfull.
+  //! Initialize. Returns true if successful.
   bool initialize();
 
-  //! Load parameters. Returns true if successfull.
+  //! Load parameters. Returns true if successful.
   bool loadParameters();
 
   //! Compute joint torques for legs in stance.
@@ -44,6 +44,11 @@ class VirtualModelController : public robotController::ControllerBase
                       const Eigen::Quaterniond& desiredOrientation,
                       const robotModel::VectorP& desiredLinearVelocity,
                       const robotModel::VectorO& desiredAngularVelocity);
+
+  /*!
+   * Prints information for debugging.
+   */
+  void printDebugInformation() const;
 
  private:
   //! True when parameters are successfully loaded.
@@ -92,7 +97,7 @@ class VirtualModelController : public robotController::ControllerBase
    * Check if parameters are loaded.
    * @return true if parameters are loaded.
    */
-  bool areParametersLoaded();
+  bool areParametersLoaded() const;
 };
 
 } /* namespace robotController */

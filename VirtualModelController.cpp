@@ -8,6 +8,7 @@
 
 #include "VirtualModelController.hpp"
 #include "Logger.hpp"
+#include "Rotations.hpp"
 
 using namespace std;
 using namespace robotModel;
@@ -21,6 +22,10 @@ VirtualModelController::VirtualModelController(RobotModel* robotModel) : Control
 {
   contactForceDistribution_ = new ContactForceDistribution(robotModel);
   isParametersLoaded_ = false;
+  positionError_ = Vector3d::Zero(); // TODO set type right
+  orientationErrorVector_ = Vector3d::Zero();
+  linearVelocityError_ = Vector3d::Zero();  // TODO set type right
+  angularVelocityError_ = Vector3d::Zero();  // TODO set type right
   virtualForce_ = Vector3d::Zero();
   virtualTorque_ = Vector3d::Zero();
 }
@@ -48,6 +53,14 @@ bool VirtualModelController::loadParameters()
   derivativeGainRotation_ << 6.0, 9.0, 0.0;
   feedforwardGainRotation_ << 0.0, 0.0, 0.0;
 
+  // For debugging
+//  proportionalGainTranslation_ << 1.0, 1.0, 1.0;
+//  derivativeGainTranslation_ << 1.0, 1.0, 1.0;
+//  feedforwardGainTranslation_ << 0.0, 0.0, 0.0;
+//  proportionalGainRotation_ << 1.0, 1.0, 1.0;
+//  derivativeGainRotation_ << 1.0, 1.0, 1.0;
+//  feedforwardGainRotation_ << 0.0, 0.0, 0.0;
+
   contactForceDistribution_->loadParameters();
 
   isParametersLoaded_ = true;
@@ -68,6 +81,25 @@ bool VirtualModelController::computeTorques(
   computeVirtualTorque(desiredAngularVelocity);
   computeContactForces();
   return true;
+}
+
+void VirtualModelController::printDebugInformation() const
+{
+  IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");
+  std::string sep = "\n----------------------------------------\n";
+  std::cout.precision(3);
+
+  Vector3d rollPitchYawVector;
+  Rotations::rotVecToRpy(orientationErrorVector_, rollPitchYawVector);
+
+  areParametersLoaded();
+  cout << "Position error: " << positionError_.format(CommaInitFmt) << endl;
+  cout << "Orientation error (roll, pitch, yaw)" << rollPitchYawVector.format(CommaInitFmt) << endl;
+  cout << "Orientation error (rotation vector)" << orientationErrorVector_.format(CommaInitFmt) << endl;
+  cout << "Linear velocity error" << linearVelocityError_.format(CommaInitFmt) << endl;
+  cout << "Angular velocity error" << angularVelocityError_.format(CommaInitFmt)<< endl;
+  cout << "Desired virtual force" << virtualForce_.format(CommaInitFmt) << endl;
+  cout << "Desired virtual torque" << virtualTorque_.format(CommaInitFmt) << sep;
 }
 
 bool VirtualModelController::computePoseError(
@@ -132,7 +164,7 @@ bool VirtualModelController::computeContactForces()
   return contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
 }
 
-bool VirtualModelController::areParametersLoaded()
+bool VirtualModelController::areParametersLoaded() const
 {
   if (isParametersLoaded_) return true;
 

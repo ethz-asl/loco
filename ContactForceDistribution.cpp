@@ -7,9 +7,11 @@
  */
 
 #include "ContactForceDistribution.hpp"
+#include "NumericalComparison.hpp"
 
 using namespace std;
 using namespace Eigen;
+using namespace robotUtils;
 
 namespace robotController {
 
@@ -51,20 +53,47 @@ bool ContactForceDistribution::changeLegLoad(const LegName& legName,
 }
 
 bool ContactForceDistribution::computeForceDistribution(
-    const Eigen::Vector3d& desiredVirtualForce,
-    const Eigen::Vector3d& desiredVirtualTorque)
+    const Eigen::Vector3d& virtualForce,
+    const Eigen::Vector3d& virtualTorque)
 {
   prepareDesiredLegLoading();
-  prepareOptimization();
+  prepareOptimization(virtualForce, virtualTorque);
+
+  legLoadFactors_.setOnes();
 }
 
 bool ContactForceDistribution::prepareDesiredLegLoading()
 {
   legLoadFactors_ = legLoadFactors_.array() * robotModel_->contacts().getCA().cast<double>().array();
+
+  nLegsInStance_ = 0;
+  for(int i = 0; i < legLoadFactors_.rows(); i++)
+  {
+    if(NumericalComparison::definitelyGreaterThan(legLoadFactors_(i), 0.0))
+      nLegsInStance_++;
+  }
 }
 
-bool ContactForceDistribution::prepareOptimization()
+bool ContactForceDistribution::prepareOptimization(
+    const Eigen::Vector3d& virtualForce,
+    const Eigen::Vector3d& virtualTorque)
 {
+  stackedVirtualForceAndTorque_.setZero();
+  stackedVirtualForceAndTorque_.segment(0, 3) = virtualForce;
+  stackedVirtualForceAndTorque_.segment(3, 3) = virtualTorque;
+
+  virtualForceWeightsMatrix_.setZero();
+  virtualForceWeightsMatrix_ = virtualForceWeights_.asDiagonal();
+
+  stackedContactForces_.Zero(N_TRANSLATIONAL_DOF_PER_FOOT * nLegsInStance_);
+
+  optimizationMatrixA_.resize(6, N_TRANSLATIONAL_DOF_PER_FOOT * nLegsInStance_);
+  optimizationMatrixA_.setZero();
+  optimizationMatrixA_.topRows(3) = Matrix3d::Identity().replicate(1, nLegsInStance_);
+  // TODO finish
+
+  groundForceWeights_.setIdentity(N_TRANSLATIONAL_DOF_PER_FOOT * nLegsInStance_);
+  groundForceWeights_ = groundForceWeights_ * groundForceWeight_;
 }
 
 } /* namespace robotController */

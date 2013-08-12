@@ -20,9 +20,7 @@
 #ifndef CONTACTFORCEDISTRIBUTION_HPP_
 #define CONTACTFORCEDISTRIBUTION_HPP_
 
-#include <map>
 #include <Eigen/Core>
-#include <Eigen/SparseCore>
 #include "RobotModel.hpp"
 
 namespace robotController {
@@ -64,8 +62,8 @@ class ContactForceDistribution
    * @param desiredVirtualTorque
    * @return true if successful
    */
-  bool computeForceDistribution(const Eigen::Vector3d& desiredVirtualForce,
-                                const Eigen::Vector3d& desiredVirtualTorque);
+  bool computeForceDistribution(const Eigen::Vector3d& virtualForce,
+                                const Eigen::Vector3d& virtualTorque);
 
   /*!
    * Manually change how much a leg should be loaded.
@@ -79,6 +77,11 @@ class ContactForceDistribution
   bool changeLegLoad(const LegName& legName, const double& loadFactor);
 
  private:
+  //! Defines. TODO change to 'constexpr'
+  #define N_LEGS 4 // TODO move to robotCommons
+  #define N_CONSTRAINTS_PER_FOOT 5
+  #define N_TRANSLATIONAL_DOF_PER_FOOT 3
+
   //! Reference to robot model
   robotModel::RobotModel* robotModel_;
 
@@ -86,7 +89,9 @@ class ContactForceDistribution
   bool isParametersLoaded_;
 
   //! Leg load factors
-  Eigen::Matrix<double, 4, 1> legLoadFactors_;
+  Eigen::Matrix<double, N_LEGS, 1> legLoadFactors_;
+  //! Number of legs in stance phase
+  int nLegsInStance_;
 
   //! Diagonal elements of the weighting matrix for the desired virtual forces and torques (S).
   Eigen::Matrix<double, 6, 1> virtualForceWeights_;
@@ -98,9 +103,9 @@ class ContactForceDistribution
   double frictionCoefficient_;
 
   //! The matrix A in the optimization formulation.
-//  Eigen::SparseMatrix optimizationMatrixA_;
+  Eigen::MatrixXd optimizationMatrixA_;
   //! The vector b in the optimization formulation (net forces and torques).
-  Eigen::Matrix<double, 6, 1> optimizationVectorB_;
+  Eigen::Matrix<double, 6, 1> stackedVirtualForceAndTorque_;
   //! Constraint matrix
 //  Eigen::SparseMatrix optimizationConstraintMatrix_;
   //! Upper and lower limits vectors
@@ -108,9 +113,9 @@ class ContactForceDistribution
   //! Stacked contact forces (x)
   Eigen::VectorXd stackedContactForces_;
   //! Weighting matrix for the ground reaction forces ("regularizer", W).
-//  Eigen::SparseMatrix groundForceWeights_;
+  Eigen::DiagonalMatrix<double, Eigen::Dynamic> groundForceWeights_;
   //! Weighting matrix for the desired virtual forces and torques (S).
-  //Eigen::Matrix<double, 6, 6> virtualForceWeights_;
+  Eigen::DiagonalMatrix<double, 6> virtualForceWeightsMatrix_;
 
   /*!
    * Check if parameters are loaded.
@@ -128,7 +133,8 @@ class ContactForceDistribution
    * Prepare matrices for the optimization problem.
    * @return true if successful
    */
-  bool prepareOptimization();
+  bool prepareOptimization(const Eigen::Vector3d& virtualForce,
+                           const Eigen::Vector3d& virtualTorque);
 
 
 };
