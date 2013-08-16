@@ -41,6 +41,7 @@ PARENT_SCOPE)
 #################
 ### UTILITIES ###
 #################
+set(USE_UTIL_SCHWEIZERMESSER ON CACHE BOOL "schweizer messer")
 set(USE_UTIL_TASKTIMER ON CACHE BOOL "task timer")
 set(USE_UTIL_DISTURBROBOT ON CACHE BOOL "disturb robot")
 set(USE_UTIL_ROTATIONS ON CACHE BOOL "rotations")
@@ -48,3 +49,5 @@ set(USE_UTIL_DRAWARROW ON CACHE BOOL "draw arrow")
 set(USE_UTIL_DRAWSPHERE ON CACHE BOOL "draw sphere")
 set(USE_UTIL_DRAWFRAME ON CACHE BOOL "draw frame")
 set(USE_UTIL_DRAWGHOST ON CACHE BOOL "draw ghost")
+set(USE_UTIL_OOQP ON CACHE BOOL "OOQP")
+

@@ -8,6 +8,10 @@
 
 #include "ContactForceDistribution.hpp"
 #include "NumericalComparison.hpp"
+#include "OoqpInterface.hpp"
+#include "QuadraticProblemFormulation.cpp"
+#include <Eigen/SparseCore>
+#include "QuadraticProblemFormulation.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -18,7 +22,7 @@ namespace robotController {
 ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robotModel)
 {
   robotModel_ = robotModel;
-  legLoadFactors_.setOnes();
+  legLoadFactors_.setOnes(nLegs_);
 }
 
 ContactForceDistribution::~ContactForceDistribution()
@@ -28,13 +32,12 @@ ContactForceDistribution::~ContactForceDistribution()
 bool ContactForceDistribution::loadParameters()
 {
   // TODO Replace this with proper parameters loading (XML)
+  virtualForceWeights_.resize(nElementsInStackedVirtualForceTorqueVector_);
   virtualForceWeights_ << 1.0, 1.0, 1.0, 10.0, 10.0, 5.0;
   groundForceWeight_ = 0.00001;
   minimalNormalGroundForce_  = 2.0;
   frictionCoefficient_ = 0.8;
-
   isParametersLoaded_ = true;
-
   return true;
 }
 
@@ -58,6 +61,7 @@ bool ContactForceDistribution::computeForceDistribution(
 {
   prepareDesiredLegLoading();
   prepareOptimization(virtualForce, virtualTorque);
+  solveOptimization();
 
   legLoadFactors_.setOnes();
 }
@@ -72,28 +76,36 @@ bool ContactForceDistribution::prepareDesiredLegLoading()
     if(NumericalComparison::definitelyGreaterThan(legLoadFactors_(i), 0.0))
       nLegsInStance_++;
   }
+  n_ = nTranslationalDofPerFoot_ * nLegsInStance_;
 }
 
 bool ContactForceDistribution::prepareOptimization(
     const Eigen::Vector3d& virtualForce,
     const Eigen::Vector3d& virtualTorque)
 {
-  stackedVirtualForceAndTorque_.setZero();
-  stackedVirtualForceAndTorque_.segment(0, 3) = virtualForce;
-  stackedVirtualForceAndTorque_.segment(3, 3) = virtualTorque;
+  b_.resize(nElementsInStackedVirtualForceTorqueVector_);
+  b_.segment(0, virtualForce.size()) = virtualForce;
+  b_.segment(virtualForce.size(), virtualTorque.size()) = virtualTorque;
 
-  virtualForceWeightsMatrix_.setZero();
-  virtualForceWeightsMatrix_ = virtualForceWeights_.asDiagonal();
+  S_ = virtualForceWeights_.asDiagonal();
 
-  stackedContactForces_.Zero(N_TRANSLATIONAL_DOF_PER_FOOT * nLegsInStance_);
-
-  optimizationMatrixA_.resize(6, N_TRANSLATIONAL_DOF_PER_FOOT * nLegsInStance_);
-  optimizationMatrixA_.setZero();
-  optimizationMatrixA_.topRows(3) = Matrix3d::Identity().replicate(1, nLegsInStance_);
+  A_.resize(nElementsInStackedVirtualForceTorqueVector_, n_);
+  A_.setZero();
+  A_.middleRows(0, 3) = (Matrix3d::Identity().replicate(1, nLegsInStance_)).sparseView();
   // TODO finish
+//  cout << "------A----" << endl;
+//  cout << A_.toDense() << endl;
+//  cout << "------B----" << endl;
 
-  groundForceWeights_.setIdentity(N_TRANSLATIONAL_DOF_PER_FOOT * nLegsInStance_);
-  groundForceWeights_ = groundForceWeights_ * groundForceWeight_;
+  W_.setIdentity(nTranslationalDofPerFoot_ * nLegsInStance_);
+  W_ = W_ * groundForceWeight_;
+}
+
+bool ContactForceDistribution::solveOptimization()
+{
+  Eigen::SparseMatrix<double, Eigen::RowMajor> C;
+  Eigen::VectorXd c;
+  QuadraticProblemFormulation::solve(A_, S_, b_, W_, C, c, D_, d_, f_, x_);
 }
 
 } /* namespace robotController */
