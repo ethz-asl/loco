@@ -7,10 +7,10 @@
  */
 
 #include "ContactForceDistribution.hpp"
+#include <Eigen/SparseCore>
+#include "LinearAlgebra.hpp"
 #include "NumericalComparison.hpp"
 #include "OoqpInterface.hpp"
-#include "QuadraticProblemFormulation.cpp"
-#include <Eigen/SparseCore>
 #include "QuadraticProblemFormulation.hpp"
 
 using namespace std;
@@ -26,13 +26,12 @@ ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robot
   legLoadFactors_.setOnes(nLegs_);
 
   // TODO dangerous!
-  for (LegName legName = LEFT_FRONT; legName <= RIGHT_HIND; legName = LegName(legName+1))
+  for (LegNumber legNumber = LEFT_FRONT; legNumber <= RIGHT_HIND; legNumber = LegNumber(legNumber+1))
   {
-    legStatuses_[legName] = LegStatus();
-    legStatuses_[legName].indexInContactArray_ = legName;
+    legStatuses_[legNumber] = LegStatus();
   }
 
-  reset();
+  resetFootLoadFactors();
 }
 
 ContactForceDistribution::~ContactForceDistribution()
@@ -59,7 +58,7 @@ bool ContactForceDistribution::areParametersLoaded()
   return false;
 }
 
-bool ContactForceDistribution::changeLegLoad(const LegName& legName,
+bool ContactForceDistribution::changeLegLoad(const LegNumber& legNumber,
                                              const double& loadFactor)
 {
   //legLoadFactors_(legName) = loadFactor; // Dangerous!
@@ -70,30 +69,32 @@ bool ContactForceDistribution::computeForceDistribution(
     const Eigen::Vector3d& virtualTorque)
 {
   prepareDesiredLegLoading();
-  prepareOptimization(virtualForce, virtualTorque);
-  solveOptimization();
-  reset();
+  if (nLegsInStance_ > 0)
+  {
+    prepareOptimization(virtualForce, virtualTorque);
+    solveOptimization();
+  }
+  resetFootLoadFactors();
 }
 
 bool ContactForceDistribution::prepareDesiredLegLoading()
 {
   nLegsInStance_ = 0;
 
-  for (map<LegName, LegStatus>::iterator legStatus = legStatuses_.begin();
-      legStatus != legStatuses_.end(); legStatus++)
+  for (auto& legStatus : legStatuses_)
   {
-    legStatus->second.loadFactor_ = legStatus->second.loadFactor_
-        * robotModel_->contacts().getCA().cast<double>()(legStatus->second.indexInContactArray_);
+    legStatus.second.loadFactor_ = legStatus.second.loadFactor_
+        * robotModel_->contacts().getCA().cast<double>()(legStatus.first);
 
-    if (NumericalComparison::definitelyGreaterThan(legStatus->second.loadFactor_, 0.0))
+    if (NumericalComparison::definitelyGreaterThan(legStatus.second.loadFactor_, 0.0))
     {
-      legStatus->second.isInStance_ = true;
-      legStatus->second.startIndexInVectorX_ = nLegsInStance_ * nTranslationalDofPerFoot_;
+      legStatus.second.isInStance_ = true;
+      legStatus.second.startIndexInVectorX_ = nLegsInStance_ * nTranslationalDofPerFoot_;
       nLegsInStance_++;
     }
     else
     {
-      legStatus->second.isInStance_ = false;
+      legStatus.second.isInStance_ = false;
     }
   }
 }
@@ -112,11 +113,21 @@ bool ContactForceDistribution::prepareOptimization(
 
   A_.resize(nElementsInStackedVirtualForceTorqueVector_, n_);
   A_.setZero();
-  A_.middleRows(0, 3) = (Matrix3d::Identity().replicate(1, nLegsInStance_)).sparseView();
-  // TODO finish
-//  cout << "------A----" << endl;
-//  cout << A_.toDense() << endl;
-//  cout << "------B----" << endl;
+  A_.middleRows(0, nTranslationalDofPerFoot_) = (Matrix3d::Identity().replicate(1, nLegsInStance_)).sparseView();
+
+  MatrixXd A_bottomMatrix(nTranslationalDofPerFoot_, n_);
+  int i = 0;
+  for (auto& legStatus : legStatuses_)
+  {
+    if (legStatus.second.isInStance_)
+    {
+      // TODO coordinate system?
+      VectorP r = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSw(legStatus.first)->getPos();
+      A_bottomMatrix.block(0, i * r.size(), r.size(), r.size()) = getSkewMatrixFromVector(r);
+      i++;
+    }
+  }
+  A_.middleRows(nTranslationalDofPerFoot_, A_bottomMatrix.rows()) = A_bottomMatrix.sparseView();
 
   W_.setIdentity(nTranslationalDofPerFoot_ * nLegsInStance_);
   W_ = W_ * groundForceWeight_;
@@ -129,27 +140,26 @@ bool ContactForceDistribution::solveOptimization()
   return QuadraticProblemFormulation::solve(A_, S_, b_, W_, C, c, D_, d_, f_, x_);
 }
 
-bool robotController::ContactForceDistribution::reset()
+bool robotController::ContactForceDistribution::resetFootLoadFactors()
 {
-  for (map<LegName, LegStatus>::iterator legStatus = legStatuses_.begin();
-      legStatus != legStatuses_.end(); legStatus++)
+  for (auto& legStatus : legStatuses_)
   {
-    legStatus->second.loadFactor_ = 1.0;
+    legStatus.second.loadFactor_ = 1.0;
   }
 
   return true;
 }
 
 bool ContactForceDistribution::getForceForLeg(
-    const LegName& legName, robotModel::VectorCF& force)
+    const LegNumber& legNumber, robotModel::VectorCF& force)
 {
   force = VectorCF();
 
-  if (legStatuses_[legName].isInStance_)
+  if (legStatuses_[legNumber].isInStance_)
   {
     // The forces we computed here are actually the ground reaction forces,
     // so the stance legs should push the ground by the opposite amount.
-    force = -x_.segment(legStatuses_[legName].startIndexInVectorX_, nTranslationalDofPerFoot_);
+    force = -x_.segment(legStatuses_[legNumber].startIndexInVectorX_, nTranslationalDofPerFoot_);
     return true;
   }
 

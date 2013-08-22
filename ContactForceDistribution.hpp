@@ -36,7 +36,7 @@ class ContactForceDistribution
    * TODO move this to robot commons?
    * TODO make enum class
    */
-  enum LegName {
+  enum LegNumber {
     LEFT_FRONT = 0,
     RIGHT_FRONT,
     LEFT_HIND,
@@ -73,20 +73,20 @@ class ContactForceDistribution
    * Manually change how much a leg should be loaded.
    * This needs to be set before calling computeForceDistribution() and
    * is reset after each call of computeForceDistribution().
-   * @param legName defines the leg
+   * @param legNumber defines the leg
    * @param loadFactor sets the factor how much the leg should be loaded
    *        value in the interval [0, 1] where 0: unloaded and 1: completely loaded
    * @return true if successful, false if leg is not in contact with the ground (unless loadFactor=0.0)
    */
-  bool changeLegLoad(const LegName& legName, const double& loadFactor);
+  bool changeLegLoad(const LegNumber& legNumber, const double& loadFactor);
 
   /*!
    * Gets the distributed force for a leg at the contact point
-   * @param [in] legName defines the leg
+   * @param [in] legNumber defines the leg
    * @param [out] force is the distributed force on the leg
    * @return true if leg is active (in stance) and force can be applied
    */
-  bool getForceForLeg(const LegName& legName, robotModel::VectorCF& force);
+  bool getForceForLeg(const LegNumber& legNumber, robotModel::VectorCF& force);
 
   /*!
    * TODO
@@ -100,9 +100,9 @@ class ContactForceDistribution
 
  private:
   const int nLegs_ = 4; // TODO move to robotCommons as constexpr
-  const int nElementsInStackedVirtualForceTorqueVector_ = 6; // TODO define as constexpr
-  const int nConstraintsPerFoot_ = 5; // TODO define as constexpr
   const int nTranslationalDofPerFoot_ = 3; // TODO define as constexpr
+  const int nElementsInStackedVirtualForceTorqueVector_ = 2 * nTranslationalDofPerFoot_; // TODO define as constexpr
+  const int nConstraintsPerFoot_ = 5; // TODO define as constexpr
 
   //! Reference to robot model
   robotModel::RobotModel* robotModel_;
@@ -146,10 +146,9 @@ class ContactForceDistribution
     bool isInStance_;
     double loadFactor_;
     int startIndexInVectorX_;
-    int indexInContactArray_;
   };
 
-  std::map<LegName, LegStatus> legStatuses_;
+  std::map<LegNumber, LegStatus> legStatuses_;
 
   /*!
    * Check if parameters are loaded.
@@ -175,7 +174,7 @@ class ContactForceDistribution
    */
   bool solveOptimization();
 
-  bool reset();
+  bool resetFootLoadFactors();
 
 
 };

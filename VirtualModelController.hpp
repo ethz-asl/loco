@@ -94,6 +94,20 @@ class VirtualModelController : public robotController::ControllerBase
   bool computeJointTorques();
 
   /*!
+   * Calculate the joints torque from a desired contact force
+   * with Jacobi transpose.
+   * @param [in] legNumber
+   * @param [in] legIndexInStackedVector
+   * @param [in] contactForce
+   * @param [out] jointTorque
+   * @return true if successfull
+   */
+  bool computeJointTorquesForLeg(const ContactForceDistribution::LegNumber& legNumber,
+                          const int& legIndexInStackedVector,
+                          const robotModel::VectorCF& contactForce,
+                          robotModel::VectorActLeg& jointTorque);
+
+  /*!
    * Check if parameters are loaded.
    * @return true if parameters are loaded.
    */

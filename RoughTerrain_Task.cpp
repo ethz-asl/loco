@@ -29,8 +29,8 @@ RoughTerrain::RoughTerrain(RobotModel* robotModel) : TaskRobotBase("RoughTerrain
   virtualModelController_ = new VirtualModelController(robotModel_);
 
   disturbanceTime_ = 0.1;
-  disturbanceForceMagnitude_ = 5000;
-  disturbanceTorqueMagnitude_ = 1000;
+  disturbanceForceMagnitude_ = 0.5 * 5000.0;
+  disturbanceTorqueMagnitude_ = 0.5* 1000.0;
 }
 
 RoughTerrain::~RoughTerrain()
@@ -53,12 +53,11 @@ bool RoughTerrain::init()
 
 bool RoughTerrain::run()
 {
-
   //! Desired base position expressed in inertial frame.
   Vector3d baseDesiredPosition(0.0, 0.0, 0.425); //TODO change to VectorP
   //! Desired base orientation (Quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
-  Rotations::rpyToQuat(Vector3d(0.0, 0.0, 0.4), baseDesiredOrientation);
+  Rotations::rpyToQuat(Vector3d(0.0, 0.0, 0.0), baseDesiredOrientation);
   //! Desired base linear velocity expressed in inertial frame.
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   //! Desired base angular velocity expressed w.r.t. inertial frame.
