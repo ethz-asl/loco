@@ -16,6 +16,7 @@
 using namespace std;
 using namespace Eigen;
 using namespace robotUtils;
+using namespace robotModel;
 
 namespace robotController {
 
@@ -23,6 +24,15 @@ ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robot
 {
   robotModel_ = robotModel;
   legLoadFactors_.setOnes(nLegs_);
+
+  // TODO dangerous!
+  for (LegName legName = LEFT_FRONT; legName <= RIGHT_HIND; legName = LegName(legName+1))
+  {
+    legStatuses_[legName] = LegStatus();
+    legStatuses_[legName].indexInContactArray_ = legName;
+  }
+
+  reset();
 }
 
 ContactForceDistribution::~ContactForceDistribution()
@@ -52,7 +62,7 @@ bool ContactForceDistribution::areParametersLoaded()
 bool ContactForceDistribution::changeLegLoad(const LegName& legName,
                                              const double& loadFactor)
 {
-  legLoadFactors_(legName) = loadFactor; // Dangerous!
+  //legLoadFactors_(legName) = loadFactor; // Dangerous!
 }
 
 bool ContactForceDistribution::computeForceDistribution(
@@ -62,27 +72,38 @@ bool ContactForceDistribution::computeForceDistribution(
   prepareDesiredLegLoading();
   prepareOptimization(virtualForce, virtualTorque);
   solveOptimization();
-
-  legLoadFactors_.setOnes();
+  reset();
 }
 
 bool ContactForceDistribution::prepareDesiredLegLoading()
 {
-  legLoadFactors_ = legLoadFactors_.array() * robotModel_->contacts().getCA().cast<double>().array();
-
   nLegsInStance_ = 0;
-  for(int i = 0; i < legLoadFactors_.rows(); i++)
+
+  for (map<LegName, LegStatus>::iterator legStatus = legStatuses_.begin();
+      legStatus != legStatuses_.end(); legStatus++)
   {
-    if(NumericalComparison::definitelyGreaterThan(legLoadFactors_(i), 0.0))
+    legStatus->second.loadFactor_ = legStatus->second.loadFactor_
+        * robotModel_->contacts().getCA().cast<double>()(legStatus->second.indexInContactArray_);
+
+    if (NumericalComparison::definitelyGreaterThan(legStatus->second.loadFactor_, 0.0))
+    {
+      legStatus->second.isInStance_ = true;
+      legStatus->second.startIndexInVectorX_ = nLegsInStance_ * nTranslationalDofPerFoot_;
       nLegsInStance_++;
+    }
+    else
+    {
+      legStatus->second.isInStance_ = false;
+    }
   }
-  n_ = nTranslationalDofPerFoot_ * nLegsInStance_;
 }
 
 bool ContactForceDistribution::prepareOptimization(
     const Eigen::Vector3d& virtualForce,
     const Eigen::Vector3d& virtualTorque)
 {
+  n_ = nTranslationalDofPerFoot_ * nLegsInStance_;
+
   b_.resize(nElementsInStackedVirtualForceTorqueVector_);
   b_.segment(0, virtualForce.size()) = virtualForce;
   b_.segment(virtualForce.size(), virtualTorque.size()) = virtualTorque;
@@ -105,7 +126,34 @@ bool ContactForceDistribution::solveOptimization()
 {
   Eigen::SparseMatrix<double, Eigen::RowMajor> C;
   Eigen::VectorXd c;
-  QuadraticProblemFormulation::solve(A_, S_, b_, W_, C, c, D_, d_, f_, x_);
+  return QuadraticProblemFormulation::solve(A_, S_, b_, W_, C, c, D_, d_, f_, x_);
+}
+
+bool robotController::ContactForceDistribution::reset()
+{
+  for (map<LegName, LegStatus>::iterator legStatus = legStatuses_.begin();
+      legStatus != legStatuses_.end(); legStatus++)
+  {
+    legStatus->second.loadFactor_ = 1.0;
+  }
+
+  return true;
+}
+
+bool ContactForceDistribution::getForceForLeg(
+    const LegName& legName, robotModel::VectorCF& force)
+{
+  force = VectorCF();
+
+  if (legStatuses_[legName].isInStance_)
+  {
+    // The forces we computed here are actually the ground reaction forces,
+    // so the stance legs should push the ground by the opposite amount.
+    force = -x_.segment(legStatuses_[legName].startIndexInVectorX_, nTranslationalDofPerFoot_);
+    return true;
+  }
+
+  return false;
 }
 
 } /* namespace robotController */

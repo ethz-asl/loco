@@ -65,7 +65,13 @@ bool RoughTerrain::run()
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
-//  virtualModelController_->printDebugInformation();
+
+  VectorActM desJointModes;
+  VectorAct desJointPositions, desJointVelocities, desJointTorques;
+  virtualModelController_->packDesiredJointSetpoints(desJointModes, desJointPositions, desJointVelocities, desJointTorques);
+
+  robotModel_->act().setMode(desJointModes);
+  robotModel_->act().setTau(desJointTorques);
 
   return true;
 }

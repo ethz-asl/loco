@@ -91,7 +91,7 @@ class VirtualModelController : public robotController::ControllerBase
   bool computeVirtualTorque(const robotModel::VectorO& desiredAngularVelocity);
 
   //! Distributes the virtual forces to the ground contact forces.
-  bool computeContactForces();
+  bool computeJointTorques();
 
   /*!
    * Check if parameters are loaded.

@@ -32,6 +32,18 @@ class ContactForceDistribution
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   /*!
+   * Leg enum.
+   * TODO move this to robot commons?
+   * TODO make enum class
+   */
+  enum LegName {
+    LEFT_FRONT = 0,
+    RIGHT_FRONT,
+    LEFT_HIND,
+    RIGHT_HIND
+  };
+
+  /*!
    * Constructor.
    * @param robotModel the reference to the robot
    */
@@ -41,17 +53,6 @@ class ContactForceDistribution
    * Destructor.
    */
   virtual ~ContactForceDistribution();
-
-  /*!
-   * Leg enum.
-   * TODO move this to robot commons?
-   */
-  enum LegName {
-    LEFT_FRONT = 0,
-    RIGHT_FRONT,
-    LEFT_HIND,
-    RIGHT_HIND
-  };
 
   /*!
    * Loads the parameters. Has to be done before using this class.
@@ -78,6 +79,24 @@ class ContactForceDistribution
    * @return true if successful, false if leg is not in contact with the ground (unless loadFactor=0.0)
    */
   bool changeLegLoad(const LegName& legName, const double& loadFactor);
+
+  /*!
+   * Gets the distributed force for a leg at the contact point
+   * @param [in] legName defines the leg
+   * @param [out] force is the distributed force on the leg
+   * @return true if leg is active (in stance) and force can be applied
+   */
+  bool getForceForLeg(const LegName& legName, robotModel::VectorCF& force);
+
+  /*!
+   * TODO
+   * Gets the distributed net forces and torques that act on the main body, i.e.
+   * these forces and torques are computed from the distributed forces and should be equal to
+   * the desired net forces and torques.
+   * @param netForce
+   * @param netTorque
+   */
+  // void getDistributedNetForces(Vector3d& netForce, Vector3d& netTorque);
 
  private:
   const int nLegs_ = 4; // TODO move to robotCommons as constexpr
@@ -122,6 +141,16 @@ class ContactForceDistribution
   //! Weighting matrix for the desired virtual forces and torques.
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_;
 
+  struct LegStatus
+  {
+    bool isInStance_;
+    double loadFactor_;
+    int startIndexInVectorX_;
+    int indexInContactArray_;
+  };
+
+  std::map<LegName, LegStatus> legStatuses_;
+
   /*!
    * Check if parameters are loaded.
    * @return true if parameters are loaded.
@@ -145,6 +174,8 @@ class ContactForceDistribution
    * @return true if successful
    */
   bool solveOptimization();
+
+  bool reset();
 
 
 };

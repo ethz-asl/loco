@@ -79,7 +79,7 @@ bool VirtualModelController::computeTorques(
   computePoseError(desiredPosition, desiredOrientation, desiredLinearVelocity, desiredAngularVelocity);
   computeVirtualForce(desiredLinearVelocity);
   computeVirtualTorque(desiredAngularVelocity);
-  computeContactForces();
+  computeJointTorques();
   return true;
 }
 
@@ -159,9 +159,57 @@ bool VirtualModelController::computeVirtualTorque(const robotModel::VectorO& des
   return true;
 }
 
-bool VirtualModelController::computeContactForces()
+bool VirtualModelController::computeJointTorques()
 {
-  return contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
+  const int nDofPerLeg = 3; // TODO move to robot commons
+  const int nDofPerContactPoint = 3; // TODO move to robot commons
+  contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
+
+  VectorCF contactForce = VectorCF::Zero();
+  contactForceDistribution_->getForceForLeg(ContactForceDistribution::LEFT_FRONT, contactForce);
+
+  MatrixJ jacobian = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSw(0)->getJ().block<nDofPerContactPoint, nDofPerLeg>(0, RM_NQB);
+
+  VectorXd jointTorques = jacobian.transpose() * contactForce;
+  desJointTorques_.segment<nDofPerLeg>(qjLF_HAA) = jointTorques;
+  desJointModes_.segment<nDofPerLeg>(qjLF_HAA) = VectorActMLeg::Constant(AM_Torque);
+
+
+
+//  VectorCF contactForce = VectorCF::Zero();
+//  bool inStance = contactForceDistribution_->getForceForLeg(ContactForceDistribution::LEFT_FRONT, contactForce);
+//  if (inStance)
+//    cout << "Leg LEFT_FRONT: " << endl << contactForce.transpose() << endl;
+//
+//  inStance = contactForceDistribution_->getForceForLeg(ContactForceDistribution::RIGHT_FRONT, contactForce);
+//  if (inStance)
+//    cout << "Leg RIGHT_FRONT: " << endl << contactForce.transpose() << endl;
+//
+//  inStance = contactForceDistribution_->getForceForLeg(ContactForceDistribution::LEFT_HIND, contactForce);
+//  if (inStance)
+//    cout << "Leg LEFT_HIND: " << endl << contactForce.transpose() << endl;
+//
+//  inStance = contactForceDistribution_->getForceForLeg(ContactForceDistribution::RIGHT_HIND, contactForce);
+//  if (inStance)
+//    cout << "Leg RIGHT_HIND: " << endl << contactForce.transpose() << endl;
+
+//  // Get foot jacobian
+//  MatrixJ jacobian = robotModel_->kin().getJacobianT(JT_Base2Foot_CSw)->getJ();
+//  // TODO: Change to JT_CoG2Foot_CSw?
+//
+//  //! Check if base has reached touchdown height
+//  if (zeroForceAtTouchdownHeight && basePosition.z() >= z_0 - delta_z)
+//  {
+//          virtualSpringForce.setZero();
+//  }
+//
+//  // Compute joint torques
+//  VectorQ generalizedForces = jacobian.transpose() * virtualSpringForce;
+//  desJointTorques_(qjHFE) = generalizedForces(qHFE);
+//  desJointTorques_(qjKFE) = generalizedForces(qKFE);
+
+
+  return true;
 }
 
 bool VirtualModelController::areParametersLoaded() const
