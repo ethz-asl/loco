@@ -121,6 +121,7 @@ bool VirtualModelController::computePoseError(
 
 bool VirtualModelController::computeVirtualForce(const robotModel::VectorP& desiredLinearVelocity)
 {
+  // TODO feedforward should be in body frame too (gravity in m*g)!
   Vector3d feedforwardTerm = Vector3d::Zero();
   feedforwardTerm.x() = desiredLinearVelocity.x();
   feedforwardTerm.y() = desiredLinearVelocity.y();
@@ -129,9 +130,6 @@ bool VirtualModelController::computeVirtualForce(const robotModel::VectorP& desi
   virtualForce_ = proportionalGainTranslation_.array() * positionError_.array() // Coefficient-wise multiplication.
                        + derivativeGainTranslation_.array()   * linearVelocityError_.array()
                        + feedforwardGainTranslation_.array()  * feedforwardTerm.array();
-
-  // TODO figure this out which frame
-  //desiredVirtualForce_ = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredVirtualForce_;
 
   return true;
 }
@@ -144,9 +142,6 @@ bool VirtualModelController::computeVirtualTorque(const robotModel::VectorO& des
   virtualTorque_ = proportionalGainRotation_.array() * orientationErrorVector_.array()
                        + derivativeGainRotation_.array()   * angularVelocityError_.array()
                        + feedforwardGainRotation_.array()  * feedforwardTerm.array();
-
-  // TODO figure this out which frame
-  //desiredVirtualTorque_ = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredVirtualTorque_;
 
   return true;
 }
@@ -189,7 +184,7 @@ bool VirtualModelController::computeJointTorquesForLeg(
     const robotModel::VectorCF& contactForce,
     robotModel::VectorActLeg& jointTorques)
 {
-  MatrixJ jacobian = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSw(legNumber)
+  MatrixJ jacobian = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(legNumber)
       ->getJ().block<3, 3>(0, RM_NQB + legIndexInStackedVector);
   // TODO replace with "->getJ().block<nDofPerContactPoint, nDofPerLeg>(0, RM_NQB + legIndexInStackedVector);"
   jointTorques = jacobian.transpose() * contactForce;

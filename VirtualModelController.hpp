@@ -40,6 +40,7 @@ class VirtualModelController : public robotController::ControllerBase
   bool loadParameters();
 
   //! Compute joint torques for legs in stance.
+  //! In world frame!
   bool computeTorques(const robotModel::VectorP& desiredPosition, // TODO pack as one struct?
                       const Eigen::Quaterniond& desiredOrientation,
                       const robotModel::VectorP& desiredLinearVelocity,
@@ -71,12 +72,13 @@ class VirtualModelController : public robotController::ControllerBase
   //! Proportional (k_p), derivative (k_d), and feedforward gain vector (k_ff) for rotational error (torque).
   Eigen::Vector3d proportionalGainRotation_, derivativeGainRotation_, feedforwardGainRotation_;
 
-  //! Desired virtual force on base in body frame (B_F_B^d).
+  //! Desired virtual force on base in base frame (B_F_B^d).
   Eigen::Vector3d virtualForce_;
-  //! Desired virtual torque on base in body frame (B_T_B^d).
+  //! Desired virtual torque on base in base frame (B_T_B^d).
   Eigen::Vector3d virtualTorque_;
 
   //! Compute error between desired an actual robot pose.
+  //! In world coordinate system
   bool computePoseError(const robotModel::VectorP& desiredPosition,
                         const Eigen::Quaterniond& desiredOrientation,
                         const robotModel::VectorP& desiredLinearVelocity,

@@ -121,8 +121,7 @@ bool ContactForceDistribution::prepareOptimization(
   {
     if (legStatus.second.isInStance_)
     {
-      // TODO coordinate system?
-      VectorP r = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSw(legStatus.first)->getPos();
+      VectorP r = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(legStatus.first)->getPos();
       A_bottomMatrix.block(0, i * r.size(), r.size(), r.size()) = getSkewMatrixFromVector(r);
       i++;
     }

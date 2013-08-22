@@ -62,8 +62,8 @@ class ContactForceDistribution
 
   /*!
    * Computes the contact force distribution of the virtual force and torque.
-   * @param desiredVirtualForce
-   * @param desiredVirtualTorque
+   * @param virtualForce the desired virtual force (in base frame)
+   * @param virtualTorque the desired virtual torque (in base frame)
    * @return true if successful
    */
   bool computeForceDistribution(const Eigen::Vector3d& virtualForce,
@@ -83,8 +83,8 @@ class ContactForceDistribution
   /*!
    * Gets the distributed force for a leg at the contact point
    * @param [in] legNumber defines the leg
-   * @param [out] force is the distributed force on the leg
-   * @return true if leg is active (in stance) and force can be applied
+   * @param [out] force is the distributed force on the leg (in base frame)
+   * @return true if leg is active (in stance) and force can be applied, false otherwise
    */
   bool getForceForLeg(const LegNumber& legNumber, robotModel::VectorCF& force);
 
