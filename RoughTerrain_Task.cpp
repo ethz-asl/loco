@@ -55,9 +55,9 @@ bool RoughTerrain::run()
 {
   //! Desired base position expressed in inertial frame.
   Vector3d baseDesiredPosition(0.0, 0.0, 0.425); //TODO change to VectorP
-  //! Desired base orientation (Quaternion) w.r.t. inertial frame.
+  //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
-  Rotations::rpyToQuat(Vector3d(0.1, 0.0, 1.1), baseDesiredOrientation);
+  baseDesiredOrientation = Rotations::yawPitchRollToQuaternion(1.0, 0.0, 0.0);
   //! Desired base linear velocity expressed in inertial frame.
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   //! Desired base angular velocity expressed w.r.t. inertial frame.
@@ -68,8 +68,6 @@ bool RoughTerrain::run()
   VectorActM desJointModes;
   VectorAct desJointPositions, desJointVelocities, desJointTorques;
   virtualModelController_->packDesiredJointSetpoints(desJointModes, desJointPositions, desJointVelocities, desJointTorques);
-
-  virtualModelController_->printDebugInformation();
 
   robotModel_->act().setMode(desJointModes);
   robotModel_->act().setTau(desJointTorques);

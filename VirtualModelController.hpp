@@ -49,7 +49,7 @@ class VirtualModelController : public robotController::ControllerBase
   /*!
    * Prints information for debugging.
    */
-  void printDebugInformation() const;
+  void printDebugInformation();
 
  private:
   //! True when parameters are successfully loaded.
@@ -60,8 +60,8 @@ class VirtualModelController : public robotController::ControllerBase
 
   //! Base position error in base frame.
   robotModel::VectorP positionError_;
-  //! Base orientation error vector in base frame (length of vector is angle).
-  Eigen::Vector3d orientationErrorVector_;
+  //! Base orientation error vector in base frame.
+  Eigen::AngleAxisd orientationError_;
   //! Base linear velocity error in base frame.
   robotModel::VectorP linearVelocityError_;
   //! Base angular velocity error in base frame.

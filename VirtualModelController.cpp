@@ -23,7 +23,7 @@ VirtualModelController::VirtualModelController(RobotModel* robotModel) : Control
   contactForceDistribution_ = new ContactForceDistribution(robotModel);
   isParametersLoaded_ = false;
   positionError_ = Vector3d::Zero(); // TODO set type right
-  orientationErrorVector_ = Vector3d::Zero();
+  orientationError_ = AngleAxisd::Identity();
   linearVelocityError_ = Vector3d::Zero();  // TODO set type right
   angularVelocityError_ = Vector3d::Zero();  // TODO set type right
   virtualForce_ = Vector3d::Zero();
@@ -75,19 +75,20 @@ bool VirtualModelController::computeTorques(
   return true;
 }
 
-void VirtualModelController::printDebugInformation() const
+void VirtualModelController::printDebugInformation()
 {
   IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");
   std::string sep = "\n----------------------------------------\n";
   std::cout.precision(3);
 
-  Vector3d rollPitchYawVector;
-  Rotations::rotVecToRpy(orientationErrorVector_, rollPitchYawVector);
+  Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA().transpose());
+  Vector3d actualOrientationYawPitchRoll = Rotations::quaternionToYawPitchRoll(actualOrientation);
+//  Vector3d errorYawRollPitch = Rotations::angleAxisToYawPitchRoll(orientationErrorVector_);
 
   areParametersLoaded();
-  cout << "Position error: " << positionError_.format(CommaInitFmt) << endl;
-  cout << "Orientation error (roll, pitch, yaw)" << rollPitchYawVector.format(CommaInitFmt) << endl;
-  cout << "Orientation error (rotation vector)" << orientationErrorVector_.format(CommaInitFmt) << endl;
+  cout << "Position error" << positionError_.format(CommaInitFmt) << endl;
+  cout << "Orientation (yaw, pitch, roll)" << actualOrientationYawPitchRoll.format(CommaInitFmt) << endl;
+  cout << "Orientation error in angle-axis: angle " << orientationError_.angle() << ", axis" << orientationError_.axis().format(CommaInitFmt) << endl;
   cout << "Linear velocity error" << linearVelocityError_.format(CommaInitFmt) << endl;
   cout << "Angular velocity error" << angularVelocityError_.format(CommaInitFmt)<< endl;
   cout << "Desired virtual force" << virtualForce_.format(CommaInitFmt) << endl;
@@ -105,10 +106,10 @@ bool VirtualModelController::computePoseError(
   positionError_ = desiredPosition - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getPos();
   positionError_ = transformationFromWorldToBase * positionError_;
 
-  Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA());
-  Quaterniond orientationError = desiredOrientation.conjugate() * actualOrientation;
-  orientationErrorVector_ = AngleAxisd(orientationError).angle() * AngleAxisd(orientationError).axis();
-  orientationErrorVector_ = transformationFromWorldToBase * orientationErrorVector_;
+  // Use A.transpose() because A is alias/passive rotation but we want alibi/active rotation
+  Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA().transpose());
+  Quaterniond orientationError = actualOrientation.conjugate() * desiredOrientation;
+  orientationError_ = AngleAxisd(orientationError);
 
   linearVelocityError_ = desiredLinearVelocity - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getVel();
   linearVelocityError_ = transformationFromWorldToBase * linearVelocityError_;
@@ -139,7 +140,7 @@ bool VirtualModelController::computeVirtualTorque(const robotModel::VectorO& des
   Vector3d feedforwardTerm = Vector3d::Zero();
   feedforwardTerm.z() = desiredAngularVelocity.z();
 
-  virtualTorque_ = proportionalGainRotation_.array() * orientationErrorVector_.array()
+  virtualTorque_ = proportionalGainRotation_.array() * orientationError_.axis().array() * orientationError_.angle()
                        + derivativeGainRotation_.array()   * angularVelocityError_.array()
                        + feedforwardGainRotation_.array()  * feedforwardTerm.array();
 
