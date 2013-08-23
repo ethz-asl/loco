@@ -57,7 +57,7 @@ bool RoughTerrain::run()
   Vector3d baseDesiredPosition(0.0, 0.0, 0.425); //TODO change to VectorP
   //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
-  baseDesiredOrientation = Rotations::yawPitchRollToQuaternion(1.0, 0.0, 0.0);
+  baseDesiredOrientation = Rotations::yawPitchRollToQuaternion(1.0, -0.0, 0.0);
   //! Desired base linear velocity expressed in inertial frame.
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   //! Desired base angular velocity expressed w.r.t. inertial frame.

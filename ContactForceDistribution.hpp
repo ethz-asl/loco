@@ -141,10 +141,14 @@ class ContactForceDistribution
   //! Weighting matrix for the desired virtual forces and torques.
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_;
 
+  //  Eigen::SparseMatrix<double, Eigen::RowMajor> C;
+  //  Eigen::VectorXd c;
+
   struct LegStatus
   {
     bool isInStance_;
     double loadFactor_;
+    int indexInStanceLegList_;
     int startIndexInVectorX_;
   };
 

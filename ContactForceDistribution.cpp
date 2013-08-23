@@ -8,6 +8,7 @@
 
 #include "ContactForceDistribution.hpp"
 #include <Eigen/SparseCore>
+#include <Eigen/Geometry>
 #include "LinearAlgebra.hpp"
 #include "NumericalComparison.hpp"
 #include "OoqpInterface.hpp"
@@ -89,7 +90,8 @@ bool ContactForceDistribution::prepareDesiredLegLoading()
     if (NumericalComparison::definitelyGreaterThan(legStatus.second.loadFactor_, 0.0))
     {
       legStatus.second.isInStance_ = true;
-      legStatus.second.startIndexInVectorX_ = nLegsInStance_ * nTranslationalDofPerFoot_;
+      legStatus.second.indexInStanceLegList_ = nLegsInStance_;
+      legStatus.second.startIndexInVectorX_ = legStatus.second.indexInStanceLegList_ * nTranslationalDofPerFoot_;
       nLegsInStance_++;
     }
     else
@@ -105,6 +107,9 @@ bool ContactForceDistribution::prepareOptimization(
 {
   n_ = nTranslationalDofPerFoot_ * nLegsInStance_;
 
+  /*
+   * Finds x that minimizes f = (Ax-b)' S (Ax-b) + x' W x, such that Cx = c and d <= Dx <= f.
+   */
   b_.resize(nElementsInStackedVirtualForceTorqueVector_);
   b_.segment(0, virtualForce.size()) = virtualForce;
   b_.segment(virtualForce.size(), virtualTorque.size()) = virtualTorque;
@@ -116,27 +121,58 @@ bool ContactForceDistribution::prepareOptimization(
   A_.middleRows(0, nTranslationalDofPerFoot_) = (Matrix3d::Identity().replicate(1, nLegsInStance_)).sparseView();
 
   MatrixXd A_bottomMatrix(nTranslationalDofPerFoot_, n_);
-  int i = 0;
   for (auto& legStatus : legStatuses_)
   {
     if (legStatus.second.isInStance_)
     {
       VectorP r = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(legStatus.first)->getPos();
-      A_bottomMatrix.block(0, i * r.size(), r.size(), r.size()) = getSkewMatrixFromVector(r);
-      i++;
+      A_bottomMatrix.block(0, legStatus.second.indexInStanceLegList_* r.size(), r.size(), r.size()) = getSkewMatrixFromVector(r);
     }
   }
   A_.middleRows(nTranslationalDofPerFoot_, A_bottomMatrix.rows()) = A_bottomMatrix.sparseView();
 
   W_.setIdentity(nTranslationalDofPerFoot_ * nLegsInStance_);
   W_ = W_ * groundForceWeight_;
+
+  /* For each tangent direction t, we want: -mu * n.f_i <= t.f_i <= mu * n.f_i
+   * with n.f_i the normal component of contact force of leg i, t.f_i the tangential component).
+   * This is equivalent to the two constraints: mu * n.f_i >= -t.f_i and mu * n.f_i >= t * f_i,
+   * and equivalently mu * n.f_i + t.f_i >=0 and mu * n.f_i - t.f_i >= 0.
+   * We have to define these constraints for both tangential directions (approximation of the
+   * friction cone).
+   */
+
+  D_.resize(0, 0);
+  d_.resize(0);
+  f_.resize(0);
+
+  MatrixA transformationFromWorldToBase = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA();
+  Vector3d normalDirectionInBaseFrame = transformationFromWorldToBase * Vector3d::UnitZ();
+  Vector3d firstTangentialDirectionInBaseFrame = transformationFromWorldToBase * Vector3d::UnitX();
+  Vector3d secondTangentialDirectionInBaseFrame = normalDirectionInBaseFrame.cross(firstTangentialDirectionInBaseFrame);
+
+  int rowIndex = D_.rows();
+  D_.resize(rowIndex + nLegsInStance_, n_);
+  d_.resize(rowIndex + nLegsInStance_);
+  f_.resize(rowIndex + nLegsInStance_);
+
+  for (auto& legStatus : legStatuses_)
+  {
+    if (legStatus.second.isInStance_)
+    {
+      MatrixXd D_row = MatrixXd::Zero(1, n_);
+      D_row.block(0, legStatus.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) = normalDirectionInBaseFrame.transpose();
+      D_.middleRows(rowIndex, 1) = D_row.sparseView();
+      d_(rowIndex) = minimalNormalGroundForce_;
+      f_(rowIndex) = std::numeric_limits<double>::max();
+      rowIndex++;
+    }
+  }
 }
 
 bool ContactForceDistribution::solveOptimization()
 {
-  Eigen::SparseMatrix<double, Eigen::RowMajor> C;
-  Eigen::VectorXd c;
-  return QuadraticProblemFormulation::solve(A_, S_, b_, W_, C, c, D_, d_, f_, x_);
+  return QuadraticProblemFormulation::solve(A_, S_, b_, W_, D_, d_, f_, x_);
 }
 
 bool robotController::ContactForceDistribution::resetFootLoadFactors()
