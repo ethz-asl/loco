@@ -46,7 +46,7 @@ bool RoughTerrain::add()
 
 bool RoughTerrain::init()
 {
-  virtualModelController_->initialize();
+  virtualModelController_->addToLogger();
   virtualModelController_->loadParameters();
   return true;
 }

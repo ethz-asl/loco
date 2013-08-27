@@ -17,12 +17,12 @@
  *                 [ .]
  */
 
-#ifndef CONTACTFORCEDISTRIBUTION_HPP_
-#define CONTACTFORCEDISTRIBUTION_HPP_
+#pragma once
 
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 #include "RobotModel.hpp"
+#include "toMove.hpp"
 
 namespace robotController {
 
@@ -30,18 +30,6 @@ class ContactForceDistribution
 {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
-  /*!
-   * Leg enum.
-   * TODO move this to robot commons?
-   * TODO make enum class
-   */
-  enum LegNumber {
-    LEFT_FRONT = 0,
-    RIGHT_FRONT,
-    LEFT_HIND,
-    RIGHT_HIND
-  };
 
   /*!
    * Constructor.
@@ -61,6 +49,12 @@ class ContactForceDistribution
   bool loadParameters();
 
   /*!
+   * Adds class data to the logger.
+   * @return true if successful
+   */
+  bool addToLogger();
+
+  /*!
    * Computes the contact force distribution of the virtual force and torque.
    * @param virtualForce the desired virtual force (in base frame)
    * @param virtualTorque the desired virtual torque (in base frame)
@@ -73,20 +67,20 @@ class ContactForceDistribution
    * Manually change how much a leg should be loaded.
    * This needs to be set before calling computeForceDistribution() and
    * is reset after each call of computeForceDistribution().
-   * @param legNumber defines the leg
+   * @param leg defines the leg
    * @param loadFactor sets the factor how much the leg should be loaded
    *        value in the interval [0, 1] where 0: unloaded and 1: completely loaded
    * @return true if successful, false if leg is not in contact with the ground (unless loadFactor=0.0)
    */
-  bool changeLegLoad(const LegNumber& legNumber, const double& loadFactor);
+  bool changeLegLoad(const Legs& leg, const double& loadFactor);
 
   /*!
    * Gets the distributed force for a leg at the contact point
-   * @param [in] legNumber defines the leg
-   * @param [out] force is the distributed force on the leg (in base frame)
+   * @param[in] leg defines the leg
+   * @param[out] force is the distributed force on the leg (in base frame)
    * @return true if leg is active (in stance) and force can be applied, false otherwise
    */
-  bool getForceForLeg(const LegNumber& legNumber, robotModel::VectorCF& force);
+  bool getForceForLeg(const Legs& leg, robotModel::VectorCF& force);
 
   /*!
    * TODO
@@ -99,10 +93,9 @@ class ContactForceDistribution
   // void getDistributedNetForces(Vector3d& netForce, Vector3d& netTorque);
 
  private:
-  const int nLegs_ = 4; // TODO move to robotCommons as constexpr
-  const int nTranslationalDofPerFoot_ = 3; // TODO define as constexpr
-  const int nElementsInStackedVirtualForceTorqueVector_ = 2 * nTranslationalDofPerFoot_; // TODO define as constexpr
-  const int nConstraintsPerFoot_ = 5; // TODO define as constexpr
+  constexpr static int nLegs_ = 4;
+  constexpr static int nTranslationalDofPerFoot_ = 3;
+  constexpr static int nElementsVirtualForceTorqueVector_ = 2 * nTranslationalDofPerFoot_;
 
   //! Reference to robot model
   robotModel::RobotModel* robotModel_;
@@ -111,14 +104,14 @@ class ContactForceDistribution
   bool isParametersLoaded_;
 
   //! Leg load factors
-  Eigen::VectorXd legLoadFactors_;
+  Eigen::Matrix<double, nLegs_, 1> legLoadFactors_;
   //! Number of legs in stance phase
   int nLegsInStance_;
   //! Number of variables to optimize (size of x, n = nTranslationalDofPerFoot_ * nLegsInStance_)
   int n_;
 
   //! Diagonal elements of the weighting matrix for the desired virtual forces and torques (for S).
-  Eigen::VectorXd virtualForceWeights_;
+  Eigen::Matrix<double, nElementsVirtualForceTorqueVector_, 1> virtualForceWeights_;
   //! Diagonal element of the weighting matrix for the ground reaction forces (regularizer, for W).
   double groundForceWeight_;
   //! Minimal normal ground force (F_min^n, in N).
@@ -150,9 +143,10 @@ class ContactForceDistribution
     double loadFactor_;
     int indexInStanceLegList_;
     int startIndexInVectorX_;
+    robotModel::VectorCF effectiveContactForce_;
   };
 
-  std::map<LegNumber, LegStatus> legStatuses_;
+  std::map<Legs, LegStatus> legStatuses_;
 
   /*!
    * Check if parameters are loaded.
@@ -172,6 +166,11 @@ class ContactForceDistribution
    */
   bool prepareOptimization(const Eigen::Vector3d& virtualForce,
                            const Eigen::Vector3d& virtualTorque);
+
+  bool addMinimalForceConstraints();
+
+  bool addFrictionConstraints();
+
   /*!
    * Solve optimization
    * @return true if successful
@@ -180,8 +179,11 @@ class ContactForceDistribution
 
   bool resetFootLoadFactors();
 
+  bool resetConstraints();
+
+  bool updateLoggerData();
+
 
 };
 
 } /* namespace robotController */
-#endif /* CONTACTFORCEDISTRIBUTION_HPP_ */

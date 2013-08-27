@@ -35,10 +35,11 @@ VirtualModelController::~VirtualModelController()
   delete contactForceDistribution_;
 }
 
-bool VirtualModelController::initialize()
+bool VirtualModelController::addToLogger()
 {
   addEigenMatrixToLog(virtualForce_, "VMC_desired_force", "N", true);
   addEigenMatrixToLog(virtualTorque_, "VMC_desired_torque", "Nm", true);
+  contactForceDistribution_->addToLogger();
   updateLogger();
   return true;
 }
@@ -154,19 +155,16 @@ bool VirtualModelController::computeJointTorques()
 
   contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
 
-  for (ContactForceDistribution::LegNumber legNumber = // TODO ugly!!!
-      ContactForceDistribution::LEFT_FRONT;
-      legNumber <= ContactForceDistribution::RIGHT_HIND; legNumber =
-          ContactForceDistribution::LegNumber(legNumber + 1))
+  for(const auto& leg : Legs())
   {
     VectorCF contactForce = VectorCF::Zero();
-    int legIndexInStackedVector = nDofPerLeg * (int)legNumber;
-    bool legInTorqueMode = contactForceDistribution_->getForceForLeg(legNumber, contactForce);
+    int legIndexInStackedVector = nDofPerLeg * legIndeces[leg];
+    bool legInTorqueMode = contactForceDistribution_->getForceForLeg(leg, contactForce);
 
     if (legInTorqueMode)
     {
       VectorActLeg jointTorques;
-      computeJointTorquesForLeg(legNumber, legIndexInStackedVector, contactForce, jointTorques);
+      computeJointTorquesForLeg(leg, legIndexInStackedVector, contactForce, jointTorques);
       desJointTorques_.segment<nDofPerLeg>(legIndexInStackedVector) = jointTorques;
       desJointModes_.segment<nDofPerLeg>(legIndexInStackedVector) = VectorActMLeg::Constant(AM_Torque);
     }
@@ -180,12 +178,12 @@ bool VirtualModelController::computeJointTorques()
 }
 
 bool VirtualModelController::computeJointTorquesForLeg(
-    const ContactForceDistribution::LegNumber& legNumber,
+    const Legs& leg,
     const int& legIndexInStackedVector,
     const robotModel::VectorCF& contactForce,
     robotModel::VectorActLeg& jointTorques)
 {
-  MatrixJ jacobian = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(legNumber)
+  MatrixJ jacobian = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(legIndeces[leg])
       ->getJ().block<3, 3>(0, RM_NQB + legIndexInStackedVector);
   // TODO replace with "->getJ().block<nDofPerContactPoint, nDofPerLeg>(0, RM_NQB + legIndexInStackedVector);"
   jointTorques = jacobian.transpose() * contactForce;

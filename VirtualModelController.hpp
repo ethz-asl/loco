@@ -17,6 +17,7 @@
 #include <Eigen/Geometry>
 #include "ControllerBase.hpp"
 #include "ContactForceDistribution.hpp"
+#include "toMove.hpp"
 
 namespace robotController {
 
@@ -34,7 +35,7 @@ class VirtualModelController : public robotController::ControllerBase
   virtual ~VirtualModelController();
 
   //! Initialize. Returns true if successful.
-  bool initialize();
+  bool addToLogger();
 
   //! Load parameters. Returns true if successful.
   bool loadParameters();
@@ -98,13 +99,13 @@ class VirtualModelController : public robotController::ControllerBase
   /*!
    * Calculate the joints torque from a desired contact force
    * with Jacobi transpose.
-   * @param [in] legNumber
+   * @param [in] leg
    * @param [in] legIndexInStackedVector
    * @param [in] contactForce
    * @param [out] jointTorque
    * @return true if successfull
    */
-  bool computeJointTorquesForLeg(const ContactForceDistribution::LegNumber& legNumber,
+  bool computeJointTorquesForLeg(const Legs& leg,
                           const int& legIndexInStackedVector,
                           const robotModel::VectorCF& contactForce,
                           robotModel::VectorActLeg& jointTorque);

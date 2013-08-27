@@ -29,6 +29,7 @@ set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/RoughTerrain_Task.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/VirtualModelController.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ContactForceDistribution.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/toMove.cpp
 PARENT_SCOPE)
 
 #################
