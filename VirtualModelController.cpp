@@ -49,8 +49,8 @@ bool VirtualModelController::loadParameters()
   // TODO Replace this with proper parameters loading (XML)
   proportionalGainTranslation_ << 500.0, 640.0, 600.0;
   derivativeGainTranslation_ << 150.0, 100.0, 120.0;
-  feedforwardGainTranslation_ << 25.0, 0.0, 1.0;
-  proportionalGainRotation_ << 400.0, 200.0, 10.0; //< 400.0, 200.0, 0.0;
+  feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
+  proportionalGainRotation_ << 400.0, 200.0, 10.0; // 400.0, 200.0, 0.0;
   derivativeGainRotation_ << 6.0, 9.0, 5.0; // 6.0, 9.0, 0.0;
   feedforwardGainRotation_ << 0.0, 0.0, 0.0;
 
@@ -70,8 +70,8 @@ bool VirtualModelController::computeTorques(
   if (!areParametersLoaded()) return false;
 
   computePoseError(desiredPosition, desiredOrientation, desiredLinearVelocity, desiredAngularVelocity);
-  computeVirtualForce(desiredLinearVelocity);
-  computeVirtualTorque(desiredAngularVelocity);
+  computeVirtualForce(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredLinearVelocity);
+  computeVirtualTorque(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredLinearVelocity);
   computeJointTorques();
   return true;
 }
@@ -104,10 +104,11 @@ bool VirtualModelController::computePoseError(
 {
   MatrixA transformationFromWorldToBase = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA();
 
+  // Errors are defined as (q_desired - q_actual).
   positionError_ = desiredPosition - robotModel_->kin().getJacobianT(JT_World2Base_CSw)->getPos();
   positionError_ = transformationFromWorldToBase * positionError_;
 
-  // Use A.transpose() because A is alias/passive rotation but we want alibi/active rotation
+  // Use A.transpose() because A is alias/passive rotation but we want alibi/active rotation.
   Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA().transpose());
   Quaterniond orientationError = actualOrientation.conjugate() * desiredOrientation;
   orientationError_ = AngleAxisd(orientationError);
@@ -123,15 +124,18 @@ bool VirtualModelController::computePoseError(
 
 bool VirtualModelController::computeVirtualForce(const robotModel::VectorP& desiredLinearVelocity)
 {
-  // TODO feedforward should be in body frame too (gravity in m*g)!
+  // Transforming gravity compensation into body frame
+  Vector3d verticalDirection = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * Vector3d::UnitZ();
+  Vector3d gravityCompensation = robotModel_->params().mTotal_ * robotModel_->params().gravity_ * verticalDirection;
+
   Vector3d feedforwardTerm = Vector3d::Zero();
-  feedforwardTerm.x() = desiredLinearVelocity.x();
-  feedforwardTerm.y() = desiredLinearVelocity.y();
-  feedforwardTerm.z() = robotModel_->params().mTotal_ * robotModel_->params().gravity_;
+  feedforwardTerm.x() += desiredLinearVelocity.x();
+  feedforwardTerm.y() += desiredLinearVelocity.y();
 
   virtualForce_ = proportionalGainTranslation_.array() * positionError_.array() // Coefficient-wise multiplication.
                        + derivativeGainTranslation_.array()   * linearVelocityError_.array()
-                       + feedforwardGainTranslation_.array()  * feedforwardTerm.array();
+                       + feedforwardGainTranslation_.array()  * feedforwardTerm.array()
+                       + gravityCompensation.array(); // This is slightly different then in C. Gehring, 2013.
 
   return true;
 }

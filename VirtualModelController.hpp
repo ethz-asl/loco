@@ -26,22 +26,37 @@ class VirtualModelController : public robotController::ControllerBase
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  /*! Constructor.
-   * @param robotModel  reference to the robot
+  /*!
+   * Constructor.
+   * @param robotModel the reference to the robot
    */
   VirtualModelController(robotModel::RobotModel* robotModel);
 
-  //! Destructor.
+  /*!
+   * Destructor.
+   */
   virtual ~VirtualModelController();
 
-  //! Initialize. Returns true if successful.
-  bool addToLogger();
-
-  //! Load parameters. Returns true if successful.
+  /*!
+   * Load parameters.
+   * @return true if successful
+   */
   bool loadParameters();
 
-  //! Compute joint torques for legs in stance.
-  //! In world frame!
+  /*!
+   * Add data to logger (optional).
+   * @return true if successful
+   */
+  bool addToLogger();
+
+  /*!
+   * Computes the joint torques from the desired base pose.
+   * @param[in] desiredPosition in the world frame
+   * @param[in] desiredOrientation w.r.t. the world frame
+   * @param[in] desiredLinearVelocity in the world frame
+   * @param[in] desiredAngularVelocity w.r.t. the world frame in the world frame
+   * @return true if successful
+   */
   bool computeTorques(const robotModel::VectorP& desiredPosition, // TODO pack as one struct?
                       const Eigen::Quaterniond& desiredOrientation,
                       const robotModel::VectorP& desiredLinearVelocity,
@@ -87,10 +102,12 @@ class VirtualModelController : public robotController::ControllerBase
 
   //! Compute virtual force based on the form:
   //! F = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
+  //! In base frame.
   bool computeVirtualForce(const robotModel::VectorP& desiredLinearVelocity);
 
   //! Compute virtual torque based on the form:
   //! T = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
+  //! In base frame.
   bool computeVirtualTorque(const robotModel::VectorO& desiredAngularVelocity);
 
   //! Distributes the virtual forces to the ground contact forces.
