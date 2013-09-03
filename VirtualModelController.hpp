@@ -63,6 +63,22 @@ class VirtualModelController : public robotController::ControllerBase
                       const robotModel::VectorO& desiredAngularVelocity);
 
   /*!
+   * Change how much a leg should be loaded.
+   * This needs to be set before calling computeForceDistribution() and
+   * is reset after each call of computeForceDistribution(). The contact
+   * force distribution is calculated twice, once without the load factor
+   * equality constraint and then including the equality constraint.
+   * @param leg defines the leg
+   * @param loadFactor sets the factor how much the leg should be loaded
+   *        (related to the unconstrained case without user specified load
+   *        factors), value in the interval [0, 1] where 0: unloaded
+   *        and 1: completely loaded.
+   * @return true if successful, false if leg is not in contact with the
+   *         ground (unless loadFactor=0.0)
+   */
+  bool changeLegLoad(const Legs& leg, const double& loadFactor);
+
+  /*!
    * Prints information for debugging.
    */
   void printDebugInformation();

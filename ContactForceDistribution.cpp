@@ -65,7 +65,13 @@ bool ContactForceDistribution::addToLogger()
 bool ContactForceDistribution::changeLegLoad(const Legs& leg,
                                              const double& loadFactor)
 {
-  //legLoadFactors_(legName) = loadFactor; // Dangerous!
+  if (robotModel_->contacts().getCA()(legIndeces[leg]) == 1)
+  {
+    legStatuses_[leg].loadFactor_ = loadFactor;
+    return true;
+  }
+
+  return false;
 }
 
 bool ContactForceDistribution::computeForceDistribution(
@@ -77,8 +83,13 @@ bool ContactForceDistribution::computeForceDistribution(
   if (nLegsInStance_ > 0)
   {
     prepareOptimization(virtualForce, virtualTorque);
+
+    // Add, remove or switch constraints
     addMinimalForceConstraints();
     addFrictionConstraints();
+
+    // Has to be called at last
+    addDesiredLegLoadConstraints();
     solveOptimization();
   }
   resetFootLoadFactors();
@@ -100,10 +111,14 @@ bool ContactForceDistribution::prepareDesiredLegLoading()
       legStatus.second.indexInStanceLegList_ = nLegsInStance_;
       legStatus.second.startIndexInVectorX_ = legStatus.second.indexInStanceLegList_ * nTranslationalDofPerFoot_;
       nLegsInStance_++;
+
+      if (NumericalComparison::definitelyLessThan(legStatus.second.loadFactor_,1.0))
+        legStatus.second.isLoadConstraintActive_ = true;
     }
     else
     {
       legStatus.second.isInStance_ = false;
+      legStatus.second.isLoadConstraintActive_ = false;
     }
   }
 }
@@ -127,7 +142,7 @@ bool ContactForceDistribution::prepareOptimization(
   A_.setZero();
   A_.middleRows(0, nTranslationalDofPerFoot_) = (Matrix3d::Identity().replicate(1, nLegsInStance_)).sparseView();
 
-  MatrixXd A_bottomMatrix(nTranslationalDofPerFoot_, n_);
+  MatrixXd A_bottomMatrix(3, n_); // TODO replace 3 with nTranslationalDofPerFoot_
   for (auto& legStatus : legStatuses_)
   {
     if (legStatus.second.isInStance_)
@@ -153,7 +168,7 @@ bool ContactForceDistribution::addMinimalForceConstraints()
   Vector3d normalDirection = transformationFromWorldToBase * Vector3d::UnitZ();
 
   int rowIndex = D_.rows();
-  Eigen::SparseMatrix<double, Eigen::RowMajor> D_temp(D_);
+  Eigen::SparseMatrix<double, Eigen::RowMajor> D_temp(D_);  // TODO replace with conservativeResize (available in Eigen 3.2)
   D_.resize(rowIndex + nLegsInStance_, n_);
   D_.middleRows(0, D_temp.rows()) = D_temp;
   d_.conservativeResize(rowIndex + nLegsInStance_);
@@ -189,9 +204,9 @@ bool ContactForceDistribution::addFrictionConstraints()
   Vector3d firstTangential = transformationFromWorldToBase * Vector3d::UnitX();
   Vector3d secondTangential = normalDirection.cross(firstTangential);
 
-  int rowIndex = D_.rows();
   int nDirections = 4;
   int nConstraints = nDirections * nLegsInStance_;
+  int rowIndex = D_.rows();
   Eigen::SparseMatrix<double, Eigen::RowMajor> D_temp(D_); // TODO replace with conservativeResize (available in Eigen 3.2)
   D_.resize(rowIndex + nConstraints, n_);
   D_.middleRows(0, D_temp.rows()) = D_temp;
@@ -228,9 +243,47 @@ bool ContactForceDistribution::addFrictionConstraints()
   return true;
 }
 
+bool ContactForceDistribution::addDesiredLegLoadConstraints()
+{
+  int nLegsWithLoadConstraintActive = 0;
+  for (auto& legStatus : legStatuses_)
+  {
+    if (legStatus.second.isLoadConstraintActive_)
+      nLegsWithLoadConstraintActive++;
+  }
+  if (nLegsWithLoadConstraintActive == 0) return true; // No need to have equality constraints
+
+  solveOptimization(); // Solving ones without equality constraints
+
+  int nConstraints = nTranslationalDofPerFoot_ * nLegsWithLoadConstraintActive;
+  int rowIndex = C_.rows();
+  Eigen::SparseMatrix<double, Eigen::RowMajor> C_temp(C_);  // TODO replace with conservativeResize (available in Eigen 3.2)
+  C_.resize(rowIndex + nConstraints, n_);
+  C_.middleRows(0, C_temp.rows()) = C_temp;
+  c_.conservativeResize(rowIndex + nConstraints);
+
+  for (auto& legStatus : legStatuses_)
+  {
+    if (legStatus.second.isLoadConstraintActive_)
+    {
+      int m = nTranslationalDofPerFoot_;
+      MatrixXd C_rows = MatrixXd::Zero(m, n_);
+      C_rows.block(0, legStatus.second.startIndexInVectorX_, m, m) = MatrixXd::Identity(m, m);
+      C_.middleRows(rowIndex, m) = C_rows.sparseView();
+      Eigen::Matrix<double, nTranslationalDofPerFoot_, 1> fullForce = x_.segment(legStatus.second.startIndexInVectorX_, nTranslationalDofPerFoot_);
+      c_.segment(rowIndex, m) =  legStatus.second.loadFactor_ * fullForce;
+      rowIndex = rowIndex + m;
+    }
+  }
+
+  return true;
+}
+
+
+
 bool ContactForceDistribution::solveOptimization()
 {
-  return QuadraticProblemFormulation::solve(A_, S_, b_, W_, D_, d_, f_, x_);
+  return QuadraticProblemFormulation::solve(A_, S_, b_, W_, C_, c_, D_, d_, f_, x_);
 }
 
 bool ContactForceDistribution::resetConstraints()
@@ -238,6 +291,8 @@ bool ContactForceDistribution::resetConstraints()
   D_.resize(0, 0);
   d_.resize(0);
   f_.resize(0);
+  C_.resize(0, 0);
+  c_.resize(0);
   return true;
 }
 
@@ -246,6 +301,7 @@ bool ContactForceDistribution::resetFootLoadFactors()
   for (auto& legStatus : legStatuses_)
   {
     legStatus.second.loadFactor_ = 1.0;
+    legStatus.second.isLoadConstraintActive_ = false;
   }
   return true;
 }

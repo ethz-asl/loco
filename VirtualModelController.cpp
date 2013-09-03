@@ -76,6 +76,11 @@ bool VirtualModelController::computeTorques(
   return true;
 }
 
+bool VirtualModelController::changeLegLoad(const Legs& leg, const double& loadFactor)
+{
+  return contactForceDistribution_->changeLegLoad(leg, loadFactor);
+}
+
 void VirtualModelController::printDebugInformation()
 {
   IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");
@@ -135,7 +140,7 @@ bool VirtualModelController::computeVirtualForce(const robotModel::VectorP& desi
   virtualForce_ = proportionalGainTranslation_.array() * positionError_.array() // Coefficient-wise multiplication.
                        + derivativeGainTranslation_.array()   * linearVelocityError_.array()
                        + feedforwardGainTranslation_.array()  * feedforwardTerm.array()
-                       + gravityCompensation.array(); // This is slightly different then in C. Gehring, 2013.
+                       + gravityCompensation.array(); // This is slightly different formulation then in C. Gehring, 2013.
 
   return true;
 }

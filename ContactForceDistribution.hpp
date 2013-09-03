@@ -64,13 +64,18 @@ class ContactForceDistribution
                                 const Eigen::Vector3d& virtualTorque);
 
   /*!
-   * Manually change how much a leg should be loaded.
+   * Change how much a leg should be loaded.
    * This needs to be set before calling computeForceDistribution() and
-   * is reset after each call of computeForceDistribution().
+   * is reset after each call of computeForceDistribution(). The contact
+   * force distribution is calculated twice, once without the load factor
+   * equality constraint and then including the equality constraint.
    * @param leg defines the leg
    * @param loadFactor sets the factor how much the leg should be loaded
-   *        value in the interval [0, 1] where 0: unloaded and 1: completely loaded
-   * @return true if successful, false if leg is not in contact with the ground (unless loadFactor=0.0)
+   *        (related to the unconstrained case without user specified load
+   *        factors), value in the interval [0, 1] where 0: unloaded
+   *        and 1: completely loaded.
+   * @return true if successful, false if leg is not in contact with the
+   *         ground (unless loadFactor=0.0)
    */
   bool changeLegLoad(const Legs& leg, const double& loadFactor);
 
@@ -93,8 +98,8 @@ class ContactForceDistribution
   // void getDistributedNetForces(Vector3d& netForce, Vector3d& netTorque);
 
  private:
-  constexpr static int nLegs_ = 4;
-  constexpr static int nTranslationalDofPerFoot_ = 3;
+  constexpr static int nLegs_ = 4; // TODO move
+  constexpr static int nTranslationalDofPerFoot_ = 3; // TODO move
   constexpr static int nElementsVirtualForceTorqueVector_ = 2 * nTranslationalDofPerFoot_;
 
   //! Reference to robot model
@@ -103,8 +108,6 @@ class ContactForceDistribution
   //! True when parameters are successfully loaded.
   bool isParametersLoaded_;
 
-  //! Leg load factors
-  Eigen::Matrix<double, nLegs_, 1> legLoadFactors_;
   //! Number of legs in stance phase
   int nLegsInStance_;
   //! Number of variables to optimize (size of x, n = nTranslationalDofPerFoot_ * nLegsInStance_)
@@ -119,28 +122,30 @@ class ContactForceDistribution
   //! Assumed friction coefficient (mu).
   double frictionCoefficient_;
 
+  //! Stacked contact forces
+  Eigen::VectorXd x_;
   //! The matrix A in the optimization formulation (nElementsInStackedVirtualForceTorqueVector_ x n).
   Eigen::SparseMatrix<double, Eigen::RowMajor> A_;
   //! The vector b in the optimization formulation (stacked vector of desired net virtual forces and torques).
   Eigen::VectorXd b_;
-  //! Force constraint matrix
-  Eigen::SparseMatrix<double, Eigen::RowMajor> D_;
-  //! Upper and lower limits vectors
-  Eigen::VectorXd d_, f_;
-  //! Stacked contact forces
-  Eigen::VectorXd x_;
   //! Weighting matrix for the ground reaction forces (regularizer).
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> W_;
   //! Weighting matrix for the desired virtual forces and torques.
   Eigen::DiagonalMatrix<double, Eigen::Dynamic> S_;
-
-  //  Eigen::SparseMatrix<double, Eigen::RowMajor> C;
-  //  Eigen::VectorXd c;
+  //! Force inequality constraint matrix
+  Eigen::SparseMatrix<double, Eigen::RowMajor> D_;
+  //! Upper and lower limits vectors of force inequality constraint
+  Eigen::VectorXd d_, f_;
+  //! Force equality constraint matrix
+  Eigen::SparseMatrix<double, Eigen::RowMajor> C_;
+  //! Vector of force equality constraint
+  Eigen::VectorXd c_;
 
   struct LegStatus
   {
     bool isInStance_;
     double loadFactor_;
+    bool isLoadConstraintActive_;
     int indexInStanceLegList_;
     int startIndexInVectorX_;
     robotModel::VectorCF effectiveContactForce_;
@@ -171,6 +176,8 @@ class ContactForceDistribution
 
   bool addFrictionConstraints();
 
+  bool addDesiredLegLoadConstraints();
+
   /*!
    * Solve optimization
    * @return true if successful
@@ -182,8 +189,6 @@ class ContactForceDistribution
   bool resetConstraints();
 
   bool updateLoggerData();
-
-
 };
 
 } /* namespace robotController */

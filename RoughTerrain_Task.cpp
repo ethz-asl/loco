@@ -13,6 +13,7 @@
 #include "DrawFrame.hpp"
 #include "DrawGhost.hpp"
 #include "Rotations.hpp"
+#include "toMove.hpp"
 
 using namespace std;
 using namespace robotModel;
@@ -54,15 +55,17 @@ bool RoughTerrain::init()
 bool RoughTerrain::run()
 {
   //! Desired base position expressed in inertial frame.
-  Vector3d baseDesiredPosition(0.0, 0.0, 0.425); //TODO change to VectorP
+  VectorP baseDesiredPosition(0.0, 0.0, 0.425);
   //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
-  baseDesiredOrientation = Rotations::yawPitchRollToQuaternion(1.0, -0.0, 0.0);
+  baseDesiredOrientation = Rotations::yawPitchRollToQuaternion(1.0, 0.0, 0.0);
   //! Desired base linear velocity expressed in inertial frame.
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   //! Desired base angular velocity expressed w.r.t. inertial frame.
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
+  if(getTime() > 5.0)
+    virtualModelController_->changeLegLoad(Legs::RIGHT_FRONT, 0.1 + (1.0 + sin(4.0 * getTime())) / 2.0);
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
 
   VectorActM desJointModes;
