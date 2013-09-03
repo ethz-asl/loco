@@ -22,10 +22,10 @@ VirtualModelController::VirtualModelController(RobotModel* robotModel) : Control
 {
   contactForceDistribution_ = new ContactForceDistribution(robotModel);
   isParametersLoaded_ = false;
-  positionError_ = Vector3d::Zero(); // TODO set type right
+  positionError_ = VectorP::Zero();
   orientationError_ = AngleAxisd::Identity();
-  linearVelocityError_ = Vector3d::Zero();  // TODO set type right
-  angularVelocityError_ = Vector3d::Zero();  // TODO set type right
+  linearVelocityError_ = VectorP::Zero();
+  angularVelocityError_ = VectorO::Zero();
   virtualForce_ = Vector3d::Zero();
   virtualTorque_ = Vector3d::Zero();
 }
