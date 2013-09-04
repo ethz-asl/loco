@@ -67,7 +67,7 @@ bool VirtualModelController::computeTorques(
     const robotModel::VectorP& desiredLinearVelocity,
     const robotModel::VectorO& desiredAngularVelocity)
 {
-  if (!areParametersLoaded()) return false;
+  if (!isParametersLoaded()) return false;
 
   computePoseError(desiredPosition, desiredOrientation, desiredLinearVelocity, desiredAngularVelocity);
   computeVirtualForce(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA() * desiredLinearVelocity);
@@ -76,9 +76,9 @@ bool VirtualModelController::computeTorques(
   return true;
 }
 
-bool VirtualModelController::changeLegLoad(const Legs& leg, const double& loadFactor)
+robotController::ContactForceDistribution* VirtualModelController::getContactForceDistributor() const
 {
-  return contactForceDistribution_->changeLegLoad(leg, loadFactor);
+  return contactForceDistribution_;
 }
 
 void VirtualModelController::printDebugInformation()
@@ -90,15 +90,21 @@ void VirtualModelController::printDebugInformation()
   Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA().transpose());
   Vector3d actualOrientationYawPitchRoll = Rotations::quaternionToYawPitchRoll(actualOrientation);
 //  Vector3d errorYawRollPitch = Rotations::angleAxisToYawPitchRoll(orientationErrorVector_);
+  Vector3d netForce, netTorque, netForceError, netTorqueError;
+  contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
+  netForceError = virtualForce_ - netForce;
+  netTorqueError = virtualTorque_ - netTorque;
 
-  areParametersLoaded();
+  isParametersLoaded();
   cout << "Position error" << positionError_.format(CommaInitFmt) << endl;
   cout << "Orientation (yaw, pitch, roll)" << actualOrientationYawPitchRoll.format(CommaInitFmt) << endl;
   cout << "Orientation error in angle-axis: angle " << orientationError_.angle() << ", axis" << orientationError_.axis().format(CommaInitFmt) << endl;
   cout << "Linear velocity error" << linearVelocityError_.format(CommaInitFmt) << endl;
   cout << "Angular velocity error" << angularVelocityError_.format(CommaInitFmt)<< endl;
   cout << "Desired virtual force" << virtualForce_.format(CommaInitFmt) << endl;
-  cout << "Desired virtual torque" << virtualTorque_.format(CommaInitFmt) << sep;
+  cout << "Desired virtual torque" << virtualTorque_.format(CommaInitFmt) << endl;
+  cout << "Net force error" << netForceError.format(CommaInitFmt) << endl;
+  cout << "Net torque error" << netTorqueError.format(CommaInitFmt) << sep;
 }
 
 bool VirtualModelController::computePoseError(
@@ -198,7 +204,7 @@ bool VirtualModelController::computeJointTorquesForLeg(
   jointTorques = jacobian.transpose() * contactForce;
 }
 
-bool VirtualModelController::areParametersLoaded() const
+bool VirtualModelController::isParametersLoaded() const
 {
   if (isParametersLoaded_) return true;
 

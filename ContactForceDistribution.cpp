@@ -43,11 +43,19 @@ bool ContactForceDistribution::loadParameters()
   return true;
 }
 
-bool ContactForceDistribution::areParametersLoaded()
+bool ContactForceDistribution::isParametersLoaded() const
 {
   if (isParametersLoaded_) return true;
 
   cout << "Contact force distribution parameters are not loaded." << endl; // TODO use warning output
+  return false;
+}
+
+bool ContactForceDistribution::isForceDistributionComputed() const
+{
+  if (isForceDistributionComputed_) return true;
+
+  cout << "Contact force distribution is not computed yet or was unsuccessful." << endl; // TODO use warning output
   return false;
 }
 
@@ -90,10 +98,11 @@ bool ContactForceDistribution::computeForceDistribution(
 
     // Has to be called at last
     addDesiredLegLoadConstraints();
-    solveOptimization();
+    isForceDistributionComputed_ = solveOptimization();
   }
   resetFootLoadFactors();
   updateLoggerData();
+  return isForceDistributionComputed_;
 }
 
 bool ContactForceDistribution::prepareDesiredLegLoading()
@@ -309,6 +318,8 @@ bool ContactForceDistribution::resetFootLoadFactors()
 bool ContactForceDistribution::getForceForLeg(
     const Legs& leg, robotModel::VectorCF& force)
 {
+  if (!isForceDistributionComputed()) return false;
+
   force = VectorCF();
 
   if (legStatuses_[leg].isInStance_)
@@ -320,6 +331,19 @@ bool ContactForceDistribution::getForceForLeg(
   }
 
   return false;
+}
+
+bool ContactForceDistribution::getNetForceAndTorqueOnBase(
+    Eigen::Vector3d& netForce, Eigen::Vector3d& netTorque)
+{
+  if (!isForceDistributionComputed()) return false;
+
+  Eigen::Matrix<double, nElementsVirtualForceTorqueVector_, 1> stackedNetForceAndTorque;
+  stackedNetForceAndTorque = A_ * x_;
+  netForce = stackedNetForceAndTorque.head(3);
+  netTorque = stackedNetForceAndTorque.tail(3);
+
+  return true;
 }
 
 bool ContactForceDistribution::updateLoggerData()

@@ -49,7 +49,7 @@ class ContactForceDistribution
   bool loadParameters();
 
   /*!
-   * Adds class data to the logger.
+   * Adds class data to the logger (optional)
    * @return true if successful
    */
   bool addToLogger();
@@ -88,25 +88,27 @@ class ContactForceDistribution
   bool getForceForLeg(const Legs& leg, robotModel::VectorCF& force);
 
   /*!
-   * TODO
-   * Gets the distributed net forces and torques that act on the main body, i.e.
-   * these forces and torques are computed from the distributed forces and should be equal to
-   * the desired net forces and torques.
-   * @param netForce
-   * @param netTorque
+   * Gets the distributed net forces and torques that act on the base, i.e.
+   * this force and torque are computed from the distributed contact forces and
+   * should ideally be equal to the desired net forces and torques.
+   * @param[out] netForce
+   * @param[out] netTorque
+   * @return true if net force and torque can be calculated, false otherwise
    */
-  // void getDistributedNetForces(Vector3d& netForce, Vector3d& netTorque);
+   bool getNetForceAndTorqueOnBase(Eigen::Vector3d& netForce, Eigen::Vector3d& netTorque);
 
  private:
   constexpr static int nLegs_ = 4; // TODO move
   constexpr static int nTranslationalDofPerFoot_ = 3; // TODO move
-  constexpr static int nElementsVirtualForceTorqueVector_ = 2 * nTranslationalDofPerFoot_;
+  constexpr static int nElementsVirtualForceTorqueVector_ = 6;
 
   //! Reference to robot model
   robotModel::RobotModel* robotModel_;
 
-  //! True when parameters are successfully loaded.
+  //! True if parameters are successfully loaded.
   bool isParametersLoaded_;
+  //! True if a force distribution was computed successfully.
+  bool isForceDistributionComputed_;
 
   //! Number of legs in stance phase
   int nLegsInStance_;
@@ -155,9 +157,11 @@ class ContactForceDistribution
 
   /*!
    * Check if parameters are loaded.
-   * @return true if parameters are loaded.
+   * @return true if parameters are loaded
    */
-  bool areParametersLoaded();
+  bool isParametersLoaded() const;
+
+  bool isForceDistributionComputed() const;
 
   /*!
    * Reads foot contact flags and includes user leg load settings from changeLegLoad()

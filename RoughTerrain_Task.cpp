@@ -8,6 +8,7 @@
 
 #include "RoughTerrain_Task.hpp"
 #include <Eigen/Geometry>
+#include "ContactForceDistribution.hpp"
 #include "DrawArrow.hpp"
 #include "DrawSphere.hpp"
 #include "DrawFrame.hpp"
@@ -65,8 +66,10 @@ bool RoughTerrain::run()
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
   if(getTime() > 5.0)
-    virtualModelController_->changeLegLoad(Legs::RIGHT_FRONT, 0.1 + (1.0 + sin(4.0 * getTime())) / 2.0);
+    virtualModelController_->getContactForceDistributor()->changeLegLoad(Legs::RIGHT_FRONT, 0.1 + (1.0 + sin(4.0 * getTime())) / 2.0);
+
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
+  virtualModelController_->printDebugInformation();
 
   VectorActM desJointModes;
   VectorAct desJointPositions, desJointVelocities, desJointTorques;
