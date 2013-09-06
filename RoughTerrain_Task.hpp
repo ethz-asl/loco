@@ -14,6 +14,7 @@
 #include "ContactForceDistribution.hpp"
 #include "TaskTimer.hpp"
 #include "DisturbRobot.hpp"
+#include "TerrainBase.hpp"
 
 namespace robotTask {
 
@@ -71,6 +72,9 @@ class RoughTerrain : public robotTask::TaskRobotBase {
 
   //! Virtual model controller
   robotController::VirtualModelController* virtualModelController_;
+
+  //! Terrain
+  robotTerrain::TerrainBase* terrain_;
 
   //! Disturb robot
   bool disturbRobot(DisturbanceType disturbanceType, Eigen::Vector3i disturbanceDirection);

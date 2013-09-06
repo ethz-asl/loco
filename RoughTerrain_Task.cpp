@@ -8,18 +8,19 @@
 
 #include "RoughTerrain_Task.hpp"
 #include <Eigen/Geometry>
-#include "ContactForceDistribution.hpp"
 #include "DrawArrow.hpp"
 #include "DrawSphere.hpp"
 #include "DrawFrame.hpp"
 #include "DrawGhost.hpp"
 #include "Rotations.hpp"
 #include "toMove.hpp"
+#include "TerrainSL.hpp"
 
 using namespace std;
 using namespace robotModel;
 using namespace robotTask;
 using namespace robotController;
+using namespace robotTerrain;
 using namespace robotUtils;
 using namespace Eigen;
 
@@ -29,6 +30,7 @@ RoughTerrain::RoughTerrain(RobotModel* robotModel) : TaskRobotBase("RoughTerrain
 {
   disturbRobot_ = new DisturbRobot();
   virtualModelController_ = new VirtualModelController(robotModel_);
+  terrain_ = new TerrainSL();
 
   disturbanceTime_ = 0.1;
   disturbanceForceMagnitude_ = 0.5 * 5000.0;
@@ -39,6 +41,7 @@ RoughTerrain::~RoughTerrain()
 {
   delete disturbRobot_;
   delete virtualModelController_;
+  delete terrain_;
 }
 
 bool RoughTerrain::add()
@@ -56,20 +59,24 @@ bool RoughTerrain::init()
 bool RoughTerrain::run()
 {
   //! Desired base position expressed in inertial frame.
-  VectorP baseDesiredPosition(0.0, 0.0, 0.425);
+  VectorP baseDesiredPosition(0.0, 0.0, 0.475);
   //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Quaterniond baseDesiredOrientation = Quaterniond::Identity();
-  baseDesiredOrientation = Rotations::yawPitchRollToQuaternion(1.0, 0.0, 0.0);
+  baseDesiredOrientation = Rotations::yawPitchRollToQuaternion(0.0, 0.0, 0.0);
   //! Desired base linear velocity expressed in inertial frame.
   VectorP baseDesiredLinearVelocity = VectorP::Zero(3);
   //! Desired base angular velocity expressed w.r.t. inertial frame.
   VectorO baseDesiredAngularVelocity = VectorO::Zero(3);
 
-  if(getTime() > 5.0)
-    virtualModelController_->getContactForceDistributor()->changeLegLoad(Legs::RIGHT_FRONT, 0.1 + (1.0 + sin(4.0 * getTime())) / 2.0);
+//  if(getTime() > 5.0)
+//    virtualModelController_->getContactForceDistributor()->changeLegLoad(Legs::RIGHT_FRONT, 0.1 + (1.0 + sin(4.0 * getTime())) / 2.0);
+
+  VectorP footPosition = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(legIndeces[Legs::LEFT_FRONT])->getPos();
+  Vector3d surfaceNormal;
+  terrain_->getNormal(footPosition, surfaceNormal);
+  terrain_->getHeight(footPosition);
 
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
-  virtualModelController_->printDebugInformation();
 
   VectorActM desJointModes;
   VectorAct desJointPositions, desJointVelocities, desJointTorques;
@@ -156,31 +163,6 @@ bool RoughTerrain::change()
 
   return true;
 }
-
-//void RoughTerrain::computeVirtualModelControl()
-//{
-////  //! Error vector between desired and target
-////  Eigen::Vector3d positionError = bodyTargetPosition_ - bodyDesiredPosition_;
-////
-////  // Make the desired position move towards the target position with a limited speed
-////  if (positionError.norm() > baseMaxSpeed_ * getTimeStep())
-////  {
-////    bodyDesiredPosition_ += positionError.normalized() * baseMaxSpeed_ * getTimeStep();
-////  }
-////  else
-////  {
-////    bodyDesiredPosition_ = bodyTargetPosition_;
-////  }
-//
-////  virtualModelController_->computeForce(F_, M_, I_rEst_IB_, I_vEst_B_, rpyEst_BI_,
-////                           I_wEst_IB_, bodyDesiredPosition_, I_vDes_B_, rpyDes_BI_,
-////                           I_wDes_IB_, I_rVec_B_Cog_);
-//}
-//
-//void RoughTerrain::computeContactForceDistribution()
-//{
-//
-//}
 
 bool RoughTerrain::disturbRobot(DisturbanceType disturbanceType,
                                 Eigen::Vector3i disturbanceDirection)
