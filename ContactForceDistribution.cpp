@@ -9,8 +9,8 @@
 #include "ContactForceDistribution.hpp"
 #include <Eigen/Geometry>
 #include "LinearAlgebra.hpp"
-#include "NumericalComparison.hpp"
-#include "OoqpInterface.hpp"
+#include "numerical_comparisons.hpp"
+#include "OoqpEigenInterface.hpp"
 #include "QuadraticProblemFormulation.hpp"
 #include "Logger.hpp"
 
@@ -18,13 +18,19 @@ using namespace std;
 using namespace Eigen;
 using namespace robotUtils;
 using namespace robotModel;
+using namespace sm;
 
 namespace robotController {
 
 ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robotModel)
 {
   robotModel_ = robotModel;
+  terrain_ = nullptr;
+  isParametersLoaded_ = false;
+  isTerrainSet_ = false;
+  isForceDistributionComputed_ = false;
   for(auto leg : Legs()) { legStatuses_[leg] = LegStatus(); }
+  setTerrainNormalsToDefault();
   resetFootLoadFactors();
 }
 
@@ -38,7 +44,7 @@ bool ContactForceDistribution::loadParameters()
   virtualForceWeights_ << 1.0, 1.0, 1.0, 10.0, 10.0, 5.0;
   groundForceWeight_ = 0.00001;
   minimalNormalGroundForce_ = 2.0;
-  frictionCoefficient_ = 0.8;
+  frictionCoefficient_ = 0.1; // 0.8
   isParametersLoaded_ = true;
   return true;
 }
@@ -61,6 +67,7 @@ bool ContactForceDistribution::isForceDistributionComputed() const
 
 bool ContactForceDistribution::addToLogger()
 {
+  // TODO is this already implemented somewhere else?
   for(const auto& leg : Legs()) {
     string name = "contact_force_" + legNamesShort[leg];
     VectorCF& contactForce = legStatuses_[leg].effectiveContactForce_;
@@ -82,30 +89,44 @@ bool ContactForceDistribution::changeLegLoad(const Legs& leg,
   return false;
 }
 
+bool ContactForceDistribution::setTerrain(robotTerrain::TerrainBase* terrain)
+{
+  if (terrain != nullptr)
+  {
+    terrain_ = terrain;
+    isTerrainSet_ = true;
+  }
+
+  return false;
+}
+
 bool ContactForceDistribution::computeForceDistribution(
     const Eigen::Vector3d& virtualForce,
     const Eigen::Vector3d& virtualTorque)
 {
   resetConstraints();
-  prepareDesiredLegLoading();
+  prepareLegLoading();
+
   if (nLegsInStance_ > 0)
   {
     prepareOptimization(virtualForce, virtualTorque);
+    getTerrainNormals();
 
     // Add, remove or switch constraints
     addMinimalForceConstraints();
     addFrictionConstraints();
 
-    // Has to be called at last
+    // Has to be called as last
     addDesiredLegLoadConstraints();
     isForceDistributionComputed_ = solveOptimization();
   }
+
   resetFootLoadFactors();
   updateLoggerData();
   return isForceDistributionComputed_;
 }
 
-bool ContactForceDistribution::prepareDesiredLegLoading()
+bool ContactForceDistribution::prepareLegLoading()
 {
   nLegsInStance_ = 0;
 
@@ -114,14 +135,14 @@ bool ContactForceDistribution::prepareDesiredLegLoading()
     legStatus.second.loadFactor_ = legStatus.second.loadFactor_
         * robotModel_->contacts().getCA().cast<double>()(legIndeces[legStatus.first]);
 
-    if (NumericalComparison::definitelyGreaterThan(legStatus.second.loadFactor_, 0.0))
+    if (sm::definitelyGreaterThan(legStatus.second.loadFactor_, 0.0))
     {
       legStatus.second.isInStance_ = true;
       legStatus.second.indexInStanceLegList_ = nLegsInStance_;
       legStatus.second.startIndexInVectorX_ = legStatus.second.indexInStanceLegList_ * nTranslationalDofPerFoot_;
       nLegsInStance_++;
 
-      if (NumericalComparison::definitelyLessThan(legStatus.second.loadFactor_,1.0))
+      if (sm::definitelyLessThan(legStatus.second.loadFactor_,1.0))
         legStatus.second.isLoadConstraintActive_ = true;
     }
     else
@@ -130,6 +151,8 @@ bool ContactForceDistribution::prepareDesiredLegLoading()
       legStatus.second.isLoadConstraintActive_ = false;
     }
   }
+
+  return true;
 }
 
 bool ContactForceDistribution::prepareOptimization(
@@ -168,13 +191,45 @@ bool ContactForceDistribution::prepareOptimization(
   return true;
 }
 
+bool ContactForceDistribution::setTerrainNormalsToDefault()
+{
+  for (auto& legStatus : legStatuses_)
+  {
+    legStatus.second.terrainNormalInWorldFrame_ = Vector3d::UnitZ();
+  }
+
+  return true;
+}
+
+bool ContactForceDistribution::getTerrainNormals()
+{
+  if (isTerrainSet_)
+  {
+    for (auto& legStatus : legStatuses_)
+    {
+      if (legStatus.second.isInStance_)
+      {
+        VectorP footPosition = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(legIndeces[legStatus.first])->getPos();
+        terrain_->getNormal(footPosition, legStatus.second.terrainNormalInWorldFrame_);
+      }
+    }
+  }
+
+  for (auto& legStatus : legStatuses_)
+  {
+    legStatus.second.terrainNormalInBaseFrame_ =
+        robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA()
+            * legStatus.second.terrainNormalInWorldFrame_;
+  }
+
+  return true;
+}
+
 bool ContactForceDistribution::addMinimalForceConstraints()
 {
   /* We want each stance leg to have a minimal force in the normal direction to the ground:
    * n.f_i >= n.f_min with n.f_i the normal component of contact force.
    */
-  MatrixA transformationFromWorldToBase = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA();
-  Vector3d normalDirection = transformationFromWorldToBase * Vector3d::UnitZ();
 
   int rowIndex = D_.rows();
   Eigen::SparseMatrix<double, Eigen::RowMajor> D_temp(D_);  // TODO replace with conservativeResize (available in Eigen 3.2)
@@ -188,7 +243,8 @@ bool ContactForceDistribution::addMinimalForceConstraints()
     if (legStatus.second.isInStance_)
     {
       MatrixXd D_row = MatrixXd::Zero(1, n_);
-      D_row.block(0, legStatus.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) = normalDirection.transpose();
+      D_row.block(0, legStatus.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_)
+        = legStatus.second.terrainNormalInBaseFrame_.transpose();
       D_.middleRows(rowIndex, 1) = D_row.sparseView();
       d_(rowIndex) = minimalNormalGroundForce_;
       f_(rowIndex) = std::numeric_limits<double>::max();
@@ -208,11 +264,6 @@ bool ContactForceDistribution::addFrictionConstraints()
    * We have to define these constraints for both tangential directions (approximation of the
    * friction cone).
    */
-  MatrixA transformationFromWorldToBase = robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA();
-  Vector3d normalDirection = transformationFromWorldToBase * Vector3d::UnitZ();
-  Vector3d firstTangential = transformationFromWorldToBase * Vector3d::UnitX();
-  Vector3d secondTangential = normalDirection.cross(firstTangential);
-
   int nDirections = 4;
   int nConstraints = nDirections * nLegsInStance_;
   int rowIndex = D_.rows();
@@ -227,6 +278,18 @@ bool ContactForceDistribution::addFrictionConstraints()
     if (legStatus.second.isInStance_)
     {
       MatrixXd D_rows = MatrixXd::Zero(nDirections, n_);
+
+      Vector3d& normalDirection = legStatus.second.terrainNormalInBaseFrame_;
+
+      // The choose the first tangential to lie in the XZ-plane of the base frame.
+      // This is the same as the requirement as
+      // 1) firstTangential perpendicular to normalDirection,
+      // 2) firstTangential perpendicular to normal of XZ-plane of the base frame,
+      // 3) firstTangential has unit norm.
+      Vector3d firstTangential = normalDirection.cross(Vector3d::UnitY()).normalized();
+
+      // The second tangential is perpendicular to the normal and the first tangential.
+      Vector3d secondTangential = normalDirection.cross(firstTangential).normalized();
 
       // First tangential, positive
       D_rows.block(0, legStatus.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) =
@@ -254,6 +317,10 @@ bool ContactForceDistribution::addFrictionConstraints()
 
 bool ContactForceDistribution::addDesiredLegLoadConstraints()
 {
+  /* For each leg with user defined load constraints, we add equality constraints of the form
+   * f_i = loadFactor * f_i_previous, with f_i the contact force of leg i and f_i_previous
+   * the contact force of leg i at the optimization without user defined leg load constraints.
+   */
   int nLegsWithLoadConstraintActive = 0;
   for (auto& legStatus : legStatuses_)
   {
@@ -262,7 +329,7 @@ bool ContactForceDistribution::addDesiredLegLoadConstraints()
   }
   if (nLegsWithLoadConstraintActive == 0) return true; // No need to have equality constraints
 
-  solveOptimization(); // Solving ones without equality constraints
+  solveOptimization(); // Solving once without equality constraints
 
   int nConstraints = nTranslationalDofPerFoot_ * nLegsWithLoadConstraintActive;
   int rowIndex = C_.rows();
@@ -287,8 +354,6 @@ bool ContactForceDistribution::addDesiredLegLoadConstraints()
 
   return true;
 }
-
-
 
 bool ContactForceDistribution::solveOptimization()
 {

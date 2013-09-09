@@ -31,6 +31,7 @@ RoughTerrain::RoughTerrain(RobotModel* robotModel) : TaskRobotBase("RoughTerrain
   disturbRobot_ = new DisturbRobot();
   virtualModelController_ = new VirtualModelController(robotModel_);
   terrain_ = new TerrainSL();
+  virtualModelController_->getContactForceDistributor()->setTerrain(terrain_);
 
   disturbanceTime_ = 0.1;
   disturbanceForceMagnitude_ = 0.5 * 5000.0;
@@ -70,11 +71,6 @@ bool RoughTerrain::run()
 
 //  if(getTime() > 5.0)
 //    virtualModelController_->getContactForceDistributor()->changeLegLoad(Legs::RIGHT_FRONT, 0.1 + (1.0 + sin(4.0 * getTime())) / 2.0);
-
-  VectorP footPosition = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(legIndeces[Legs::LEFT_FRONT])->getPos();
-  Vector3d surfaceNormal;
-  terrain_->getNormal(footPosition, surfaceNormal);
-  terrain_->getHeight(footPosition);
 
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
 

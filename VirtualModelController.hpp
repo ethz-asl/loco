@@ -124,7 +124,7 @@ class VirtualModelController : public robotController::ControllerBase
    * with Jacobi transpose.
    * @param [in] leg
    * @param [in] legIndexInStackedVector
-   * @param [in] contactForce
+   * @param [in] contactForce (in base frame)
    * @param [out] jointTorque
    * @return true if successfull
    */
