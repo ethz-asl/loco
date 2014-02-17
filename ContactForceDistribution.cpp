@@ -25,7 +25,7 @@ namespace robotController {
 ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robotModel)
 {
   robotModel_ = robotModel;
-  terrain_ = nullptr;
+//  terrain_ = nullptr;
   isParametersLoaded_ = false;
   isTerrainSet_ = false;
   isForceDistributionComputed_ = false;
@@ -75,6 +75,8 @@ bool ContactForceDistribution::addToLogger()
   }
 
   updateLoggerData();
+
+  return true;
 }
 
 bool ContactForceDistribution::changeLegLoad(const Legs& leg,
@@ -89,16 +91,16 @@ bool ContactForceDistribution::changeLegLoad(const Legs& leg,
   return false;
 }
 
-bool ContactForceDistribution::setTerrain(robotTerrain::TerrainBase* terrain)
-{
-  if (terrain != nullptr)
-  {
-    terrain_ = terrain;
-    isTerrainSet_ = true;
-  }
-
-  return false;
-}
+//bool ContactForceDistribution::setTerrain(robotTerrain::TerrainBase* terrain)
+//{
+//  if (terrain != nullptr)
+//  {
+//    terrain_ = terrain;
+//    isTerrainSet_ = true;
+//  }
+//
+//  return false;
+//}
 
 bool ContactForceDistribution::computeForceDistribution(
     const Eigen::Vector3d& virtualForce,
@@ -210,7 +212,7 @@ bool ContactForceDistribution::getTerrainNormals()
       if (legStatus.second.isInStance_)
       {
         VectorP footPosition = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(legIndeces[legStatus.first])->getPos();
-        terrain_->getNormal(footPosition, legStatus.second.terrainNormalInWorldFrame_);
+//        terrain_->getNormal(footPosition, legStatus.second.terrainNormalInWorldFrame_);
       }
     }
   }

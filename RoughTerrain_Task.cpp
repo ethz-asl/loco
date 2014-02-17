@@ -14,13 +14,13 @@
 #include "DrawGhost.hpp"
 #include "Rotations.hpp"
 #include "toMove.hpp"
-#include "TerrainSL.hpp"
+//#include "TerrainSL.hpp"
 
 using namespace std;
 using namespace robotModel;
 using namespace robotTask;
 using namespace robotController;
-using namespace robotTerrain;
+//using namespace robotTerrain;
 using namespace robotUtils;
 using namespace Eigen;
 
@@ -30,10 +30,10 @@ RoughTerrain::RoughTerrain(RobotModel* robotModel) : TaskRobotBase("RoughTerrain
 {
   disturbRobot_ = new DisturbRobot();
   virtualModelController_ = new VirtualModelController(robotModel_);
-  terrain_ = new TerrainSL();
-  virtualModelController_->getContactForceDistributor()->setTerrain(terrain_);
+//  terrain_ = new TerrainSL();
+//  virtualModelController_->getContactForceDistributor()->setTerrain(terrain_);
 
-  disturbanceTime_ = 0.1;
+  disturbanceTime_ = 0.5;
   disturbanceForceMagnitude_ = 0.5 * 5000.0;
   disturbanceTorqueMagnitude_ = 0.5* 1000.0;
 }
@@ -42,7 +42,7 @@ RoughTerrain::~RoughTerrain()
 {
   delete disturbRobot_;
   delete virtualModelController_;
-  delete terrain_;
+//  delete terrain_;
 }
 
 bool RoughTerrain::add()
