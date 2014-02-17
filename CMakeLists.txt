@@ -1,54 +1,35 @@
-#-------------------------------------------------------------------------------
-#
-# Sub-project CMake file for the SL software
-#
-#  Rough terrain locomotion for StarlETH
-#
-# Autonomous Systems Lab
-# ETH Zurich
-#
-# Author(s): Peter Fankhauser
-# email    : pfankhauser@ethz.ch
-# Date     : 8-Jul-2013
-#
-#-------------------------------------------------------------------------------
-cmake_minimum_required (VERSION 2.6)  
-message("      Including task rough terrain")
+# Project configuration
+cmake_minimum_required (VERSION 2.8)
 
-################
-### INCLUDES ###
-################
-set(TASK_INCL ${TASK_INCL} 
-	${CMAKE_CURRENT_SOURCE_DIR} 
-PARENT_SCOPE)
+project(locomotion_control)
 
-###############
-### SOURCES ###
-###############
-set(TASK_SRCS ${TASK_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/RoughTerrain_Task.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/VirtualModelController.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/ContactForceDistribution.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/toMove.cpp
-PARENT_SCOPE)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-#################
-### LIBRARIES ###
-#################
-set(TASK_LIBS ${TASK_LIBS} 
+# Set Build Type
+#   * None (CMAKE_C_FLAGS or CMAKE_CXX_FLAGS used)
+#   * Debug (CMAKE_C_FLAGS_DEBUG or CMAKE_CXX_FLAGS_DEBUG)
+#   * Release (CMAKE_C_FLAGS_RELEASE or CMAKE_CXX_FLAGS_RELEASE)
+#   * RelWithDebInfo (CMAKE_C_FLAGS_RELWITHDEBINFO or CMAKE_CXX_FLAGS_RELWITHDEBINFO
+#   * MinSizeRel (CMAKE_C_FLAGS_MINSIZEREL or CMAKE_CXX_FLAGS_MINSIZEREL) 
+set(CMAKE_BUILD_TYPE Debug)
 
-PARENT_SCOPE)
+add_definitions(-std=c++0x)
 
-#################
-### UTILITIES ###
-#################
-set(USE_UTIL_SCHWEIZERMESSER ON CACHE BOOL "schweizer messer")
-set(USE_UTIL_TASKTIMER ON CACHE BOOL "task timer")
-set(USE_UTIL_DISTURBROBOT ON CACHE BOOL "disturb robot")
-set(USE_UTIL_ROTATIONS ON CACHE BOOL "rotations")
-set(USE_UTIL_OOQP ON CACHE BOOL "OOQP")
-set(USE_UTIL_OOQP_INTERFACES ON CACHE BOOL "OOQP Interfaces")
-set(USE_UTIL_DRAWARROW ON CACHE BOOL "draw arrow")
-set(USE_UTIL_DRAWSPHERE ON CACHE BOOL "draw sphere")
-set(USE_UTIL_DRAWFRAME ON CACHE BOOL "draw frame")
-set(USE_UTIL_DRAWGHOST ON CACHE BOOL "draw ghost")
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/")
+	message(STATUS "Building GTests!")
+	option(BUILD_GTEST "build gtest" ON)
+	add_subdirectory(gtest gtest)
+	enable_testing()
+endif()
+
+# Add CMake module path
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+# Add static contact force distribution
+add_subdirectory(static_contact_force_distribution)
+
+# Add virtual_model_control 
+add_subdirectory(virtual_model_control)
+
+# Add test
+add_subdirectory(test)
