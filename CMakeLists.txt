@@ -16,8 +16,28 @@ add_definitions(--std=c++11)
 # Add CMake module path
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+
 # Add static contact force distribution
 add_subdirectory(static_contact_force_distribution)
 
 # Add virtual_model_control 
 add_subdirectory(virtual_model_control)
+
+
+################
+### INCLUDES ###
+################
+set(TASK_INCL ${TASK_INCL} 
+PARENT_SCOPE)
+
+###############
+### SOURCES ###
+###############
+set(TASK_SRCS ${TASK_SRCS} 
+PARENT_SCOPE)
+
+#################
+### LIBRARIES ###
+#################
+set(TASK_LIBS ${TASK_LIBS} 
+PARENT_SCOPE)

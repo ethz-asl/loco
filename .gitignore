@@ -25,3 +25,6 @@ install_manifest.txt
 # Eclipse
 .cproject
 .project
+
+build/*
+.directory
