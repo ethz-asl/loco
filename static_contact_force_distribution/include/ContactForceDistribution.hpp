@@ -22,7 +22,7 @@
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 #include "RobotModel.hpp"
-//#include "TerrainBase.hpp"
+#include "TerrainBase.hpp"
 #include "toMove.hpp"
 
 namespace robotController {
@@ -87,7 +87,7 @@ class ContactForceDistribution
    * @param[in] terrain the reference to the terrain class.
    * @return true if successful.
    */
-//  bool setTerrain(robotTerrain::TerrainBase* terrain);
+  bool setTerrain(robotTerrain::TerrainBase* terrain);
 
   /*!
    * Gets the distributed force for a leg at the contact point.
@@ -116,7 +116,7 @@ class ContactForceDistribution
   robotModel::RobotModel* robotModel_;
 
   //! Reference to the terrain
-//  robotTerrain::TerrainBase* terrain_;
+  robotTerrain::TerrainBase* terrain_;
 
   //! True if parameters are successfully loaded.
   bool isParametersLoaded_;

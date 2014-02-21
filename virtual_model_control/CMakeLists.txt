@@ -3,10 +3,6 @@ cmake_minimum_required (VERSION 2.8)
 
 project(locomotion_control)
 
-include_directories ("include")
-
-
-
 ################
 ### INCLUDES ###
 ################
@@ -27,3 +23,8 @@ PARENT_SCOPE)
 set(TASK_LIBS ${TASK_LIBS} 
 
 PARENT_SCOPE)
+
+#############
+### TESTS ###
+#############
+add_subdirectory(test)
