@@ -16,12 +16,21 @@ add_definitions(--std=c++11)
 # Add CMake module path
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/")
+	message(STATUS "Building GTests!")
+	option(BUILD_GTEST "build gtest" ON)
+	add_subdirectory(gtest gtest)
+	enable_testing()
+endif()
 
 # Add static contact force distribution
 add_subdirectory(static_contact_force_distribution)
 
 # Add virtual_model_control 
 add_subdirectory(virtual_model_control)
+
+# Add gait_patern
+add_subdirectory(gait_pattern)
 
 
 ################
@@ -41,3 +50,5 @@ PARENT_SCOPE)
 #################
 set(TASK_LIBS ${TASK_LIBS} 
 PARENT_SCOPE)
+
+
