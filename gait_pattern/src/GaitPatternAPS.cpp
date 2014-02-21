@@ -28,9 +28,6 @@ GaitPatternAPS::~GaitPatternAPS() {
 }
 
 
-int GaitPatternAPS::getLegIndex(GenericLeg* leg){
-	return leg->legProps->index;
-}
 
 
 
@@ -51,16 +48,16 @@ void GaitPatternAPS::setToInterpolatedGait(const GaitPatternAPS& gait1, const Ga
 	it is in stance mode.
 	The absoultePhase is expected to be between 0 and 1.
 */
-double GaitPatternAPS::getRelativePhaseForLeg(GenericLeg* leg, double absolutePhase){
-	return GaitAPS::getSwingPhase(getLegIndex(leg));
+double GaitPatternAPS::getRelativePhaseForLeg(int iLeg, double absolutePhase){
+	return GaitAPS::getSwingPhase(iLeg);
 
 }
 
 
 
 //returns the total length (in unitless phase measurement) of the stance phase
-double GaitPatternAPS::getStanceDuration(GenericLeg* leg){
-	return GaitAPS::getStanceDuration(getLegIndex(leg));
+double GaitPatternAPS::getStanceDuration(int iLeg){
+	return GaitAPS::getStanceDuration(iLeg);
 }
 
 double GaitPatternAPS::getStrideDuration()
@@ -74,12 +71,8 @@ void GaitPatternAPS::setStrideDuration(double strideDuration)
 }
 
 //returns the relative stance phase for the leg. If the leg is in swing mode, it returns 0
-double GaitPatternAPS::getStancePhaseForLeg(GenericLeg* leg, double absolutePhase){
-	int pIndex = getLegIndex(leg);
-	//by default all legs are in stance mode
-	if (pIndex == -1) return 0;
-
-	return getStancePhase(pIndex);
+double GaitPatternAPS::getStancePhaseForLeg(int iLeg, double absolutePhase){
+	return getStancePhase(iLeg);
 
 }
 
@@ -358,7 +351,7 @@ std::string GaitPatternAPS::getLegName(int iLeg)
 		legName = "RH";
 		break;
 	default:
-		throwError("Wrong leg index!");
+	  printf("Leg index is wrong!");
 	}
 	return legName;
 }
