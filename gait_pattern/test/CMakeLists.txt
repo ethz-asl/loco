@@ -62,6 +62,7 @@ include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 set(GAITPATTERN_SRCS
 	test_main.cpp
 	../src/APS.cpp
+	GaitPatternAPSTest.cpp
 )
 
 # Add test cpp file

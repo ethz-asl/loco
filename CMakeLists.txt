@@ -3,6 +3,8 @@ cmake_minimum_required (VERSION 2.8)
 
 project(locomotion_control)
 
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+
 # Set Build Type
 #   * None (CMAKE_C_FLAGS or CMAKE_CXX_FLAGS used)
 #   * Debug (CMAKE_C_FLAGS_DEBUG or CMAKE_CXX_FLAGS_DEBUG)
