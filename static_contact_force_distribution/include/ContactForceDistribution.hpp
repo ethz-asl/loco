@@ -23,7 +23,7 @@
 #include <Eigen/SparseCore>
 #include "RobotModel.hpp"
 #include "TerrainBase.hpp"
-#include "toMove.hpp"
+#include "Legs.hpp"
 
 namespace robotController {
 

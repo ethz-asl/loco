@@ -34,6 +34,9 @@ add_subdirectory(virtual_model_control)
 # Add gait_patern
 add_subdirectory(gait_pattern)
 
+# Add temporal helpers
+add_subdirectory(temp_helpers)
+
 
 ################
 ### INCLUDES ###
