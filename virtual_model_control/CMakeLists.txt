@@ -27,4 +27,4 @@ PARENT_SCOPE)
 #############
 ### TESTS ###
 #############
-add_subdirectory(test)
+#add_subdirectory(test)
