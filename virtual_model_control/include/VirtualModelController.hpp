@@ -17,7 +17,7 @@
 #include <Eigen/Geometry>
 #include "ControllerBase.hpp"
 #include "ContactForceDistribution.hpp"
-#include "toMove.hpp"
+#include "Legs.hpp"
 
 namespace robotController {
 

@@ -1,7 +1,7 @@
 # Project configuration
 cmake_minimum_required (VERSION 2.8)
 
-project(locomotion_control)
+project(temp_helpers)
 
 ################
 ### INCLUDES ###
@@ -14,7 +14,7 @@ PARENT_SCOPE)
 ### SOURCES ###
 ###############
 set(TASK_SRCS ${TASK_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/src/VirtualModelController.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/Legs.cpp
 PARENT_SCOPE)
 
 #################
@@ -23,8 +23,3 @@ PARENT_SCOPE)
 set(TASK_LIBS ${TASK_LIBS} 
 
 PARENT_SCOPE)
-
-#############
-### TESTS ###
-#############
-#add_subdirectory(test)
