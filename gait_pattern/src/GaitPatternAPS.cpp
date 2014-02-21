@@ -6,13 +6,16 @@
  */
 
 #include "GaitPatternAPS.hpp"
-#include <cmath>
+
+
 #include "tinyxml.h"
+
+#include <cmath>
+#include <vector>
 
 namespace loco {
 
-GaitPatternAPS::GaitPatternAPS() {
-
+GaitPatternAPS::GaitPatternAPS():velocity_(0.0) {
 
 	numGaitCycles = 0;
 
@@ -30,26 +33,7 @@ GaitPatternAPS::~GaitPatternAPS() {
 
 
 
-
-
-
-/**
-	computed an interpolated version of the two gaits passed in as parameters.
-	if t is 0, the current gait is set to gait1, 1 -> gait 2, and values in between
-	correspond to interpolated gaits.
-*/
-void GaitPatternAPS::setToInterpolatedGait(const GaitPatternAPS& gait1, const GaitPatternAPS& gait2, double t){
-
-}
-
-/**
-	returns the relative phase for the leg whose index is passed in. The number
-	returned is always going to be between 0 and 1 (0 meaning it just started to be in swing mode,
-	1 - it is a stance leg again, anything in between means that it is a swing leg). -1 means
-	it is in stance mode.
-	The absoultePhase is expected to be between 0 and 1.
-*/
-double GaitPatternAPS::getRelativePhaseForLeg(int iLeg, double absolutePhase){
+double GaitPatternAPS::getSwingPhaseForLeg(int iLeg, double absolutePhase){
 	return GaitAPS::getSwingPhase(iLeg);
 
 }
@@ -77,11 +61,9 @@ double GaitPatternAPS::getStancePhaseForLeg(int iLeg, double absolutePhase){
 
 }
 
-double GaitPatternAPS::getStancePhaseForLeg(int iLeg, double absolutePhase){
-	return getStancePhase(iLeg);
-}
 
-bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, DynamicArray<GenericLeg*>& legs, double dt)
+
+bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt)
 {
 	double value, liftOff, touchDown;
 	int iLeg;
@@ -309,7 +291,11 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, DynamicAr
 	return true;
 }
 
+bool GaitPatternAPS::initialize(const APS& aps, double dt) {
+  GaitAPS::initAPS(aps, dt);
 
+  return true;
+}
 
 bool GaitPatternAPS::saveParametersInXML(TiXmlHandle &hParameterSet)
 {
@@ -329,33 +315,13 @@ bool GaitPatternAPS::saveParametersInXML(TiXmlHandle &hParameterSet)
 }
 
 
-unsigned long int GaitPatternAPS::getNumGaitCycles()
+unsigned long int GaitPatternAPS::getNGaitCycles()
 {
 	return GaitAPS::getNumGaitCycles();
 }
 
 
-std::string GaitPatternAPS::getLegName(int iLeg)
-{
-	std::string legName;
-	switch (iLeg) {
-	case 0:
-		legName = "LF";
-		break;
-	case 1:
-		legName = "RF";
-		break;
-	case 2:
-		legName = "LH";
-		break;
-	case 3:
-		legName = "RH";
-		break;
-	default:
-	  printf("Leg index is wrong!");
-	}
-	return legName;
-}
+
 
 void GaitPatternAPS::setVelocity(double value)
 {

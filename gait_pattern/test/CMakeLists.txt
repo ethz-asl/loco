@@ -65,7 +65,10 @@ set(GAITPATTERN_SRCS
 	../src/GaitAPS.cpp
 	../src/GaitPatternAPS.cpp
 	GaitPatternAPSTest.cpp
-
+	../../thirdparty/tinyxml/tinystr.cpp
+	../../thirdparty/tinyxml/tinyxml.cpp
+	../../thirdparty/tinyxml/tinyxmlerror.cpp
+	../../thirdparty/tinyxml/tinyxmlparser.cpp
 )
 
 # Add test cpp file

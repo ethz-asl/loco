@@ -49,6 +49,29 @@ APS::APS():
 //	}
 //	printf(" ]");
 }
+
+
+APS::APS(double foreCycleDuration, double hindCycleDuration, double foreDutyFactor, double hindDutyFactor, double foreLag, double hindLag, double pairLag) :
+phase_(0.0),
+startTime_(0.0),
+foreCycleDuration_(foreCycleDuration),
+hindCycleDuration_(hindCycleDuration),
+foreDutyFactor_(foreDutyFactor),
+hindDutyFactor_(hindDutyFactor),
+foreLag_(foreLag),
+hindLag_(hindLag),
+pairLag_(pairLag),
+interpolate_(0.0),
+foreCycleDurationLaw_(APS_VL_NONE),
+hindCycleDurationLaw_(APS_VL_NONE),
+foreDutyFactorLaw_(APS_VL_NONE),
+hindDutyFactorLaw_(APS_VL_NONE),
+foreLagLaw_(APS_VL_NONE),
+hindLagLaw_(APS_VL_NONE),
+pairLagLaw_(APS_VL_NONE)
+{
+
+}
 APS::~APS(){
 
 }

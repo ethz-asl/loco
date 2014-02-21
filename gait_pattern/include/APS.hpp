@@ -14,6 +14,7 @@ namespace loco {
 class APS {
 public:
 	APS();
+	APS(double foreCycleDuration, double hindCycleDuration, double foreDutyFactor, double hindDutyFactor, double foreLag, double hindLag, double pairLag);
 	virtual ~APS();
 
 public:
@@ -22,7 +23,8 @@ public:
 		APS_VL_EXP,
 		APS_VL_LOG,
 		APS_VL_LIN
-	} ;
+	};
+public:
 	double phase_;
 	double startTime_;
 	double foreCycleDuration_;
@@ -76,7 +78,7 @@ public:
 	double pairLagMinVelocityValue_;
 	double pairLagMaxVelocity_;
 	double pairLagMaxVelocityValue_;
-
+public:
 	void getAPSTimesForLeg(int iLeg, double& timeAPSStart, double& timeAPSEnd, double& timeStanceStart, double& timeStanceEnd);
 	double getTimeFootLiftOff(int iLeg);
 
@@ -87,6 +89,7 @@ public:
 	 * @return	stance duration in seconds
 	 */
 	double getStanceDurationForLeg(int iLeg);
+
 	/*! Swing duration for a steady gait for a given leg
 	 * @param iLeg	index of the leg  [0,1,2,3]
 	 * @return	swing duration in seconds

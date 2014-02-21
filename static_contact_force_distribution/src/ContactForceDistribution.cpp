@@ -9,7 +9,7 @@
 #include "ContactForceDistribution.hpp"
 #include <Eigen/Geometry>
 #include "LinearAlgebra.hpp"
-#include "numerical_comparisons.hpp"
+#include "sm/numerical_comparisons.hpp"
 #include "OoqpEigenInterface.hpp"
 #include "QuadraticProblemFormulation.hpp"
 #include "Logger.hpp"

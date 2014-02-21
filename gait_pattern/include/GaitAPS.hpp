@@ -25,7 +25,7 @@ public:
 	 * @param aps	initial APS
 	 * @param dt		time step in seconds
 	 */
-	void initAPS(APS &aps, double dt);
+	void initAPS(const APS& aps, double dt);
 
 	/*! Gets the swing phase for a given leg
 	 * The swing phase is in [0,1] if the leg is in swing mode and -1 if it is in stance mode

@@ -23,24 +23,25 @@ GaitAPS::~GaitAPS() {
 
 }
 
-void GaitAPS::initAPS(APS &aps, double dt)
+void GaitAPS::initAPS(const APS& aps, double dt)
 {
 	/* delete all APS */
 	listAPS_.clear();
 
 	/* previous APS */
-	aps.startTime_ = 0.0;
-	listAPS_.push_back(aps);
+	APS newAPS = aps;
+	newAPS.startTime_ = 0.0;
+	listAPS_.push_back(newAPS);
 	prevAPS[0] =  prevAPS[1] = prevAPS[2] = prevAPS[3] = --listAPS_.end();
 
 	/* current APS */
-	aps.startTime_ += aps.foreCycleDuration_;
-	listAPS_.push_back(aps);
+	newAPS.startTime_ += newAPS.foreCycleDuration_;
+	listAPS_.push_back(newAPS);
 	currentAPS[0] =  currentAPS[1] = currentAPS[2] = currentAPS[3]  = --listAPS_.end();
 
 	/* next APS */
-	aps.startTime_ += aps.foreCycleDuration_;
-	listAPS_.push_back(aps);
+	newAPS.startTime_ += newAPS.foreCycleDuration_;
+	listAPS_.push_back(newAPS);
 	nextAPS[0] = nextAPS[1] = nextAPS[2] = nextAPS[3] = --listAPS_.end();
 
 	/* second next APS */
