@@ -7,6 +7,7 @@
 
 #include "GaitPatternAPS.hpp"
 #include <cmath>
+#include "tinyxml.h"
 
 namespace loco {
 

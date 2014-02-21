@@ -56,13 +56,16 @@ if (BUILD_GTEST)
 ################################
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-
+include_directories(../../thirdparty/tinyxml)
 
 
 set(GAITPATTERN_SRCS
 	test_main.cpp
 	../src/APS.cpp
+	../src/GaitAPS.cpp
+	../src/GaitPatternAPS.cpp
 	GaitPatternAPSTest.cpp
+
 )
 
 # Add test cpp file

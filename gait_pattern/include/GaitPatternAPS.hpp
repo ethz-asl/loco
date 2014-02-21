@@ -49,7 +49,7 @@ public:
   virtual double getRelativePhaseForLeg(int iLeg, double absolutePhase);
 
   //! returns the relative stance phase for the leg. If the leg is in swing mode, it returns -1
-  virtual double getStancePhaseForLeg(GenericLeg* leg, double absolutePhase);
+  virtual double getStancePhaseForLeg(int iLeg, double absolutePhase);
 
   //! returns the relative stance phase for the leg. If the leg is in swing mode, it returns -1
   virtual double getStancePhaseForLeg(int iLeg, double absolutePhase);
