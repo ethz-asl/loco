@@ -1,9 +1,12 @@
-/*
- * GaitAPS.hpp
- *
- *  Created on: Aug 22, 2013
- *      Author: gech
- */
+/*!
+* @file     GaitAPS.hpp
+* @author   Christian Gehring
+* @date     Jun, 2013
+* @version  1.0
+* @ingroup
+* @brief
+*/
+
 #ifndef LOCO_GAITAPS_HPP_
 #define LOCO_GAITAPS_HPP_
 

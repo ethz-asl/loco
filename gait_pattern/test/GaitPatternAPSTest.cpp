@@ -1,10 +1,11 @@
-/*
- * GaitPatternAPSTest.cpp
- *
- *  Created on: Feb 21, 2014
- *      Author: gech
- */
-
+/*!
+* @file     GaitPatternAPSTest.cpp
+* @author   Christian Gehring
+* @date     Jun, 2013
+* @version  1.0
+* @ingroup
+* @brief
+*/
 
 #include "GaitPatternAPS.hpp"
 #include "APS.hpp"

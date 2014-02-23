@@ -31,8 +31,11 @@ add_subdirectory(static_contact_force_distribution)
 # Add virtual_model_control 
 add_subdirectory(virtual_model_control)
 
-# Add gait_patern
+# Add gait patern
 add_subdirectory(gait_pattern)
+
+# Add foot placement strategies
+add_subdirectory(foot_placement_strategy)
 
 # Add temporal helpers
 add_subdirectory(temp_helpers)

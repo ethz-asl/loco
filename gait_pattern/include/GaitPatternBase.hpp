@@ -1,10 +1,11 @@
-/*
- * GaitPatternBase.hpp
- *
- *  Created on: Feb 21, 2014
- *      Author: gech
- */
-
+/*!
+* @file     GaitPatternBase.hpp
+* @author   Christian Gehring
+* @date     Jun, 2013
+* @version  1.0
+* @ingroup
+* @brief
+*/
 #ifndef LOCO_GAITPATTERNBASE_HPP_
 #define LOCO_GAITPATTERNBASE_HPP_
 

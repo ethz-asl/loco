@@ -1,9 +1,11 @@
-/*
- * APS.hpp
- *
- *  Created on: Aug 13, 2013
- *      Author: gech
- */
+/*!
+* @file     APS.hpp
+* @author   Christian Gehring
+* @date     Jun, 2013
+* @version  1.0
+* @ingroup
+* @brief
+*/
 
 #ifndef LOCO_APS_HPP_
 #define LOCO_APS_HPP_

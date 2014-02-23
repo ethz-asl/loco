@@ -1,10 +1,11 @@
-/*
- * GaitAPS.cpp
- *
- *  Created on: Aug 22, 2013
- *      Author: gech
- */
-
+/*!
+* @file     GaitAPS.cpp
+* @author   Christian Gehring
+* @date     Jun, 2013
+* @version  1.0
+* @ingroup
+* @brief
+*/
 #include "GaitAPS.hpp"
 #include <cstdio>
 
