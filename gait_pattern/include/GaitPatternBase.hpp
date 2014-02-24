@@ -37,10 +37,10 @@ public:
     1 - it is a stance leg again, anything in between means that it is a swing leg).
     The stridePhase is expected to be between 0 and 1.
   */
-  virtual double getSwingPhaseForLeg(int iLeg, double stridePhase) = 0;
+  virtual double getSwingPhaseForLeg(int iLeg) = 0;
 
   //! returns the relative stance phase for the leg. If the leg is in swing mode, it returns -1
-  virtual double getStancePhaseForLeg(int iLeg, double stridePhase) = 0;
+  virtual double getStancePhaseForLeg(int iLeg) = 0;
 
   //! returns the total length (in unitless phase measurement) of the stance phase
   virtual double getStanceDuration(int iLeg) = 0;
@@ -48,6 +48,15 @@ public:
   /*!  @returns number of gait cycles
    */
   virtual unsigned long int getNGaitCycles() = 0;
+
+  /*! Advance in time
+   * @param dt  time step [s]
+   */
+  virtual void advance(double dt) = 0;
+
+
+
+  virtual bool shouldBeLegGrounded(int iLeg) = 0;
 
 
 

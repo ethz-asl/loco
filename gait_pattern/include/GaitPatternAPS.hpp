@@ -45,10 +45,10 @@ public:
     1 - it is a stance leg again, anything in between means that it is a swing leg).
     The absoultePhase is expected to be between 0 and 1.
   */
-  virtual double getSwingPhaseForLeg(int iLeg, double absolutePhase);
+  virtual double getSwingPhaseForLeg(int iLeg);
 
   //! returns the relative stance phase for the leg. If the leg is in swing mode, it returns -1
-  virtual double getStancePhaseForLeg(int iLeg, double absolutePhase);
+  virtual double getStancePhaseForLeg(int iLeg);
 
 
   //! returns the total length (in unitless phase measurement) of the stance phase
@@ -64,6 +64,13 @@ public:
   void setVelocity(double value);
 
   double getVelocity();
+
+  /*! Advance in time
+   * @param dt  time step [s]
+   */
+  virtual void advance(double dt);
+
+  virtual bool shouldBeLegGrounded(int iLeg);
 
 protected:
   double velocity_;

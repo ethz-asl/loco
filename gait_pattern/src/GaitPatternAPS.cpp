@@ -34,15 +34,13 @@ GaitPatternAPS::~GaitPatternAPS() {
 
 
 
-double GaitPatternAPS::getSwingPhaseForLeg(int iLeg, double absolutePhase){
+double GaitPatternAPS::getSwingPhaseForLeg(int iLeg) {
 	return GaitAPS::getSwingPhase(iLeg);
 
 }
 
 
-
-//returns the total length (in unitless phase measurement) of the stance phase
-double GaitPatternAPS::getStanceDuration(int iLeg){
+double GaitPatternAPS::getStanceDuration(int iLeg) {
 	return GaitAPS::getStanceDuration(iLeg);
 }
 
@@ -56,8 +54,8 @@ void GaitPatternAPS::setStrideDuration(double strideDuration)
 	GaitAPS::setStrideDuration(strideDuration);
 }
 
-//returns the relative stance phase for the leg. If the leg is in swing mode, it returns 0
-double GaitPatternAPS::getStancePhaseForLeg(int iLeg, double absolutePhase){
+
+double GaitPatternAPS::getStancePhaseForLeg(int iLeg){
 	return getStancePhase(iLeg);
 
 }
@@ -337,6 +335,14 @@ void GaitPatternAPS::setVelocity(double value)
 double GaitPatternAPS::getVelocity()
 {
 	return velocity_;
+}
+
+void GaitPatternAPS::advance(double dt) {
+  GaitAPS::advance(dt);
+}
+
+bool GaitPatternAPS::shouldBeLegGrounded(int iLeg) {
+  GaitAPS::shouldBeGrounded(iLeg);
 }
 
 } // namespace loco

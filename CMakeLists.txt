@@ -37,6 +37,9 @@ add_subdirectory(gait_pattern)
 # Add foot placement strategies
 add_subdirectory(foot_placement_strategy)
 
+# Add limb coordination
+add_subdirectory(limb_coordinator)
+
 # Add temporal helpers
 add_subdirectory(temp_helpers)
 
