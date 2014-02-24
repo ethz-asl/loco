@@ -39,7 +39,7 @@ PARENT_SCOPE)
 
 
 
-add_subdirectory(test EXCLUDE_FROM_ALL)
+#add_subdirectory(test EXCLUDE_FROM_ALL)
 
 set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")
 

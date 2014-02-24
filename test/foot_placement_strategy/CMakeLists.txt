@@ -16,11 +16,14 @@ add_definitions(-std=c++0x)
 find_package(Eigen REQUIRED)
 find_package(Kindr REQUIRED)
 
+include_directories(${UTILS_INCL})
+include_directories(${ROBOTMODEL_INCL})
 
+message(STATUS "robotModel: ${ROBOTMODEL_INCL}")
 
 include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${Kindr_INCLUDE_DIRS})
-include_directories(../include)
+include_directories(../../foot_placement_strategy/include)
 include_directories(../../temp_helpers/include)
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
@@ -30,8 +33,8 @@ include_directories(../../thirdparty/tinyxml)
 set(FOOTPLACMENTSTRATEGY_SRCS
 	test_main.cpp
 	FootPlacementStrategyTest.cpp
-	../src/FootPlacementStrategyBase.cpp
-	../src/FootPlacementStrategyInvertedPendulum.cpp
+	../../foot_placement_strategy/src/FootPlacementStrategyBase.cpp
+	../../foot_placement_strategy/src/FootPlacementStrategyInvertedPendulum.cpp
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp
