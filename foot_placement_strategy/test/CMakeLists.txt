@@ -45,16 +45,6 @@ include_directories(${Kindr_INCLUDE_DIRS})
 include_directories(../include)
 include_directories(../../temp_helpers/include)
 
-
- 
-if (BUILD_GTEST)
-################################
-# Unit Tests
-################################
-################################
-# GTest
-################################
-
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 include_directories(../../thirdparty/tinyxml)
 
@@ -70,10 +60,10 @@ set(FOOTPLACMENTSTRATEGY_SRCS
 	../../thirdparty/tinyxml/tinyxmlparser.cpp
 )
 
-# Add test cpp file
-add_executable( runUnitTestsFootPlacementStrategy  ${FOOTPLACMENTSTRATEGY_SRCS})
-# Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread )
-add_test( runUnitTestsFootPlacementStrategy runUnitTestsFootPlacementStrategy )
 
-endif()
+add_executable( runUnitTestsFootPlacementStrategy EXCLUDE_FROM_ALL ${FOOTPLACMENTSTRATEGY_SRCS})
+target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread )
+add_test( runUnitTestsFootPlacementStrategy ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsFootPlacementStrategy )
+add_dependencies(check runUnitTestsFootPlacementStrategy)
+
+

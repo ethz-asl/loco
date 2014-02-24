@@ -1,4 +1,4 @@
-#include <toMove.hpp>
+#include "Legs.hpp"
 
 Legs operator++(Legs& l) { return l = (Legs)(std::underlying_type<Legs>::type(l) + 1); }
 Legs operator*(Legs l){ return l; }

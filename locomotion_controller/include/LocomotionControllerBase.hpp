@@ -9,12 +9,20 @@
 #ifndef LOCO_LOCOMOTIONCONTROLLERBASE_HPP_
 #define LOCO_LOCOMOTIONCONTROLLERBASE_HPP_
 
+
 namespace loco {
 
 class LocomotionControllerBase {
  public:
   LocomotionControllerBase();
   virtual ~LocomotionControllerBase();
+
+  /*! Advance in time
+   * @param dt  time step [s]
+   */
+  virtual void advance(double dt) = 0;
+ protected:
+
 };
 
 } /* namespace loco */

@@ -10,8 +10,8 @@
 
 #include <gtest/gtest.h>
 
+#include "RobotModel.hpp"
 
-
-TEST(FootPlacementTest, test) {
-
+TEST(LocomotionControllerTest, test) {
+  robotModel::RobotModel robotModel;
 }

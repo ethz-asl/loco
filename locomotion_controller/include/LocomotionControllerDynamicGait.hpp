@@ -10,13 +10,29 @@
 #define LOCO_LOCOMOTIONCONTROLLERDYNAMICGAIT_HPP_
 
 #include "LocomotionControllerBase.hpp"
+#include "FootPlacementStrategyBase.hpp"
+#include "LimbCoordinatorBase.hpp"
+#include "BaseControlBase.hpp"
+
+#include "RobotModel_common.hpp"
 
 namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
-  LocomotionControllerDynamicGait();
+  LocomotionControllerDynamicGait(LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController);
   virtual ~LocomotionControllerDynamicGait();
+
+  /*! Advance in time
+   * @param dt  time step [s]
+   */
+  virtual void advance(double dt);
+
+ protected:
+
+  LimbCoordinatorBase* limbCoordinator_;
+  FootPlacementStrategyBase* footPlacementStrategy_;
+  BaseControlBase* baseController_;
 };
 
 } /* namespace loco */

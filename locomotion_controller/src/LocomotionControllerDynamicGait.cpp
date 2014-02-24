@@ -10,12 +10,22 @@
 
 namespace loco {
 
-LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() {
+LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController) :
+    LocomotionControllerBase(),
+    limbCoordinator_(limbCoordinator),
+    footPlacementStrategy_(footPlacementStrategy),
+    baseController_(baseController)
+{
 
 
 }
 
 LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
+
+}
+
+void LocomotionControllerDynamicGait::advance(double dt) {
+  limbCoordinator_->advance(dt);
 
 }
 

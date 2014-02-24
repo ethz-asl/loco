@@ -31,3 +31,6 @@ PARENT_SCOPE)
 ### TESTS ###
 #############
 #add_subdirectory(test)
+
+
+set(USE_UTIL_SCHWEIZERMESSER ON CACHE BOOL "schweizer-messer")

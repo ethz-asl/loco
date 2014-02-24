@@ -35,6 +35,12 @@ set(TASK_LIBS ${TASK_LIBS}
 
 PARENT_SCOPE)
 
+
+
 add_subdirectory(test)
 
 set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")
+
+
+
+#ADD_CUSTOM_TARGET(test DEPENDS test_footPlacementStrategy)
