@@ -40,6 +40,12 @@ add_subdirectory(foot_placement_strategy)
 # Add limb coordination
 add_subdirectory(limb_coordinator)
 
+# Add base control
+add_subdirectory(base_control)
+
+# Add base control
+add_subdirectory(locomotion_controller)
+
 # Add temporal helpers
 add_subdirectory(temp_helpers)
 
