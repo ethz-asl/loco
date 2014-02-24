@@ -14,13 +14,13 @@
 #include "LimbCoordinatorBase.hpp"
 #include "BaseControlBase.hpp"
 
-#include "RobotModel_common.hpp"
+#include "RobotModel.hpp"
 
 namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
-  LocomotionControllerDynamicGait(LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController);
+  LocomotionControllerDynamicGait(robotModel::RobotModel* robotModel, LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController);
   virtual ~LocomotionControllerDynamicGait();
 
   /*! Advance in time
@@ -29,7 +29,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   virtual void advance(double dt);
 
  protected:
-
+  robotModel::RobotModel* robotModel_;
   LimbCoordinatorBase* limbCoordinator_;
   FootPlacementStrategyBase* footPlacementStrategy_;
   BaseControlBase* baseController_;

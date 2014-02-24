@@ -30,6 +30,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/")
 endif()
 
 
+
 # Add static contact force distribution
 add_subdirectory(static_contact_force_distribution)
 
@@ -49,7 +50,7 @@ add_subdirectory(limb_coordinator)
 add_subdirectory(base_control)
 
 # Add base control
-#add_subdirectory(locomotion_controller)
+add_subdirectory(locomotion_controller)
 
 # Add temporal helpers
 add_subdirectory(temp_helpers)

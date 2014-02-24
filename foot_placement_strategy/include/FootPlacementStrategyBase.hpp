@@ -11,6 +11,7 @@
 #define LOCO_FOOTPLACEMENTSTRATEGYBASE_HPP_
 
 #include <Eigen/Core>
+#include "RobotModel.hpp"
 
 namespace loco {
 
@@ -39,7 +40,7 @@ public:
 	 */
 	virtual Eigen::Vector3d getFootPositionForSwingLegCSw(int iLeg, double dt) = 0;
 
-
+	virtual void update(robotModel::RobotModel* robotModel) = 0;
 };
 
 } // namespace loco

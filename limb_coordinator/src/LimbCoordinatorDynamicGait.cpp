@@ -35,12 +35,12 @@ bool LimbCoordinatorDynamicGait::isAndShouldBeLegGrounded(int iLeg) {
 }
 
 
-bool LimbCoordinatorDynamicGait::setIsLegGrounded(int iLeg, bool isLegGrounded)
+void LimbCoordinatorDynamicGait::setIsLegGrounded(int iLeg, bool isLegGrounded)
 {
   isLegGrounded_[iLeg] = isLegGrounded;
 }
 
-bool LimbCoordinatorDynamicGait::setShouldBeLegGrounded(int iLeg, bool shouldBeLegGrounded)
+void LimbCoordinatorDynamicGait::setShouldBeLegGrounded(int iLeg, bool shouldBeLegGrounded)
 {
   shouldBeLegGrounded_[iLeg] = shouldBeLegGrounded;
 }

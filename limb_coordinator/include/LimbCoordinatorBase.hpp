@@ -34,7 +34,7 @@ class LimbCoordinatorBase {
    */
   virtual void advance(double dt) = 0;
 
-  virtual bool setIsLegGrounded(int iLeg, bool isLegGrounded) = 0;
+  virtual void setIsLegGrounded(int iLeg, bool isLegGrounded) = 0;
 };
 
 } /* namespace loco */

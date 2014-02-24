@@ -73,6 +73,9 @@ public:
 
 
 	void setFeedbackScale(double scale);
+
+
+  virtual void update(robotModel::RobotModel* robotModel);
 public:
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
 	Trajectory1D stepInterpolationFunction;

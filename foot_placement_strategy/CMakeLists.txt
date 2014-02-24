@@ -9,6 +9,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 find_package(Eigen REQUIRED)
 find_package(Kindr REQUIRED)
 
+
+
 ################
 ### INCLUDES ###
 ################
@@ -37,7 +39,7 @@ PARENT_SCOPE)
 
 
 
-add_subdirectory(test)
+add_subdirectory(test EXCLUDE_FROM_ALL)
 
 set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")
 

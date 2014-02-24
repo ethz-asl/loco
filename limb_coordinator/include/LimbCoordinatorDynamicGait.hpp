@@ -32,7 +32,7 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   */
   virtual bool isLegInSwingMode(int iLeg);
 
-  virtual bool setIsLegGrounded(int iLeg, bool isLegGrounded);
+  virtual void setIsLegGrounded(int iLeg, bool isLegGrounded);
 
   /*! Advance in time
    * @param dt  time step [s]
@@ -44,7 +44,7 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   bool isLegGrounded_[4];
   bool shouldBeLegGrounded_[4];
 
-  virtual bool setShouldBeLegGrounded(int iLeg, bool shouldBeLegGrounded);
+  virtual void setShouldBeLegGrounded(int iLeg, bool shouldBeLegGrounded);
 
 };
 

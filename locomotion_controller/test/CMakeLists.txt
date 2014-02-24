@@ -28,10 +28,10 @@ add_definitions( -DSTANDALONE)
 set(ARCH x86_64)
 set(STANDALONE ON CACHE BOOL "standalone")
 set(ISSUBDIRECTORY ON CACHE BOOL "issubdir")
-
-add_subdirectory(../../../starlethModel model)
+	
 add_subdirectory(../../../starlethUtils starlethUtils)
-
+include_directories(${UTILS_INCL})
+include_directories(${ROBOTMODEL_INCL})
 
  
 
@@ -42,8 +42,7 @@ include_directories(../../gait_pattern/include)
 include_directories(../../foot_placement_strategy/include)
 include_directories(../../base_control/include)
 
-#include_directories(${StarlETHRobotModel_INCLUDE_DIRS})
-#include_directories(${StarlETHUtils_INCLUDE_DIRS})
+
 
 set(LOCOMOTIONCONTROLLER_SRCS
 	test_main.cpp
@@ -58,6 +57,9 @@ set(LOCOMOTIONCONTROLLER_SRCS
 	../../limb_coordinator/src/LimbCoordinatorBase.cpp
 	../../limb_coordinator/src/LimbCoordinatorDynamicGait.cpp
 	
+	../../base_control/src/BaseControlBase.cpp
+	../../base_control/src/BaseControlDynamicGait.cpp
+	
 	../../gait_pattern/src/APS.cpp
 	../../gait_pattern/src/GaitAPS.cpp
 	../../gait_pattern/src/GaitPatternAPS.cpp
@@ -70,6 +72,6 @@ set(LOCOMOTIONCONTROLLER_SRCS
 
 
 add_executable( runUnitTestsLocomotionController EXCLUDE_FROM_ALL  ${LOCOMOTIONCONTROLLER_SRCS})
-target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread ${StarlETHRobotModel_LIBRARIES} ${StarlETHUtils_LIBRARIES})
+target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread starlethRobotModel starlethUtils)
 add_test( runUnitTestsLocomotionController ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsLocomotionController )
 add_dependencies(check runUnitTestsLocomotionController)

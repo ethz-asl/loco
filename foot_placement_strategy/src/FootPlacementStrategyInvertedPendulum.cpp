@@ -164,6 +164,11 @@ double FootPlacementStrategyInvertedPendulum::getSagittalComponentOfFootStep(dou
 	return result;
 }
 
+void FootPlacementStrategyInvertedPendulum::update(robotModel::RobotModel* robotModel)
+{
+
+}
+
 
 
 
