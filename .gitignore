@@ -30,3 +30,4 @@ build/*
 .directory
 
 gtest
+doc/doxygen/doc

@@ -89,3 +89,6 @@ PARENT_SCOPE)
 
 #include_directories(${TASK_INCL}) 
 #add_library(loco ${TASK_SRCS})
+
+# Add Doxygen documentation
+add_subdirectory(doc/doxygen)
