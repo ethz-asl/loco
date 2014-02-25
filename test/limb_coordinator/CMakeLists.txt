@@ -17,21 +17,23 @@ find_package(Kindr REQUIRED)
 
 include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${Kindr_INCLUDE_DIRS})
-include_directories(../include)
-include_directories(../../temp_helpers/include)
-
 
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+
+include_directories(../../limb_coordinator/include)
 include_directories(../../thirdparty/tinyxml)
+include_directories(../../gait_pattern/include)
+include_directories(../../temp_helpers/include)
 
-
-set(BASECONTROL_SRCS
-	test_main.cpp
-	BaseControlTest.cpp
-	../src/BaseControlBase.cpp
-	../src/BaseControlDynamicGait.cpp
-	../src/CoMOverSupportPolygonControl.cpp
+set(LIMBCOORDINATOR_SRCS
+	../test_main.cpp
+	LimbCoordinatorTest.cpp
+	../../limb_coordinator/src/LimbCoordinatorBase.cpp
+	../../limb_coordinator/src/LimbCoordinatorDynamicGait.cpp
+	../../gait_pattern/src/APS.cpp
+	../../gait_pattern/src/GaitAPS.cpp
+	../../gait_pattern/src/GaitPatternAPS.cpp
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp
@@ -39,8 +41,8 @@ set(BASECONTROL_SRCS
 )
 
 # Add test cpp file
-add_executable( runUnitTestsBaseControl EXCLUDE_FROM_ALL  ${BASECONTROL_SRCS})
+add_executable( runUnitTestsLimbCoordinator EXCLUDE_FROM_ALL ${LIMBCOORDINATOR_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsBaseControl  gtest_main gtest pthread )
-add_test( runUnitTestsBaseControl ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsBaseControl )
-add_dependencies(check runUnitTestsBaseControl)
+target_link_libraries(runUnitTestsLimbCoordinator  gtest_main gtest pthread )
+add_test( runUnitTestsLimbCoordinator ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsLimbCoordinator )
+add_dependencies(check runUnitTestsLimbCoordinator)
