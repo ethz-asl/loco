@@ -17,6 +17,7 @@ find_package(Eigen REQUIRED)
 find_package(Kindr REQUIRED)
 
 include_directories(${UTILS_INCL})
+message(STATUS "uuuutil ${UTILS_INCL}")
 include_directories(${ROBOTMODEL_INCL})
 
 #message(STATUS "robotModel: ${ROBOTMODEL_INCL}")
@@ -33,8 +34,17 @@ include_directories(../../thirdparty/tinyxml)
 set(FOOTPLACMENTSTRATEGY_SRCS
 	../test_main.cpp
 	FootPlacementStrategyTest.cpp
+	
 	../../src/foot_placement_strategy/FootPlacementStrategyBase.cpp
 	../../src/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.cpp
+	
+	../../src/limb_coordinator/LimbCoordinatorBase.cpp
+	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
+	
+	../../src/gait_pattern/APS.cpp
+	../../src/gait_pattern/GaitAPS.cpp
+	../../src/gait_pattern/GaitPatternAPS.cpp
+	
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp
@@ -43,7 +53,7 @@ set(FOOTPLACMENTSTRATEGY_SRCS
 
 
 add_executable( runUnitTestsFootPlacementStrategy EXCLUDE_FROM_ALL ${FOOTPLACMENTSTRATEGY_SRCS})
-target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread starlethUtils starlethRobotModel )
+target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread starlethRobotModel starlethUtils  )
 add_test( runUnitTestsFootPlacementStrategy ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsFootPlacementStrategy )
 add_dependencies(check runUnitTestsFootPlacementStrategy)
 

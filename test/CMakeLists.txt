@@ -23,5 +23,5 @@ add_subdirectory(foot_placement_strategy EXCLUDE_FROM_ALL)
 add_subdirectory(gait_pattern EXCLUDE_FROM_ALL)
 add_subdirectory(limb_coordinator EXCLUDE_FROM_ALL)
 add_subdirectory(base_control EXCLUDE_FROM_ALL)
-add_subdirectory(locomotion_controller EXCLUDE_FROM_ALL)
+#add_subdirectory(locomotion_controller EXCLUDE_FROM_ALL)
 

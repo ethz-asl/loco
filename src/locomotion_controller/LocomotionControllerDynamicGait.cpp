@@ -36,7 +36,7 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     }
   }
   limbCoordinator_->advance(dt);
-//  FootPlacementStrategyDynamicGait* footPlacementStrategy =  (FootPlacementStrategyDynamicGait*)footPlacementStrategy_;
+  footPlacementStrategy_->advance(dt);
 
 
 }

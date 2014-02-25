@@ -28,7 +28,7 @@ TEST(LocomotionControllerTest, test) {
   gaitPatternAPS.initialize(aps, dt);
   loco::LimbCoordinatorDynamicGait limbCoordinator(&gaitPatternAPS);
 
-  loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy;
+  loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(&robotModel, &limbCoordinator);
   loco::BaseControlDynamicGait baseControl;
 
   loco::LocomotionControllerDynamicGait locomotionController(&robotModel, &limbCoordinator, &footPlacementStrategy, &baseControl);

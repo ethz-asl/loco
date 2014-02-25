@@ -10,10 +10,16 @@
 #include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
 
 #include "loco/temp_helpers/math.hpp"
+#include "RobotModel_common.hpp"
 
 namespace loco {
 
-FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() {
+FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator) :
+    FootPlacementStrategyBase(),
+    robotModel_(robotModel),
+    terrain_(terrain),
+    limbCoordinator_(limbCoordinator)
+{
 
 	stepFeedbackScale_ = 1.2;
 	stepInterpolationFunction.clear();
@@ -43,7 +49,36 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() {
   desiredHeadingSpeed_ = 0.0;
 
 }
+FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() :
+    FootPlacementStrategyBase()
+{
+  stepFeedbackScale_ = 1.2;
+  stepInterpolationFunction.clear();
+  stepInterpolationFunction.addKnot(0, 0);
+  stepInterpolationFunction.addKnot(0.6, 1);
 
+  gravity_ = 9.81;
+
+  swingFootHeightTrajectory_.clear();
+  swingFootHeightTrajectory_.addKnot(0, 0);
+  swingFootHeightTrajectory_.addKnot(0.65, 0.09);
+  swingFootHeightTrajectory_.addKnot(1.0, 0);
+
+
+  for (int iLeg=0; iLeg < 4; iLeg++) {
+    estimatedGroundHeightCSw_[iLeg] = 0.0;
+    stanceDuration_[iLeg] = 0.8;
+    swingPhase_[iLeg] = 0.0;
+    footLocationAtLiftOffCSw_[iLeg]  = Eigen::Vector3d::Zero();
+    rHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
+    vHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
+
+  }
+
+  vBase_CSw_ =  Eigen::Vector3d::Zero();
+
+  desiredHeadingSpeed_ = 0.0;
+}
 FootPlacementStrategyInvertedPendulum::~FootPlacementStrategyInvertedPendulum() {
 
 }
@@ -164,9 +199,37 @@ double FootPlacementStrategyInvertedPendulum::getSagittalComponentOfFootStep(dou
 	return result;
 }
 
-void FootPlacementStrategyInvertedPendulum::update(robotModel::RobotModel* robotModel)
+void FootPlacementStrategyInvertedPendulum::advance(double dt)
 {
+  for (int iLeg=0; iLeg<4; iLeg++) {
+  this->setStanceDuration(iLeg,limbCoordinator_->getGaitPattern()->getStanceDuration(iLeg) );
+  double swingPhase = 1;
+  if (limbCoordinator_->isLegInStanceMode(iLeg)) {
+    swingPhase = limbCoordinator_->getGaitPattern()->getSwingPhaseForLeg(iLeg);
+  }
+  this->setSwingPhase(iLeg, swingPhase);
+  this->setHipPosition(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
+////  Point3d ref = leg->getWorldCoordsHipPosition();
+////  footPlacementTest.setHipPosition(iLeg, Eigen::Vector3d(ref.x, ref.y, ref.z));
+  this->setHipVelocity(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getVel());
+////  Vector3d vel = leg->origin->getAbsoluteVelocityForLocalPoint(leg->getLegOriginLocalHipPosition());
+////  footPlacementTest.setHipVelocity(iLeg, Eigen::Vector3d(vel.x, vel.y, vel.z));
+  this->setBaseVelocity(iLeg, robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel());
+////  footPlacementTest.setBaseVelocity(iLeg, Eigen::Vector3d(leg->origin->getCMVelocity().x,leg->origin->getCMVelocity().y, leg->origin->getCMVelocity().z));
+//
 
+  Eigen::Vector4d quat = robotModel_->est().getActualEstimator()->getQuat();
+
+  this->setRotationWorldToBase(loco::FootPlacementStrategyInvertedPendulum::RotationQuaternion(quat(0), quat(1), quat(2), quat(3)));
+
+
+//  footPlacementTest.setRotationWorldToBase(loco::FootPlacementStrategyInvertedPendulum::RotationQuaternion(mainFrame.body->legFrameHeading.s, mainFrame.body->legFrameHeading.v.x, mainFrame.body->legFrameHeading.v.y, mainFrame.body->legFrameHeading.v.z).inverted());
+//  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
+//  footPlacementTest.setFootLocationAtLiftOff(iLeg, Eigen::Vector3d(leg->legState.initialSwingStepOffset.x, leg->legState.initialSwingStepOffset.y, leg->legState.initialSwingStepOffset.z));
+//  footPlacementTest.setGroundHeight(iLeg, leg->legFrameP->getEstimatedGroundHeight());
+//  footPlacementTest.setDesiredHeadingSpeed(mainFrame.desiredSpeed->getSagittalSpeed());
+//
+  }
 }
 
 

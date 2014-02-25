@@ -39,6 +39,8 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
    */
   virtual void advance(double dt);
 
+  virtual GaitPatternBase* getGaitPattern();
+
  private:
   GaitPatternBase* gaitPattern_;
   bool isLegGrounded_[4];

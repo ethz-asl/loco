@@ -9,6 +9,8 @@
 #ifndef LOCO_LIMBCOORDINATIONBASE_HPP_
 #define LOCO_LIMBCOORDINATIONBASE_HPP_
 
+#include "loco/gait_pattern/GaitPatternBase.hpp"
+
 namespace loco {
 
 class LimbCoordinatorBase {
@@ -35,6 +37,8 @@ class LimbCoordinatorBase {
   virtual void advance(double dt) = 0;
 
   virtual void setIsLegGrounded(int iLeg, bool isLegGrounded) = 0;
+
+  virtual GaitPatternBase* getGaitPattern() = 0;
 };
 
 } /* namespace loco */

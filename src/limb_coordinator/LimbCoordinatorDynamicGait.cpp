@@ -66,4 +66,9 @@ bool LimbCoordinatorDynamicGait::isLegInSwingMode(int iLeg) {
   return (swingPhase >= 0 && swingPhase <= 1);
 }
 
+GaitPatternBase* LimbCoordinatorDynamicGait::getGaitPattern()
+{
+  return gaitPattern_;
+}
+
 } /* namespace loco */
