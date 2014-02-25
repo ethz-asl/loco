@@ -65,11 +65,14 @@ if (BUILD_TEST AND BUILD_GTEST)
 add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()
 
+set(TASK_INCL ${TASK_INCL}
+	${CMAKE_CURRENT_SOURCE_DIR}/include 
+)
+
 ################
 ### INCLUDES ###
 ################
 set(TASK_INCL ${TASK_INCL}
-	${CMAKE_CURRENT_SOURCE_DIR}/include 
 PARENT_SCOPE)
 
 ###############
@@ -84,3 +87,5 @@ PARENT_SCOPE)
 set(TASK_LIBS ${TASK_LIBS} 
 PARENT_SCOPE)
 
+#include_directories(${TASK_INCL}) 
+#add_library(loco ${TASK_SRCS})
