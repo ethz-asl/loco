@@ -20,6 +20,7 @@ ContactForceDistributionBase::ContactForceDistributionBase(robotModel::RobotMode
   robotModel_ = robotModel;
   terrain_ = nullptr;
   isParametersLoaded_ = false;
+  isLogging_ = false;
   isTerrainSet_ = false;
   isForceDistributionComputed_ = false;
 }
@@ -47,17 +48,25 @@ bool ContactForceDistributionBase::setTerrain(const robotTerrain::TerrainBase* t
 
 bool ContactForceDistributionBase::addToLogger()
 {
+  isLogging_ = true;
   return true;
 }
 
-bool ContactForceDistributionBase::isParametersLoaded() const
+bool ContactForceDistributionBase::checkIfParametersLoaded() const
 {
   if (isParametersLoaded_) return true;
   cout << "Contact force distribution parameters are not loaded." << endl; // TODO use warning output
   return false;
 }
 
-bool ContactForceDistributionBase::isForceDistributionComputed() const
+bool ContactForceDistributionBase::checkIfTerrainSet() const
+{
+  if (isTerrainSet_) return true;
+  cout << "Contact force distribution terrain is not set." << endl; // TODO use warning output
+  return false;
+}
+
+bool ContactForceDistributionBase::checkIfForceDistributionComputed() const
 {
   if (isForceDistributionComputed_) return true;
   cout << "Contact force distribution is not computed yet or was unsuccessful." << endl; // TODO use warning output

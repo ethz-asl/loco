@@ -146,8 +146,8 @@ class ContactForceDistribution : public ContactForceDistributionBase
   std::map<Legs, LegStatus> legStatuses_;
 
   /*!
-   * Reads foot contact flags and includes user leg load settings from changeLegLoad()
-   * @return true if successful
+   * Reads foot contact flags and includes user leg load settings from changeLegLoad().
+   * @return true if successful.
    */
   bool prepareLegLoading();
 
@@ -178,6 +178,10 @@ class ContactForceDistribution : public ContactForceDistributionBase
 
   bool resetConstraints();
 
+  /*!
+   * Update the data that is recorded by the logger.
+   * @return true if successful, false if it is not logging.
+   */
   bool updateLoggerData();
 };
 

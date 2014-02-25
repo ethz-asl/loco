@@ -94,6 +94,9 @@ class ContactForceDistributionBase
   //! True if parameters are successfully loaded.
   bool isParametersLoaded_;
 
+  //! True if data is logged.
+  bool isLogging_;
+
   //! True if terrain is set.
   bool isTerrainSet_;
 
@@ -104,13 +107,25 @@ class ContactForceDistributionBase
    * Check if parameters are loaded.
    * @return true if parameters are loaded.
    */
-  virtual bool isParametersLoaded() const;
+  virtual bool checkIfParametersLoaded() const;
+
+  /*!
+   * Check if terrain is set.
+   * @return true is set.
+   */
+  virtual bool checkIfTerrainSet() const;
 
   /*!
    * Check if force distribution is computed.
    * @return true if force distribution is computed.
    */
-  virtual bool isForceDistributionComputed() const;
+  virtual bool checkIfForceDistributionComputed() const;
+
+  /*!
+   * Update the data that is recorded by the logger.
+   * @return true if successful, false if it is not logging.
+   */
+  virtual bool updateLoggerData() = 0;
 };
 
 } /* namespace loco */
