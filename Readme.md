@@ -1,6 +1,7 @@
 Loco - Locomotion Controller
 -----------------------------------------------------------------
 Autonomous Systems Lab
+
 ETH Zurich
 
 Contact  : Christian Gehring [gehrinch ( at ) ethz.ch]
@@ -12,7 +13,7 @@ Date     : 25-Feb-2014
 
 INSTALLATION
 -----------------------------------------------------------------
-Building the library:
+Building the library
 -----------------------------
 Build the library with CMake:
 ```bash
@@ -38,3 +39,15 @@ cd build
 cmake .. -DBUILD_TEST=ON
 make check
 ```
+
+Building documentation
+-----------------------------
+
+The documentation is generated with Doxygen with:
+
+```bash
+cd build
+make doc
+```
+
+The documentation is then available at `/doc/doxygen/doc/html/index.html`
