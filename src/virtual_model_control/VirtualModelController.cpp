@@ -6,7 +6,7 @@
  *	 Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include "VirtualModelController.hpp"
+#include "loco/virtual_model_control/VirtualModelController.hpp"
 #include "Logger.hpp"
 #include "Rotations.hpp"
 
