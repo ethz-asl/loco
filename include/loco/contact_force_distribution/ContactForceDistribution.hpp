@@ -4,11 +4,20 @@
  *  Created on: Aug 6, 2013
  *      Author: Péter Fankhauser
  *	 Institute: ETH Zurich, Autonomous Systems Lab
- * Description: This class distributes a virtual force and torque
- *              as forces to the leg contact points. Based on
- *              'Control of Dynamic Gaits for a Quadrupedal Robot',
- *              C. Gehring, ICRA, 2013.
+ */
+
+#pragma once
+
+#include "ContactForceDistributionBase.hpp"
+#include <Eigen/Sparse>
+
+namespace loco {
+
+//! This class distributes a virtual force and torque on the base as forces to the leg contact points.
+/*!
+ * Based on 'Control of Dynamic Gaits for a Quadrupedal Robot', C. Gehring, ICRA, 2013.
  *
+ * The optimization problem is formulated as:
  *
  * [ I    I   ...] [f1] = [F] ==> A*x = b
  * [r1x  r2x  ...] [f2]   [T]
@@ -16,18 +25,7 @@
  *                 [ .]
  *                 [ .]
  */
-
-#pragma once
-
-#include <Eigen/Core>
-#include <Eigen/SparseCore>
-#include "RobotModel.hpp"
-#include "TerrainBase.hpp"
-#include "loco/temp_helpers/Legs.hpp"
-
-namespace robotController {
-
-class ContactForceDistribution
+class ContactForceDistribution : public ContactForceDistributionBase
 {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -50,19 +48,10 @@ class ContactForceDistribution
   bool loadParameters();
 
   /*!
-   * Adds class data to the logger (optional)
+   * Adds class data to the logger (optional).
    * @return true if successful.
    */
   bool addToLogger();
-
-  /*!
-   * Computes the contact force distribution of the virtual force and torque.
-   * @param virtualForce the desired virtual force (in base frame).
-   * @param virtualTorque the desired virtual torque (in base frame).
-   * @return true if successful.
-   */
-  bool computeForceDistribution(const Eigen::Vector3d& virtualForce,
-                                const Eigen::Vector3d& virtualTorque);
 
   /*!
    * (Optional) Change how much a leg should be loaded. This needs to be set before
@@ -80,14 +69,15 @@ class ContactForceDistribution
    */
   bool changeLegLoad(const Legs& leg, const double& loadFactor);
 
+
   /*!
-   * (Optional) Set the terrain to get the surface normal at a certain foot.
-   * This information is used in the contact force distribution. If not set,
-   * the default vertical normal in the world frame is used (for flat terrain).
-   * @param[in] terrain the reference to the terrain class.
+   * Computes the contact force distribution of the virtual force and torque.
+   * @param virtualForce the desired virtual force on the base (in base frame).
+   * @param virtualTorque the desired virtual torque on the base (in base frame).
    * @return true if successful.
    */
-  bool setTerrain(robotTerrain::TerrainBase* terrain);
+  bool computeForceDistribution(const Eigen::Vector3d& virtualForce,
+                                        const Eigen::Vector3d& virtualTorque);
 
   /*!
    * Gets the distributed force for a leg at the contact point.
@@ -108,23 +98,6 @@ class ContactForceDistribution
    bool getNetForceAndTorqueOnBase(Eigen::Vector3d& netForce, Eigen::Vector3d& netTorque);
 
  private:
-  constexpr static int nLegs_ = 4; // TODO move
-  constexpr static int nTranslationalDofPerFoot_ = 3; // TODO move
-  constexpr static int nElementsVirtualForceTorqueVector_ = 6;
-
-  //! Reference to robot model
-  robotModel::RobotModel* robotModel_;
-
-  //! Reference to the terrain
-  robotTerrain::TerrainBase* terrain_;
-
-  //! True if parameters are successfully loaded.
-  bool isParametersLoaded_;
-  //! True if terrain is set.
-  bool isTerrainSet_;
-  //! True if a force distribution was computed successfully.
-  bool isForceDistributionComputed_;
-
   //! Number of legs in stance phase
   int nLegsInStance_;
   //! Number of variables to optimize (size of x, n = nTranslationalDofPerFoot_ * nLegsInStance_)
@@ -173,14 +146,6 @@ class ContactForceDistribution
   std::map<Legs, LegStatus> legStatuses_;
 
   /*!
-   * Check if parameters are loaded.
-   * @return true if parameters are loaded
-   */
-  bool isParametersLoaded() const;
-
-  bool isForceDistributionComputed() const;
-
-  /*!
    * Reads foot contact flags and includes user leg load settings from changeLegLoad()
    * @return true if successful
    */
@@ -216,4 +181,4 @@ class ContactForceDistribution
   bool updateLoggerData();
 };
 
-} /* namespace robotController */
+} /* namespace loco */

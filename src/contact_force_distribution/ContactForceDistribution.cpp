@@ -6,7 +6,7 @@
  *	 Institute: ETH Zurich, Autonomous Systems Lab
  */
 
-#include "loco/static_contact_force_distribution/ContactForceDistribution.hpp"
+#include "loco/contact_force_distribution/ContactForceDistribution.hpp"
 #include <Eigen/Geometry>
 #include "LinearAlgebra.hpp"
 #include "sm/numerical_comparisons.hpp"
@@ -20,15 +20,11 @@ using namespace robotUtils;
 using namespace robotModel;
 using namespace sm;
 
-namespace robotController {
+namespace loco {
 
 ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robotModel)
+    : ContactForceDistributionBase(robotModel)
 {
-  robotModel_ = robotModel;
-  terrain_ = nullptr;
-  isParametersLoaded_ = false;
-  isTerrainSet_ = false;
-  isForceDistributionComputed_ = false;
   for(auto leg : Legs()) { legStatuses_[leg] = LegStatus(); }
   setTerrainNormalsToDefault();
   resetFootLoadFactors();
@@ -36,6 +32,7 @@ ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robot
 
 ContactForceDistribution::~ContactForceDistribution()
 {
+
 }
 
 bool ContactForceDistribution::loadParameters()
@@ -45,24 +42,7 @@ bool ContactForceDistribution::loadParameters()
   groundForceWeight_ = 0.00001;
   minimalNormalGroundForce_ = 2.0;
   frictionCoefficient_ = 0.1; // 0.8
-  isParametersLoaded_ = true;
-  return true;
-}
-
-bool ContactForceDistribution::isParametersLoaded() const
-{
-  if (isParametersLoaded_) return true;
-
-  cout << "Contact force distribution parameters are not loaded." << endl; // TODO use warning output
-  return false;
-}
-
-bool ContactForceDistribution::isForceDistributionComputed() const
-{
-  if (isForceDistributionComputed_) return true;
-
-  cout << "Contact force distribution is not computed yet or was unsuccessful." << endl; // TODO use warning output
-  return false;
+  return ContactForceDistributionBase::loadParameters();
 }
 
 bool ContactForceDistribution::addToLogger()
@@ -75,6 +55,8 @@ bool ContactForceDistribution::addToLogger()
   }
 
   updateLoggerData();
+
+  return ContactForceDistributionBase::addToLogger();
 }
 
 bool ContactForceDistribution::changeLegLoad(const Legs& leg,
@@ -84,17 +66,6 @@ bool ContactForceDistribution::changeLegLoad(const Legs& leg,
   {
     legStatuses_[leg].loadFactor_ = loadFactor;
     return true;
-  }
-
-  return false;
-}
-
-bool ContactForceDistribution::setTerrain(robotTerrain::TerrainBase* terrain)
-{
-  if (terrain != nullptr)
-  {
-    terrain_ = terrain;
-    isTerrainSet_ = true;
   }
 
   return false;
@@ -230,7 +201,6 @@ bool ContactForceDistribution::addMinimalForceConstraints()
   /* We want each stance leg to have a minimal force in the normal direction to the ground:
    * n.f_i >= n.f_min with n.f_i the normal component of contact force.
    */
-
   int rowIndex = D_.rows();
   Eigen::SparseMatrix<double, Eigen::RowMajor> D_temp(D_);  // TODO replace with conservativeResize (available in Eigen 3.2)
   D_.resize(rowIndex + nLegsInStance_, n_);
@@ -420,4 +390,4 @@ bool ContactForceDistribution::updateLoggerData()
   return true;
 }
 
-} /* namespace robotController */
+} /* namespace loco */
