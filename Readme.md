@@ -24,7 +24,7 @@ make
 
 ```
 
-Building google tests
+Building and running tests
 -----------------------------
 GTests are built as soon as the folder gtest exists in the root folder.
 

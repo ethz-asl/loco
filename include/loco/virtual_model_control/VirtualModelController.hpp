@@ -16,10 +16,10 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include "ControllerBase.hpp"
-#include "loco/static_contact_force_distribution/ContactForceDistribution.hpp"
+#include "loco/contact_force_distribution/ContactForceDistribution.hpp"
 #include "loco/temp_helpers/Legs.hpp"
 
-namespace robotController {
+namespace loco {
 
 class VirtualModelController : public robotController::ControllerBase
 {
@@ -30,7 +30,7 @@ class VirtualModelController : public robotController::ControllerBase
    * Constructor.
    * @param robotModel the reference to the robot
    */
-  VirtualModelController(robotModel::RobotModel* robotModel);
+  VirtualModelController(robotModel::RobotModel* robotModel, ContactForceDistribution& contactForceDistribution);
 
   /*!
    * Destructor.
@@ -64,9 +64,9 @@ class VirtualModelController : public robotController::ControllerBase
 
   /*!
    * Gets access to the contactForceDistribution class.
-   * @return pointer to the contactForceDistribution class
+   * @return reference to the contactForceDistribution class
    */
-  robotController::ContactForceDistribution* getContactForceDistributor() const;
+  ContactForceDistributionBase& getContactForceDistribution() const;
 
   /*!
    * Prints information for debugging.
@@ -77,8 +77,8 @@ class VirtualModelController : public robotController::ControllerBase
   //! True if parameters are successfully loaded.
   bool isParametersLoaded_;
 
-  //! Contact force distribution.
-  robotController::ContactForceDistribution* contactForceDistribution_;
+  //! Reference to the contact force distribution class.
+  ContactForceDistributionBase& contactForceDistribution_;
 
   //! Base position error in base frame.
   robotModel::VectorP positionError_;
@@ -140,5 +140,5 @@ class VirtualModelController : public robotController::ControllerBase
   bool isParametersLoaded() const;
 };
 
-} /* namespace robotController */
+} /* namespace loco */
 #endif /* VIRTUALMODELCONTROLLER_H_ */

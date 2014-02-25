@@ -16,11 +16,13 @@ using namespace robotController;
 using namespace robotUtils;
 using namespace Eigen;
 
-namespace robotController {
+namespace loco {
 
-VirtualModelController::VirtualModelController(RobotModel* robotModel) : ControllerBase(robotModel)
+VirtualModelController::VirtualModelController(RobotModel* robotModel,
+                                               ContactForceDistribution& contactForceDistribution)
+    : ControllerBase(robotModel),
+      contactForceDistribution_(contactForceDistribution)
 {
-  contactForceDistribution_ = new ContactForceDistribution(robotModel);
   isParametersLoaded_ = false;
   positionError_ = VectorP::Zero();
   orientationError_ = AngleAxisd::Identity();
@@ -32,14 +34,13 @@ VirtualModelController::VirtualModelController(RobotModel* robotModel) : Control
 
 VirtualModelController::~VirtualModelController()
 {
-  delete contactForceDistribution_;
+
 }
 
 bool VirtualModelController::addToLogger()
 {
   addEigenMatrixToLog(virtualForce_, "VMC_desired_force", "N", true);
   addEigenMatrixToLog(virtualTorque_, "VMC_desired_torque", "Nm", true);
-  contactForceDistribution_->addToLogger();
   updateLogger();
   return true;
 }
@@ -53,8 +54,6 @@ bool VirtualModelController::loadParameters()
   proportionalGainRotation_ << 400.0, 200.0, 10.0; // 400.0, 200.0, 0.0;
   derivativeGainRotation_ << 6.0, 9.0, 5.0; // 6.0, 9.0, 0.0;
   feedforwardGainRotation_ << 0.0, 0.0, 0.0;
-
-  contactForceDistribution_->loadParameters();
 
   isParametersLoaded_ = true;
 
@@ -76,7 +75,7 @@ bool VirtualModelController::computeTorques(
   return true;
 }
 
-robotController::ContactForceDistribution* VirtualModelController::getContactForceDistributor() const
+ContactForceDistributionBase& VirtualModelController::getContactForceDistribution() const
 {
   return contactForceDistribution_;
 }
@@ -91,7 +90,7 @@ void VirtualModelController::printDebugInformation()
   Vector3d actualOrientationYawPitchRoll = Rotations::quaternionToYawPitchRoll(actualOrientation);
 //  Vector3d errorYawRollPitch = Rotations::angleAxisToYawPitchRoll(orientationErrorVector_);
   Vector3d netForce, netTorque, netForceError, netTorqueError;
-  contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
+  contactForceDistribution_.getNetForceAndTorqueOnBase(netForce, netTorque);
   netForceError = virtualForce_ - netForce;
   netTorqueError = virtualTorque_ - netTorque;
 
@@ -168,13 +167,13 @@ bool VirtualModelController::computeJointTorques()
   const int nDofPerLeg = 3; // TODO move to robot commons
   const int nDofPerContactPoint = 3; // TODO move to robot commons
 
-  contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
+  contactForceDistribution_.computeForceDistribution(virtualForce_, virtualTorque_); // TODO add if to check if parameters set.
 
   for(const auto& leg : Legs())
   {
     VectorCF contactForce = VectorCF::Zero();
     int legIndexInStackedVector = nDofPerLeg * legIndeces[leg];
-    bool legInTorqueMode = contactForceDistribution_->getForceForLeg(leg, contactForce);
+    bool legInTorqueMode = contactForceDistribution_.getForceForLeg(leg, contactForce);
 
     if (legInTorqueMode)
     {
@@ -212,4 +211,4 @@ bool VirtualModelController::isParametersLoaded() const
   return false;
 }
 
-} /* namespace robotController */
+} /* namespace loco */

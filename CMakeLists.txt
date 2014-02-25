@@ -23,7 +23,8 @@ add_definitions(--std=c++11)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
 if (BUILD_TEST)
-set(CMAKE_CTEST_COMMAND ctest -V) 
+set(CMAKE_CTEST_COMMAND ctest)
+#set(CMAKE_CTEST_COMMAND ctest -V) # Detailed output
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/")
@@ -38,9 +39,9 @@ endif(BUILD_TEST)
 
 
 # Add static contact force distribution
-add_subdirectory(src/static_contact_force_distribution)
+add_subdirectory(src/contact_force_distribution)
 
-# Add virtual_model_control 
+# Add virtual model control 
 add_subdirectory(src/virtual_model_control)
 
 # Add gait patern
