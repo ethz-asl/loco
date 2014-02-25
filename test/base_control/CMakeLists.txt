@@ -21,17 +21,17 @@ include_directories(${Kindr_INCLUDE_DIRS})
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-include_directories(../../base_control/include)
+include_directories(../../include)
 include_directories(../../thirdparty/tinyxml)
-include_directories(../../temp_helpers/include)
+
 
 
 set(BASECONTROL_SRCS
 	../test_main.cpp
 	BaseControlTest.cpp
-	../../base_control/src/BaseControlBase.cpp
-	../../base_control/src/BaseControlDynamicGait.cpp
-	../../base_control/src/CoMOverSupportPolygonControl.cpp
+	../../src/base_control/BaseControlBase.cpp
+	../../src/base_control/BaseControlDynamicGait.cpp
+	../../src/base_control/CoMOverSupportPolygonControl.cpp
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp

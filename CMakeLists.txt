@@ -13,7 +13,8 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 #   * MinSizeRel (CMAKE_C_FLAGS_MINSIZEREL or CMAKE_CXX_FLAGS_MINSIZEREL) 
 set(CMAKE_BUILD_TYPE Debug)
 
-
+# CMake modules
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
 
 add_definitions(--std=c++11)
@@ -37,28 +38,28 @@ endif(BUILD_TEST)
 
 
 # Add static contact force distribution
-add_subdirectory(static_contact_force_distribution)
+add_subdirectory(src/static_contact_force_distribution)
 
 # Add virtual_model_control 
-add_subdirectory(virtual_model_control)
+add_subdirectory(src/virtual_model_control)
 
 # Add gait patern
-add_subdirectory(gait_pattern)
+add_subdirectory(src/gait_pattern)
 
 # Add foot placement strategies
-add_subdirectory(foot_placement_strategy)
+add_subdirectory(src/foot_placement_strategy)
 
 # Add limb coordination
-add_subdirectory(limb_coordinator)
+add_subdirectory(src/limb_coordinator)
 
 # Add base control
-add_subdirectory(base_control)
+add_subdirectory(src/base_control)
 
 # Add base control
-add_subdirectory(locomotion_controller)
+add_subdirectory(src/locomotion_controller)
 
 # Add temporal helpers
-add_subdirectory(temp_helpers)
+add_subdirectory(src/temp_helpers)
 
 if (BUILD_TEST AND BUILD_GTEST)
 add_subdirectory(test EXCLUDE_FROM_ALL)
@@ -67,7 +68,8 @@ endif()
 ################
 ### INCLUDES ###
 ################
-set(TASK_INCL ${TASK_INCL} 
+set(TASK_INCL ${TASK_INCL}
+	${CMAKE_CURRENT_SOURCE_DIR}/include 
 PARENT_SCOPE)
 
 ###############

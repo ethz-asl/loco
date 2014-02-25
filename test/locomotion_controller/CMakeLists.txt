@@ -32,32 +32,29 @@ include_directories(${ROBOTMODEL_INCL})
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 include_directories(../../thirdparty/tinyxml)
-include_directories(../../limb_coordinator/include)
-include_directories(../../gait_pattern/include)
-include_directories(../../foot_placement_strategy/include)
-include_directories(../../base_control/include)
-include_directories(../../locomotion_controller/include)
+include_directories(../../include)
+
 
 
 set(LOCOMOTIONCONTROLLER_SRCS
 	../test_main.cpp
 	LocomotionControllerTest.cpp
 	
-	../../locomotion_controller/src/LocomotionControllerBase.cpp
-	../../locomotion_controller/src/LocomotionControllerDynamicGait.cpp
+	../../src/locomotion_controller/LocomotionControllerBase.cpp
+	../../src/locomotion_controller/LocomotionControllerDynamicGait.cpp
 	
-	../../foot_placement_strategy/src/FootPlacementStrategyBase.cpp
-	../../foot_placement_strategy/src/FootPlacementStrategyInvertedPendulum.cpp
+	../../src/foot_placement_strategy/FootPlacementStrategyBase.cpp
+	../../src/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.cpp
 	
-	../../limb_coordinator/src/LimbCoordinatorBase.cpp
-	../../limb_coordinator/src/LimbCoordinatorDynamicGait.cpp
+	../../src/limb_coordinator/LimbCoordinatorBase.cpp
+	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
 	
-	../../base_control/src/BaseControlBase.cpp
-	../../base_control/src/BaseControlDynamicGait.cpp
+	../../src/base_control/BaseControlBase.cpp
+	../../src/base_control/BaseControlDynamicGait.cpp
 	
-	../../gait_pattern/src/APS.cpp
-	../../gait_pattern/src/GaitAPS.cpp
-	../../gait_pattern/src/GaitPatternAPS.cpp
+	../../src/gait_pattern/APS.cpp
+	../../src/gait_pattern/GaitAPS.cpp
+	../../src/gait_pattern/GaitPatternAPS.cpp
 	
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp

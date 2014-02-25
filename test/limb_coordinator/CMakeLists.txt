@@ -21,19 +21,19 @@ include_directories(${Kindr_INCLUDE_DIRS})
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-include_directories(../../limb_coordinator/include)
+
 include_directories(../../thirdparty/tinyxml)
-include_directories(../../gait_pattern/include)
+include_directories(../../include)
 include_directories(../../temp_helpers/include)
 
 set(LIMBCOORDINATOR_SRCS
 	../test_main.cpp
 	LimbCoordinatorTest.cpp
-	../../limb_coordinator/src/LimbCoordinatorBase.cpp
-	../../limb_coordinator/src/LimbCoordinatorDynamicGait.cpp
-	../../gait_pattern/src/APS.cpp
-	../../gait_pattern/src/GaitAPS.cpp
-	../../gait_pattern/src/GaitPatternAPS.cpp
+	../../src/limb_coordinator/LimbCoordinatorBase.cpp
+	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
+	../../src/gait_pattern/APS.cpp
+	../../src/gait_pattern/GaitAPS.cpp
+	../../src/gait_pattern/GaitPatternAPS.cpp
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp

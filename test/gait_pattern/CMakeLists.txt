@@ -18,16 +18,16 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-include_directories(../../gait_pattern/include)
+include_directories(../../include)
 include_directories(../../thirdparty/tinyxml)
 
 
 set(GAITPATTERN_SRCS
 	../test_main.cpp
 	GaitPatternAPSTest.cpp
-	../../gait_pattern/src/APS.cpp
-	../../gait_pattern/src/GaitAPS.cpp
-	../../gait_pattern/src/GaitPatternAPS.cpp
+	../../src/gait_pattern/APS.cpp
+	../../src/gait_pattern/GaitAPS.cpp
+	../../src/gait_pattern/GaitPatternAPS.cpp
 	
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp

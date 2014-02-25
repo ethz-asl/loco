@@ -11,8 +11,8 @@
 #include <gtest/gtest.h>
 
 
-#include "loco/LimbCoordinatorDynamicGait.hpp"
-#include "loco/GaitPatternAPS.hpp"
+#include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
+#include "loco/gait_pattern/GaitPatternAPS.hpp"
 
 TEST(LimbCoordinatorTest, test) {
   loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);

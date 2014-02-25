@@ -23,8 +23,8 @@ include_directories(${ROBOTMODEL_INCL})
 
 include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${Kindr_INCLUDE_DIRS})
-include_directories(../../foot_placement_strategy/include)
-include_directories(../../temp_helpers/include)
+include_directories(../../include)
+
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 include_directories(../../thirdparty/tinyxml)
@@ -33,8 +33,8 @@ include_directories(../../thirdparty/tinyxml)
 set(FOOTPLACMENTSTRATEGY_SRCS
 	../test_main.cpp
 	FootPlacementStrategyTest.cpp
-	../../foot_placement_strategy/src/FootPlacementStrategyBase.cpp
-	../../foot_placement_strategy/src/FootPlacementStrategyInvertedPendulum.cpp
+	../../src/foot_placement_strategy/FootPlacementStrategyBase.cpp
+	../../src/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.cpp
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp
