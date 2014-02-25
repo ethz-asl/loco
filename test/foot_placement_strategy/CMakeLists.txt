@@ -17,7 +17,6 @@ find_package(Eigen REQUIRED)
 find_package(Kindr REQUIRED)
 
 include_directories(${UTILS_INCL})
-message(STATUS "uuuutil ${UTILS_INCL}")
 include_directories(${ROBOTMODEL_INCL})
 
 #message(STATUS "robotModel: ${ROBOTMODEL_INCL}")
@@ -40,6 +39,9 @@ set(FOOTPLACMENTSTRATEGY_SRCS
 	
 	../../src/limb_coordinator/LimbCoordinatorBase.cpp
 	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
+	
+	../../src/common/StateBase.cpp
+	../../src/common/StateDynamicGait.cpp
 	
 	../../src/gait_pattern/APS.cpp
 	../../src/gait_pattern/GaitAPS.cpp

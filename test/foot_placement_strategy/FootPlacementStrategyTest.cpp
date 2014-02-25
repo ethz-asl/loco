@@ -12,6 +12,7 @@
 #include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
 #include "loco/gait_pattern/GaitPatternAPS.hpp"
+#include "loco/common/StateDynamicGait.hpp"
 #include "RobotModel.hpp"
 #include "TerrainPlane.hpp"
 
@@ -23,7 +24,9 @@ TEST(FootPlacementTest, test) {
   loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);
   loco::GaitPatternAPS gaitPatternAPS;
 
+  loco::StateDynamicGait desState;
+
   gaitPatternAPS.initialize(aps, dt);
   loco::LimbCoordinatorDynamicGait limbCoordinator(&gaitPatternAPS);
-  loco::FootPlacementStrategyInvertedPendulum ip(&robotModel, &terrain, &limbCoordinator);
+  loco::FootPlacementStrategyInvertedPendulum ip(&robotModel, &terrain, &desState, &limbCoordinator);
 }

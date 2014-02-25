@@ -12,6 +12,7 @@
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
+#include "loco/common/StateBase.hpp"
 #include "tinyxml.h"
 #include <Eigen/Core>
 
@@ -34,7 +35,7 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
 public:
   typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
 public:
-	FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator);
+	FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, StateBase* desState, LimbCoordinatorBase* limbCoordinator);
 	FootPlacementStrategyInvertedPendulum();
 	virtual ~FootPlacementStrategyInvertedPendulum();
 
@@ -55,8 +56,11 @@ public:
   void setRotationWorldToBase(const RotationQuaternion& p_BW);
 
 
-
-  void setSteppingOffsetToHip(int iLeg, const Eigen::Vector3d& steppingOffsetToHip_CSmb);
+  /*!
+   * this is the vector from the leg frame origin to the foot at the moment when the foot's status changes
+   * from stance to swing. Measured in world coordinates.
+   */
+  void setSteppingOffsetToHip(int iLeg, const Eigen::Vector3d& steppingOffsetToHip_CSw);
 
 
   /*! Sets the desired heading speed of the robot
@@ -83,6 +87,7 @@ public:
 public:
   robotModel::RobotModel* robotModel_;
   robotTerrain::TerrainBase* terrain_;
+  StateBase* desState_;
   LimbCoordinatorBase* limbCoordinator_;
 
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
@@ -113,7 +118,7 @@ public:
   double estimatedGroundHeightCSw_[4];
 
   //! default stepping offset with respect to the hip (only x and y coordinates are considered)
-  Eigen::Vector3d steppingOffsetToHip_CSmb_[4];
+  Eigen::Vector3d steppingOffsetToHip_CSw_[4];
 
   //! position of the hip joint expressed in world frame
   Eigen::Vector3d rHip_CSw_[4];
@@ -136,7 +141,7 @@ protected:
 
 	Eigen::Vector3d getCurrentFootPositionFromPredictedFootHoldLocation(double phase, const Eigen::Vector3d& footLocationAtLiftOffCSw, const Eigen::Vector3d& rFootHold_CSw, const RotationQuaternion& p_BW);
 
-
+	double getFootHeightOverTerrain(int iLeg, const Eigen::Vector3d& position);
 
 };
 

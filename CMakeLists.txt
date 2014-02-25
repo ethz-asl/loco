@@ -55,6 +55,8 @@ add_subdirectory(src/limb_coordinator)
 # Add base control
 add_subdirectory(src/base_control)
 
+add_subdirectory(src/common)
+
 # Add base control
 add_subdirectory(src/locomotion_controller)
 
