@@ -13,20 +13,25 @@ set(CMAKE_BUILD_TYPE Debug)
 add_definitions(-std=c++0x)
 
 find_package(Eigen REQUIRED)
+find_package(Kindr REQUIRED)
 
 include_directories(${EIGEN_INCLUDE_DIRS})
-include_directories(../include)
+include_directories(${Kindr_INCLUDE_DIRS})
+
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
+
+include_directories(../../base_control/include)
 include_directories(../../thirdparty/tinyxml)
+include_directories(../../temp_helpers/include)
 
 
-set(GAITPATTERN_SRCS
-	test_main.cpp
-	../src/APS.cpp
-	../src/GaitAPS.cpp
-	../src/GaitPatternAPS.cpp
-	GaitPatternAPSTest.cpp
+set(BASECONTROL_SRCS
+	../test_main.cpp
+	BaseControlTest.cpp
+	../../base_control/src/BaseControlBase.cpp
+	../../base_control/src/BaseControlDynamicGait.cpp
+	../../base_control/src/CoMOverSupportPolygonControl.cpp
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp
@@ -34,8 +39,8 @@ set(GAITPATTERN_SRCS
 )
 
 # Add test cpp file
-add_executable( runUnitTestsGaitPattern EXCLUDE_FROM_ALL ${GAITPATTERN_SRCS})
+add_executable( runUnitTestsBaseControl EXCLUDE_FROM_ALL  ${BASECONTROL_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsGaitPattern  gtest_main gtest pthread )
-add_test( runUnitTestsGaitPattern ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsGaitPattern )
-add_dependencies(check runUnitTestsGaitPattern)
+target_link_libraries(runUnitTestsBaseControl  gtest_main gtest pthread )
+add_test( runUnitTestsBaseControl ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsBaseControl )
+add_dependencies(check runUnitTestsBaseControl)

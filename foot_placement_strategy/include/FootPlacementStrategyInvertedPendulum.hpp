@@ -14,7 +14,7 @@
 #include "tinyxml.h"
 #include <Eigen/Core>
 
-#include "Trajectory.hpp"
+#include "loco/Trajectory.hpp"
 
 #include "kindr/rotations/RotationEigen.hpp"
 

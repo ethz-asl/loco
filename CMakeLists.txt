@@ -21,16 +21,19 @@ add_definitions(--std=c++11)
 # Add CMake module path
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
+if (BUILD_TEST)
+set(CMAKE_CTEST_COMMAND ctest -V) 
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
+
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/gtest/")
 	message(STATUS "Building GTests!")
 	option(BUILD_GTEST "build gtest" ON)
-	add_subdirectory(gtest gtest)
+	add_subdirectory(gtest gtest EXCLUDE_FROM_ALL)
 	enable_testing()
 
 endif()
+endif(BUILD_TEST)
 
-set(CMAKE_CTEST_COMMAND ctest -V) 
-add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND})
 
 
 # Add static contact force distribution
@@ -57,7 +60,9 @@ add_subdirectory(locomotion_controller)
 # Add temporal helpers
 add_subdirectory(temp_helpers)
 
+if (BUILD_TEST AND BUILD_GTEST)
 add_subdirectory(test EXCLUDE_FROM_ALL)
+endif()
 
 ################
 ### INCLUDES ###

@@ -21,15 +21,10 @@ find_package(Kindr REQUIRED)
 
 include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${Kindr_INCLUDE_DIRS})
-include_directories(../include)
+
 include_directories(../../temp_helpers/include)
 
-add_definitions( -DSTANDALONE)
-set(ARCH x86_64)
-set(STANDALONE ON CACHE BOOL "standalone")
-set(ISSUBDIRECTORY ON CACHE BOOL "issubdir")
-	
-add_subdirectory(../../../starlethUtils starlethUtils)
+
 include_directories(${UTILS_INCL})
 include_directories(${ROBOTMODEL_INCL})
 
@@ -41,15 +36,15 @@ include_directories(../../limb_coordinator/include)
 include_directories(../../gait_pattern/include)
 include_directories(../../foot_placement_strategy/include)
 include_directories(../../base_control/include)
-
+include_directories(../../locomotion_controller/include)
 
 
 set(LOCOMOTIONCONTROLLER_SRCS
-	test_main.cpp
+	../test_main.cpp
 	LocomotionControllerTest.cpp
 	
-	../src/LocomotionControllerBase.cpp
-	../src/LocomotionControllerDynamicGait.cpp
+	../../locomotion_controller/src/LocomotionControllerBase.cpp
+	../../locomotion_controller/src/LocomotionControllerDynamicGait.cpp
 	
 	../../foot_placement_strategy/src/FootPlacementStrategyBase.cpp
 	../../foot_placement_strategy/src/FootPlacementStrategyInvertedPendulum.cpp

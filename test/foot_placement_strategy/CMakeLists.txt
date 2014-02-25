@@ -19,7 +19,7 @@ find_package(Kindr REQUIRED)
 include_directories(${UTILS_INCL})
 include_directories(${ROBOTMODEL_INCL})
 
-message(STATUS "robotModel: ${ROBOTMODEL_INCL}")
+#message(STATUS "robotModel: ${ROBOTMODEL_INCL}")
 
 include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${Kindr_INCLUDE_DIRS})
@@ -31,7 +31,7 @@ include_directories(../../thirdparty/tinyxml)
 
 
 set(FOOTPLACMENTSTRATEGY_SRCS
-	test_main.cpp
+	../test_main.cpp
 	FootPlacementStrategyTest.cpp
 	../../foot_placement_strategy/src/FootPlacementStrategyBase.cpp
 	../../foot_placement_strategy/src/FootPlacementStrategyInvertedPendulum.cpp
