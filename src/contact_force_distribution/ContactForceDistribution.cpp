@@ -26,7 +26,6 @@ ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robot
     : ContactForceDistributionBase(robotModel)
 {
   for(auto leg : Legs()) { legStatuses_[leg] = LegStatus(); }
-  setTerrainNormalsToDefault();
   resetFootLoadFactors();
 }
 
@@ -47,7 +46,7 @@ bool ContactForceDistribution::loadParameters()
 
 bool ContactForceDistribution::addToLogger()
 {
-  // TODO is this already implemented somewhere else?
+  // TODO Is this already implemented somewhere else?
   for(const auto& leg : Legs()) {
     string name = "contact_force_" + legNamesShort[leg];
     VectorCF& contactForce = legStatuses_[leg].effectiveContactForce_;
@@ -75,6 +74,9 @@ bool ContactForceDistribution::computeForceDistribution(
     const Eigen::Vector3d& virtualForce,
     const Eigen::Vector3d& virtualTorque)
 {
+  if(!checkIfParametersLoaded()) return false;
+  if(!checkIfTerrainSet()) return false;
+
   resetConstraints();
   prepareLegLoading();
 
@@ -83,7 +85,8 @@ bool ContactForceDistribution::computeForceDistribution(
     prepareOptimization(virtualForce, virtualTorque);
     getTerrainNormals();
 
-    // Add, remove or switch constraints
+    // TODO Move these function calls to a separate method which can be overwritten
+    // to have different contact force distributions, or let them be activated via parameters.
     addMinimalForceConstraints();
     addFrictionConstraints();
 
@@ -93,7 +96,7 @@ bool ContactForceDistribution::computeForceDistribution(
   }
 
   resetFootLoadFactors();
-  updateLoggerData();
+  if (isLogging_) updateLoggerData();
   return isForceDistributionComputed_;
 }
 
@@ -162,32 +165,18 @@ bool ContactForceDistribution::prepareOptimization(
   return true;
 }
 
-bool ContactForceDistribution::setTerrainNormalsToDefault()
-{
-  for (auto& legStatus : legStatuses_)
-  {
-    legStatus.second.terrainNormalInWorldFrame_ = Vector3d::UnitZ();
-  }
-
-  return true;
-}
-
 bool ContactForceDistribution::getTerrainNormals()
 {
-  if (isTerrainSet_)
-  {
-    for (auto& legStatus : legStatuses_)
-    {
-      if (legStatus.second.isInStance_)
-      {
-        VectorP footPosition = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(legIndeces[legStatus.first])->getPos();
-        terrain_->getNormal(footPosition, legStatus.second.terrainNormalInWorldFrame_);
-      }
-    }
-  }
+  if (!checkIfTerrainSet()) return false;
 
   for (auto& legStatus : legStatuses_)
   {
+    if (legStatus.second.isInStance_)
+    {
+      VectorP footPosition = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(legIndeces[legStatus.first])->getPos();
+      terrain_->getNormal(footPosition, legStatus.second.terrainNormalInWorldFrame_);
+    }
+
     legStatus.second.terrainNormalInBaseFrame_ =
         robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA()
             * legStatus.second.terrainNormalInWorldFrame_;
@@ -353,9 +342,7 @@ bool ContactForceDistribution::resetFootLoadFactors()
 bool ContactForceDistribution::getForceForLeg(
     const Legs& leg, robotModel::VectorCF& force)
 {
-  if (!isForceDistributionComputed()) return false;
-
-  force = VectorCF();
+  if (!checkIfForceDistributionComputed()) return false;
 
   if (legStatuses_[leg].isInStance_)
   {
@@ -371,7 +358,7 @@ bool ContactForceDistribution::getForceForLeg(
 bool ContactForceDistribution::getNetForceAndTorqueOnBase(
     Eigen::Vector3d& netForce, Eigen::Vector3d& netTorque)
 {
-  if (!isForceDistributionComputed()) return false;
+  if (!checkIfForceDistributionComputed()) return false;
 
   Eigen::Matrix<double, nElementsVirtualForceTorqueVector_, 1> stackedNetForceAndTorque;
   stackedNetForceAndTorque = A_ * x_;
@@ -383,6 +370,8 @@ bool ContactForceDistribution::getNetForceAndTorqueOnBase(
 
 bool ContactForceDistribution::updateLoggerData()
 {
+  if (!isLogging_) return false;
+
   for(const auto& leg : Legs()) {
     legStatuses_[leg].effectiveContactForce_ = robotModel_->contacts().getCP(legIndeces[leg])->getForce();
   }
