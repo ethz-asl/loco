@@ -10,10 +10,10 @@
 
 namespace loco {
 
-class StateBase {
+class TorsoBase {
  public:
-  StateBase();
-  virtual ~StateBase();
+  TorsoBase();
+  virtual ~TorsoBase();
 
   virtual double getHeadingSpeed() = 0;
   virtual double getTurningSpeed() = 0;

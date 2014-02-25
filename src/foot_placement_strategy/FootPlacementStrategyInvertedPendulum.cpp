@@ -8,7 +8,7 @@
 */
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
-#include "loco/common/StateBase.hpp"
+#include "loco/common/TorsoBase.hpp"
 
 #include "loco/temp_helpers/math.hpp"
 #include "RobotModel_common.hpp"
@@ -16,7 +16,7 @@
 
 namespace loco {
 
-FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, StateBase* desState, LimbCoordinatorBase* limbCoordinator) :
+FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, TorsoBase* desState, LimbCoordinatorBase* limbCoordinator) :
     FootPlacementStrategyBase(),
     robotModel_(robotModel),
     terrain_(terrain),

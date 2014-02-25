@@ -5,15 +5,15 @@
  *      Author: gech
  */
 
-#include "loco/common/StateBase.hpp"
+#include "loco/common/TorsoBase.hpp"
 
 namespace loco {
 
-StateBase::StateBase() {
+TorsoBase::TorsoBase() {
 
 }
 
-StateBase::~StateBase() {
+TorsoBase::~TorsoBase() {
 
 }
 

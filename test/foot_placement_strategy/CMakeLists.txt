@@ -40,8 +40,11 @@ set(FOOTPLACMENTSTRATEGY_SRCS
 	../../src/limb_coordinator/LimbCoordinatorBase.cpp
 	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
 	
-	../../src/common/StateBase.cpp
-	../../src/common/StateDynamicGait.cpp
+	../../src/common/TorsoBase.cpp
+	../../src/common/TorsoStarlETH.cpp
+	../../src/common/LegGroup.cpp
+	../../src/common/LegBase.cpp
+	../../src/common/LegStarlETH.cpp
 	
 	../../src/gait_pattern/APS.cpp
 	../../src/gait_pattern/GaitAPS.cpp

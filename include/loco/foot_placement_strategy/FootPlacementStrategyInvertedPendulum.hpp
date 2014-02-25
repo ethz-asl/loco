@@ -12,7 +12,7 @@
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
-#include "loco/common/StateBase.hpp"
+#include "loco/common/TorsoBase.hpp"
 #include "tinyxml.h"
 #include <Eigen/Core>
 
@@ -35,7 +35,7 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
 public:
   typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
 public:
-	FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, StateBase* desState, LimbCoordinatorBase* limbCoordinator);
+	FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, TorsoBase* desState, LimbCoordinatorBase* limbCoordinator);
 	FootPlacementStrategyInvertedPendulum();
 	virtual ~FootPlacementStrategyInvertedPendulum();
 
@@ -87,7 +87,7 @@ public:
 public:
   robotModel::RobotModel* robotModel_;
   robotTerrain::TerrainBase* terrain_;
-  StateBase* desState_;
+  TorsoBase* desState_;
   LimbCoordinatorBase* limbCoordinator_;
 
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
