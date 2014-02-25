@@ -7,7 +7,7 @@
 * @brief
 */
 
-#include "FootPlacementStrategyBase.hpp"
+#include "loco/FootPlacementStrategyBase.hpp"
 
 namespace loco  {
 

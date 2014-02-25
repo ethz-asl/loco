@@ -10,8 +10,8 @@
 
 #include "tinyxml.h"
 
-#include "GaitPatternBase.hpp"
-#include "GaitAPS.hpp"
+#include "loco/GaitPatternBase.hpp"
+#include "loco/GaitAPS.hpp"
 
 #include <vector>
 

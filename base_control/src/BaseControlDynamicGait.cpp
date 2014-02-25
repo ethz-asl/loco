@@ -5,17 +5,17 @@
  *      Author: gech
  */
 
-#include "BaseControlDynamicGait.hpp"
+#include "loco/BaseControlDynamicGait.hpp"
 
 namespace loco {
 
 BaseControlDynamicGait::BaseControlDynamicGait() {
-  // TODO Auto-generated constructor stub
+
 
 }
 
 BaseControlDynamicGait::~BaseControlDynamicGait() {
-  // TODO Auto-generated destructor stub
+
 }
 
 } /* namespace loco */

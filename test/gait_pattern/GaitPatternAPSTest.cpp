@@ -7,8 +7,7 @@
 * @brief
 */
 
-#include "GaitPatternAPS.hpp"
-#include "APS.hpp"
+#include "loco/GaitPatternAPS.hpp"
 #include <gtest/gtest.h>
 
 

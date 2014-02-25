@@ -7,7 +7,7 @@
  * @brief
  */
 
-#include "CoMOverSupportPolygonControl.hpp"
+#include "loco/CoMOverSupportPolygonControl.hpp"
 #include <stdio.h>
 #include <Eigen/Dense>
 #include "math.hpp"

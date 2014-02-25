@@ -9,10 +9,10 @@
 #ifndef LOCO_LOCOMOTIONCONTROLLERDYNAMICGAIT_HPP_
 #define LOCO_LOCOMOTIONCONTROLLERDYNAMICGAIT_HPP_
 
-#include "LocomotionControllerBase.hpp"
-#include "FootPlacementStrategyBase.hpp"
-#include "LimbCoordinatorBase.hpp"
-#include "BaseControlBase.hpp"
+#include "loco/LocomotionControllerBase.hpp"
+#include "loco/FootPlacementStrategyBase.hpp"
+#include "loco/LimbCoordinatorBase.hpp"
+#include "loco/BaseControlBase.hpp"
 
 #include "RobotModel.hpp"
 

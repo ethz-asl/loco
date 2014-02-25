@@ -6,7 +6,7 @@
 * @ingroup
 * @brief
 */
-#include "GaitAPS.hpp"
+#include "loco/GaitAPS.hpp"
 #include <cstdio>
 
 namespace loco {

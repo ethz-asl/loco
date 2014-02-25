@@ -7,7 +7,7 @@
 * @brief
 */
 
-#include "FootPlacementStrategyInvertedPendulum.hpp"
+#include "loco/FootPlacementStrategyInvertedPendulum.hpp"
 
 #include "math.hpp"
 

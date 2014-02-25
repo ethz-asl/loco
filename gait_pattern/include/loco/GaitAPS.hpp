@@ -10,7 +10,7 @@
 #ifndef LOCO_GAITAPS_HPP_
 #define LOCO_GAITAPS_HPP_
 
-#include "APS.hpp"
+#include "loco/APS.hpp"
 #include <list>
 #include <cassert>
 

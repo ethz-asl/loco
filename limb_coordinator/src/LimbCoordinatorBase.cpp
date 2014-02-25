@@ -6,7 +6,7 @@
 * @ingroup
 * @brief
 */
-#include "LimbCoordinatorBase.hpp"
+#include "loco/LimbCoordinatorBase.hpp"
 
 namespace loco {
 

@@ -6,7 +6,7 @@
 * @ingroup
 * @brief
 */
-#include "LocomotionControllerBase.hpp"
+#include "loco/LocomotionControllerBase.hpp"
 
 namespace loco {
 

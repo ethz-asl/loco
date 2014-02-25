@@ -9,7 +9,7 @@
 
 
 #include <gtest/gtest.h>
-#include "FootPlacementStrategyInvertedPendulum.hpp"
+#include "loco/FootPlacementStrategyInvertedPendulum.hpp"
 
 
 TEST(FootPlacementTest, test) {

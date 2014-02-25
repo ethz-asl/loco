@@ -10,7 +10,7 @@
 #ifndef LOCO_FOOTPLACEMENTSTRATEGYINVERTEDPENDULUM_HPP_
 #define LOCO_FOOTPLACEMENTSTRATEGYINVERTEDPENDULUM_HPP_
 
-#include "FootPlacementStrategyBase.hpp"
+#include "loco/FootPlacementStrategyBase.hpp"
 #include "tinyxml.h"
 #include <Eigen/Core>
 

@@ -6,7 +6,8 @@
 * @ingroup
 * @brief
 */
-#include "GaitPatternAPS.hpp"
+
+#include "loco/GaitPatternAPS.hpp"
 
 
 #include "tinyxml.h"

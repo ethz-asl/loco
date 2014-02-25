@@ -10,11 +10,11 @@
 
 #include <gtest/gtest.h>
 
-#include "LocomotionControllerDynamicGait.hpp"
-#include "GaitPatternAPS.hpp"
-#include "LimbCoordinatorDynamicGait.hpp"
-#include "FootPlacementStrategyInvertedPendulum.hpp"
-#include "BaseControlDynamicGait.hpp"
+#include "loco/LocomotionControllerDynamicGait.hpp"
+#include "loco/GaitPatternAPS.hpp"
+#include "loco/LimbCoordinatorDynamicGait.hpp"
+#include "loco/FootPlacementStrategyInvertedPendulum.hpp"
+#include "loco/BaseControlDynamicGait.hpp"
 #include "RobotModel.hpp"
 
 TEST(LocomotionControllerTest, test) {

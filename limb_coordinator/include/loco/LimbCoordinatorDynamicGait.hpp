@@ -9,8 +9,8 @@
 #ifndef LOCO_LIMBCOORDINATORDYNAMICGAIT_HPP_
 #define LOCO_LIMBCOORDINATORDYNAMICGAIT_HPP_
 
-#include "LimbCoordinatorBase.hpp"
-#include "GaitPatternBase.hpp"
+#include "loco/LimbCoordinatorBase.hpp"
+#include "loco/GaitPatternBase.hpp"
 
 namespace loco {
 

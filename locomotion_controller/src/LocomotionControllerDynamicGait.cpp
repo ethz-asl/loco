@@ -6,7 +6,7 @@
 * @ingroup
 * @brief
 */
-#include "LocomotionControllerDynamicGait.hpp"
+#include "loco/LocomotionControllerDynamicGait.hpp"
 
 namespace loco {
 
