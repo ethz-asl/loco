@@ -46,10 +46,18 @@ void LimbCoordinatorDynamicGait::setShouldBeLegGrounded(int iLeg, bool shouldBeL
 }
 
 
-void LimbCoordinatorDynamicGait::advance(double dt) {
+void LimbCoordinatorDynamicGait::advance(LegGroup& legs, double dt) {
   gaitPattern_->advance(dt);
-  for (int iLeg=0; iLeg<4; iLeg++) {
+//  for (int iLeg=0; iLeg<4; iLeg++) {
+  int iLeg =0;
+  for (auto leg : legs) {
     shouldBeLegGrounded_[iLeg] = gaitPattern_->shouldBeLegGrounded(iLeg);
+    leg->setShouldBeGrounded(shouldBeLegGrounded_[iLeg]);
+    leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));
+    leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));
+    leg->setIsInStanceMode(isLegInStanceMode(iLeg));
+    leg->setIsInSwingMode(isLegInSwingMode(iLeg));
+    iLeg++;
   }
 }
 
