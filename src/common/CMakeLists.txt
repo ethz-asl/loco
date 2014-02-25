@@ -22,8 +22,11 @@ PARENT_SCOPE)
 ### SOURCES ###
 ###############
 set(TASK_SRCS ${TASK_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/StateBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/StateDynamicGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegStarlETH.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegGroup.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TorsoBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TorsoStarlETH.cpp
 PARENT_SCOPE)
 
 #################

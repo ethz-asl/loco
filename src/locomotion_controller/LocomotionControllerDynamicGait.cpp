@@ -27,21 +27,21 @@ LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
 
 void LocomotionControllerDynamicGait::advance(double dt) {
 
-  Eigen::Vector4i contactFlags = robotModel_->contacts().getCA();
-  for (int iLeg=0; iLeg<4; iLeg++) {
-    if (contactFlags(iLeg) == 1) {
-      limbCoordinator_->setIsLegGrounded(iLeg, true);
-    } else {
-      limbCoordinator_->setIsLegGrounded(iLeg, false);
-    }
-  }
-  limbCoordinator_->advance(dt);
-  footPlacementStrategy_->advance(dt);
+//  Eigen::Vector4i contactFlags = robotModel_->contacts().getCA();
+//  for (int iLeg=0; iLeg<4; iLeg++) {
+//    if (contactFlags(iLeg) == 1) {
+//      limbCoordinator_->setIsLegGrounded(iLeg, true);
+//    } else {
+//      limbCoordinator_->setIsLegGrounded(iLeg, false);
+//    }
+//  }
+//  limbCoordinator_->advance(dt);
+//  footPlacementStrategy_->advance(dt);
 
-  if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
-    // possible lift-off
-    // todo:: save vector from hip to foot in world coordinates
-  }
+//  if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
+//    // possible lift-off
+//    // todo:: save vector from hip to foot in world coordinates
+//  }
 
 
 }
