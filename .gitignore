@@ -29,5 +29,8 @@ install_manifest.txt
 build/*
 .directory
 
-gtest
+# gTest
+gtest*
+
+# Doxygen
 doc/doxygen/doc
