@@ -38,6 +38,11 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   limbCoordinator_->advance(dt);
   footPlacementStrategy_->advance(dt);
 
+  if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
+    // possible lift-off
+    // todo:: save vector from hip to foot in world coordinates
+  }
+
 
 }
 
