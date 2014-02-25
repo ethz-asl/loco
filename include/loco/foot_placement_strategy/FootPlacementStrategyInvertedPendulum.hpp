@@ -83,11 +83,11 @@ public:
 	void setFeedbackScale(double scale);
 
 
-  virtual void advance(double dt);
+  virtual void advance(LegGroup& legs, double dt);
 public:
   robotModel::RobotModel* robotModel_;
   robotTerrain::TerrainBase* terrain_;
-  TorsoBase* desState_;
+  TorsoBase* torso_;
   LimbCoordinatorBase* limbCoordinator_;
 
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.

@@ -20,7 +20,7 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(rob
     FootPlacementStrategyBase(),
     robotModel_(robotModel),
     terrain_(terrain),
-    desState_(desState),
+    torso_(desState),
     limbCoordinator_(limbCoordinator)
 {
 
@@ -205,30 +205,31 @@ double FootPlacementStrategyInvertedPendulum::getSagittalComponentOfFootStep(dou
 	return result;
 }
 
-void FootPlacementStrategyInvertedPendulum::advance(double dt)
+void FootPlacementStrategyInvertedPendulum::advance(LegGroup& legs, double dt)
 {
-  for (int iLeg=0; iLeg<4; iLeg++) {
-  this->setStanceDuration(iLeg,limbCoordinator_->getGaitPattern()->getStanceDuration(iLeg) );
-  double swingPhase = 1;
-  if (limbCoordinator_->isLegInStanceMode(iLeg)) {
-    swingPhase = limbCoordinator_->getGaitPattern()->getSwingPhaseForLeg(iLeg);
-  }
-  this->setSwingPhase(iLeg, swingPhase);
-  this->setHipPosition(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
-  this->setHipVelocity(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getVel());
-  this->setBaseVelocity(iLeg, robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel());
+  int iLeg=0;
+  for (auto leg : legs) {
+    this->setStanceDuration(iLeg, leg->getStanceDuration());
+    double swingPhase = 1;
+    if (leg->isInStanceMode()) {
+      swingPhase = leg->getSwingPhase();
+    }
+    this->setSwingPhase(iLeg, swingPhase);
+    this->setHipPosition(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
+    this->setHipVelocity(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getVel());
+    this->setBaseVelocity(iLeg, robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel());
 
-  Eigen::Vector4d quat = robotModel_->est().getActualEstimator()->getQuat();
+    Eigen::Vector4d quat = robotModel_->est().getActualEstimator()->getQuat();
 
-  this->setRotationWorldToBase(loco::FootPlacementStrategyInvertedPendulum::RotationQuaternion(quat(0), quat(1), quat(2), quat(3)));
+    this->setRotationWorldToBase(loco::FootPlacementStrategyInvertedPendulum::RotationQuaternion(quat(0), quat(1), quat(2), quat(3)));
 
 
 
-//  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
-//  footPlacementTest.setFootLocationAtLiftOff(iLeg, Eigen::Vector3d(leg->legState.initialSwingStepOffset.x, leg->legState.initialSwingStepOffset.y, leg->legState.initialSwingStepOffset.z));
-//  footPlacementTest.setGroundHeight(iLeg, leg->legFrameP->getEstimatedGroundHeight());
-  this->setDesiredHeadingSpeed(desState_->getHeadingSpeed());
-  this->setFootLocationAtLiftOff(iLeg, Eigen::Vector3d());
+  //  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
+  //  footPlacementTest.setFootLocationAtLiftOff(iLeg, Eigen::Vector3d(leg->legState.initialSwingStepOffset.x, leg->legState.initialSwingStepOffset.y, leg->legState.initialSwingStepOffset.z));
+  //  footPlacementTest.setGroundHeight(iLeg, leg->legFrameP->getEstimatedGroundHeight());
+    this->setDesiredHeadingSpeed(torso_->getHeadingSpeed());
+    this->setFootLocationAtLiftOff(iLeg, Eigen::Vector3d());
 //
   }
 }
