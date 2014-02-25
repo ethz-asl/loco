@@ -9,7 +9,7 @@
 #pragma once
 
 #include "ContactForceDistributionBase.hpp"
-#include <Eigen/Sparse>
+#include <Eigen/SparseCore>
 
 namespace loco {
 
