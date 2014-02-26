@@ -27,8 +27,14 @@ TEST(FootPlacementTest, test) {
   loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);
   loco::GaitPatternAPS gaitPatternAPS;
   loco::LegGroup legs;
-  loco::LegStarlETH leftForeLeg;
+  loco::LegStarlETH leftForeLeg("leftFore");
+  loco::LegStarlETH rightForeLeg("rightFore");
+  loco::LegStarlETH leftHindLeg("leftHind");
+  loco::LegStarlETH rightHindLeg("rightHind");
   legs.addLeg(&leftForeLeg);
+  legs.addLeg(&rightForeLeg);
+  legs.addLeg(&leftHindLeg);
+  legs.addLeg(&rightHindLeg);
 
   loco::TorsoStarlETH torso;
 

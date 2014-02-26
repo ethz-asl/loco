@@ -224,12 +224,13 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
     this->setFootLocationAtLiftOff(iLeg, leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame());
 
 
-  //  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
-  //  footPlacementTest.setFootLocationAtLiftOff(iLeg, Eigen::Vector3d(leg->legState.initialSwingStepOffset.x, leg->legState.initialSwingStepOffset.y, leg->legState.initialSwingStepOffset.z));
-  //  footPlacementTest.setGroundHeight(iLeg, leg->legFrameP->getEstimatedGroundHeight());
+
+
     this->setDesiredHeadingSpeed(torso_->getDesiredHeadingSpeed());
-    this->setFootLocationAtLiftOff(iLeg, Eigen::Vector3d());
-//
+
+    // todo
+    //  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
+
   }
 }
 

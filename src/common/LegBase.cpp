@@ -10,6 +10,21 @@
 namespace loco {
 
 LegBase::LegBase() :
+    name_(""),
+    stancePhase_(0.0),
+    swingPhase_(0.0),
+    stanceDuration_(0.0),
+    swingDuration_(0.0),
+    isInStanceMode_(false),
+    isInSwingMode_(true),
+    isGrounded_(false),
+    shouldBeGrounded_(false)
+{
+
+}
+
+LegBase::LegBase(const std::string& name) :
+    name_(name),
     stancePhase_(0.0),
     swingPhase_(0.0),
     stanceDuration_(0.0),
@@ -27,34 +42,34 @@ LegBase::~LegBase() {
 }
 
 
-double LegBase::getStancePhase() {
+double LegBase::getStancePhase() const {
   return stancePhase_;
 }
-double LegBase::getSwingPhase() {
+double LegBase::getSwingPhase() const {
   return swingPhase_;
 }
 
-double LegBase::getStanceDuration() {
+double LegBase::getStanceDuration() const {
   return stanceDuration_;
 }
-double LegBase::getSwingDuration() {
+double LegBase::getSwingDuration() const {
   return swingDuration_;
 }
 
-bool LegBase::isInStanceMode() {
+bool LegBase::isInStanceMode() const {
   return isInStanceMode_;
 }
-bool LegBase::isInSwingMode() {
+bool LegBase::isInSwingMode() const {
   return isInSwingMode_;
 }
 
-bool LegBase::isGrounded()  {
+bool LegBase::isGrounded() const {
   return isGrounded_;
 }
-bool LegBase::shouldBeGrounded() {
+bool LegBase::shouldBeGrounded() const {
   return shouldBeGrounded_;
 }
-bool LegBase::isAndShoulBeGrounded() {
+bool LegBase::isAndShoulBeGrounded() const {
   return (isGrounded_ && shouldBeGrounded_);
 }
 
@@ -95,6 +110,10 @@ LegStateTouchDown* LegBase::getStateTouchDown() {
 }
 LegStateLiftOff* LegBase::getStateLiftOff() {
   return &stateLiftOff_;
+}
+
+const std::string& LegBase::getName() const {
+  return name_;
 }
 
 

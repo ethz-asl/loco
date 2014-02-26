@@ -11,25 +11,31 @@
 #include "loco/common/LegStateLiftOff.hpp"
 #include "loco/common/LegStateTouchDown.hpp"
 
+#include <string>
+#include <iostream>
+
 namespace loco {
 
 class LegBase {
  public:
   LegBase();
+  LegBase(const std::string& name);
   virtual ~LegBase();
 
-  virtual double getStancePhase();
-  virtual double getSwingPhase();
+  virtual const std::string& getName() const ;
 
-  virtual double getStanceDuration();
-  virtual double getSwingDuration();
+  virtual double getStancePhase() const;
+  virtual double getSwingPhase() const;
 
-  virtual bool isInStanceMode();
-  virtual bool isInSwingMode();
+  virtual double getStanceDuration() const;
+  virtual double getSwingDuration() const;
 
-  virtual bool isGrounded();
-  virtual bool shouldBeGrounded();
-  virtual bool isAndShoulBeGrounded();
+  virtual bool isInStanceMode() const;
+  virtual bool isInSwingMode() const;
+
+  virtual bool isGrounded() const;
+  virtual bool shouldBeGrounded() const;
+  virtual bool isAndShoulBeGrounded() const;
 
 
   virtual void setStancePhase(double phase);
@@ -47,11 +53,19 @@ class LegBase {
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
 
+  friend std::ostream& operator << (std::ostream& out, const LegBase& leg) {
+    out << "name" << leg.getName() << std::endl;
+    return out;
+  }
+
  protected:
+  std::string name_;
+
   double stancePhase_;
   double swingPhase_;
   double stanceDuration_;
   double swingDuration_;
+
   bool isInStanceMode_;
   bool isInSwingMode_;
   bool isGrounded_;

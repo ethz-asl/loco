@@ -18,4 +18,8 @@ BaseControlDynamicGait::~BaseControlDynamicGait() {
 
 }
 
+void BaseControlDynamicGait::advance(double dt) {
+
+}
+
 } /* namespace loco */

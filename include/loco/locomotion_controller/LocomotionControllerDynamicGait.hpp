@@ -14,13 +14,17 @@
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
 #include "loco/base_control/BaseControlBase.hpp"
 
+#include "loco/common/LegGroup.hpp"
+#include "loco/common/TorsoBase.hpp"
+
 #include "RobotModel.hpp"
+#include "TerrainBase.hpp"
 
 namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
-  LocomotionControllerDynamicGait(robotModel::RobotModel* robotModel, LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController);
+  LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController);
   virtual ~LocomotionControllerDynamicGait();
 
   /*! Advance in time
@@ -29,7 +33,10 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   virtual void advance(double dt);
 
  protected:
+  LegGroup* legs_;
+  TorsoBase* torso_;
   robotModel::RobotModel* robotModel_;
+  robotTerrain::TerrainBase* terrain_;
   LimbCoordinatorBase* limbCoordinator_;
   FootPlacementStrategyBase* footPlacementStrategy_;
   BaseControlBase* baseController_;

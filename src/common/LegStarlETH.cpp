@@ -9,7 +9,9 @@
 
 namespace loco {
 
-LegStarlETH::LegStarlETH() {
+LegStarlETH::LegStarlETH(const std::string& name) :
+  LegBase(name)
+{
 
 }
 

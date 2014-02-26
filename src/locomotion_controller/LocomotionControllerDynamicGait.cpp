@@ -10,9 +10,12 @@
 
 namespace loco {
 
-LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(robotModel::RobotModel* robotModel, LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController) :
+LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController) :
     LocomotionControllerBase(),
+    legs_(legs),
+    torso_(torso),
     robotModel_(robotModel),
+    terrain_(terrain),
     limbCoordinator_(limbCoordinator),
     footPlacementStrategy_(footPlacementStrategy),
     baseController_(baseController)
@@ -27,22 +30,31 @@ LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
 
 void LocomotionControllerDynamicGait::advance(double dt) {
 
-//  Eigen::Vector4i contactFlags = robotModel_->contacts().getCA();
-//  for (int iLeg=0; iLeg<4; iLeg++) {
-//    if (contactFlags(iLeg) == 1) {
-//      limbCoordinator_->setIsLegGrounded(iLeg, true);
-//    } else {
-//      limbCoordinator_->setIsLegGrounded(iLeg, false);
-//    }
-//  }
-//  limbCoordinator_->advance(dt);
-//  footPlacementStrategy_->advance(dt);
+  Eigen::Vector4i contactFlags = robotModel_->contacts().getCA();
+  int iLeg = 0;
+  for (auto leg : *legs_) {
+    if (contactFlags(iLeg) == 1) {
+      leg->setIsGrounded(true);
+    }
+    else {
+      leg->setIsGrounded(false);
+    }
+    iLeg++;
+  }
+  limbCoordinator_->advance(dt);
 
-//  if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
-//    // possible lift-off
-//    // todo:: save vector from hip to foot in world coordinates
-//  }
-
+  iLeg = 0;
+  for (auto leg : *legs_) {
+    const double swingPhase = leg->getSwingPhase();
+    if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
+      // possible lift-off
+      leg->getStateLiftOff()->setFootPositionInWorldFrame(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSw(iLeg)->getPos());
+      leg->getStateLiftOff()->setHipPositionInWorldFrame(robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
+      iLeg++;
+    }
+  }
+  footPlacementStrategy_->advance(dt);
+  baseController_->advance(dt);
 
 }
 

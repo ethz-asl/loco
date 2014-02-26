@@ -52,10 +52,14 @@ set(LOCOMOTIONCONTROLLER_SRCS
 	../../src/base_control/BaseControlBase.cpp
 	../../src/base_control/BaseControlDynamicGait.cpp
 	
+	../../src/common/TorsoBase.cpp
 	../../src/common/TorsoStarlETH.cpp
 	../../src/common/LegGroup.cpp
 	../../src/common/LegBase.cpp
 	../../src/common/LegStarlETH.cpp
+	../../src/common/LegStateBase.cpp
+	../../src/common/LegStateLiftOff.cpp
+	../../src/common/LegStateTouchDown.cpp
 	
 	../../src/gait_pattern/APS.cpp
 	../../src/gait_pattern/GaitAPS.cpp

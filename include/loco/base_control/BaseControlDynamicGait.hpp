@@ -17,6 +17,8 @@ class BaseControlDynamicGait: public BaseControlBase {
  public:
   BaseControlDynamicGait();
   virtual ~BaseControlDynamicGait();
+
+  virtual void advance(double dt);
 };
 
 } /* namespace loco */

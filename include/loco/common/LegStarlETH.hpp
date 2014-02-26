@@ -10,11 +10,13 @@
 
 #include "loco/common/LegBase.hpp"
 
+#include <string>
+
 namespace loco {
 
 class LegStarlETH : public loco::LegBase {
  public:
-  LegStarlETH();
+  LegStarlETH(const std::string& name);
   virtual ~LegStarlETH();
 };
 

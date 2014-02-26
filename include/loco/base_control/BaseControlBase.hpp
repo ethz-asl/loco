@@ -16,6 +16,8 @@ class BaseControlBase {
  public:
   BaseControlBase();
   virtual ~BaseControlBase();
+
+  virtual void advance(double dt) = 0;
 };
 
 } /* namespace loco */
