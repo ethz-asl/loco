@@ -12,12 +12,20 @@
 
 #include <string>
 
+#include "RobotModel.hpp"
+
 namespace loco {
 
 class LegStarlETH : public loco::LegBase {
  public:
-  LegStarlETH(const std::string& name);
+  LegStarlETH(const std::string& name, int iLeg, robotModel::RobotModel* robotModel);
   virtual ~LegStarlETH();
+  virtual const Position& getFootPositionInWorldFrame();
+ private:
+  int iLeg_;
+  robotModel::RobotModel* robotModel_;
+  Position footPositionInWorldFrame_;
+
 };
 
 } /* namespace loco */

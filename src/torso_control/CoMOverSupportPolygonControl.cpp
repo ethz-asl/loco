@@ -16,12 +16,9 @@ using namespace std;
 
 namespace loco {
 
-CoMOverSupportPolygonControl::CoMOverSupportPolygonControl(int nLegs) {
-  nLegs_ = nLegs;
-  swingPhase_.resize(nLegs);
-  stancePhase_.resize(nLegs);
-  isInStanceMode_.resize(nLegs);
-  footPositionCSw_.resize(nLegs);
+CoMOverSupportPolygonControl::CoMOverSupportPolygonControl(LegGroup* legs) :
+legs_(legs)
+{
 
 	// some example values
 	spMinLegWeight = 0.3200;
@@ -35,8 +32,8 @@ CoMOverSupportPolygonControl::~CoMOverSupportPolygonControl() {
 
 }
 
-Eigen::Vector3d CoMOverSupportPolygonControl::getPositionErrorVectorCSw() {
-  const int nLegs = nLegs_;
+Eigen::Vector3d CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame() {
+  const int nLegs = legs_->size();
   double legWeights[nLegs];
   for (int i=0;i<nLegs;i++) {
     legWeights[i] = 1.0;
@@ -44,31 +41,36 @@ Eigen::Vector3d CoMOverSupportPolygonControl::getPositionErrorVectorCSw() {
 
   double sumWeights = 0;
   int nStanceLegs = 0;
-  for (int iLeg=0;iLeg<nLegs;iLeg++) {
-    if (isInStanceMode_[iLeg]) {
-      double t = 1 - mapTo01Range(stancePhase_[iLeg],spStPShiftAwayFromLegStart, 1.0);
+  int iLeg=0;
+  for ( auto leg : *legs_) {
+    if (leg->isInStanceMode()) {
+      double t = 1 - mapTo01Range(leg->getStancePhase(),spStPShiftAwayFromLegStart, 1.0);
       t = linearlyInterpolate(spMinLegWeight, 1, 0, 1, t);
       legWeights[iLeg] = t;
       nStanceLegs++;
     } else {
-      double t = mapTo01Range(swingPhase_[iLeg], spSwPShiftTowardsLegStart, 1.0);
+      double t = mapTo01Range(leg->getSwingPhase(), spSwPShiftTowardsLegStart, 1.0);
       t = linearlyInterpolate(spMinLegWeight, 1, 0, 1, t);
       legWeights[iLeg] = t;
     }
     sumWeights += legWeights[iLeg];
+    iLeg++;
   }
 
 
   Eigen::Vector3d defaultTarget = Eigen::Vector3d::Zero();
   Eigen::Vector3d comTarget  = Eigen::Vector3d::Zero();
-  for (int iLeg=0; iLeg<nLegs; iLeg++) {
+
+  iLeg=0;
+  for (auto leg : *legs_) {
     //	            tprintf("leg %d(%s): stanceMode: %lf, swingMode: %lf. Weight:%lf\n", i, leg->getName(), leg->getStancePhase(),leg->getSwingPhase(), legWeights[i]);
-    const Eigen::Vector3d footPositionCSw = footPositionCSw_[iLeg];
+    const Eigen::Vector3d footPositionCSw = leg->getFootPositionInWorldFrame();
 
     if (sumWeights != 0) {
       comTarget += footPositionCSw*legWeights[iLeg]/sumWeights;
     }
     defaultTarget += footPositionCSw*0.25;
+    iLeg++;
   }
 
 

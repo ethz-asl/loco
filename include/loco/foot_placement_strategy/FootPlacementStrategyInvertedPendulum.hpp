@@ -107,7 +107,7 @@ public:
   Trajectory1D swingFootHeightTrajectory_;
 
   //! desired heading speed
-  double desiredHeadingSpeed_;
+  double desiredHeadingSpeedInBaseFrame_;
 
   //! stance duration for each leg
   double stanceDuration_[4];

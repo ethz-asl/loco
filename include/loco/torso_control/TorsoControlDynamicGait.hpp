@@ -13,10 +13,10 @@
 
 namespace loco {
 
-class BaseControlDynamicGait: public BaseControlBase {
+class TorsoControlDynamicGait: public TorsoControlBase {
  public:
-  BaseControlDynamicGait();
-  virtual ~BaseControlDynamicGait();
+  TorsoControlDynamicGait();
+  virtual ~TorsoControlDynamicGait();
 
   virtual void advance(double dt);
 };

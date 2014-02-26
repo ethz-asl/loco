@@ -10,12 +10,12 @@
 
 namespace loco {
 
-BaseControlBase::BaseControlBase() {
+TorsoControlBase::TorsoControlBase() {
 
 
 }
 
-BaseControlBase::~BaseControlBase() {
+TorsoControlBase::~TorsoControlBase() {
 
 }
 

@@ -18,6 +18,8 @@ namespace loco {
 
 class LegBase {
  public:
+  typedef Eigen::Vector3d Position;
+ public:
   LegBase();
   LegBase(const std::string& name);
   virtual ~LegBase();
@@ -53,6 +55,8 @@ class LegBase {
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
 
+
+  virtual const Position& getFootPositionInWorldFrame() = 0;
   friend std::ostream& operator << (std::ostream& out, const LegBase& leg) {
     out << "name" << leg.getName() << std::endl;
     return out;

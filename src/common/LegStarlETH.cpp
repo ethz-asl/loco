@@ -9,14 +9,21 @@
 
 namespace loco {
 
-LegStarlETH::LegStarlETH(const std::string& name) :
-  LegBase(name)
+LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotModel* robotModel) :
+  LegBase(name),
+  iLeg_(iLeg),
+  robotModel_(robotModel)
 {
 
 }
 
 LegStarlETH::~LegStarlETH() {
 
+}
+
+const LegStarlETH::Position& LegStarlETH::getFootPositionInWorldFrame() {
+  footPositionInWorldFrame_ = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(iLeg_)->getPos();
+  return footPositionInWorldFrame_;
 }
 
 } /* namespace loco */

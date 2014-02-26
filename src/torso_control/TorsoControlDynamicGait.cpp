@@ -9,16 +9,16 @@
 
 namespace loco {
 
-BaseControlDynamicGait::BaseControlDynamicGait() {
+TorsoControlDynamicGait::TorsoControlDynamicGait() {
 
 
 }
 
-BaseControlDynamicGait::~BaseControlDynamicGait() {
+TorsoControlDynamicGait::~TorsoControlDynamicGait() {
 
 }
 
-void BaseControlDynamicGait::advance(double dt) {
+void TorsoControlDynamicGait::advance(double dt) {
 
 }
 

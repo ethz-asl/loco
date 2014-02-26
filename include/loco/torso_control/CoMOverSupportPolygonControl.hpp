@@ -13,6 +13,7 @@
 #include "tinyxml.h"
 
 #include <Eigen/Core>
+#include "loco/common/LegGroup.hpp"
 
 namespace loco {
 
@@ -27,7 +28,7 @@ public:
 
 
 	//! Constructor
-	CoMOverSupportPolygonControl(int nLegs);
+	CoMOverSupportPolygonControl(LegGroup* legs);
 
 	//! Destructor
 	virtual ~CoMOverSupportPolygonControl();
@@ -36,7 +37,7 @@ public:
 	 * @param legs	references to the legs
 	 * @return error vector expressed in world frame
 	 */
-	Eigen::Vector3d getPositionErrorVectorCSw();
+	Eigen::Vector3d getPositionErrorVectorInWorldFrame();
 
 	/*! Loads the parameters from the XML object
 	 * @param hParameterSet		handle
@@ -65,6 +66,8 @@ public:
 	void setPhases(int iLeg, double stancePhase, double swingPhase);
 
 public:
+protected:
+	  LegGroup* legs_;
     //! this is the minimum weight any leg can have... if this is zero,then the COM will try to be right at center of the support polygon [0,1]
     double spMinLegWeight;
 
@@ -77,7 +80,7 @@ public:
     double coronalOffset;
     double sagittalOffset;
 
-    int nLegs_;
+
     std::vector<double> swingPhase_;
     std::vector<double> stancePhase_;
     std::vector<int> isInStanceMode_;

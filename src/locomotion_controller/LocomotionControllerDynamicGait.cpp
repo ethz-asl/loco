@@ -10,7 +10,7 @@
 
 namespace loco {
 
-LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, BaseControlBase* baseController) :
+LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator, FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController) :
     LocomotionControllerBase(),
     legs_(legs),
     torso_(torso),
@@ -41,6 +41,14 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     }
     iLeg++;
   }
+  const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
+  const TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
+  const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
+  torso_->setMeasuredPoseInBaseFrame(TorsoBase::Pose(position, rquatWorldToBase));
+  const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
+  const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
+  torso_->setMeasuredTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
+
   limbCoordinator_->advance(dt);
 
   iLeg = 0;

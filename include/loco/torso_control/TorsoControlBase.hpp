@@ -12,10 +12,10 @@
 
 namespace loco {
 
-class BaseControlBase {
+class TorsoControlBase {
  public:
-  BaseControlBase();
-  virtual ~BaseControlBase();
+  TorsoControlBase();
+  virtual ~TorsoControlBase();
 
   virtual void advance(double dt) = 0;
 };

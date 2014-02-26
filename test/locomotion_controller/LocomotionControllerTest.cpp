@@ -35,10 +35,10 @@ TEST(LocomotionControllerTest, test) {
 
 
   loco::LegGroup legs;
-  loco::LegStarlETH leftForeLeg("leftFore");
-  loco::LegStarlETH rightForeLeg("rightFore");
-  loco::LegStarlETH leftHindLeg("leftHind");
-  loco::LegStarlETH rightHindLeg("rightHind");
+  loco::LegStarlETH leftForeLeg("leftFore", 0, &robotModel);
+  loco::LegStarlETH rightForeLeg("rightFore", 1, &robotModel);
+  loco::LegStarlETH leftHindLeg("leftHind", 2, &robotModel);
+  loco::LegStarlETH rightHindLeg("rightHind", 3, &robotModel);
   legs.addLeg(&leftForeLeg);
   legs.addLeg(&rightForeLeg);
   legs.addLeg(&leftHindLeg);
@@ -53,7 +53,7 @@ TEST(LocomotionControllerTest, test) {
 
   loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &gaitPatternAPS);
   loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(&legs, &torso, &robotModel, &terrain);
-  loco::BaseControlDynamicGait baseControl;
+  loco::TorsoControlDynamicGait baseControl;
 
   loco::LocomotionControllerDynamicGait locomotionController(&legs, &torso, &robotModel, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl);
   locomotionController.advance(dt);

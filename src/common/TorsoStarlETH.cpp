@@ -18,29 +18,58 @@ TorsoStarlETH::~TorsoStarlETH() {
 
 }
 
-double TorsoStarlETH::getHeadingSpeed() {
-  return measuredRobotVelocity_.getTranslationalVelocity().x();
+double TorsoStarlETH::getHeadingSpeedInBaseFrame() {
+  return measuredTwistInBaseFrame_.getTranslationalVelocity().x();
 }
 
-double TorsoStarlETH::getTurningSpeed() {
-  return measuredRobotVelocity_.getRotationalVelocity().z();
+double TorsoStarlETH::getTurningSpeedInBaseFrame() {
+  return measuredTwistInBaseFrame_.getRotationalVelocity().z();
 }
 
-double TorsoStarlETH::getLateralSpeed() {
-  return measuredRobotVelocity_.getTranslationalVelocity().y();
+double TorsoStarlETH::getLateralSpeedInBaseFrame() {
+  return measuredTwistInBaseFrame_.getTranslationalVelocity().y();
 }
 
-double TorsoStarlETH::getDesiredHeadingSpeed() {
-  return desiredRobotVelocity_.getTranslationalVelocity().x();
+double TorsoStarlETH::getDesiredHeadingSpeedInBaseFrame() {
+  return desiredTwistInBaseFrame_.getTranslationalVelocity().x();
 }
 
-double TorsoStarlETH::getDesiredTurningSpeed() {
-  return desiredRobotVelocity_.getRotationalVelocity().z();
+double TorsoStarlETH::getDesiredTurningSpeedInBaseFrame() {
+  return desiredTwistInBaseFrame_.getRotationalVelocity().z();
 }
 
-double TorsoStarlETH::getDesiredLateralSpeed() {
-  return desiredRobotVelocity_.getTranslationalVelocity().y();
+double TorsoStarlETH::getDesiredLateralSpeedInBaseFrame() {
+  return desiredTwistInBaseFrame_.getTranslationalVelocity().y();
 }
 
+
+void TorsoStarlETH::setMeasuredTwistInBaseFrame(const Twist& twist) {
+  measuredTwistInBaseFrame_ = twist;
+}
+
+void TorsoStarlETH::setDesiredTwistInBaseFrame(const Twist& twist) {
+  desiredTwistInBaseFrame_ = twist;
+}
+
+const TorsoBase::Twist& TorsoStarlETH::getMeasuredTwistInBaseFrame() {
+  return measuredTwistInBaseFrame_;
+}
+const TorsoBase::Twist& TorsoStarlETH::getDesiredTwistInBaseFrame() {
+  return desiredTwistInBaseFrame_;
+}
+
+const TorsoBase::Pose& TorsoStarlETH::getMeasuredPoseInBaseFrame() {
+  return measuredPoseInBaseFrame_;
+}
+const TorsoBase::Pose& TorsoStarlETH::getDesiredPoseInBaseFrame() {
+  return desiredPoseInBaseFrame_;
+}
+
+void TorsoStarlETH::setMeasuredPoseInBaseFrame(const Pose& pose) {
+  measuredPoseInBaseFrame_ = pose;
+}
+void TorsoStarlETH::setDesiredPoseInBaseFrame(const Pose& pose) {
+  desiredPoseInBaseFrame_ = pose;
+}
 
 } /* namespace loco */
