@@ -12,7 +12,7 @@
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
-#include "loco/base_control/BaseControlBase.hpp"
+#include "loco/torso_control/TorsoControlBase.hpp"
 
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"

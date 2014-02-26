@@ -5,7 +5,7 @@
  *      Author: gech
  */
 
-#include "loco/base_control/BaseControlDynamicGait.hpp"
+#include "loco/torso_control/TorsoControlDynamicGait.hpp"
 
 namespace loco {
 

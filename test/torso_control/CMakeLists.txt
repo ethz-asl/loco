@@ -28,10 +28,10 @@ include_directories(../../thirdparty/tinyxml)
 
 set(BASECONTROL_SRCS
 	../test_main.cpp
-	BaseControlTest.cpp
-	../../src/base_control/BaseControlBase.cpp
-	../../src/base_control/BaseControlDynamicGait.cpp
-	../../src/base_control/CoMOverSupportPolygonControl.cpp
+	TorsoControlTest.cpp
+	../../src/torso_control/TorsoControlBase.cpp
+	../../src/torso_control/TorsoControlDynamicGait.cpp
+	../../src/torso_control/CoMOverSupportPolygonControl.cpp
 	../../thirdparty/tinyxml/tinystr.cpp
 	../../thirdparty/tinyxml/tinyxml.cpp
 	../../thirdparty/tinyxml/tinyxmlerror.cpp

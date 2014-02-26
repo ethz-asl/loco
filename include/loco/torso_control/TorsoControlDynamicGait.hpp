@@ -9,7 +9,7 @@
 #ifndef LOCO_BASECONTROLDYNAMICGAIT_HPP_
 #define LOCO_BASECONTROLDYNAMICGAIT_HPP_
 
-#include "loco/base_control/BaseControlBase.hpp"
+#include "loco/torso_control/TorsoControlBase.hpp"
 
 namespace loco {
 

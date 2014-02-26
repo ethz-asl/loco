@@ -19,8 +19,8 @@ PARENT_SCOPE)
 ### SOURCES ###
 ###############
 set(TASK_SRCS ${TASK_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/BaseControlBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/BaseControlDynamicGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGait.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControl.cpp
 PARENT_SCOPE)
 

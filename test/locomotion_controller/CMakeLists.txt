@@ -49,8 +49,8 @@ set(LOCOMOTIONCONTROLLER_SRCS
 	../../src/limb_coordinator/LimbCoordinatorBase.cpp
 	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
 	
-	../../src/base_control/BaseControlBase.cpp
-	../../src/base_control/BaseControlDynamicGait.cpp
+	../../src/torso_control/TorsoControlBase.cpp
+	../../src/torso_control/TorsoControlDynamicGait.cpp
 	
 	../../src/common/TorsoBase.cpp
 	../../src/common/TorsoStarlETH.cpp

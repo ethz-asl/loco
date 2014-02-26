@@ -7,7 +7,7 @@
  * @brief
  */
 
-#include "loco/base_control/CoMOverSupportPolygonControl.hpp"
+#include "loco/torso_control/CoMOverSupportPolygonControl.hpp"
 #include <stdio.h>
 #include <Eigen/Dense>
 #include "loco/temp_helpers/math.hpp"

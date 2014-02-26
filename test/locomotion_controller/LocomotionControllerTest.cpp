@@ -14,7 +14,7 @@
 #include "loco/gait_pattern/GaitPatternAPS.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
-#include "loco/base_control/BaseControlDynamicGait.hpp"
+#include "loco/torso_control/TorsoControlDynamicGait.hpp"
 
 #include "loco/common/LegStarlETH.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
