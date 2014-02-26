@@ -31,6 +31,16 @@ set(LIMBCOORDINATOR_SRCS
 	LimbCoordinatorTest.cpp
 	../../src/limb_coordinator/LimbCoordinatorBase.cpp
 	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
+	
+	../../src/common/TorsoBase.cpp
+	../../src/common/TorsoStarlETH.cpp
+	../../src/common/LegGroup.cpp
+	../../src/common/LegBase.cpp
+	../../src/common/LegStarlETH.cpp
+	../../src/common/LegStateBase.cpp
+	../../src/common/LegStateLiftOff.cpp
+	../../src/common/LegStateTouchDown.cpp
+	
 	../../src/gait_pattern/APS.cpp
 	../../src/gait_pattern/GaitAPS.cpp
 	../../src/gait_pattern/GaitPatternAPS.cpp

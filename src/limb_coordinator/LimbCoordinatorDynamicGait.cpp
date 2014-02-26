@@ -10,8 +10,9 @@
 
 namespace loco {
 
-LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(GaitPatternBase* gaitPattern) :
+LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, GaitPatternBase* gaitPattern) :
     LimbCoordinatorBase(),
+    legs_(legs),
     gaitPattern_(gaitPattern),
     isLegGrounded_{false, false, false, false}
 {
@@ -46,11 +47,11 @@ void LimbCoordinatorDynamicGait::setShouldBeLegGrounded(int iLeg, bool shouldBeL
 }
 
 
-void LimbCoordinatorDynamicGait::advance(LegGroup& legs, double dt) {
+void LimbCoordinatorDynamicGait::advance(double dt) {
   gaitPattern_->advance(dt);
 //  for (int iLeg=0; iLeg<4; iLeg++) {
   int iLeg =0;
-  for (auto leg : legs) {
+  for (auto leg : *legs_) {
     shouldBeLegGrounded_[iLeg] = gaitPattern_->shouldBeLegGrounded(iLeg);
     leg->setShouldBeGrounded(shouldBeLegGrounded_[iLeg]);
     leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));

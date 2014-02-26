@@ -11,12 +11,13 @@
 
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
 #include "loco/gait_pattern/GaitPatternBase.hpp"
+#include "loco/common/LegGroup.hpp"
 
 namespace loco {
 
 class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
  public:
-  LimbCoordinatorDynamicGait(GaitPatternBase* gaitPattern);
+  LimbCoordinatorDynamicGait(LegGroup* legs, GaitPatternBase* gaitPattern);
   virtual ~LimbCoordinatorDynamicGait();
 
   virtual bool isLegGrounded(int iLeg);
@@ -37,11 +38,12 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual void advance(LegGroup& legs, double dt);
+  virtual void advance(double dt);
 
   virtual GaitPatternBase* getGaitPattern();
 
  private:
+  LegGroup* legs_;
   GaitPatternBase* gaitPattern_;
   bool isLegGrounded_[4];
   bool shouldBeLegGrounded_[4];

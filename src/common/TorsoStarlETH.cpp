@@ -19,15 +19,27 @@ TorsoStarlETH::~TorsoStarlETH() {
 }
 
 double TorsoStarlETH::getHeadingSpeed() {
-  return robotAngularVelocity_.x();
+  return measuredRobotVelocity_.getTranslationalVelocity().x();
 }
 
 double TorsoStarlETH::getTurningSpeed() {
-  return robotAngularVelocity_.z();
+  return measuredRobotVelocity_.getRotationalVelocity().z();
 }
 
 double TorsoStarlETH::getLateralSpeed() {
-  return robotAngularVelocity_.y();
+  return measuredRobotVelocity_.getTranslationalVelocity().y();
+}
+
+double TorsoStarlETH::getDesiredHeadingSpeed() {
+  return desiredRobotVelocity_.getTranslationalVelocity().x();
+}
+
+double TorsoStarlETH::getDesiredTurningSpeed() {
+  return desiredRobotVelocity_.getRotationalVelocity().z();
+}
+
+double TorsoStarlETH::getDesiredLateralSpeed() {
+  return desiredRobotVelocity_.getTranslationalVelocity().y();
 }
 
 

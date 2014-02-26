@@ -18,6 +18,9 @@ TEST(LimbCoordinatorTest, test) {
   loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);
   loco::GaitPatternAPS gaitPatternAPS;
   double dt = 0.0025;
+
+  loco::LegGroup legs;
+
   gaitPatternAPS.initialize(aps, dt);
-  loco::LimbCoordinatorDynamicGait limbCoordinator(&gaitPatternAPS);
+  loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &gaitPatternAPS);
 }

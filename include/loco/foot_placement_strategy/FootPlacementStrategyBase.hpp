@@ -10,7 +10,7 @@
 #ifndef LOCO_FOOTPLACEMENTSTRATEGYBASE_HPP_
 #define LOCO_FOOTPLACEMENTSTRATEGYBASE_HPP_
 
-#include "loco/common/LegGroup.hpp"
+
 
 #include <Eigen/Core>
 
@@ -42,7 +42,7 @@ public:
 	 */
 	virtual Eigen::Vector3d getFootPositionForSwingLegCSw(int iLeg, double dt) = 0;
 
-	virtual void advance(LegGroup& legs, double dt) = 0;
+	virtual void advance(double dt) = 0;
 };
 
 } // namespace loco

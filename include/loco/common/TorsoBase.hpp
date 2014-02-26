@@ -15,9 +15,15 @@ class TorsoBase {
   TorsoBase();
   virtual ~TorsoBase();
 
+
   virtual double getHeadingSpeed() = 0;
   virtual double getTurningSpeed() = 0;
   virtual double getLateralSpeed() = 0;
+
+  virtual double getDesiredHeadingSpeed() = 0;
+  virtual double getDesiredTurningSpeed() = 0;
+  virtual double getDesiredLateralSpeed() = 0;
+
 };
 
 } /* namespace loco */

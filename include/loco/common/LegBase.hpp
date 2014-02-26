@@ -8,6 +8,9 @@
 #ifndef LOCO_LEGBASE_HPP_
 #define LOCO_LEGBASE_HPP_
 
+#include "loco/common/LegStateLiftOff.hpp"
+#include "loco/common/LegStateTouchDown.hpp"
+
 namespace loco {
 
 class LegBase {
@@ -41,6 +44,8 @@ class LegBase {
   virtual void setIsGrounded(bool isGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
 
+  LegStateTouchDown* getStateTouchDown();
+  LegStateLiftOff* getStateLiftOff();
 
  protected:
   double stancePhase_;
@@ -51,6 +56,9 @@ class LegBase {
   bool isInSwingMode_;
   bool isGrounded_;
   bool shouldBeGrounded_;
+
+  LegStateTouchDown stateTouchDown_;
+  LegStateLiftOff stateLiftOff_;
 };
 
 } /* namespace loco */

@@ -16,12 +16,12 @@
 
 namespace loco {
 
-FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain, TorsoBase* desState, LimbCoordinatorBase* limbCoordinator) :
+FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain) :
     FootPlacementStrategyBase(),
+    legs_(legs),
+    torso_(torso),
     robotModel_(robotModel),
-    terrain_(terrain),
-    torso_(desState),
-    limbCoordinator_(limbCoordinator)
+    terrain_(terrain)
 {
 
 	stepFeedbackScale_ = 1.2;
@@ -205,10 +205,10 @@ double FootPlacementStrategyInvertedPendulum::getSagittalComponentOfFootStep(dou
 	return result;
 }
 
-void FootPlacementStrategyInvertedPendulum::advance(LegGroup& legs, double dt)
+void FootPlacementStrategyInvertedPendulum::advance(double dt)
 {
   int iLeg=0;
-  for (auto leg : legs) {
+  for (auto leg : *legs_) {
     this->setStanceDuration(iLeg, leg->getStanceDuration());
     double swingPhase = 1;
     if (leg->isInStanceMode()) {
@@ -220,15 +220,14 @@ void FootPlacementStrategyInvertedPendulum::advance(LegGroup& legs, double dt)
     this->setBaseVelocity(iLeg, robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel());
 
     Eigen::Vector4d quat = robotModel_->est().getActualEstimator()->getQuat();
-
     this->setRotationWorldToBase(loco::FootPlacementStrategyInvertedPendulum::RotationQuaternion(quat(0), quat(1), quat(2), quat(3)));
-
+    this->setFootLocationAtLiftOff(iLeg, leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame());
 
 
   //  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
   //  footPlacementTest.setFootLocationAtLiftOff(iLeg, Eigen::Vector3d(leg->legState.initialSwingStepOffset.x, leg->legState.initialSwingStepOffset.y, leg->legState.initialSwingStepOffset.z));
   //  footPlacementTest.setGroundHeight(iLeg, leg->legFrameP->getEstimatedGroundHeight());
-    this->setDesiredHeadingSpeed(torso_->getHeadingSpeed());
+    this->setDesiredHeadingSpeed(torso_->getDesiredHeadingSpeed());
     this->setFootLocationAtLiftOff(iLeg, Eigen::Vector3d());
 //
   }

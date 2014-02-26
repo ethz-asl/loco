@@ -90,6 +90,13 @@ void LegBase::setShouldBeGrounded(bool shouldBeGrounded) {
   shouldBeGrounded_ = shouldBeGrounded;
 }
 
+LegStateTouchDown* LegBase::getStateTouchDown() {
+  return &stateTouchDown_;
+}
+LegStateLiftOff* LegBase::getStateLiftOff() {
+  return &stateLiftOff_;
+}
+
 
 
 } /* namespace loco */

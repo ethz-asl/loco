@@ -11,7 +11,7 @@
 
 #include "loco/gait_pattern/GaitPatternBase.hpp"
 
-#include "loco/common/LegGroup.hpp"
+
 
 namespace loco {
 
@@ -36,7 +36,7 @@ class LimbCoordinatorBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual void advance(LegGroup& legs, double dt) = 0;
+  virtual void advance(double dt) = 0;
 
   virtual void setIsLegGrounded(int iLeg, bool isLegGrounded) = 0;
 
