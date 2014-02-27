@@ -17,6 +17,8 @@ add_definitions(-std=c++0x)
 
 find_package(Eigen REQUIRED)
 find_package(Kindr REQUIRED)
+find_package(OOQPEI REQUIRED)
+
 
 
 include_directories(${EIGEN_INCLUDE_DIRS})
@@ -27,7 +29,7 @@ include_directories(../../temp_helpers/include)
 
 include_directories(${UTILS_INCL})
 include_directories(${ROBOTMODEL_INCL})
-
+include_directories(${OOQPEI_INCLUDE_DIRS})
  
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
@@ -48,6 +50,11 @@ set(LOCOMOTIONCONTROLLER_SRCS
 	
 	../../src/limb_coordinator/LimbCoordinatorBase.cpp
 	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
+	
+	../../src/virtual_model_control/VirtualModelController.cpp
+	../../src/contact_force_distribution/ContactForceDistribution.cpp
+	../../src/contact_force_distribution/ContactForceDistributionBase.cpp
+	../../src/temp_helpers/Legs.cpp
 	
 	../../src/torso_control/TorsoControlBase.cpp
 	../../src/torso_control/TorsoControlDynamicGait.cpp
@@ -74,6 +81,6 @@ set(LOCOMOTIONCONTROLLER_SRCS
 
 
 add_executable( runUnitTestsLocomotionController EXCLUDE_FROM_ALL  ${LOCOMOTIONCONTROLLER_SRCS})
-target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread starlethRobotModel starlethUtils)
+target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread starlethRobotModel starlethUtils 	${OOQEI_LIBRARIES})
 add_test( runUnitTestsLocomotionController ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsLocomotionController )
 add_dependencies(check runUnitTestsLocomotionController)

@@ -29,19 +29,20 @@ LocoExample::~LocoExample() {
 
 }
 
+
 bool LocoExample::LocoExample::add()
 {
   double dt = time_step_;
   static robotTerrain::TerrainPlane terrain;
-  static loco::LegGroup legs;
+  legs_.reset( new loco::LegGroup);
   static loco::LegStarlETH leftForeLeg("leftFore", 0, robotModel_);
   static loco::LegStarlETH rightForeLeg("rightFore", 1, robotModel_);
   static loco::LegStarlETH leftHindLeg("leftHind", 2, robotModel_);
   static loco::LegStarlETH rightHindLeg("rightHind", 3, robotModel_);
-  legs.addLeg(&leftForeLeg);
-  legs.addLeg(&rightForeLeg);
-  legs.addLeg(&leftHindLeg);
-  legs.addLeg(&rightHindLeg);
+  legs_->addLeg(&leftForeLeg);
+  legs_->addLeg(&rightForeLeg);
+  legs_->addLeg(&leftHindLeg);
+  legs_->addLeg(&rightHindLeg);
 
   static loco::TorsoStarlETH torso;
 
@@ -50,11 +51,16 @@ bool LocoExample::LocoExample::add()
   static loco::GaitPatternAPS gaitPatternAPS;
   gaitPatternAPS.initialize(aps, dt);
 
-  static loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &torso, &gaitPatternAPS);
-  static loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(&legs, &torso, robotModel_, &terrain);
-  static loco::TorsoControlDynamicGait baseControl(&legs, &torso, &terrain);
+  static loco::LimbCoordinatorDynamicGait limbCoordinator(legs_.get(), &torso, &gaitPatternAPS);
+  static loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(legs_.get(), &torso, robotModel_, &terrain);
+  static loco::TorsoControlDynamicGait baseControl(legs_.get(), &torso, &terrain);
 
-  static loco::LocomotionControllerDynamicGait locomotionController(&legs, &torso, robotModel_, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl);
+  static loco::ContactForceDistribution contactForceDistribution_(robotModel_);
+  contactForceDistribution_.setTerrain(&terrain);
+  static loco::VirtualModelController virtualModelController_(robotModel_, contactForceDistribution_);
+
+  static loco::LocomotionControllerDynamicGait locomotionController(legs_.get(), &torso, robotModel_, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl, &virtualModelController_, &contactForceDistribution_);
+
 
   locomotionController_ = &locomotionController;
   return true;
@@ -62,13 +68,24 @@ bool LocoExample::LocoExample::add()
 
 bool LocoExample::init()
 {
-
+  locomotionController_->initialize(time_step_);
   return true;
 }
 
 bool LocoExample::run()
 {
   locomotionController_->advance(time_step_);
+
+  robotModel::VectorActMLeg legMode;
+  int iLeg = 0;
+  for (auto leg : *legs_) {
+    robotModel_->act().setPosOfLeg(leg->getDesiredJointPositions() ,iLeg);
+    robotModel_->act().setTauOfLeg(leg->getDesiredJointTorques() ,iLeg);
+    robotModel::VectorActMLeg modes = leg->getDesiredJointControlModes().matrix();
+    robotModel_->act().setModeOfLeg( modes,iLeg);
+
+    iLeg++;
+  }
   return true;
 }
 

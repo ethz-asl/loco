@@ -21,6 +21,7 @@ class LegStarlETH : public loco::LegBase {
   LegStarlETH(const std::string& name, int iLeg, robotModel::RobotModel* robotModel);
   virtual ~LegStarlETH();
   virtual const Position& getFootPositionInWorldFrame();
+
  private:
   int iLeg_;
   robotModel::RobotModel* robotModel_;

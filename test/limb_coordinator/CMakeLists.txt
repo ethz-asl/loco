@@ -32,6 +32,8 @@ set(LIMBCOORDINATOR_SRCS
 	../../src/limb_coordinator/LimbCoordinatorBase.cpp
 	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
 	
+
+	
 	../../src/common/TorsoBase.cpp
 	../../src/common/TorsoStarlETH.cpp
 	../../src/common/LegGroup.cpp
