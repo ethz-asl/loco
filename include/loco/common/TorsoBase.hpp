@@ -20,6 +20,8 @@ class TorsoBase {
   TorsoBase();
   virtual ~TorsoBase();
 
+  virtual double getStridePhase() = 0;
+  virtual void setStridePhase(double stridePhase) = 0;
 
   virtual double getHeadingSpeedInBaseFrame() = 0;
   virtual double getTurningSpeedInBaseFrame() = 0;
@@ -32,14 +34,16 @@ class TorsoBase {
   virtual void setMeasuredTwistInBaseFrame(const Twist& twist) = 0;
   virtual void setDesiredTwistInBaseFrame(const Twist& twist) = 0;
 
-  virtual void setMeasuredPoseInBaseFrame(const Pose& pose) = 0;
-  virtual void setDesiredPoseInBaseFrame(const Pose& pose) = 0;
+  virtual void setMeasuredPoseInWorldFrame(const Pose& pose) = 0;
+  virtual void setDesiredPoseInWorldFrame(const Pose& pose) = 0;
 
   virtual const Twist& getMeasuredTwistInBaseFrame() = 0;
   virtual const Twist& getDesiredTwistInBaseFrame() = 0;
 
-  virtual const Pose& getMeasuredPoseInBaseFrame() = 0;
-  virtual const Pose& getDesiredPoseInBaseFrame() = 0;
+  virtual const Pose& getMeasuredPoseInWorldFrame() = 0;
+  virtual const Pose& getDesiredPoseInWorldFrame() = 0;
+
+
 
 };
 

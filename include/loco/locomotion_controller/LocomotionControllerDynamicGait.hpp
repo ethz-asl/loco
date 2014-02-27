@@ -39,7 +39,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   robotTerrain::TerrainBase* terrain_;
   LimbCoordinatorBase* limbCoordinator_;
   FootPlacementStrategyBase* footPlacementStrategy_;
-  TorsoControlBase* baseController_;
+  TorsoControlBase* torsoController_;
 };
 
 } /* namespace loco */

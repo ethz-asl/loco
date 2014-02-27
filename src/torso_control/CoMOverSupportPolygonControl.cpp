@@ -165,19 +165,8 @@ bool CoMOverSupportPolygonControl::setToInterpolated(const CoMOverSupportPolygon
 	return true;
 }
 
-void CoMOverSupportPolygonControl::setFootPosition(int iLeg, const Eigen::Vector3d& footPosition_CSw)
-{
-  footPositionCSw_[iLeg] = footPosition_CSw;
-}
-void CoMOverSupportPolygonControl::setIsLegInStanceMode(int iLeg, bool isInStanceMode)
-{
-  isInStanceMode_[iLeg];
-}
-void CoMOverSupportPolygonControl::setPhases(int iLeg, double stancePhase, double swingPhase)
-{
-  stancePhase_[iLeg] = stancePhase;
-  swingPhase_[iLeg] = swingPhase;
-}
+
+
 
 
 } // namespace loco

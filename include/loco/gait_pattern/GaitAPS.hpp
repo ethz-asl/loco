@@ -117,6 +117,9 @@ public:
 	 * @return true if leg should be grounded
 	 */
 	bool shouldBeGrounded(int iLeg);
+
+	double getStridePhase();
+
 protected:
 	//! number of gait cycles since start
 	unsigned long int numGaitCycles;

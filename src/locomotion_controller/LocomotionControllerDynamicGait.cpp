@@ -18,7 +18,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     terrain_(terrain),
     limbCoordinator_(limbCoordinator),
     footPlacementStrategy_(footPlacementStrategy),
-    baseController_(baseController)
+    torsoController_(baseController)
 {
 
 
@@ -44,7 +44,7 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
   const TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
   const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
-  torso_->setMeasuredPoseInBaseFrame(TorsoBase::Pose(position, rquatWorldToBase));
+  torso_->setMeasuredPoseInWorldFrame(TorsoBase::Pose(position, rquatWorldToBase));
   const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
   const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
   torso_->setMeasuredTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
@@ -62,7 +62,7 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     }
   }
   footPlacementStrategy_->advance(dt);
-  baseController_->advance(dt);
+  torsoController_->advance(dt);
 
 }
 

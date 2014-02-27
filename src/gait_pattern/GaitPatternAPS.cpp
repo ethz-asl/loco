@@ -346,4 +346,8 @@ bool GaitPatternAPS::shouldBeLegGrounded(int iLeg) {
   GaitAPS::shouldBeGrounded(iLeg);
 }
 
+double GaitPatternAPS::getStridePhase() {
+  GaitAPS::getStridePhase();
+}
+
 } // namespace loco

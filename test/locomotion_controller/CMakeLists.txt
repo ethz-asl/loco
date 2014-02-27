@@ -51,6 +51,7 @@ set(LOCOMOTIONCONTROLLER_SRCS
 	
 	../../src/torso_control/TorsoControlBase.cpp
 	../../src/torso_control/TorsoControlDynamicGait.cpp
+	../../src/torso_control/CoMOverSupportPolygonControl.cpp
 	
 	../../src/common/TorsoBase.cpp
 	../../src/common/TorsoStarlETH.cpp

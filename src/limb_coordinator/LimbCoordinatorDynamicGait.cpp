@@ -10,9 +10,10 @@
 
 namespace loco {
 
-LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, GaitPatternBase* gaitPattern) :
+LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern) :
     LimbCoordinatorBase(),
     legs_(legs),
+    torso_(torso),
     gaitPattern_(gaitPattern),
     isLegGrounded_{false, false, false, false}
 {
@@ -60,6 +61,8 @@ void LimbCoordinatorDynamicGait::advance(double dt) {
     leg->setIsInSwingMode(isLegInSwingMode(iLeg));
     iLeg++;
   }
+
+  torso_->setStridePhase(gaitPattern_->getStridePhase());
 }
 
 bool LimbCoordinatorDynamicGait::isLegInStanceMode(int iLeg) {

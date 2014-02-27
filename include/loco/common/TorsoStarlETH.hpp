@@ -26,6 +26,9 @@ class TorsoStarlETH: public TorsoBase {
   TorsoStarlETH();
   virtual ~TorsoStarlETH();
 
+  virtual double getStridePhase();
+  virtual void setStridePhase(double stridePhase);
+
   virtual double getHeadingSpeedInBaseFrame();
   virtual double getTurningSpeedInBaseFrame();
   virtual double getLateralSpeedInBaseFrame();
@@ -38,19 +41,25 @@ class TorsoStarlETH: public TorsoBase {
   virtual void setMeasuredTwistInBaseFrame(const Twist& twist);
   virtual void setDesiredTwistInBaseFrame(const Twist& twist);
 
-  virtual void setMeasuredPoseInBaseFrame(const Pose& pose);
-  virtual void setDesiredPoseInBaseFrame(const Pose& pose);
+  virtual void setMeasuredPoseInWorldFrame(const Pose& pose);
+  virtual void setDesiredPoseInWorldFrame(const Pose& pose);
 
   virtual const Twist& getMeasuredTwistInBaseFrame();
   virtual const Twist& getDesiredTwistInBaseFrame();
 
-  virtual const Pose& getMeasuredPoseInBaseFrame();
-  virtual const Pose& getDesiredPoseInBaseFrame();
+  virtual const Pose& getMeasuredPoseInWorldFrame();
+  virtual const Pose& getDesiredPoseInWorldFrame();
 
+protected:
+  double stridePhase_;
+  Pose desiredPoseInWorldFrame_;
+  Pose measuredPoseInWorldFrame_;
   Twist desiredTwistInBaseFrame_;
   Twist measuredTwistInBaseFrame_;
-  Pose desiredPoseInBaseFrame_;
-  Pose measuredPoseInBaseFrame_;
+
+
+
+
 
 };
 

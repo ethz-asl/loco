@@ -58,6 +58,8 @@ public:
 
   virtual bool shouldBeLegGrounded(int iLeg) = 0;
 
+  virtual double getStridePhase() = 0;
+
 
 
 };

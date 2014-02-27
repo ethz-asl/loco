@@ -41,6 +41,6 @@ set(BASECONTROL_SRCS
 # Add test cpp file
 add_executable( runUnitTestsBaseControl EXCLUDE_FROM_ALL  ${BASECONTROL_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsBaseControl  gtest_main gtest pthread )
+target_link_libraries(runUnitTestsBaseControl  gtest_main gtest pthread starlethRobotModel starlethUtils)
 add_test( runUnitTestsBaseControl ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsBaseControl )
 add_dependencies(check runUnitTestsBaseControl)

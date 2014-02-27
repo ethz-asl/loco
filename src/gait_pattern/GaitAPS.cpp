@@ -497,4 +497,8 @@ void GaitAPS::resetInterpolation()
 	}
 }
 
+double GaitAPS::getStridePhase() {
+  return getCurrentAPS()->phase_;
+}
+
 } // namespace loco

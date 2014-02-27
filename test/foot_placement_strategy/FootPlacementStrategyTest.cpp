@@ -39,7 +39,7 @@ TEST(FootPlacementTest, test) {
   loco::TorsoStarlETH torso;
 
   gaitPatternAPS.initialize(aps, dt);
-  loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &gaitPatternAPS);
+  loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &torso, &gaitPatternAPS);
 
   robotModel.init();
   robotModel.update();

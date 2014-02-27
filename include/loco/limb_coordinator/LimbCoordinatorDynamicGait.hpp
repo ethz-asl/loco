@@ -12,12 +12,13 @@
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
 #include "loco/gait_pattern/GaitPatternBase.hpp"
 #include "loco/common/LegGroup.hpp"
+#include "loco/common/TorsoBase.hpp"
 
 namespace loco {
 
 class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
  public:
-  LimbCoordinatorDynamicGait(LegGroup* legs, GaitPatternBase* gaitPattern);
+  LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern);
   virtual ~LimbCoordinatorDynamicGait();
 
   virtual bool isLegGrounded(int iLeg);
@@ -44,6 +45,7 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
 
  private:
   LegGroup* legs_;
+  TorsoBase* torso_;
   GaitPatternBase* gaitPattern_;
   bool isLegGrounded_[4];
   bool shouldBeLegGrounded_[4];

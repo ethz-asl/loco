@@ -61,11 +61,7 @@ public:
 	 */
 	bool setToInterpolated(const CoMOverSupportPolygonControl& supportPolygon1, const CoMOverSupportPolygonControl& supportPolygon2, double t);
 
-	void setFootPosition(int iLeg, const Eigen::Vector3d& footPosition_CSw);
-	void setIsLegInStanceMode(int iLeg, bool isInStanceMode);
-	void setPhases(int iLeg, double stancePhase, double swingPhase);
 
-public:
 protected:
 	  LegGroup* legs_;
     //! this is the minimum weight any leg can have... if this is zero,then the COM will try to be right at center of the support polygon [0,1]
@@ -81,10 +77,7 @@ protected:
     double sagittalOffset;
 
 
-    std::vector<double> swingPhase_;
-    std::vector<double> stancePhase_;
-    std::vector<int> isInStanceMode_;
-    std::vector<Eigen::Vector3d> footPositionCSw_;
+
 
 };
 

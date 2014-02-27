@@ -218,10 +218,10 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
     this->setHipPosition(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
     this->setHipVelocity(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getVel());
 //    this->setBaseVelocity(iLeg, robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel());
-    this->setBaseVelocity(iLeg, torso_->getMeasuredPoseInBaseFrame().getRotation().inverseRotate(torso_->getMeasuredTwistInBaseFrame().getTranslationalVelocity().toImplementation()));
+    this->setBaseVelocity(iLeg, torso_->getMeasuredPoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredTwistInBaseFrame().getTranslationalVelocity().toImplementation()));
 
 //    Eigen::Vector4d quat = robotModel_->est().getActualEstimator()->getQuat();
-    this->setRotationWorldToBase(torso_->getMeasuredPoseInBaseFrame().getRotation());
+    this->setRotationWorldToBase(torso_->getMeasuredPoseInWorldFrame().getRotation());
     this->setFootLocationAtLiftOff(iLeg, leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame());
 
 

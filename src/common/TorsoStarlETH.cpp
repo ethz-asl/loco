@@ -9,7 +9,9 @@
 
 namespace loco {
 
-TorsoStarlETH::TorsoStarlETH() {
+TorsoStarlETH::TorsoStarlETH() :
+    stridePhase_(0.0)
+{
 
 
 }
@@ -17,6 +19,15 @@ TorsoStarlETH::TorsoStarlETH() {
 TorsoStarlETH::~TorsoStarlETH() {
 
 }
+
+double TorsoStarlETH::getStridePhase() {
+  return stridePhase_;
+}
+
+void TorsoStarlETH::setStridePhase(double stridePhase) {
+  stridePhase_ = stridePhase;
+}
+
 
 double TorsoStarlETH::getHeadingSpeedInBaseFrame() {
   return measuredTwistInBaseFrame_.getTranslationalVelocity().x();
@@ -58,18 +69,18 @@ const TorsoBase::Twist& TorsoStarlETH::getDesiredTwistInBaseFrame() {
   return desiredTwistInBaseFrame_;
 }
 
-const TorsoBase::Pose& TorsoStarlETH::getMeasuredPoseInBaseFrame() {
-  return measuredPoseInBaseFrame_;
+const TorsoBase::Pose& TorsoStarlETH::getMeasuredPoseInWorldFrame() {
+  return measuredPoseInWorldFrame_;
 }
-const TorsoBase::Pose& TorsoStarlETH::getDesiredPoseInBaseFrame() {
-  return desiredPoseInBaseFrame_;
+const TorsoBase::Pose& TorsoStarlETH::getDesiredPoseInWorldFrame() {
+  return desiredPoseInWorldFrame_;
 }
 
-void TorsoStarlETH::setMeasuredPoseInBaseFrame(const Pose& pose) {
-  measuredPoseInBaseFrame_ = pose;
+void TorsoStarlETH::setMeasuredPoseInWorldFrame(const Pose& pose) {
+  measuredPoseInWorldFrame_ = pose;
 }
-void TorsoStarlETH::setDesiredPoseInBaseFrame(const Pose& pose) {
-  desiredPoseInBaseFrame_ = pose;
+void TorsoStarlETH::setDesiredPoseInWorldFrame(const Pose& pose) {
+  desiredPoseInWorldFrame_ = pose;
 }
 
 } /* namespace loco */

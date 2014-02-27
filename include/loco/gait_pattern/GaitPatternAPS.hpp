@@ -72,6 +72,8 @@ public:
 
   virtual bool shouldBeLegGrounded(int iLeg);
 
+  virtual double getStridePhase();
+
 protected:
   double velocity_;
 
