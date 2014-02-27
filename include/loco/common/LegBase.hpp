@@ -11,6 +11,8 @@
 #include "loco/common/LegStateLiftOff.hpp"
 #include "loco/common/LegStateTouchDown.hpp"
 
+#include "loco/common/TypeDefs.hpp"
+
 #include <string>
 #include <iostream>
 

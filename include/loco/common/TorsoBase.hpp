@@ -8,14 +8,15 @@
 #ifndef LOCO_STATEBASE_HPP_
 #define LOCO_STATEBASE_HPP_
 
-#include "kindr/poses/PoseDiffEigen.hpp"
-#include "kindr/poses/PoseEigen.hpp"
+
+#include "loco/common/TypeDefs.hpp"
+
 namespace loco {
 
 class TorsoBase {
  public:
-  typedef kindr::poses::eigen_impl::TwistLinearVelocityLocalAngularVelocityD Twist;
-  typedef kindr::poses::eigen_impl::HomogeneousTransformationPosition3RotationQuaternionD Pose;
+  typedef loco::Twist Twist;
+  typedef loco::Pose Pose;
  public:
   TorsoBase();
   virtual ~TorsoBase();
