@@ -15,13 +15,12 @@
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include "ControllerBase.hpp"
 #include "loco/contact_force_distribution/ContactForceDistribution.hpp"
 #include "loco/temp_helpers/Legs.hpp"
 
 namespace loco {
 
-class VirtualModelController : public robotController::ControllerBase
+class VirtualModelController
 {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -68,12 +67,28 @@ class VirtualModelController : public robotController::ControllerBase
    */
   ContactForceDistributionBase& getContactForceDistribution() const;
 
+  //! Pack the desired joint actuation modes, positions, velocities and torques
+  virtual void packDesiredJointSetpoints(robotModel::VectorActM& jointActuationModesToPack,
+                       robotModel::VectorAct& jointPositionsToPack,
+                       robotModel::VectorAct& jointVelocitiesToPack,
+                       robotModel::VectorAct& jointTorquesToPack) const;
+
   /*!
    * Prints information for debugging.
    */
   void printDebugInformation();
 
  private:
+
+  //! Reference to robot model
+  robotModel::RobotModel* robotModel_;
+
+  //! Joint actuation modes, positions, velocities and torques as calculated by the controller
+  robotModel::VectorActM desJointModes_;
+  robotModel::VectorAct desJointPositions_;
+  robotModel::VectorAct desJointVelocities_;
+  robotModel::VectorAct desJointTorques_;
+
   //! True if parameters are successfully loaded.
   bool isParametersLoaded_;
 

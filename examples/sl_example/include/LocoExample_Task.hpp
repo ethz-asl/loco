@@ -10,6 +10,7 @@
 
 #include "TaskRobotBase.hpp"
 #include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
+#include <memory>
 
 namespace robotTask {
 
@@ -40,6 +41,7 @@ class LocoExample: public robotTask::TaskRobotBase {
   virtual bool change();
  private:
   loco::LocomotionControllerDynamicGait* locomotionController_;
+  std::shared_ptr<loco::LegGroup> legs_;
 };
 
 } /* namespace robotTask */

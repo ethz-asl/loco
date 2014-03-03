@@ -12,7 +12,6 @@
 
 using namespace std;
 using namespace robotModel;
-using namespace robotController;
 using namespace robotUtils;
 using namespace Eigen;
 
@@ -20,8 +19,8 @@ namespace loco {
 
 VirtualModelController::VirtualModelController(RobotModel* robotModel,
                                                ContactForceDistribution& contactForceDistribution)
-    : ControllerBase(robotModel),
-      contactForceDistribution_(contactForceDistribution)
+    : contactForceDistribution_(contactForceDistribution),
+      robotModel_(robotModel)
 {
   isParametersLoaded_ = false;
   positionError_ = VectorP::Zero();
@@ -30,6 +29,11 @@ VirtualModelController::VirtualModelController(RobotModel* robotModel,
   angularVelocityError_ = VectorO::Zero();
   virtualForce_ = Vector3d::Zero();
   virtualTorque_ = Vector3d::Zero();
+
+  desJointModes_.setConstant(AM_Velocity);
+  desJointPositions_.setZero();
+  desJointVelocities_.setZero();
+  desJointTorques_.setZero();
 }
 
 VirtualModelController::~VirtualModelController()
@@ -189,6 +193,17 @@ bool VirtualModelController::computeJointTorques()
   }
 
   return true;
+}
+
+void VirtualModelController::packDesiredJointSetpoints(robotModel::VectorActM& jointActuationModesToPack,
+                                           robotModel::VectorAct& jointPositionsToPack,
+                                           robotModel::VectorAct& jointVelocitiesToPack,
+                                           robotModel::VectorAct& jointTorquesToPack) const
+{
+  jointActuationModesToPack = desJointModes_;
+  jointPositionsToPack = desJointPositions_;
+  jointVelocitiesToPack = desJointVelocities_;
+  jointTorquesToPack = desJointTorques_;
 }
 
 bool VirtualModelController::computeJointTorquesForLeg(

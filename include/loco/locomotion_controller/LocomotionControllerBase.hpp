@@ -17,6 +17,13 @@ class LocomotionControllerBase {
   LocomotionControllerBase();
   virtual ~LocomotionControllerBase();
 
+  /*!
+   * Initializes locomotion controller
+   * @param dt the time step [s]
+   * @return true if successfull.
+   */
+  virtual bool initialize(double dt) = 0;
+
   /*! Advance in time
    * @param dt  time step [s]
    */

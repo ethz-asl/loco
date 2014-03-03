@@ -55,7 +55,12 @@ TEST(LocomotionControllerTest, test) {
   loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(&legs, &torso, &robotModel, &terrain);
   loco::TorsoControlDynamicGait baseControl(&legs, &torso, &terrain);
 
-  loco::LocomotionControllerDynamicGait locomotionController(&legs, &torso, &robotModel, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl);
-  locomotionController.advance(dt);
+   loco::ContactForceDistribution contactForceDistribution_(&robotModel);
+   contactForceDistribution_.setTerrain(&terrain);
+   loco::VirtualModelController virtualModelController_(&robotModel, contactForceDistribution_);
+
+   loco::LocomotionControllerDynamicGait locomotionController(&legs, &torso, &robotModel, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl, &virtualModelController_, &contactForceDistribution_);
+
+   locomotionController.advance(dt);
 
 }

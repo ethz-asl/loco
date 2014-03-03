@@ -20,7 +20,11 @@ namespace loco {
 
 class LegBase {
  public:
+  static constexpr int nJoints_ = 3;
   typedef Eigen::Vector3d Position;
+  typedef Eigen::Array<double, nJoints_, 1> JointPositions;
+  typedef Eigen::Array<char, nJoints_, 1> JointControlModes;
+  typedef Eigen::Array<double, nJoints_, 1> JointTorques;
  public:
   LegBase();
   LegBase(const std::string& name);
@@ -76,6 +80,13 @@ class LegBase {
     return out;
   }
 
+  virtual void setDesiredJointControlModes(const JointControlModes& jointControlMode);
+  virtual void setDesiredJointPositions(const JointPositions& jointPositions);
+  virtual void setDesiredJointTorques(const JointTorques& jointTorques);
+  virtual const JointControlModes& getDesiredJointControlModes();
+  virtual const JointPositions& getDesiredJointPositions();
+  virtual const JointTorques& getDesiredJointTorques();
+
  protected:
   std::string name_;
 
@@ -91,6 +102,10 @@ class LegBase {
 
   LegStateTouchDown stateTouchDown_;
   LegStateLiftOff stateLiftOff_;
+
+  JointControlModes desiredJointControlModes_;
+  JointPositions desiredJointPositions_;
+  JointTorques desiredJointTorques_;
 };
 
 } /* namespace loco */

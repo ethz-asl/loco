@@ -112,6 +112,36 @@ LegStateLiftOff* LegBase::getStateLiftOff() {
   return &stateLiftOff_;
 }
 
+void LegBase::setDesiredJointPositions(const JointPositions& jointPositions)
+{
+  desiredJointPositions_ = jointPositions;
+}
+
+void LegBase::setDesiredJointTorques(const JointTorques& jointTorques)
+{
+  desiredJointTorques_ = jointTorques;
+}
+
+const LegBase::JointPositions& LegBase::getDesiredJointPositions()
+{
+  return desiredJointPositions_;
+}
+
+void LegBase::setDesiredJointControlModes(const JointControlModes& jointControlMode)
+{
+  desiredJointControlModes_ = jointControlMode;
+}
+
+const LegBase::JointControlModes& LegBase::getDesiredJointControlModes()
+{
+  return desiredJointControlModes_;
+}
+
+const LegBase::JointTorques& LegBase::getDesiredJointTorques()
+{
+  return desiredJointTorques_;
+}
+
 const std::string& LegBase::getName() const {
   return name_;
 }

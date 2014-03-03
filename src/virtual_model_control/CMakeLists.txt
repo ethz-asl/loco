@@ -7,7 +7,7 @@ project(locomotion_control)
 ### INCLUDES ###
 ################
 set(TASK_INCL ${TASK_INCL} 
-	${CMAKE_CURRENT_SOURCE_DIR}/include
+
 PARENT_SCOPE)
 
 ###############
