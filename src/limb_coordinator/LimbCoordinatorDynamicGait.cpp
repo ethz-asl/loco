@@ -59,6 +59,8 @@ void LimbCoordinatorDynamicGait::advance(double dt) {
     leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));
     leg->setIsInStanceMode(isLegInStanceMode(iLeg));
     leg->setIsInSwingMode(isLegInSwingMode(iLeg));
+    leg->setSwingPhase(gaitPattern_->getSwingPhaseForLeg(iLeg));
+    leg->setStancePhase(gaitPattern_->getStancePhaseForLeg(iLeg));
     iLeg++;
   }
 

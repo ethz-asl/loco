@@ -50,6 +50,8 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   torso_->setMeasuredTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
 
   limbCoordinator_->advance(dt);
+  std::cout << *legs_->getLeg(0) << std::endl;
+  std::cout << "stride phase: " << torso_->getStridePhase() << std::endl;
 
   iLeg = 0;
   for (auto leg : *legs_) {
