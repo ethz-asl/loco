@@ -44,7 +44,7 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(Leg
     footLocationAtLiftOffCSw_[iLeg]  = Eigen::Vector3d::Zero();
     rHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
     vHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-
+    steppingOffsetToHip_CSw_[iLeg]  = Eigen::Vector3d::Zero();
   }
 
   vBase_CSw_ =  Eigen::Vector3d::Zero();
@@ -76,7 +76,7 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() :
     footLocationAtLiftOffCSw_[iLeg]  = Eigen::Vector3d::Zero();
     rHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
     vHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-
+    steppingOffsetToHip_CSw_[iLeg]  = Eigen::Vector3d::Zero();
   }
 
   vBase_CSw_ =  Eigen::Vector3d::Zero();
@@ -211,28 +211,27 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
   for (auto leg : *legs_) {
     this->setStanceDuration(iLeg, leg->getStanceDuration());
     double swingPhase = 1;
-    if (leg->isInStanceMode()) {
+    if (leg->isInSwingMode()) {
       swingPhase = leg->getSwingPhase();
     }
     this->setSwingPhase(iLeg, swingPhase);
     this->setHipPosition(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
     this->setHipVelocity(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getVel());
-//    this->setBaseVelocity(iLeg, robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel());
-    this->setBaseVelocity(iLeg, torso_->getMeasuredPoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredTwistInBaseFrame().getTranslationalVelocity().toImplementation()));
 
-//    Eigen::Vector4d quat = robotModel_->est().getActualEstimator()->getQuat();
-    this->setRotationWorldToBase(torso_->getMeasuredPoseInWorldFrame().getRotation());
     this->setFootLocationAtLiftOff(iLeg, leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame());
 
 
 
 
-    this->setDesiredHeadingSpeed(torso_->getDesiredHeadingSpeedInBaseFrame());
 
     // todo
     //  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
-
+    iLeg++;
   }
+
+  this->setDesiredHeadingSpeed(torso_->getDesiredHeadingSpeedInBaseFrame());
+  this->setBaseVelocity(iLeg, torso_->getMeasuredPoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredTwistInBaseFrame().getTranslationalVelocity().toImplementation()));
+  this->setRotationWorldToBase(torso_->getMeasuredPoseInWorldFrame().getRotation());
 }
 
 double FootPlacementStrategyInvertedPendulum::getFootHeightOverTerrain(int iLeg, const Eigen::Vector3d& steppingLocationCSw)

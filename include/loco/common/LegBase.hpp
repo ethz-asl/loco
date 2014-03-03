@@ -43,7 +43,7 @@ class LegBase {
 
   virtual bool isGrounded() const;
   virtual bool shouldBeGrounded() const;
-  virtual bool isAndShoulBeGrounded() const;
+  virtual bool isAndShouldBeGrounded() const;
 
 
   virtual void setStancePhase(double phase);

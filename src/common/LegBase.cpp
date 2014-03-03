@@ -69,7 +69,7 @@ bool LegBase::isGrounded() const {
 bool LegBase::shouldBeGrounded() const {
   return shouldBeGrounded_;
 }
-bool LegBase::isAndShoulBeGrounded() const {
+bool LegBase::isAndShouldBeGrounded() const {
   return (isGrounded_ && shouldBeGrounded_);
 }
 

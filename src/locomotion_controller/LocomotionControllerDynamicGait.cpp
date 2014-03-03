@@ -54,23 +54,27 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     iLeg++;
   }
   const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
-  const TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
+  TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
+  rquatWorldToBase.invert();
   const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
+//  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
+//  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
+
   torso_->setMeasuredPoseInWorldFrame(TorsoBase::Pose(position, rquatWorldToBase));
   const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
   const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
   torso_->setMeasuredTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
 
   limbCoordinator_->advance(dt);
-  std::cout << *legs_->getLeg(0) << std::endl;
-  std::cout << "stride phase: " << torso_->getStridePhase() << std::endl;
+//  std::cout << *legs_->getLeg(0) << std::endl;
+//  std::cout << "stride phase: " << torso_->getStridePhase() << std::endl;
 
   iLeg = 0;
   for (auto leg : *legs_) {
     const double swingPhase = leg->getSwingPhase();
     if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
       // possible lift-off
-      leg->getStateLiftOff()->setFootPositionInWorldFrame(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSw(iLeg)->getPos());
+      leg->getStateLiftOff()->setFootPositionInWorldFrame(robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(iLeg)->getPos()); // or base2foot?
       leg->getStateLiftOff()->setHipPositionInWorldFrame(robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
       iLeg++;
     }
@@ -78,10 +82,12 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   footPlacementStrategy_->advance(dt);
   iLeg = 0;
   for (auto leg : *legs_) {
-    Eigen::Vector3d  pos = footPlacementStrategy_->getFootPositionForSwingLegCSw(iLeg, dt)
-                - robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos();
-    Eigen::Vector3d positionHipToFootInHipFrame = torso_->getMeasuredPoseInWorldFrame().getRotation().rotate(pos );
-    leg->setDesiredJointPositions(robotModel_->kin().getJointPosFromFootPos(positionHipToFootInHipFrame, iLeg));
+    const   Eigen::Vector3d  positionFootInWorldFrame = footPlacementStrategy_->getFootPositionForSwingLegCSw(iLeg, 0.0);
+//    std::cout << "leg " << iLeg << " foot pos: " << positionFootInWorldFrame.transpose() << std::endl;
+    Eigen::Vector3d  positionFootToHipInWorldFrame = robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos() - positionFootInWorldFrame;
+    Eigen::Vector3d positionFootToHipInHipFrame = torso_->getMeasuredPoseInWorldFrame().getRotation().rotate(positionFootToHipInWorldFrame);
+    leg->setDesiredJointPositions(robotModel_->kin().getJointPosFromFootPos(positionFootToHipInHipFrame, iLeg));
+//    std::cout <<  "leg " << iLeg << " des joint pos: " << leg->getDesiredJointPositions().transpose()  << std::endl;
     iLeg++;
   }
   torsoController_->advance(dt);
@@ -89,7 +95,8 @@ void LocomotionControllerDynamicGait::advance(double dt) {
 
 
   //! Desired base position expressed in inertial frame.
-  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.475);
+//  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.475);
+  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.42);
   //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Eigen::Quaterniond baseDesiredOrientation = Eigen::Quaterniond::Identity();
   baseDesiredOrientation = robotUtils::Rotations::yawPitchRollToQuaternion(0.0, 0.0, 0.0);
@@ -107,7 +114,7 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   LegBase::JointControlModes desiredJointControlModes;
   iLeg = 0;
   for (auto leg : *legs_) {
-    if (leg->isAndShoulBeGrounded()) {
+    if (leg->isAndShouldBeGrounded()) {
       desiredJointControlModes.setConstant(robotModel::AM_Torque);
     } else {
       desiredJointControlModes.setConstant(robotModel::AM_Position);
