@@ -35,8 +35,19 @@ LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
 
 bool LocomotionControllerDynamicGait::initialize(double dt)
 {
+  for (auto leg : *legs_) {
+    leg->advance(dt);
+    //  std::cout << *leg << std::endl;
+  }
+  torso_->advance(dt);
+
+
   virtualModelController_->loadParameters();
   contactForceDistribution_->loadParameters();
+
+
+
+  torsoController_->initialize(dt);
   return true;
 }
 

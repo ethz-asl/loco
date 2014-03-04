@@ -10,6 +10,7 @@
 namespace loco {
 
 TorsoStarlETH::TorsoStarlETH(robotModel::RobotModel* robotModel) :
+    TorsoBase(),
     robotModel_(robotModel),
     stridePhase_(0.0)
 {

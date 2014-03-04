@@ -44,6 +44,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
    */
   virtual void advance(double dt);
 
+
+
  protected:
   LegGroup* legs_;
   TorsoBase* torso_;

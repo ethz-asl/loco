@@ -28,6 +28,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   virtual ~TorsoControlDynamicGait();
 
   virtual void advance(double dt);
+  virtual bool initialize(double dt);
  private:
   LegGroup* legs_;
   TorsoBase* torso_;

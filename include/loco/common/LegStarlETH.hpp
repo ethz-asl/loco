@@ -25,6 +25,9 @@ class LegStarlETH : public loco::LegBase {
   virtual const Position& getWorldToHipPositionInWorldFrame()  const;
   virtual const Velocity& getHipLinearVelocityInWorldFrame()  const;
 
+  virtual const Position& getWorldToFootPositionInBaseFrame() const;
+  virtual const Position& getWorldToHipPositionInBaseFrame() const;
+
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame);
   virtual void advance(double dt);
 
@@ -35,6 +38,9 @@ class LegStarlETH : public loco::LegBase {
   Position positionWorldToFootInWorldFrame_;
   Position positionWorldToHipInWorldFrame_;
   Velocity linearVelocityHipInWorldFrame_;
+
+  Position positionWorldToFootInBaseFrame_;
+  Position positionWorldToHipInBaseFrame_;
 
   LegPropertiesStarlETH properties_;
 };

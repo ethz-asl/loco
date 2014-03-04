@@ -31,6 +31,14 @@ TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* tors
 TorsoControlDynamicGait::~TorsoControlDynamicGait() {
 
 }
+bool TorsoControlDynamicGait::initialize(double dt) {
+  const Position foreHipPosition = Position(legs_->getLeg(0)->getWorldToHipPositionInBaseFrame());
+  const Position hindHipPosition =  Position(legs_->getLeg(2)->getWorldToHipPositionInBaseFrame());
+  headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
+//  std::cout << "head dist: " << headingDistanceFromForeToHindInBaseFrame_ << std::endl;
+
+  return true;
+}
 
 void TorsoControlDynamicGait::advance(double dt) {
   Eigen::Vector3d lateralAndHeadingErrorInWorldFrame = comControl_.getPositionErrorVectorInWorldFrame();

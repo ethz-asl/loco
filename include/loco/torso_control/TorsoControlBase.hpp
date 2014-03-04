@@ -16,7 +16,7 @@ class TorsoControlBase {
  public:
   TorsoControlBase();
   virtual ~TorsoControlBase();
-
+  virtual bool initialize(double dt) = 0;
   virtual void advance(double dt) = 0;
 };
 
