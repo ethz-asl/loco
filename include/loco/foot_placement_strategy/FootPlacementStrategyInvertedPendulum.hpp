@@ -35,8 +35,6 @@ namespace loco {
  */
 class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
 public:
-  typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
-public:
 	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
 	FootPlacementStrategyInvertedPendulum();
 	virtual ~FootPlacementStrategyInvertedPendulum();

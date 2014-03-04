@@ -72,15 +72,6 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     }
   }
   footPlacementStrategy_->advance(dt);
-  int iLeg = 0;
-  for (auto leg : *legs_) {
-    const Position positionWorldToFootInWorldFrame = footPlacementStrategy_->getDesiredWorldToFootPositionInWorldFrame(iLeg, 0.0);
-    const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-    const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
-    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
-    iLeg++;
-  }
-
   torsoController_->advance(dt);
 
 
@@ -88,9 +79,12 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   //! Desired base position expressed in inertial frame.
 //  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.475);
   robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.42);
+  baseDesiredPosition = torso_->getDesiredState().getWorldToBasePositionInWorldFrame().toImplementation();
   //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Eigen::Quaterniond baseDesiredOrientation = Eigen::Quaterniond::Identity();
-  baseDesiredOrientation = robotUtils::Rotations::yawPitchRollToQuaternion(0.0, 0.0, 0.0);
+  //baseDesiredOrientation = robotUtils::Rotations::yawPitchRollToQuaternion(0.0, 0.0, 0.0);
+  baseDesiredOrientation = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().toImplementation();
+
   //! Desired base linear velocity expressed in inertial frame.
   robotModel::VectorP baseDesiredLinearVelocity = robotModel::VectorP::Zero(3);
   //! Desired base angular velocity expressed w.r.t. inertial frame.
@@ -102,8 +96,10 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   robotModel::VectorAct desJointPositions, desJointVelocities, desJointTorques;
   virtualModelController_->packDesiredJointSetpoints(desJointModes, desJointPositions, desJointVelocities, desJointTorques);
 
+
+  /* Set desired joint positions, torques and control mode */
   LegBase::JointControlModes desiredJointControlModes;
-  iLeg = 0;
+  int iLeg = 0;
   for (auto leg : *legs_) {
     if (leg->isAndShouldBeGrounded()) {
       desiredJointControlModes.setConstant(robotModel::AM_Torque);
@@ -115,6 +111,13 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     iLeg++;
   }
 
+}
+
+TorsoBase* LocomotionControllerDynamicGait::getTorso() {
+  return torso_;
+}
+LegGroup* LocomotionControllerDynamicGait::getLegs() {
+  return legs_;
 }
 
 } /* namespace loco */

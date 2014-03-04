@@ -39,6 +39,9 @@ class LocoExample: public robotTask::TaskRobotBase {
    * @return  true if successful
    */
   virtual bool change();
+
+  loco::LocomotionControllerDynamicGait*  getLocomotionController();
+
  private:
   loco::LocomotionControllerDynamicGait* locomotionController_;
   std::shared_ptr<loco::LegGroup> legs_;

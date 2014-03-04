@@ -229,8 +229,20 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
   }
 
   this->setDesiredHeadingSpeed(torso_->getDesiredState().getHeadingSpeedInBaseFrame());
-  this->setBaseVelocity(iLeg, torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredState().getBaseTwistInBaseFrame().getTranslationalVelocity().toImplementation()));
-  this->setRotationWorldToBase(torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation());
+  this->setBaseVelocity(iLeg, torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame().toImplementation()));
+  this->setRotationWorldToBase(torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());
+
+
+  iLeg = 0;
+  for (auto leg : *legs_) {
+    const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(iLeg, 0.0);
+    const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+    const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+    iLeg++;
+  }
+
+
 }
 
 double FootPlacementStrategyInvertedPendulum::getFootHeightOverTerrain(int iLeg, const Eigen::Vector3d& steppingLocationCSw)

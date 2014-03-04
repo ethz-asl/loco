@@ -19,11 +19,12 @@ TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* tors
 {
 
   std::vector<double> tValues, xValues;
-  tValues.push_back(0.00); xValues.push_back(0.0);
-  tValues.push_back(0.25); xValues.push_back(0.0);
-  tValues.push_back(0.50); xValues.push_back(0.0);
-  tValues.push_back(0.75); xValues.push_back(0.0);
-  tValues.push_back(1.00); xValues.push_back(0.0);
+  const double defaultHeight = 0.42;
+  tValues.push_back(0.00); xValues.push_back(defaultHeight);
+  tValues.push_back(0.25); xValues.push_back(defaultHeight);
+  tValues.push_back(0.50); xValues.push_back(defaultHeight);
+  tValues.push_back(0.75); xValues.push_back(defaultHeight);
+  tValues.push_back(1.00); xValues.push_back(defaultHeight);
   desiredTorsoForeHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
   desiredTorsoHindHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
 }
@@ -45,19 +46,44 @@ void TorsoControlDynamicGait::advance(double dt) {
   const double desiredforeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredhindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredforeHeightAboveGroundInWorldFrame + desiredhindHeightAboveGroundInWorldFrame)/2.0;
-  Position desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getPosition()) + lateralAndHeadingErrorInWorldFrame;
+  Position desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame() + lateralAndHeadingErrorInWorldFrame;
   Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
   terrain_->getHeight(groundHeightInWorldFrame.toImplementation());
   Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
 
   // pitch angle
-  Position desPositionInWorldFrame(desiredTorsoPositionInWorldFrame);
   double height = desiredhindHeightAboveGroundInWorldFrame-desiredforeHeightAboveGroundInWorldFrame;
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
 
-  RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame());
+  /*RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());*/
 
-  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desPositionInWorldFrame, desOrientationInWorldFrame));
+  //Eigen::Vector3d axis = Eigen::Vector3d::UnitZ();
+  //RotationQuaternion desOrientationInWorldFrame = computeHeading(axis);
+
+  RotationQuaternion desOrientationInWorldFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverted();
+  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationInWorldFrame));
+}
+
+inline double safeACOS(double val){
+  if (val<-1)
+    return M_PI;
+  if (val>1)
+    return 0;
+  return acos(val);
+}
+
+RotationQuaternion TorsoControlDynamicGait::computeHeading(const Eigen::Vector3d& axis) {
+  RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+  RotationQuaternion  rquatWorldToBaseConjugated = rquatWorldToBase.conjugated();
+
+
+  Eigen::Vector3d vA = rquatWorldToBaseConjugated.rotate(axis).normalized();
+  Eigen::Vector3d rotAxis = -vA.cross(axis).normalized();
+  double rotAngle = -safeACOS(vA.dot(axis));
+  RotationQuaternion TqA = RotationQuaternion(AngleAxis(rotAngle, rotAxis));
+  RotationQuaternion decomposed = TqA*rquatWorldToBaseConjugated;
+  return decomposed.conjugated();
+
 }
 
 } /* namespace loco */

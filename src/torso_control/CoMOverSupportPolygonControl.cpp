@@ -20,8 +20,8 @@ CoMOverSupportPolygonControl::CoMOverSupportPolygonControl(LegGroup* legs) :
 legs_(legs)
 {
 
-	// some example values
-	spMinLegWeight = 0.3200;
+	// trot
+	spMinLegWeight = 0.15;
 	spStPShiftAwayFromLegStart = 0.7;
 	spSwPShiftTowardsLegStart = 0.7;
 	sagittalOffset = 0;
@@ -74,7 +74,7 @@ Position CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame() {
   }
 
 
-  return defaultTarget + comTarget+Position(sagittalOffset, coronalOffset, 0.0);
+  return  comTarget+Position(sagittalOffset, coronalOffset, 0.0) - defaultTarget;
 
 }
 

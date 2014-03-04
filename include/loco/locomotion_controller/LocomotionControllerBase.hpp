@@ -28,6 +28,9 @@ class LocomotionControllerBase {
    * @param dt  time step [s]
    */
   virtual void advance(double dt) = 0;
+
+
+
  protected:
 
 };

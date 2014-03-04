@@ -94,4 +94,8 @@ bool LocoExample::change()
   return true;
 }
 
+loco::LocomotionControllerDynamicGait*  LocoExample::getLocomotionController() {
+  return locomotionController_;
+}
+
 } /* namespace robotTask */
