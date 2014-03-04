@@ -15,7 +15,7 @@ TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* tors
   torso_(torso),
   terrain_(terrain),
   comControl_(legs),
-  headingDistanceFromForeToHindInBasFrame_(0.0)
+  headingDistanceFromForeToHindInBaseFrame_(0.0)
 {
 
   std::vector<double> tValues, xValues;
@@ -45,7 +45,7 @@ void TorsoControlDynamicGait::advance(double dt) {
   // pitch angle
   Position desPositionInWorldFrame(desiredTorsoPositionInWorldFrame);
   double height = desiredhindHeightAboveGroundInWorldFrame-desiredforeHeightAboveGroundInWorldFrame;
-  double pitchAngle = atan2(height,headingDistanceFromForeToHindInBasFrame_);
+  double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
 
   RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame());
 

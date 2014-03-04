@@ -13,36 +13,24 @@
 
 #include "loco/common/TorsoStateDesired.hpp"
 #include "loco/common/TorsoStateMeasured.hpp"
-
+#include "loco/common/TorsoPropertiesBase.hpp"
 namespace loco {
 
 class TorsoBase {
-// public:
-//  typedef loco::Twist Twist;
-//  typedef loco::Pose Pose;
-//  typedef loco::Position Position;
  public:
   TorsoBase();
   virtual ~TorsoBase();
 
   virtual TorsoStateMeasured& getMeasuredState() = 0;
   virtual TorsoStateDesired& getDesiredState() = 0;
+  virtual TorsoPropertiesBase& getProperties() = 0;
 
   virtual double getStridePhase() = 0;
   virtual void setStridePhase(double stridePhase) = 0;
 
-
-
-
-
-
-
-
-
-
-
-
   virtual void advance(double dt) = 0;
+
+
 
 };
 

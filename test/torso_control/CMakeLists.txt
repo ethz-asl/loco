@@ -35,12 +35,16 @@ set(TORSOCONTROL_SRCS
 	../../src/common/TorsoStateBase.cpp
 	../../src/common/TorsoStateMeasured.cpp
 	../../src/common/TorsoStateDesired.cpp
+	../../src/common/TorsoPropertiesBase.cpp
+	../../src/common/TorsoPropertiesStarlETH.cpp
 	../../src/common/LegGroup.cpp
 	../../src/common/LegBase.cpp
 	../../src/common/LegStarlETH.cpp
 	../../src/common/LegStateBase.cpp
 	../../src/common/LegStateLiftOff.cpp
 	../../src/common/LegStateTouchDown.cpp
+	../../src/common/LegPropertiesBase.cpp
+	../../src/common/LegPropertiesStarlETH.cpp
 	
 	../../src/torso_control/TorsoControlBase.cpp
 	../../src/torso_control/TorsoControlDynamicGait.cpp

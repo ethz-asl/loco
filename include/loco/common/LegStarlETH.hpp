@@ -9,6 +9,7 @@
 #define LOCO_LEGSTARLETH_HPP_
 
 #include "loco/common/LegBase.hpp"
+#include "loco/common/LegPropertiesStarlETH.hpp"
 
 #include <string>
 
@@ -27,12 +28,15 @@ class LegStarlETH : public loco::LegBase {
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame);
   virtual void advance(double dt);
 
+  virtual LegPropertiesBase& getProperties();
  private:
   int iLeg_;
   robotModel::RobotModel* robotModel_;
   Position positionWorldToFootInWorldFrame_;
   Position positionWorldToHipInWorldFrame_;
   Velocity linearVelocityHipInWorldFrame_;
+
+  LegPropertiesStarlETH properties_;
 };
 
 } /* namespace loco */

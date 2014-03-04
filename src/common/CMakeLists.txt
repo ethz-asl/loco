@@ -30,6 +30,8 @@ set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoStateBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoStateMeasured.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoStateDesired.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TorsoPropertiesBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TorsoPropertiesStarlETH.cpp
 	
 	${CMAKE_CURRENT_SOURCE_DIR}/LegGroup.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LegBase.cpp
@@ -37,6 +39,8 @@ set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/LegStateBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LegStateLiftOff.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LegStateTouchDown.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegPropertiesBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegPropertiesStarlETH.cpp
 PARENT_SCOPE)
 
 #################

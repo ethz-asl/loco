@@ -24,8 +24,6 @@ namespace loco {
 
 class TorsoControlDynamicGait: public TorsoControlBase {
  public:
-  typedef kindr::rotations::eigen_impl::AngleAxisPD AngleAxis;
- public:
   TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
   virtual ~TorsoControlDynamicGait();
 
@@ -36,7 +34,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   robotTerrain::TerrainBase* terrain_;
   CoMOverSupportPolygonControl comControl_;
 
-  double headingDistanceFromForeToHindInBasFrame_;
+  double headingDistanceFromForeToHindInBaseFrame_;
   rbf::PeriodicRBF1DC1 desiredTorsoForeHeightAboveGroundInWorldFrame_;
   rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
 

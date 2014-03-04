@@ -37,6 +37,10 @@ TorsoStateDesired& TorsoStarlETH::getDesiredState() {
   return stateDesired_;
 }
 
+TorsoPropertiesBase& TorsoStarlETH::getProperties() {
+  return static_cast<TorsoPropertiesBase&>(properties_);
+}
+
 void TorsoStarlETH::advance(double dt) {
   const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
   RotationQuaternion rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));

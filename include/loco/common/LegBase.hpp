@@ -12,6 +12,7 @@
 #include "loco/common/LegStateTouchDown.hpp"
 
 #include "loco/common/TypeDefs.hpp"
+#include "loco/common/LegPropertiesBase.hpp"
 
 #include <string>
 #include <iostream>
@@ -77,6 +78,8 @@ class LegBase {
   virtual const JointTorques& getDesiredJointTorques();
 
   virtual void advance(double dt) = 0;
+
+  virtual LegPropertiesBase& getProperties() = 0;
 
  protected:
   std::string name_;

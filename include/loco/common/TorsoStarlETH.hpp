@@ -10,7 +10,7 @@
 
 
 #include "loco/common/TorsoBase.hpp"
-
+#include "loco/common/TorsoPropertiesStarlETH.hpp"
 
 #include "kindr/poses/PoseDiffEigen.hpp"
 #include "kindr/poses/PoseEigen.hpp"
@@ -34,12 +34,14 @@ class TorsoStarlETH: public TorsoBase {
 
   virtual TorsoStateMeasured& getMeasuredState();
   virtual TorsoStateDesired& getDesiredState();
+
+  virtual TorsoPropertiesBase& getProperties();
 protected:
   robotModel::RobotModel* robotModel_;
 
   TorsoStateMeasured stateMeasured_;
   TorsoStateDesired stateDesired_;
-
+  TorsoPropertiesStarlETH properties_;
   double stridePhase_;
 
 

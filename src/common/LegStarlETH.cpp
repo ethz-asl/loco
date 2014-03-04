@@ -52,4 +52,8 @@ LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPosition
  return JointPositions(robotModel_->kin().getJointPosFromFootPosCSmb(positionBaseToFootInBaseFrame, iLeg_));
 }
 
+LegPropertiesBase& LegStarlETH::getProperties() {
+ return static_cast<LegPropertiesBase&>(properties_);
+}
+
 } /* namespace loco */
