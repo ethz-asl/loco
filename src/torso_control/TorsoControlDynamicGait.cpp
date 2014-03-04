@@ -43,13 +43,13 @@ void TorsoControlDynamicGait::advance(double dt) {
   Eigen::Vector3d desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
 
   // pitch angle
-  TorsoBase::Pose::Position desPositionInWorldFrame(desiredTorsoPositionInWorldFrame);
+  Position desPositionInWorldFrame(desiredTorsoPositionInWorldFrame);
   double height = desiredhindHeightAboveGroundInWorldFrame-desiredforeHeightAboveGroundInWorldFrame;
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBasFrame_);
 
-  TorsoBase::Pose::Rotation desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame());
+  RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame());
 
-  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(TorsoBase::Pose(desPositionInWorldFrame, desOrientationInWorldFrame));
+  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desPositionInWorldFrame, desOrientationInWorldFrame));
 }
 
 } /* namespace loco */

@@ -39,16 +39,16 @@ TorsoStateDesired& TorsoStarlETH::getDesiredState() {
 
 void TorsoStarlETH::advance(double dt) {
   const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
-  TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
+  RotationQuaternion rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
   rquatWorldToBase.invert();
-  const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
+  const Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
 //  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
 //  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
 
-  this->getMeasuredState().setWorldToBasePoseInWorldFrame(TorsoBase::Pose(position, rquatWorldToBase));
-  const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
-  const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
-  this->getMeasuredState().setBaseTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
+  this->getMeasuredState().setWorldToBasePoseInWorldFrame(Pose(position, rquatWorldToBase));
+  const LinearVelocity linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
+  const LocalAngularVelocity localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
+  this->getMeasuredState().setBaseTwistInBaseFrame(Twist(linearVelocity, localAngularVelocity));
 }
 
 

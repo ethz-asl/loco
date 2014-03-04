@@ -17,10 +17,10 @@
 namespace loco {
 
 class TorsoBase {
- public:
-  typedef loco::Twist Twist;
-  typedef loco::Pose Pose;
-  typedef loco::Position Position;
+// public:
+//  typedef loco::Twist Twist;
+//  typedef loco::Pose Pose;
+//  typedef loco::Position Position;
  public:
   TorsoBase();
   virtual ~TorsoBase();

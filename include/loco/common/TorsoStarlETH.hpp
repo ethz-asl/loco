@@ -41,9 +41,7 @@ protected:
   TorsoStateDesired stateDesired_;
 
   double stridePhase_;
-  Pose desiredPoseInWorldFrame_;
 
-  Twist desiredTwistInBaseFrame_;
 
 
 
