@@ -37,7 +37,7 @@ public:
 	 * @param legs	references to the legs
 	 * @return error vector expressed in world frame
 	 */
-	Eigen::Vector3d getPositionErrorVectorInWorldFrame();
+	Position getPositionErrorVectorInWorldFrame();
 
 	/*! Loads the parameters from the XML object
 	 * @param hParameterSet		handle

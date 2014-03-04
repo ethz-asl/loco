@@ -22,8 +22,6 @@ namespace loco {
 class LegBase {
  public:
   static constexpr int nJoints_ = 3;
-  typedef Eigen::Vector3d Position;
-  typedef Eigen::Vector3d Velocity;
   typedef Eigen::Array<double, nJoints_, 1> JointPositions;
   typedef Eigen::Array<char, nJoints_, 1> JointControlModes;
   typedef Eigen::Array<double, nJoints_, 1> JointTorques;
@@ -70,7 +68,7 @@ class LegBase {
   virtual const Position& getWorldToFootPositionInBaseFrame() const = 0;
   virtual const Position& getWorldToHipPositionInBaseFrame() const  = 0;
 
-  virtual const Velocity& getHipLinearVelocityInWorldFrame() const  = 0;
+  virtual const LinearVelocity& getHipLinearVelocityInWorldFrame() const  = 0;
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
   friend std::ostream& operator << (std::ostream& out, const LegBase& leg);
 

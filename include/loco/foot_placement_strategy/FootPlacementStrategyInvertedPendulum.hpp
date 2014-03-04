@@ -10,9 +10,12 @@
 #ifndef LOCO_FOOTPLACEMENTSTRATEGYINVERTEDPENDULUM_HPP_
 #define LOCO_FOOTPLACEMENTSTRATEGYINVERTEDPENDULUM_HPP_
 
-#include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
+#include "loco/common/TypeDefs.hpp"
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/LegGroup.hpp"
+
+#include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
+
 #include "tinyxml.h"
 #include <Eigen/Core>
 
@@ -74,7 +77,7 @@ public:
 	 * @param dt	tiny time step in the future to compute the desired velocities
 	 * @return
 	 */
-	virtual Eigen::Vector3d getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt);
+	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt);
 
 
 

@@ -41,14 +41,14 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 }
 
 void TorsoControlDynamicGait::advance(double dt) {
-  Eigen::Vector3d lateralAndHeadingErrorInWorldFrame = comControl_.getPositionErrorVectorInWorldFrame();
+  Position lateralAndHeadingErrorInWorldFrame = comControl_.getPositionErrorVectorInWorldFrame();
   const double desiredforeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredhindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredforeHeightAboveGroundInWorldFrame + desiredhindHeightAboveGroundInWorldFrame)/2.0;
-  Eigen::Vector3d desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getPosition().toImplementation()) + lateralAndHeadingErrorInWorldFrame;
-  Eigen::Vector3d groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
-  terrain_->getHeight(groundHeightInWorldFrame);
-  Eigen::Vector3d desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+  Position desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getPosition()) + lateralAndHeadingErrorInWorldFrame;
+  Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
+  terrain_->getHeight(groundHeightInWorldFrame.toImplementation());
+  Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
 
   // pitch angle
   Position desPositionInWorldFrame(desiredTorsoPositionInWorldFrame);

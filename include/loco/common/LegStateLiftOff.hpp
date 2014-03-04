@@ -8,6 +8,7 @@
 #ifndef LOCO_LEGSTATELIFTOFF_HPP_
 #define LOCO_LEGSTATELIFTOFF_HPP_
 
+#include "loco/common/TypeDefs.hpp"
 #include "loco/common/LegStateBase.hpp"
 
 #include <Eigen/Core>
@@ -15,8 +16,6 @@
 namespace loco {
 
 class LegStateLiftOff : public loco::LegStateBase {
- private:
-  typedef Eigen::Vector3d Position;
  public:
   LegStateLiftOff();
   virtual ~LegStateLiftOff();
@@ -24,8 +23,8 @@ class LegStateLiftOff : public loco::LegStateBase {
   const Position& getHipPositionInWorldFrame() const;
   const Position& getFootPositionInWorldFrame() const;
 
-  void setHipPositionInWorldFrame(const LegStateLiftOff::Position& hipPositionInWorldFrame);
-  void setFootPositionInWorldFrame(const LegStateLiftOff::Position& footPositionInWorldFrame);
+  void setHipPositionInWorldFrame(const Position& hipPositionInWorldFrame);
+  void setFootPositionInWorldFrame(const Position& footPositionInWorldFrame);
  protected:
   Position footPositionInWorldFrame_;
   Position hipPositionInWorldFrame_;

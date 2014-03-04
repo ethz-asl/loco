@@ -74,9 +74,9 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   footPlacementStrategy_->advance(dt);
   int iLeg = 0;
   for (auto leg : *legs_) {
-    const Eigen::Vector3d positionWorldToFootInWorldFrame = footPlacementStrategy_->getDesiredWorldToFootPositionInWorldFrame(iLeg, 0.0);
-    const Eigen::Vector3d positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().toImplementation();
-    const Eigen::Vector3d positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+    const Position positionWorldToFootInWorldFrame = footPlacementStrategy_->getDesiredWorldToFootPositionInWorldFrame(iLeg, 0.0);
+    const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+    const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
     leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
     iLeg++;
   }

@@ -32,7 +32,7 @@ CoMOverSupportPolygonControl::~CoMOverSupportPolygonControl() {
 
 }
 
-Eigen::Vector3d CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame() {
+Position CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame() {
   const int nLegs = legs_->size();
   double legWeights[nLegs];
   for (int i=0;i<nLegs;i++) {
@@ -58,23 +58,23 @@ Eigen::Vector3d CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame
   }
 
 
-  Eigen::Vector3d defaultTarget = Eigen::Vector3d::Zero();
-  Eigen::Vector3d comTarget  = Eigen::Vector3d::Zero();
+  Position defaultTarget;
+  Position comTarget;
 
   iLeg=0;
   for (auto leg : *legs_) {
     //	            tprintf("leg %d(%s): stanceMode: %lf, swingMode: %lf. Weight:%lf\n", i, leg->getName(), leg->getStancePhase(),leg->getSwingPhase(), legWeights[i]);
-    const Eigen::Vector3d footPositionCSw = leg->getWorldToFootPositionInWorldFrame();
+    const Position footPositionCSw = leg->getWorldToFootPositionInWorldFrame();
 
     if (sumWeights != 0) {
-      comTarget += footPositionCSw*legWeights[iLeg]/sumWeights;
+      comTarget += Position(footPositionCSw.toImplementation()*legWeights[iLeg]/sumWeights);
     }
-    defaultTarget += footPositionCSw*0.25;
+    defaultTarget += Position(footPositionCSw.toImplementation()*0.25);
     iLeg++;
   }
 
 
-  return defaultTarget + comTarget+Eigen::Vector3d(sagittalOffset, coronalOffset, 0.0);
+  return defaultTarget + comTarget+Position(sagittalOffset, coronalOffset, 0.0);
 
 }
 

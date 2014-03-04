@@ -11,6 +11,7 @@
 #define LOCO_FOOTPLACEMENTSTRATEGYBASE_HPP_
 
 
+#include "loco/common/TypeDefs.hpp"
 
 #include <Eigen/Core>
 
@@ -40,7 +41,7 @@ public:
 	 * @param dt	tiny time step in the future to compute the desired velocities
 	 * @return  desired foot position expressed in world coordinates
 	 */
-	virtual Eigen::Vector3d getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt) = 0;
+	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt) = 0;
 
 	virtual void advance(double dt) = 0;
 };

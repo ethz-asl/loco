@@ -11,8 +11,8 @@ namespace loco {
 
 LegStateLiftOff::LegStateLiftOff() :
   LegStateBase(),
-  footPositionInWorldFrame_(Position::Zero()),
-  hipPositionInWorldFrame_(Position::Zero())
+  footPositionInWorldFrame_(),
+  hipPositionInWorldFrame_()
 {
 
 }
@@ -21,19 +21,19 @@ LegStateLiftOff::~LegStateLiftOff() {
 
 }
 
-const LegStateLiftOff::Position& LegStateLiftOff::getHipPositionInWorldFrame() const {
+const Position& LegStateLiftOff::getHipPositionInWorldFrame() const {
   return hipPositionInWorldFrame_;
 }
 
-const LegStateLiftOff::Position& LegStateLiftOff::getFootPositionInWorldFrame() const {
+const Position& LegStateLiftOff::getFootPositionInWorldFrame() const {
   return footPositionInWorldFrame_;
 }
 
-void LegStateLiftOff::setHipPositionInWorldFrame(const LegStateLiftOff::Position& hipPositionInWorldFrame)  {
+void LegStateLiftOff::setHipPositionInWorldFrame(const Position& hipPositionInWorldFrame)  {
   hipPositionInWorldFrame_ = hipPositionInWorldFrame;
 }
 
-void LegStateLiftOff::setFootPositionInWorldFrame(const LegStateLiftOff::Position& footPositionInWorldFrame)
+void LegStateLiftOff::setFootPositionInWorldFrame(const Position& footPositionInWorldFrame)
 {
   footPositionInWorldFrame_ = footPositionInWorldFrame;
 }

@@ -23,7 +23,7 @@ class LegStarlETH : public loco::LegBase {
   virtual ~LegStarlETH();
   virtual const Position& getWorldToFootPositionInWorldFrame()  const;
   virtual const Position& getWorldToHipPositionInWorldFrame()  const;
-  virtual const Velocity& getHipLinearVelocityInWorldFrame()  const;
+  virtual const LinearVelocity& getHipLinearVelocityInWorldFrame()  const;
 
   virtual const Position& getWorldToFootPositionInBaseFrame() const;
   virtual const Position& getWorldToHipPositionInBaseFrame() const;
@@ -37,7 +37,7 @@ class LegStarlETH : public loco::LegBase {
   robotModel::RobotModel* robotModel_;
   Position positionWorldToFootInWorldFrame_;
   Position positionWorldToHipInWorldFrame_;
-  Velocity linearVelocityHipInWorldFrame_;
+  LinearVelocity linearVelocityHipInWorldFrame_;
 
   Position positionWorldToFootInBaseFrame_;
   Position positionWorldToHipInBaseFrame_;

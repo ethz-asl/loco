@@ -143,7 +143,7 @@ void FootPlacementStrategyInvertedPendulum::setFeedbackScale(double scale) {
 
 
 
-Eigen::Vector3d FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt)
+Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt)
 {
 
 	const double swingPhase = swingPhase_[iLeg];
@@ -176,7 +176,7 @@ Eigen::Vector3d FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPosi
 	Eigen::Vector3d rFoot_CSw = rRef_CSw + vRef_CSw*dt + rFootOffset_CSw;
 	rFoot_CSw(2) = getFootHeightOverTerrain(iLeg, rFoot_CSw) + swingFootHeightTrajectory_.evaluate(std::min(swingPhase + dt, 1.0));
 
-	return rFoot_CSw;
+	return Position(rFoot_CSw);
 }
 
 Eigen::Vector3d FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredictedFootHoldLocation(double phase, const Eigen::Vector3d& footLocationAtLiftOffCSw, const Eigen::Vector3d& rFootHold_CSw, const RotationQuaternion& p_BW)
@@ -214,10 +214,10 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
       swingPhase = leg->getSwingPhase();
     }
     this->setSwingPhase(iLeg, swingPhase);
-    this->setHipPosition(iLeg, leg->getWorldToHipPositionInWorldFrame());
-    this->setHipVelocity(iLeg, leg->getHipLinearVelocityInWorldFrame());
+    this->setHipPosition(iLeg, leg->getWorldToHipPositionInWorldFrame().toImplementation());
+    this->setHipVelocity(iLeg, leg->getHipLinearVelocityInWorldFrame().toImplementation());
 
-    this->setFootLocationAtLiftOff(iLeg, leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame());
+    this->setFootLocationAtLiftOff(iLeg, (leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame()).toImplementation());
 
 
 
