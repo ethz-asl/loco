@@ -23,7 +23,7 @@ typedef  kindr::rotations::eigen_impl::RotationMatrixPD RotationMatrix;
 typedef  kindr::positions::eigen_impl::Position3D Position;
 
 typedef  kindr::positions::eigen_impl::LinearVelocityD LinearVelocity;
-typedef  kindr::rotations::eigen_impl::LocalAngularVelocityPD LocalAngularVelocity;
+typedef  kindr::rotations::eigen_impl::LocalAngularVelocityAD LocalAngularVelocity;
 
 } // namespace loco
 

@@ -51,19 +51,22 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     else {
       leg->setIsGrounded(false);
     }
+    leg->advance(dt);
     iLeg++;
   }
-  const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
-  TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
-  rquatWorldToBase.invert();
-  const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
-//  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
-//  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
+//  const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
+//  TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
+//  rquatWorldToBase.invert();
+//  const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
+////  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
+////  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
+//
+//  torso_->setMeasuredPoseInWorldFrame(TorsoBase::Pose(position, rquatWorldToBase));
+//  const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
+//  const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
+//  torso_->setMeasuredTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
 
-  torso_->setMeasuredPoseInWorldFrame(TorsoBase::Pose(position, rquatWorldToBase));
-  const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
-  const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
-  torso_->setMeasuredTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
+  torso_->advance(dt);
 
   limbCoordinator_->advance(dt);
 //  std::cout << *legs_->getLeg(0) << std::endl;
@@ -82,11 +85,13 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   footPlacementStrategy_->advance(dt);
   iLeg = 0;
   for (auto leg : *legs_) {
-    const   Eigen::Vector3d  positionFootInWorldFrame = footPlacementStrategy_->getFootPositionForSwingLegCSw(iLeg, 0.0);
+    const   Eigen::Vector3d  positionWorldToFootInWorldFrame = footPlacementStrategy_->getFootPositionForSwingLegCSw(iLeg, 0.0);
 //    std::cout << "leg " << iLeg << " foot pos: " << positionFootInWorldFrame.transpose() << std::endl;
-    Eigen::Vector3d  positionFootToHipInWorldFrame = robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos() - positionFootInWorldFrame;
-    Eigen::Vector3d positionFootToHipInHipFrame = torso_->getMeasuredPoseInWorldFrame().getRotation().rotate(positionFootToHipInWorldFrame);
+    Eigen::Vector3d  positionFootToHipInWorldFrame = robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos() - positionWorldToFootInWorldFrame;
+    Eigen::Vector3d positionFootToHipInHipFrame = torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().rotate(positionFootToHipInWorldFrame);
     leg->setDesiredJointPositions(robotModel_->kin().getJointPosFromFootPos(positionFootToHipInHipFrame, iLeg));
+//    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame());
+
 //    std::cout <<  "leg " << iLeg << " des joint pos: " << leg->getDesiredJointPositions().transpose()  << std::endl;
     iLeg++;
   }
@@ -123,8 +128,6 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     leg->setDesiredJointTorques(desJointTorques.block<3,1>(iLeg*3,0));
     iLeg++;
   }
-  // inverse kin -> des joint pos for swing leg
-  // force control -> des torque for stance leg
 
 }
 

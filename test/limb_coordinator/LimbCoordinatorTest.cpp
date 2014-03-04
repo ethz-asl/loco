@@ -21,8 +21,12 @@ TEST(LimbCoordinatorTest, test) {
   loco::GaitPatternAPS gaitPatternAPS;
   double dt = 0.0025;
 
+  robotModel::RobotModel robotModel;
+  robotModel.init();
+  robotModel.update();
+
   loco::LegGroup legs;
-  loco::TorsoStarlETH torso;
+  loco::TorsoStarlETH torso(&robotModel);
 
   gaitPatternAPS.initialize(aps, dt);
   loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &torso, &gaitPatternAPS);

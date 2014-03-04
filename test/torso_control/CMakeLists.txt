@@ -26,9 +26,22 @@ include_directories(../../thirdparty/tinyxml)
 
 
 
-set(BASECONTROL_SRCS
+set(TORSOCONTROL_SRCS
 	../test_main.cpp
 	TorsoControlTest.cpp
+	
+	../../src/common/TorsoBase.cpp
+	../../src/common/TorsoStarlETH.cpp
+	../../src/common/TorsoStateBase.cpp
+	../../src/common/TorsoStateMeasured.cpp
+	../../src/common/TorsoStateDesired.cpp
+	../../src/common/LegGroup.cpp
+	../../src/common/LegBase.cpp
+	../../src/common/LegStarlETH.cpp
+	../../src/common/LegStateBase.cpp
+	../../src/common/LegStateLiftOff.cpp
+	../../src/common/LegStateTouchDown.cpp
+	
 	../../src/torso_control/TorsoControlBase.cpp
 	../../src/torso_control/TorsoControlDynamicGait.cpp
 	../../src/torso_control/CoMOverSupportPolygonControl.cpp
@@ -39,8 +52,8 @@ set(BASECONTROL_SRCS
 )
 
 # Add test cpp file
-add_executable( runUnitTestsBaseControl EXCLUDE_FROM_ALL  ${BASECONTROL_SRCS})
+add_executable( runUnitTestsTorsoControl EXCLUDE_FROM_ALL  ${TORSOCONTROL_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsBaseControl  gtest_main gtest pthread starlethRobotModel starlethUtils)
-add_test( runUnitTestsBaseControl ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsBaseControl )
-add_dependencies(check runUnitTestsBaseControl)
+target_link_libraries(runUnitTestsTorsoControl  gtest_main gtest pthread starlethRobotModel starlethUtils)
+add_test( runUnitTestsTorsoControl ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsTorsoControl )
+add_dependencies(check runUnitTestsTorsoControl)

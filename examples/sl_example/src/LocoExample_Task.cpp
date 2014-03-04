@@ -44,7 +44,7 @@ bool LocoExample::LocoExample::add()
   legs_->addLeg(&leftHindLeg);
   legs_->addLeg(&rightHindLeg);
 
-  static loco::TorsoStarlETH torso;
+  static loco::TorsoStarlETH torso(robotModel_);
 
 
   static loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);
@@ -52,7 +52,7 @@ bool LocoExample::LocoExample::add()
   gaitPatternAPS.initialize(aps, dt);
 
   static loco::LimbCoordinatorDynamicGait limbCoordinator(legs_.get(), &torso, &gaitPatternAPS);
-  static loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(legs_.get(), &torso, robotModel_, &terrain);
+  static loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(legs_.get(), &torso, &terrain);
   static loco::TorsoControlDynamicGait baseControl(legs_.get(), &torso, &terrain);
 
   static loco::ContactForceDistribution contactForceDistribution_(robotModel_);

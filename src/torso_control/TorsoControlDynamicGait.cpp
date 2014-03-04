@@ -37,7 +37,7 @@ void TorsoControlDynamicGait::advance(double dt) {
   const double desiredforeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredhindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredforeHeightAboveGroundInWorldFrame + desiredhindHeightAboveGroundInWorldFrame)/2.0;
-  Eigen::Vector3d desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredPoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredPoseInWorldFrame().getPosition().toImplementation()) + lateralAndHeadingErrorInWorldFrame;
+  Eigen::Vector3d desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getPosition().toImplementation()) + lateralAndHeadingErrorInWorldFrame;
   Eigen::Vector3d groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
   terrain_->getHeight(groundHeightInWorldFrame);
   Eigen::Vector3d desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
@@ -47,9 +47,9 @@ void TorsoControlDynamicGait::advance(double dt) {
   double height = desiredhindHeightAboveGroundInWorldFrame-desiredforeHeightAboveGroundInWorldFrame;
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBasFrame_);
 
-  TorsoBase::Pose::Rotation desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getDesiredPoseInWorldFrame().getRotation());
+  TorsoBase::Pose::Rotation desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame());
 
-  torso_->setDesiredPoseInWorldFrame(TorsoBase::Pose(desPositionInWorldFrame, desOrientationInWorldFrame));
+  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(TorsoBase::Pose(desPositionInWorldFrame, desOrientationInWorldFrame));
 }
 
 } /* namespace loco */

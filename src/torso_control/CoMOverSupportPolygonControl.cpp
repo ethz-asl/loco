@@ -64,7 +64,7 @@ Eigen::Vector3d CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame
   iLeg=0;
   for (auto leg : *legs_) {
     //	            tprintf("leg %d(%s): stanceMode: %lf, swingMode: %lf. Weight:%lf\n", i, leg->getName(), leg->getStancePhase(),leg->getSwingPhase(), legWeights[i]);
-    const Eigen::Vector3d footPositionCSw = leg->getFootPositionInWorldFrame();
+    const Eigen::Vector3d footPositionCSw = leg->getWorldToFootPositionInWorldFrame();
 
     if (sumWeights != 0) {
       comTarget += footPositionCSw*legWeights[iLeg]/sumWeights;

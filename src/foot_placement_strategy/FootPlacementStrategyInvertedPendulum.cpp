@@ -11,16 +11,15 @@
 #include "loco/common/TorsoBase.hpp"
 
 #include "loco/temp_helpers/math.hpp"
-#include "RobotModel_common.hpp"
+
 
 
 namespace loco {
 
-FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain) :
+FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain) :
     FootPlacementStrategyBase(),
     legs_(legs),
     torso_(torso),
-    robotModel_(robotModel),
     terrain_(terrain)
 {
 
@@ -215,8 +214,8 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
       swingPhase = leg->getSwingPhase();
     }
     this->setSwingPhase(iLeg, swingPhase);
-    this->setHipPosition(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
-    this->setHipVelocity(iLeg, robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getVel());
+    this->setHipPosition(iLeg, leg->getWorldToHipPositionInWorldFrame());
+    this->setHipVelocity(iLeg, leg->getHipLinearVelocityInWorldFrame());
 
     this->setFootLocationAtLiftOff(iLeg, leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame());
 
@@ -229,9 +228,9 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
     iLeg++;
   }
 
-  this->setDesiredHeadingSpeed(torso_->getDesiredHeadingSpeedInBaseFrame());
-  this->setBaseVelocity(iLeg, torso_->getMeasuredPoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredTwistInBaseFrame().getTranslationalVelocity().toImplementation()));
-  this->setRotationWorldToBase(torso_->getMeasuredPoseInWorldFrame().getRotation());
+  this->setDesiredHeadingSpeed(torso_->getDesiredState().getHeadingSpeedInBaseFrame());
+  this->setBaseVelocity(iLeg, torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().inverseRotate(torso_->getMeasuredState().getBaseTwistInBaseFrame().getTranslationalVelocity().toImplementation()));
+  this->setRotationWorldToBase(torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation());
 }
 
 double FootPlacementStrategyInvertedPendulum::getFootHeightOverTerrain(int iLeg, const Eigen::Vector3d& steppingLocationCSw)

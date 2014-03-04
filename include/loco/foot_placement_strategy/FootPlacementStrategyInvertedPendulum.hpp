@@ -19,7 +19,6 @@
 #include "loco/temp_helpers/Trajectory.hpp"
 
 #include "kindr/rotations/RotationEigen.hpp"
-#include "RobotModel.hpp"
 #include "Logger.hpp"
 #include "TerrainBase.hpp"
 
@@ -35,7 +34,7 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
 public:
   typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
 public:
-	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel, robotTerrain::TerrainBase* terrain);
+	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
 	FootPlacementStrategyInvertedPendulum();
 	virtual ~FootPlacementStrategyInvertedPendulum();
 
@@ -86,7 +85,6 @@ public:
   virtual void advance(double dt);
 public:
   LegGroup* legs_;
-  robotModel::RobotModel* robotModel_;
   robotTerrain::TerrainBase* terrain_;
   TorsoBase* torso_;
 

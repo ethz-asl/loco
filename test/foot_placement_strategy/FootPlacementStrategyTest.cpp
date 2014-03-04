@@ -36,7 +36,7 @@ TEST(FootPlacementTest, test) {
   legs.addLeg(&leftHindLeg);
   legs.addLeg(&rightHindLeg);
 
-  loco::TorsoStarlETH torso;
+  loco::TorsoStarlETH torso(&robotModel);
 
   gaitPatternAPS.initialize(aps, dt);
   loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &torso, &gaitPatternAPS);
@@ -44,6 +44,6 @@ TEST(FootPlacementTest, test) {
   robotModel.init();
   robotModel.update();
 
-  loco::FootPlacementStrategyInvertedPendulum ip(&legs, &torso, &robotModel, &terrain);
+  loco::FootPlacementStrategyInvertedPendulum ip(&legs, &torso, &terrain);
   ip.advance(dt);
 }

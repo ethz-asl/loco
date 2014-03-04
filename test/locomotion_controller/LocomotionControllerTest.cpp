@@ -44,7 +44,7 @@ TEST(LocomotionControllerTest, test) {
   legs.addLeg(&leftHindLeg);
   legs.addLeg(&rightHindLeg);
 
-  loco::TorsoStarlETH torso;
+  loco::TorsoStarlETH torso(&robotModel);
 
 
   loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);
@@ -52,7 +52,7 @@ TEST(LocomotionControllerTest, test) {
   gaitPatternAPS.initialize(aps, dt);
 
   loco::LimbCoordinatorDynamicGait limbCoordinator(&legs, &torso, &gaitPatternAPS);
-  loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(&legs, &torso, &robotModel, &terrain);
+  loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(&legs, &torso, &terrain);
   loco::TorsoControlDynamicGait baseControl(&legs, &torso, &terrain);
 
    loco::ContactForceDistribution contactForceDistribution_(&robotModel);

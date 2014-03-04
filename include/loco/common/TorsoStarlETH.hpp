@@ -10,52 +10,42 @@
 
 
 #include "loco/common/TorsoBase.hpp"
+
+
 #include "kindr/poses/PoseDiffEigen.hpp"
 #include "kindr/poses/PoseEigen.hpp"
 #include <Eigen/Core>
+
+#include "RobotModel.hpp"
 
 namespace loco {
 
 
 class TorsoStarlETH: public TorsoBase {
  public:
-  typedef kindr::positions::eigen_impl::LinearVelocityD LinearVelocity;
-  typedef kindr::rotations::eigen_impl::LocalAngularVelocityPD LocalAngularVelocity;
-
- public:
-  TorsoStarlETH();
+  TorsoStarlETH(robotModel::RobotModel* robotModel);
   virtual ~TorsoStarlETH();
 
   virtual double getStridePhase();
   virtual void setStridePhase(double stridePhase);
 
-  virtual double getHeadingSpeedInBaseFrame();
-  virtual double getTurningSpeedInBaseFrame();
-  virtual double getLateralSpeedInBaseFrame();
 
-  virtual double getDesiredHeadingSpeedInBaseFrame();
-  virtual double getDesiredTurningSpeedInBaseFrame();
-  virtual double getDesiredLateralSpeedInBaseFrame();
+  virtual void advance(double dt);
 
-
-  virtual void setMeasuredTwistInBaseFrame(const Twist& twist);
-  virtual void setDesiredTwistInBaseFrame(const Twist& twist);
-
-  virtual void setMeasuredPoseInWorldFrame(const Pose& pose);
-  virtual void setDesiredPoseInWorldFrame(const Pose& pose);
-
-  virtual const Twist& getMeasuredTwistInBaseFrame();
-  virtual const Twist& getDesiredTwistInBaseFrame();
-
-  virtual const Pose& getMeasuredPoseInWorldFrame();
-  virtual const Pose& getDesiredPoseInWorldFrame();
-
+  virtual TorsoStateMeasured& getMeasuredState();
+  virtual TorsoStateDesired& getDesiredState();
 protected:
+  robotModel::RobotModel* robotModel_;
+
+  TorsoStateMeasured stateMeasured_;
+  TorsoStateDesired stateDesired_;
+
   double stridePhase_;
   Pose desiredPoseInWorldFrame_;
-  Pose measuredPoseInWorldFrame_;
+
   Twist desiredTwistInBaseFrame_;
-  Twist measuredTwistInBaseFrame_;
+
+
 
 
 

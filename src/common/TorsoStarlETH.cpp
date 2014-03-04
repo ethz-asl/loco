@@ -9,7 +9,8 @@
 
 namespace loco {
 
-TorsoStarlETH::TorsoStarlETH() :
+TorsoStarlETH::TorsoStarlETH(robotModel::RobotModel* robotModel) :
+    robotModel_(robotModel),
     stridePhase_(0.0)
 {
 
@@ -28,59 +29,29 @@ void TorsoStarlETH::setStridePhase(double stridePhase) {
   stridePhase_ = stridePhase;
 }
 
-
-double TorsoStarlETH::getHeadingSpeedInBaseFrame() {
-  return measuredTwistInBaseFrame_.getTranslationalVelocity().x();
+TorsoStateMeasured& TorsoStarlETH::getMeasuredState() {
+  return stateMeasured_;
 }
 
-double TorsoStarlETH::getTurningSpeedInBaseFrame() {
-  return measuredTwistInBaseFrame_.getRotationalVelocity().z();
+TorsoStateDesired& TorsoStarlETH::getDesiredState() {
+  return stateDesired_;
 }
 
-double TorsoStarlETH::getLateralSpeedInBaseFrame() {
-  return measuredTwistInBaseFrame_.getTranslationalVelocity().y();
-}
+void TorsoStarlETH::advance(double dt) {
+  const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
+  TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
+  rquatWorldToBase.invert();
+  const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
+//  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
+//  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
 
-double TorsoStarlETH::getDesiredHeadingSpeedInBaseFrame() {
-  return desiredTwistInBaseFrame_.getTranslationalVelocity().x();
-}
-
-double TorsoStarlETH::getDesiredTurningSpeedInBaseFrame() {
-  return desiredTwistInBaseFrame_.getRotationalVelocity().z();
-}
-
-double TorsoStarlETH::getDesiredLateralSpeedInBaseFrame() {
-  return desiredTwistInBaseFrame_.getTranslationalVelocity().y();
+  this->getMeasuredState().setWorldToBasePoseInWorldFrame(TorsoBase::Pose(position, rquatWorldToBase));
+  const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
+  const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
+  this->getMeasuredState().setBaseTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
 }
 
 
-void TorsoStarlETH::setMeasuredTwistInBaseFrame(const Twist& twist) {
-  measuredTwistInBaseFrame_ = twist;
-}
 
-void TorsoStarlETH::setDesiredTwistInBaseFrame(const Twist& twist) {
-  desiredTwistInBaseFrame_ = twist;
-}
-
-const TorsoBase::Twist& TorsoStarlETH::getMeasuredTwistInBaseFrame() {
-  return measuredTwistInBaseFrame_;
-}
-const TorsoBase::Twist& TorsoStarlETH::getDesiredTwistInBaseFrame() {
-  return desiredTwistInBaseFrame_;
-}
-
-const TorsoBase::Pose& TorsoStarlETH::getMeasuredPoseInWorldFrame() {
-  return measuredPoseInWorldFrame_;
-}
-const TorsoBase::Pose& TorsoStarlETH::getDesiredPoseInWorldFrame() {
-  return desiredPoseInWorldFrame_;
-}
-
-void TorsoStarlETH::setMeasuredPoseInWorldFrame(const Pose& pose) {
-  measuredPoseInWorldFrame_ = pose;
-}
-void TorsoStarlETH::setDesiredPoseInWorldFrame(const Pose& pose) {
-  desiredPoseInWorldFrame_ = pose;
-}
 
 } /* namespace loco */

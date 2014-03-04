@@ -42,6 +42,10 @@ set(FOOTPLACMENTSTRATEGY_SRCS
 	
 	../../src/common/TorsoBase.cpp
 	../../src/common/TorsoStarlETH.cpp
+	../../src/common/TorsoStateBase.cpp
+	../../src/common/TorsoStateMeasured.cpp
+	../../src/common/TorsoStateDesired.cpp
+	
 	../../src/common/LegGroup.cpp
 	../../src/common/LegBase.cpp
 	../../src/common/LegStarlETH.cpp
