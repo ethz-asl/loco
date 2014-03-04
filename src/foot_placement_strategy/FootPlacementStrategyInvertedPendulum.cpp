@@ -143,7 +143,7 @@ void FootPlacementStrategyInvertedPendulum::setFeedbackScale(double scale) {
 
 
 
-Eigen::Vector3d FootPlacementStrategyInvertedPendulum::getFootPositionForSwingLegCSw(int iLeg, double dt)
+Eigen::Vector3d FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt)
 {
 
 	const double swingPhase = swingPhase_[iLeg];

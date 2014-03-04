@@ -42,59 +42,34 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 
 void LocomotionControllerDynamicGait::advance(double dt) {
 
-  Eigen::Vector4i contactFlags = robotModel_->contacts().getCA();
-  int iLeg = 0;
+
   for (auto leg : *legs_) {
-    if (contactFlags(iLeg) == 1) {
-      leg->setIsGrounded(true);
-    }
-    else {
-      leg->setIsGrounded(false);
-    }
     leg->advance(dt);
-    iLeg++;
+    //  std::cout << *leg << std::endl;
   }
-//  const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
-//  TorsoBase::Pose::Rotation rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
-//  rquatWorldToBase.invert();
-//  const TorsoBase::Pose::Position position(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()));
-////  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
-////  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
-//
-//  torso_->setMeasuredPoseInWorldFrame(TorsoBase::Pose(position, rquatWorldToBase));
-//  const TorsoBase::Twist::PositionDiff linearVelocity(rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
-//  const TorsoBase::Twist::RotationDiff localAngularVelocity(rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
-//  torso_->setMeasuredTwistInBaseFrame(TorsoBase::Twist(linearVelocity, localAngularVelocity));
-
   torso_->advance(dt);
-
   limbCoordinator_->advance(dt);
-//  std::cout << *legs_->getLeg(0) << std::endl;
-//  std::cout << "stride phase: " << torso_->getStridePhase() << std::endl;
 
-  iLeg = 0;
+
+
   for (auto leg : *legs_) {
     const double swingPhase = leg->getSwingPhase();
     if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
       // possible lift-off
-      leg->getStateLiftOff()->setFootPositionInWorldFrame(robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(iLeg)->getPos()); // or base2foot?
-      leg->getStateLiftOff()->setHipPositionInWorldFrame(robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos());
-      iLeg++;
+      leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
+      leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
     }
   }
   footPlacementStrategy_->advance(dt);
-  iLeg = 0;
+  int iLeg = 0;
   for (auto leg : *legs_) {
-    const   Eigen::Vector3d  positionWorldToFootInWorldFrame = footPlacementStrategy_->getFootPositionForSwingLegCSw(iLeg, 0.0);
-//    std::cout << "leg " << iLeg << " foot pos: " << positionFootInWorldFrame.transpose() << std::endl;
-    Eigen::Vector3d  positionFootToHipInWorldFrame = robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg)->getPos() - positionWorldToFootInWorldFrame;
-    Eigen::Vector3d positionFootToHipInHipFrame = torso_->getMeasuredState().getWorldToBasePoseInWorldFrame().getRotation().rotate(positionFootToHipInWorldFrame);
-    leg->setDesiredJointPositions(robotModel_->kin().getJointPosFromFootPos(positionFootToHipInHipFrame, iLeg));
-//    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame());
-
-//    std::cout <<  "leg " << iLeg << " des joint pos: " << leg->getDesiredJointPositions().transpose()  << std::endl;
+    const Eigen::Vector3d positionWorldToFootInWorldFrame = footPlacementStrategy_->getDesiredWorldToFootPositionInWorldFrame(iLeg, 0.0);
+    const Eigen::Vector3d positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().toImplementation();
+    const Eigen::Vector3d positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
     iLeg++;
   }
+
   torsoController_->advance(dt);
 
 

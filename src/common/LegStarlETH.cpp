@@ -37,13 +37,18 @@ const LegStarlETH::Velocity& LegStarlETH::getHipLinearVelocityInWorldFrame() con
 }
 
 void LegStarlETH::advance(double dt) {
+  if (robotModel_->contacts().getCA()(iLeg_) == 1) {
+    this->setIsGrounded(true);
+  } else {
+    this->setIsGrounded(false);
+  }
   positionWorldToFootInWorldFrame_ = robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(iLeg_)->getPos();
   positionWorldToHipInWorldFrame_ = robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg_)->getPos();
   linearVelocityHipInWorldFrame_ = robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg_)->getVel();
 }
 
 
-const LegStarlETH::JointPositions& LegStarlETH::getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) {
+LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) {
  return JointPositions(robotModel_->kin().getJointPosFromFootPosCSmb(positionBaseToFootInBaseFrame, iLeg_));
 }
 

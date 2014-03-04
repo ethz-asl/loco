@@ -74,7 +74,7 @@ public:
 	 * @param dt	tiny time step in the future to compute the desired velocities
 	 * @return
 	 */
-	virtual Eigen::Vector3d getFootPositionForSwingLegCSw(int iLeg, double dt);
+	virtual Eigen::Vector3d getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt);
 
 
 

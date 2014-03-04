@@ -66,22 +66,8 @@ class LegBase {
   virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;
   virtual const Position& getWorldToHipPositionInWorldFrame() const  = 0;
   virtual const Velocity& getHipLinearVelocityInWorldFrame() const  = 0;
-  virtual const JointPositions& getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
+  virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
   friend std::ostream& operator << (std::ostream& out, const LegBase& leg);
-//  friend std::ostream& operator << (std::ostream& out, const LegBase& leg) {
-//    out << "name: " << leg.getName() << std::endl;
-//    out << "swing phase: " << leg.getSwingPhase() << std::endl;
-//    out << "stance phase: " << leg.getStancePhase() << std::endl;
-//    out << "swing duration: " << leg.getSwingDuration() << std::endl;
-//    out << "stance duration: " << leg.getStanceDuration() << std::endl;
-//
-//    out << "is in stance mode: " << (leg.isInStanceMode() ? "yes" : "no") << std::endl;
-//    out << "is in swing mode: " << (leg.isInSwingMode() ? "yes" : "no") << std::endl;
-//
-//    out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
-//    out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;
-//    return out;
-//  }
 
   virtual void setDesiredJointControlModes(const JointControlModes& jointControlMode);
   virtual void setDesiredJointPositions(const JointPositions& jointPositions);
