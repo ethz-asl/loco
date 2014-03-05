@@ -62,6 +62,8 @@ void LegStarlETH::advance(double dt) {
   positionWorldToFootInBaseFrame_ = rquatWorldToBase.rotate(positionWorldToFootInWorldFrame_);
   positionWorldToHipInBaseFrame_ = rquatWorldToBase.rotate(positionWorldToHipInWorldFrame_);
 
+  this->setMeasuredJointPositions(robotModel_->q().getQj().block<3,1>(iLeg_*3,0));
+
 }
 
 

@@ -76,6 +76,11 @@ protected:
     double coronalOffset;
     double sagittalOffset;
 
+//    //! center of the feet for logging
+//    Position centerOfFeet_;
+//    //! target position for logging
+//    Position target_;
+
 
 
 

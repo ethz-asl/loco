@@ -10,6 +10,18 @@
 
 #include "TaskRobotBase.hpp"
 #include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
+
+#include "TerrainPlane.hpp"
+
+#include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
+#include "loco/gait_pattern/GaitPatternAPS.hpp"
+#include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
+#include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
+#include "loco/torso_control/TorsoControlDynamicGait.hpp"
+
+#include "loco/common/LegStarlETH.hpp"
+#include "loco/common/TorsoStarlETH.hpp"
+
 #include <memory>
 
 namespace robotTask {
@@ -42,9 +54,23 @@ class LocoExample: public robotTask::TaskRobotBase {
 
   loco::LocomotionControllerDynamicGait*  getLocomotionController();
 
- private:
-  loco::LocomotionControllerDynamicGait* locomotionController_;
+ public:
   std::shared_ptr<loco::LegGroup> legs_;
+  std::shared_ptr<loco::LegStarlETH> leftForeLeg_;
+  std::shared_ptr<loco::LegStarlETH> rightForeLeg_;
+  std::shared_ptr<loco::LegStarlETH> leftHindLeg_;
+  std::shared_ptr<loco::LegStarlETH> rightHindLeg_;
+  std::shared_ptr<loco::TorsoStarlETH> torso_;
+
+  robotTerrain::TerrainPlane terrain_;
+
+  std::shared_ptr<loco::GaitPatternAPS> gaitPatternAPS_;
+  std::shared_ptr<loco::LimbCoordinatorDynamicGait> limbCoordinator_;
+  std::shared_ptr<loco::FootPlacementStrategyInvertedPendulum> footPlacementStrategy_;
+  std::shared_ptr<loco::TorsoControlDynamicGait> baseControl_;
+  std::shared_ptr<loco::ContactForceDistribution> contactForceDistribution_;
+  std::shared_ptr<loco::VirtualModelController> virtualModelController_;
+  std::shared_ptr<loco::LocomotionControllerDynamicGait> locomotionController_;
 };
 
 } /* namespace robotTask */

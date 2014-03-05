@@ -51,17 +51,25 @@ void TorsoControlDynamicGait::advance(double dt) {
   terrain_->getHeight(groundHeightInWorldFrame.toImplementation());
   Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
 
+  // hack:
+//  desiredTorsoPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+//  desiredTorsoPositionInWorldFrame.z() = 0.42;
+
   // pitch angle
   double height = desiredhindHeightAboveGroundInWorldFrame-desiredforeHeightAboveGroundInWorldFrame;
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
 
   /*RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());*/
 
-  //Eigen::Vector3d axis = Eigen::Vector3d::UnitZ();
-  //RotationQuaternion desOrientationInWorldFrame = computeHeading(axis);
+  Eigen::Vector3d axisUp = Eigen::Vector3d::UnitZ();
+  const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+  RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion());
 
-  RotationQuaternion desOrientationInWorldFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverted();
+  LinearVelocity desiredLinearVelocity(0.3,0.0,0.0);
+  LocalAngularVelocity desiredAngularVelocity;
+
   torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationInWorldFrame));
+  torso_->getDesiredState().setBaseTwistInBaseFrame(Twist(desiredLinearVelocity, desiredAngularVelocity));
 }
 
 inline double safeACOS(double val){
@@ -72,17 +80,33 @@ inline double safeACOS(double val){
   return acos(val);
 }
 
-RotationQuaternion TorsoControlDynamicGait::computeHeading(const Eigen::Vector3d& axis) {
-  RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-  RotationQuaternion  rquatWorldToBaseConjugated = rquatWorldToBase.conjugated();
+/**
+  Assume that the current quaternion represents the relative orientation between two coordinate frames A and B.
+  This method decomposes the current relative rotation into a twist of frame B around the axis v passed in as a
+  parameter, and another more arbitrary rotation.
 
+  AqB = AqT * TqB, where T is a frame that is obtained by rotating frame B around the axis v by the angle
+  that is returned by this function.
 
-  Eigen::Vector3d vA = rquatWorldToBaseConjugated.rotate(axis).normalized();
-  Eigen::Vector3d rotAxis = -vA.cross(axis).normalized();
-  double rotAngle = -safeACOS(vA.dot(axis));
-  RotationQuaternion TqA = RotationQuaternion(AngleAxis(rotAngle, rotAxis));
-  RotationQuaternion decomposed = TqA*rquatWorldToBaseConjugated;
-  return decomposed.conjugated();
+  In the T coordinate frame, v is the same as in B, and AqT is a rotation that aligns v from A to that
+  from T.
+
+  It is assumed that vB is a unit vector!! This method returns TqB, which represents a twist about
+  the axis vB.
+*/
+RotationQuaternion TorsoControlDynamicGait::decomposeRotation(const RotationQuaternion& AqB, const Eigen::Vector3d& vB) {
+
+  const Eigen::Vector3d vA = AqB.inverseRotate(vB).normalized();
+  Eigen::Vector3d rotAxis = (vA.cross(vB).normalized());
+  rotAxis *= -1.0;
+  double rotAngle = -safeACOS(vA.dot(vB));
+  const RotationQuaternion TqA = RotationQuaternion(AngleAxis(rotAngle, rotAxis));
+  return AqB*TqA; // TqB
+
+}
+
+RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuaternion& rquat, const Eigen::Vector3d& axis) {
+  return decomposeRotation(rquat.conjugated(),axis).conjugated();
 
 }
 

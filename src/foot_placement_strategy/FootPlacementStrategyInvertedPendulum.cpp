@@ -55,7 +55,7 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() :
     FootPlacementStrategyBase(),
     terrain_(nullptr)
 {
-  stepFeedbackScale_ = 1.2;
+  stepFeedbackScale_ = 1.1;
   stepInterpolationFunction.clear();
   stepInterpolationFunction.addKnot(0, 0);
   stepInterpolationFunction.addKnot(0.6, 1);

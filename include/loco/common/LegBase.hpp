@@ -75,8 +75,11 @@ class LegBase {
   virtual void setDesiredJointControlModes(const JointControlModes& jointControlMode);
   virtual void setDesiredJointPositions(const JointPositions& jointPositions);
   virtual void setDesiredJointTorques(const JointTorques& jointTorques);
+  virtual void setMeasuredJointPositions(const JointPositions& jointPositions);
+
   virtual const JointControlModes& getDesiredJointControlModes();
   virtual const JointPositions& getDesiredJointPositions();
+  virtual const JointPositions& getMeasuredJointPositions();
   virtual const JointTorques& getDesiredJointTorques();
 
   virtual void advance(double dt) = 0;
@@ -101,6 +104,7 @@ class LegBase {
 
   JointControlModes desiredJointControlModes_;
   JointPositions desiredJointPositions_;
+  JointPositions measuredJointPositions_;
   JointTorques desiredJointTorques_;
 };
 

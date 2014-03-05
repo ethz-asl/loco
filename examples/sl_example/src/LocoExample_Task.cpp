@@ -6,16 +6,7 @@
  */
 
 #include "LocoExample_Task.hpp"
-#include "TerrainPlane.hpp"
 
-#include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
-#include "loco/gait_pattern/GaitPatternAPS.hpp"
-#include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
-#include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
-#include "loco/torso_control/TorsoControlDynamicGait.hpp"
-
-#include "loco/common/LegStarlETH.hpp"
-#include "loco/common/TorsoStarlETH.hpp"
 namespace robotTask {
 
 LocoExample::LocoExample(robotModel::RobotModel* robotModel):
@@ -33,36 +24,34 @@ LocoExample::~LocoExample() {
 bool LocoExample::LocoExample::add()
 {
   double dt = time_step_;
-  static robotTerrain::TerrainPlane terrain;
   legs_.reset( new loco::LegGroup);
-  static loco::LegStarlETH leftForeLeg("leftFore", 0, robotModel_);
-  static loco::LegStarlETH rightForeLeg("rightFore", 1, robotModel_);
-  static loco::LegStarlETH leftHindLeg("leftHind", 2, robotModel_);
-  static loco::LegStarlETH rightHindLeg("rightHind", 3, robotModel_);
-  legs_->addLeg(&leftForeLeg);
-  legs_->addLeg(&rightForeLeg);
-  legs_->addLeg(&leftHindLeg);
-  legs_->addLeg(&rightHindLeg);
+  leftForeLeg_.reset(new loco::LegStarlETH("leftFore", 0, robotModel_));
+  rightForeLeg_.reset(new loco::LegStarlETH("rightFore", 1, robotModel_));
+  leftHindLeg_.reset(new loco::LegStarlETH("leftHind", 2, robotModel_));
+  rightHindLeg_.reset(new loco::LegStarlETH("rightHind", 3, robotModel_));
+  legs_->addLeg(leftForeLeg_.get());
+  legs_->addLeg(rightForeLeg_.get());
+  legs_->addLeg(leftHindLeg_.get());
+  legs_->addLeg(rightHindLeg_.get());
 
-  static loco::TorsoStarlETH torso(robotModel_);
+  torso_.reset(new loco::TorsoStarlETH(robotModel_));
 
 
   static loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);
-  static loco::GaitPatternAPS gaitPatternAPS;
-  gaitPatternAPS.initialize(aps, dt);
+  gaitPatternAPS_.reset(new loco::GaitPatternAPS);
+  gaitPatternAPS_->initialize(aps, dt);
 
-  static loco::LimbCoordinatorDynamicGait limbCoordinator(legs_.get(), &torso, &gaitPatternAPS);
-  static loco::FootPlacementStrategyInvertedPendulum footPlacementStrategy(legs_.get(), &torso, &terrain);
-  static loco::TorsoControlDynamicGait baseControl(legs_.get(), &torso, &terrain);
+  limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPatternAPS_.get()));
+  footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), &terrain_));
+  baseControl_.reset(new loco::TorsoControlDynamicGait (legs_.get(), torso_.get(), &terrain_));
 
-  static loco::ContactForceDistribution contactForceDistribution_(robotModel_);
-  contactForceDistribution_.setTerrain(&terrain);
-  static loco::VirtualModelController virtualModelController_(robotModel_, contactForceDistribution_);
+  contactForceDistribution_.reset(new loco::ContactForceDistribution(robotModel_));
+  contactForceDistribution_->setTerrain(&terrain_);
+  virtualModelController_.reset(new loco::VirtualModelController(robotModel_, *contactForceDistribution_.get()));
 
-  static loco::LocomotionControllerDynamicGait locomotionController(legs_.get(), &torso, robotModel_, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl, &virtualModelController_, &contactForceDistribution_);
+  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), baseControl_.get(), virtualModelController_.get(), contactForceDistribution_.get()));
 
 
-  locomotionController_ = &locomotionController;
   return true;
 }
 
@@ -95,7 +84,7 @@ bool LocoExample::change()
 }
 
 loco::LocomotionControllerDynamicGait*  LocoExample::getLocomotionController() {
-  return locomotionController_;
+  return locomotionController_.get();
 }
 
 } /* namespace robotTask */

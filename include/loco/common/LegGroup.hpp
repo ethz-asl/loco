@@ -26,10 +26,23 @@ class LegGroup {
  private:
   std::vector<LegBase*>  legs_;
 
+
  public:
   LegGroup();
   virtual ~LegGroup();
 
+  LegBase* getLeftForeLeg() {
+    return legs_[0];
+  }
+  LegBase* getRightForeLeg() {
+    return legs_[1];
+  }
+  LegBase* getLeftHindLeg() {
+    return legs_[2];
+  }
+  LegBase* getRightHindLeg() {
+    return legs_[3];
+  }
 
   iterator begin() {
     return legs_.begin();

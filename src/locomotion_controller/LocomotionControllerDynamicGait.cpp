@@ -86,9 +86,11 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   baseDesiredOrientation = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().toImplementation();
 
   //! Desired base linear velocity expressed in inertial frame.
-  robotModel::VectorP baseDesiredLinearVelocity = robotModel::VectorP::Zero(3);
+//  robotModel::VectorP baseDesiredLinearVelocity = robotModel::VectorP::Zero(3);
+  robotModel::VectorP baseDesiredLinearVelocity = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().toImplementation());
   //! Desired base angular velocity expressed w.r.t. inertial frame.
-  robotModel::VectorO baseDesiredAngularVelocity = robotModel::VectorO::Zero(3);
+//  robotModel::VectorO baseDesiredAngularVelocity = robotModel::VectorO::Zero(3);
+  robotModel::VectorO baseDesiredAngularVelocity = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().toImplementation());
 
   virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
 
@@ -118,6 +120,10 @@ TorsoBase* LocomotionControllerDynamicGait::getTorso() {
 }
 LegGroup* LocomotionControllerDynamicGait::getLegs() {
   return legs_;
+}
+
+FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStrategy() {
+  return footPlacementStrategy_;
 }
 
 } /* namespace loco */

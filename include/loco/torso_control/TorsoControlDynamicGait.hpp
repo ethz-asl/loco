@@ -29,8 +29,8 @@ class TorsoControlDynamicGait: public TorsoControlBase {
 
   virtual void advance(double dt);
   virtual bool initialize(double dt);
-  virtual RotationQuaternion computeHeading(const Eigen::Vector3d& axis);
-
+  virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Eigen::Vector3d& axis);
+  RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Eigen::Vector3d& vB);
  private:
   LegGroup* legs_;
   TorsoBase* torso_;
