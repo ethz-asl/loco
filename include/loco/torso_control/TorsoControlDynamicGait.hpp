@@ -31,6 +31,8 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   virtual bool initialize(double dt);
   virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Eigen::Vector3d& axis);
   RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Eigen::Vector3d& vB);
+  CoMOverSupportPolygonControl* getCoMControl();
+
  private:
   LegGroup* legs_;
   TorsoBase* torso_;

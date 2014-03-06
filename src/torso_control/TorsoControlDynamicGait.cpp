@@ -42,6 +42,7 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 }
 
 void TorsoControlDynamicGait::advance(double dt) {
+  comControl_.advance(dt);
   Position lateralAndHeadingErrorInWorldFrame = comControl_.getPositionErrorVectorInWorldFrame();
   const double desiredforeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredhindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
@@ -108,6 +109,11 @@ RotationQuaternion TorsoControlDynamicGait::decomposeRotation(const RotationQuat
 RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuaternion& rquat, const Eigen::Vector3d& axis) {
   return decomposeRotation(rquat.conjugated(),axis).conjugated();
 
+}
+
+
+CoMOverSupportPolygonControl* TorsoControlDynamicGait::getCoMControl() {
+  return &comControl_;
 }
 
 } /* namespace loco */

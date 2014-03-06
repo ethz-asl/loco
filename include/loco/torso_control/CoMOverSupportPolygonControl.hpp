@@ -14,7 +14,7 @@
 
 #include <Eigen/Core>
 #include "loco/common/LegGroup.hpp"
-
+#include "loco/common/TypeDefs.hpp"
 namespace loco {
 
 //! Support Polygon Task
@@ -61,7 +61,9 @@ public:
 	 */
 	bool setToInterpolated(const CoMOverSupportPolygonControl& supportPolygon1, const CoMOverSupportPolygonControl& supportPolygon2, double t);
 
+  Position getDefaultTarget();
 
+  void advance(double dt);
 protected:
 	  LegGroup* legs_;
     //! this is the minimum weight any leg can have... if this is zero,then the COM will try to be right at center of the support polygon [0,1]
@@ -76,10 +78,10 @@ protected:
     double coronalOffset;
     double sagittalOffset;
 
-//    //! center of the feet for logging
-//    Position centerOfFeet_;
+
+    Position errorVector_;
 //    //! target position for logging
-//    Position target_;
+    Position defaultTarget_;
 
 
 

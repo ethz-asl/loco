@@ -43,13 +43,13 @@ bool LocoExample::LocoExample::add()
 
   limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPatternAPS_.get()));
   footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), &terrain_));
-  baseControl_.reset(new loco::TorsoControlDynamicGait (legs_.get(), torso_.get(), &terrain_));
+  torsoController_.reset(new loco::TorsoControlDynamicGait (legs_.get(), torso_.get(), &terrain_));
 
   contactForceDistribution_.reset(new loco::ContactForceDistribution(robotModel_));
   contactForceDistribution_->setTerrain(&terrain_);
   virtualModelController_.reset(new loco::VirtualModelController(robotModel_, *contactForceDistribution_.get()));
 
-  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), baseControl_.get(), virtualModelController_.get(), contactForceDistribution_.get()));
+  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get()));
 
 
   return true;
