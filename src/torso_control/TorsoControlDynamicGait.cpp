@@ -20,11 +20,13 @@ TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* tors
 
   std::vector<double> tValues, xValues;
   const double defaultHeight = 0.42;
-  tValues.push_back(0.00); xValues.push_back(defaultHeight);
-  tValues.push_back(0.25); xValues.push_back(defaultHeight);
-  tValues.push_back(0.50); xValues.push_back(defaultHeight);
-  tValues.push_back(0.75); xValues.push_back(defaultHeight);
-  tValues.push_back(1.00); xValues.push_back(defaultHeight);
+  desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
+  desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
+  tValues.push_back(0.00); xValues.push_back(0.0);
+  tValues.push_back(0.25); xValues.push_back(0.0);
+  tValues.push_back(0.50); xValues.push_back(0.0);
+  tValues.push_back(0.75); xValues.push_back(0.0);
+  tValues.push_back(1.00); xValues.push_back(0.0);
   desiredTorsoForeHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
   desiredTorsoHindHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
 }
@@ -44,8 +46,8 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 void TorsoControlDynamicGait::advance(double dt) {
   comControl_.advance(dt);
   Position lateralAndHeadingErrorInWorldFrame = comControl_.getPositionErrorVectorInWorldFrame();
-  const double desiredforeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
-  const double desiredhindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
+  const double desiredforeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
+  const double desiredhindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredforeHeightAboveGroundInWorldFrame + desiredhindHeightAboveGroundInWorldFrame)/2.0;
   Position desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame() + lateralAndHeadingErrorInWorldFrame;
   Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
@@ -64,7 +66,7 @@ void TorsoControlDynamicGait::advance(double dt) {
 
   Eigen::Vector3d axisUp = Eigen::Vector3d::UnitZ();
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-  RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion());
+  RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)));
 
   LinearVelocity desiredLinearVelocity(0.3,0.0,0.0);
   LocalAngularVelocity desiredAngularVelocity;
@@ -114,6 +116,188 @@ RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuatern
 
 CoMOverSupportPolygonControl* TorsoControlDynamicGait::getCoMControl() {
   return &comControl_;
+}
+
+bool TorsoControlDynamicGait::loadParameters(const TiXmlHandle& handle) {
+  TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
+  if (!comControl_.loadParameters(hDynGait)) {
+    return false;
+  }
+  if (!loadParametersHipConfiguration(hDynGait)) {
+    return false;
+  }
+
+  return true;
+}
+
+
+
+bool TorsoControlDynamicGait::loadParametersHipConfiguration(const TiXmlHandle &hParameterSet)
+{
+
+
+  int iKnot;
+  double t, value;
+  TiXmlElement* pElem;
+  std::string legFrame;
+
+  /* Swing foot configuration*/
+  pElem = hParameterSet.FirstChild("HipConfiguration").Element();
+  if (!pElem) {
+    printf("Could not find HipConfiguration\n");
+    return false;
+  }
+
+  /**************************************************************************
+   * HEIGHT
+   ***************************************************************************/
+
+  /* offset */
+  pElem = hParameterSet.FirstChild("HipConfiguration").Element();
+  if (!pElem) {
+    printf("Could not find HipConfiguration!\n");
+    return false;
+  }
+  TiXmlElement* child = hParameterSet.FirstChild("HipConfiguration").FirstChild().ToElement();
+       for( child; child; child=child->NextSiblingElement() ){
+          if (child->ValueStr().compare("HeightTrajectory") == 0) {
+            bool isFore = false;
+            bool isHind = false;
+            double offset = 0.0;
+            if (child->QueryDoubleAttribute("offset", &offset)!=TIXML_SUCCESS) {
+              printf("Could not find offset!\n");
+            }
+            if (child->QueryBoolAttribute("fore", &isFore)==TIXML_SUCCESS) {
+              if (isFore) {
+                printf("found fore leg\n");
+                desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = offset;
+                TiXmlHandle hTrajectory(child);
+                if(!loadHeightTrajectory(hTrajectory,  desiredTorsoForeHeightAboveGroundInWorldFrame_)) {
+                  return false;
+                }
+              }
+            }
+            if (child->QueryBoolAttribute("hind", &isHind)==TIXML_SUCCESS) {
+              if (isHind) {
+                printf("found hind leg\n");
+                desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = offset;
+                TiXmlHandle hTrajectory(child);
+                if(!loadHeightTrajectory(hTrajectory,  desiredTorsoHindHeightAboveGroundInWorldFrame_)) {
+                  return false;
+                }
+              }
+            }
+          }
+
+       }
+//
+//      /* front leg frame */
+//      pElem = hParameterSet.FirstChild("HipConfiguration").FirstChild("Fore").Element();
+//      if (!pElem) {
+//        printf("Could not find HipConfiguration:Fore!\n");
+//        return false;
+//      }
+//      TiXmlHandle hTrajectory (hParameterSet.FirstChild("HipConfiguration").FirstChild("Fore").FirstChild("HeightTrajectory"));
+//      pElem = hTrajectory.Element();
+//      if (!pElem) {
+//        printf("Could not find HeightTrajectory!\n");
+//        return false;
+//      }
+//      if (pElem->QueryDoubleAttribute("offset", &desiredFrameHeightOffset)!=TIXML_SUCCESS) {
+//        printf("Could not find HeightTrajectory:offset!\n");
+//        return false;
+//      }
+//      if (!loadHeightTrajectory(hTrajectory)) {
+//        printf("problem\n");
+//        return false;
+//      }
+//
+//
+//      /* hind leg frame */
+//      pElem = hParameterSet.FirstChild("HipConfiguration").FirstChild("Hind").Element();
+//      if (!pElem) {
+//        printf("Could not find HipConfiguration:Hind!\n");
+//        return false;
+//      }
+//      TiXmlHandle hTrajectory (hParameterSet.FirstChild("HipConfiguration").FirstChild("Hind").FirstChild("HeightTrajectory"));
+//      pElem = hTrajectory.Element();
+//      if (!pElem) {
+//        printf("Could not find HeightTrajectory!\n");
+//        return false;
+//      }
+//      if (pElem->QueryDoubleAttribute("offset", &desiredFrameHeightOffset)!=TIXML_SUCCESS) {
+//        printf("Could not find HeightTrajectory:offset!\n");
+//        return false;
+//      }
+//      if (!loadHeightTrajectory(hTrajectory)) {
+//        printf("problem\n");
+//        return false;
+//      }
+
+
+//  else {
+//
+//    // both leg frames
+//    pElem = hParameterSet.FirstChild("HipConfiguration").FirstChild("ForeAndHind").FirstChild("HeightTrajectory").Element();
+//    if (!pElem) {
+//      pElem = hParameterSet.FirstChild("HipConfiguration").FirstChild("FrontAndHind").FirstChild("PitchTrajectory").Element();
+//      if (!pElem) {
+//        printf("Could not find HeightTrajectory or PitchTrajectory!\n");
+//        return false;
+//      }
+//      TiXmlHandle hTrajectory (hParameterSet.FirstChild("HipConfiguration").FirstChild("FrontAndHind").FirstChild("PitchTrajectory"));
+//      if (pElem->QueryDoubleAttribute("offset", &desiredFrameHeightOffset)!=TIXML_SUCCESS) {
+//        printf("Could not find PitchTrajectory:offset!\n");
+//        return false;
+//      }
+//      printf("ERRLOR: pitch trajectory not implemented!\n");
+//      return false;
+//
+//    }
+//    else {
+//
+//      TiXmlHandle hTrajectory (hParameterSet.FirstChild("HipConfiguration").FirstChild("FrontAndHind").FirstChild("HeightTrajectory"));
+//      if (pElem->QueryDoubleAttribute("offset", &desiredFrameHeightOffset)!=TIXML_SUCCESS) {
+//        printf("Could not find HeightTrajectory:offset!\n");
+//        return false;
+//      }
+//      if (!loadHeightTrajectory(hTrajectory)) {
+//        printf("problem\n");
+//        return false;
+//      }
+//    }
+//
+//  }
+
+  return true;
+}
+
+bool TorsoControlDynamicGait::loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory)
+{
+  TiXmlElement* pElem;
+  int iKnot;
+  double t, value;
+  std::vector<double> tValues, xValues;
+
+
+  TiXmlElement* child = hTrajectory.FirstChild().ToElement();
+   for( child; child; child=child->NextSiblingElement() ){
+      if (child->QueryDoubleAttribute("t", &t)!=TIXML_SUCCESS) {
+        printf("Could not find t of knot!\n");
+        return false;
+      }
+      if (child->QueryDoubleAttribute("v", &value)!=TIXML_SUCCESS) {
+        printf("Could not find v of knot!\n");
+        return false;
+      }
+      tValues.push_back(t);
+      xValues.push_back(value);
+//      printf("t=%f, v=%f\n", t, value);
+   }
+   trajectory.setRBFData(tValues, xValues);
+
+
+  return true;
 }
 
 } /* namespace loco */

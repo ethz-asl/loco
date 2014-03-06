@@ -30,10 +30,10 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(Leg
 
 	gravity_ = 9.81;
 
-	swingFootHeightTrajectory_.clear();
-	swingFootHeightTrajectory_.addKnot(0, 0);
-	swingFootHeightTrajectory_.addKnot(0.65, 0.09);
-	swingFootHeightTrajectory_.addKnot(1.0, 0);
+//	swingFootHeightTrajectory_.clear();
+//	swingFootHeightTrajectory_.addKnot(0, 0);
+//	swingFootHeightTrajectory_.addKnot(0.65, 0.09);
+//	swingFootHeightTrajectory_.addKnot(1.0, 0);
 
 
   for (int iLeg=0; iLeg < 4; iLeg++) {
@@ -43,7 +43,7 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(Leg
     footLocationAtLiftOffCSw_[iLeg]  = Eigen::Vector3d::Zero();
     rHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
     vHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-    steppingOffsetToHip_CSw_[iLeg]  = Eigen::Vector3d::Zero();
+    steppingOffsetToHip_CSmb_[iLeg]  = Eigen::Vector3d::Zero();
   }
 
   vBase_CSw_ =  Eigen::Vector3d::Zero();
@@ -62,10 +62,10 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() :
 
   gravity_ = 9.81;
 
-  swingFootHeightTrajectory_.clear();
-  swingFootHeightTrajectory_.addKnot(0, 0);
-  swingFootHeightTrajectory_.addKnot(0.65, 0.09);
-  swingFootHeightTrajectory_.addKnot(1.0, 0);
+//  swingFootHeightTrajectory_.clear();
+//  swingFootHeightTrajectory_.addKnot(0, 0);
+//  swingFootHeightTrajectory_.addKnot(0.65, 0.09);
+//  swingFootHeightTrajectory_.addKnot(1.0, 0);
 
 
   for (int iLeg=0; iLeg < 4; iLeg++) {
@@ -75,7 +75,7 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() :
     footLocationAtLiftOffCSw_[iLeg]  = Eigen::Vector3d::Zero();
     rHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
     vHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-    steppingOffsetToHip_CSw_[iLeg]  = Eigen::Vector3d::Zero();
+    steppingOffsetToHip_CSmb_[iLeg]  = Eigen::Vector3d::Zero();
   }
 
   vBase_CSw_ =  Eigen::Vector3d::Zero();
@@ -97,7 +97,7 @@ void FootPlacementStrategyInvertedPendulum::setGravity(double gravity)
   gravity_ = gravity;
 }
 
-void FootPlacementStrategyInvertedPendulum::setSwingFootHeightTrajectory(const Trajectory1D& swingFootHeightTrajectory)
+void FootPlacementStrategyInvertedPendulum::setSwingFootHeightTrajectory(const SwingFootHeightTrajectory& swingFootHeightTrajectory)
 {
   swingFootHeightTrajectory_ = swingFootHeightTrajectory;
 }
@@ -128,8 +128,8 @@ void FootPlacementStrategyInvertedPendulum::setRotationWorldToBase(const Rotatio
   p_BW_ = p_BW;
 }
 
-void FootPlacementStrategyInvertedPendulum::setSteppingOffsetToHip(int iLeg, const Eigen::Vector3d& steppingOffsetToHip_CSw) {
-  steppingOffsetToHip_CSw_[iLeg] = steppingOffsetToHip_CSw;
+void FootPlacementStrategyInvertedPendulum::setSteppingOffsetToHip(int iLeg, const Eigen::Vector3d& steppingOffsetToHip_CSh) {
+  steppingOffsetToHip_CSmb_[iLeg] = steppingOffsetToHip_CSh;
 }
 
 void FootPlacementStrategyInvertedPendulum::setDesiredHeadingSpeed(double desiredForwardSpeed) {
@@ -147,8 +147,9 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 {
 
 	const double swingPhase = swingPhase_[iLeg];
-//  Eigen::Vector3d rFootHoldOffset_CSw_default = p_BW_.inverseRotate(steppingOffsetToHip_CSw_[iLeg]);
-  Eigen::Vector3d rFootHoldOffset_CSw_default = steppingOffsetToHip_CSw_[iLeg];
+  Eigen::Vector3d rFootHoldOffset_CSw_default = p_BW_.inverseRotate(steppingOffsetToHip_CSmb_[iLeg]);
+//  Eigen::Vector3d rFootHoldOffset_CSw_default = steppingOffsetToHip_CSmb_[iLeg];
+//  Eigen::Vector3d rFootHoldOffset_CSw_default = Eigen::Vector3d::Zero();
 
 	/* inverted pendulum stepping offset */
 	Eigen::Vector3d rRef_CSw = rHip_CSw_[iLeg];
@@ -202,6 +203,123 @@ double FootPlacementStrategyInvertedPendulum::getSagittalComponentOfFootStep(dou
 	phase = stepInterpolationFunction.evaluate_linear(phase);
 	double result = stepGuess * phase + initialStepOffset * (1-phase);
 	return result;
+}
+
+bool FootPlacementStrategyInvertedPendulum::loadParameters(const TiXmlHandle& handle) {
+  TiXmlElement* pElem;
+
+  /* desired */
+  TiXmlHandle hFPS(handle.FirstChild("FootPlacementStrategy").FirstChild("InvertedPendulum"));
+  pElem = hFPS.Element();
+  if (!pElem) {
+    printf("Could not find FootPlacementStrategy:InvertedPendulum\n");
+    return false;
+  }
+
+  pElem = hFPS.FirstChild("Gains").Element();
+  if (pElem->QueryDoubleAttribute("feedbackScale", &stepFeedbackScale_)!=TIXML_SUCCESS) {
+    printf("Could not find Gains:feedbackScale\n");
+    return false;
+  }
+
+
+
+
+  /* offset */
+  pElem = hFPS.FirstChild("Offset").Element();
+  if (!pElem) {
+    printf("Could not find Offset\n");
+    return false;
+  }
+
+  {
+    pElem = hFPS.FirstChild("Offset").FirstChild("Fore").Element();
+    if (!pElem) {
+      printf("Could not find Offset:Fore\n");
+      return false;
+    }
+    double offsetHeading = 0.0;
+    double offsetLateral = 0.0;
+    if (pElem->QueryDoubleAttribute("heading", &offsetHeading)!=TIXML_SUCCESS) {
+      printf("Could not find Offset:Fore:heading!\n");
+      return false;
+    }
+
+    if (pElem->QueryDoubleAttribute("lateral", &offsetLateral)!=TIXML_SUCCESS) {
+      printf("Could not find Offset:Fore:lateral!\n");
+      return false;
+    }
+    Eigen::Vector3d leftOffset(offsetHeading, offsetLateral, 0.0);
+    Eigen::Vector3d rightOffset(offsetHeading, -offsetLateral, 0.0);
+    this->setSteppingOffsetToHip(0, leftOffset);
+    this->setSteppingOffsetToHip(1, rightOffset);
+  }
+
+  {
+    pElem = hFPS.FirstChild("Offset").FirstChild("Hind").Element();
+    if (!pElem) {
+      printf("Could not find Offset:Hind\n");
+      return false;
+    }
+    double offsetHeading = 0.0;
+    double offsetLateral = 0.0;
+    if (pElem->QueryDoubleAttribute("heading", &offsetHeading)!=TIXML_SUCCESS) {
+      printf("Could not find Offset:Hind:heading!\n");
+      return false;
+    }
+
+    if (pElem->QueryDoubleAttribute("lateral", &offsetLateral)!=TIXML_SUCCESS) {
+      printf("Could not find Offset:Hind:lateral!\n");
+      return false;
+    }
+    Eigen::Vector3d leftOffset(offsetHeading, offsetLateral, 0.0);
+    Eigen::Vector3d rightOffset(offsetHeading, -offsetLateral, 0.0);
+    this->setSteppingOffsetToHip(2, leftOffset);
+    this->setSteppingOffsetToHip(3, rightOffset);
+  }
+
+
+
+  /* height trajectory */
+  if(!loadHeightTrajectory(hFPS.FirstChild("HeightTrajectory"))) {
+    return false;
+  }
+
+
+  return true;
+}
+
+bool FootPlacementStrategyInvertedPendulum::loadHeightTrajectory(const TiXmlHandle &hTrajectory)
+{
+  TiXmlElement* pElem;
+  int iKnot;
+  double t, value;
+  std::vector<double> tValues, xValues;
+
+
+  TiXmlElement* child = hTrajectory.FirstChild().ToElement();
+   for( child; child; child=child->NextSiblingElement() ){
+      if (child->QueryDoubleAttribute("t", &t)!=TIXML_SUCCESS) {
+        printf("Could not find t of knot!\n");
+        return false;
+      }
+      if (child->QueryDoubleAttribute("v", &value)!=TIXML_SUCCESS) {
+        printf("Could not find v of knot!\n");
+        return false;
+      }
+      tValues.push_back(t);
+      xValues.push_back(value);
+      swingFootHeightTrajectory_.addKnot(t, value);
+      printf("t=%f, v=%f\n", t, value);
+   }
+//   swingFootHeightTrajectory_.setRBFData(tValues, xValues);
+
+
+  return true;
+}
+
+bool FootPlacementStrategyInvertedPendulum::initialize(double dt) {
+  return true;
 }
 
 void FootPlacementStrategyInvertedPendulum::advance(double dt)

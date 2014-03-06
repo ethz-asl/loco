@@ -19,7 +19,7 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotMo
   positionWorldToHipInBaseFrame_(),
   linearVelocityHipInWorldFrame_()
 {
-
+  desiredJointControlModes_.setConstant(robotModel::AM_Velocity);
 }
 
 LegStarlETH::~LegStarlETH() {

@@ -19,6 +19,8 @@
 #include "loco/common/LegStarlETH.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
 
+#include "loco/common/ParameterSet.hpp"
+
 #include "RobotModel.hpp"
 #include "TerrainPlane.hpp"
 
@@ -33,7 +35,7 @@ TEST(LocomotionControllerTest, test) {
   robotModel.update();
 
 
-
+  loco::ParameterSet parameterSet;
   loco::LegGroup legs;
   loco::LegStarlETH leftForeLeg("leftFore", 0, &robotModel);
   loco::LegStarlETH rightForeLeg("rightFore", 1, &robotModel);
@@ -59,7 +61,7 @@ TEST(LocomotionControllerTest, test) {
    contactForceDistribution_.setTerrain(&terrain);
    loco::VirtualModelController virtualModelController_(&robotModel, contactForceDistribution_);
 
-   loco::LocomotionControllerDynamicGait locomotionController(&legs, &torso, &robotModel, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl, &virtualModelController_, &contactForceDistribution_);
+   loco::LocomotionControllerDynamicGait locomotionController(&legs, &torso, &robotModel, &terrain, &limbCoordinator, &footPlacementStrategy, &baseControl, &virtualModelController_, &contactForceDistribution_, &parameterSet);
 
    locomotionController.advance(dt);
 

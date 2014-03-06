@@ -36,12 +36,17 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
 
   virtual void setIsLegGrounded(int iLeg, bool isLegGrounded);
 
+
+ virtual bool initialize(double dt);
+
   /*! Advance in time
    * @param dt  time step [s]
    */
   virtual void advance(double dt);
 
   virtual GaitPatternBase* getGaitPattern();
+
+  virtual bool loadParameters(const TiXmlHandle& handle);
 
  private:
   LegGroup* legs_;

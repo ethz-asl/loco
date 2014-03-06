@@ -24,6 +24,17 @@ LocoExample::~LocoExample() {
 bool LocoExample::LocoExample::add()
 {
   double dt = time_step_;
+  std::string parameterFile = std::string(getenv("LAB_ROOT")) +"/locomotionControl/examples/sl_example/parameters/" + "WalkingTrotSim.xml";
+
+  parameterSet_.reset(new loco::ParameterSet());
+
+  if (!parameterSet_->loadXmlDocument(parameterFile)) {
+    std::cout << "Could not load parameter file: " << parameterFile  << std::endl;
+  }
+
+  parameterSet_->getHandle().ToNode()->ToDocument()->Print();
+
+
   legs_.reset( new loco::LegGroup);
   leftForeLeg_.reset(new loco::LegStarlETH("leftFore", 0, robotModel_));
   rightForeLeg_.reset(new loco::LegStarlETH("rightFore", 1, robotModel_));
@@ -49,7 +60,7 @@ bool LocoExample::LocoExample::add()
   contactForceDistribution_->setTerrain(&terrain_);
   virtualModelController_.reset(new loco::VirtualModelController(robotModel_, *contactForceDistribution_.get()));
 
-  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get()));
+  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 
 
   return true;
@@ -57,7 +68,10 @@ bool LocoExample::LocoExample::add()
 
 bool LocoExample::init()
 {
-  locomotionController_->initialize(time_step_);
+  if (!locomotionController_->initialize(time_step_)) {
+    std::cout << "Could not initialize locomotion controller!" << std::endl;
+    return false;
+  }
   return true;
 }
 

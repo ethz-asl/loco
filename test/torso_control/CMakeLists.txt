@@ -49,15 +49,12 @@ set(TORSOCONTROL_SRCS
 	../../src/torso_control/TorsoControlBase.cpp
 	../../src/torso_control/TorsoControlDynamicGait.cpp
 	../../src/torso_control/CoMOverSupportPolygonControl.cpp
-	../../thirdparty/tinyxml/tinystr.cpp
-	../../thirdparty/tinyxml/tinyxml.cpp
-	../../thirdparty/tinyxml/tinyxmlerror.cpp
-	../../thirdparty/tinyxml/tinyxmlparser.cpp
+
 )
 
 # Add test cpp file
 add_executable( runUnitTestsTorsoControl EXCLUDE_FROM_ALL  ${TORSOCONTROL_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsTorsoControl  gtest_main gtest pthread starlethRobotModel starlethUtils)
+target_link_libraries(runUnitTestsTorsoControl  gtest_main gtest pthread starlethRobotModel starlethUtils tinyxml)
 add_test( runUnitTestsTorsoControl ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsTorsoControl )
 add_dependencies(check runUnitTestsTorsoControl)

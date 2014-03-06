@@ -14,8 +14,10 @@ namespace loco {
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel,
                                                                  robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
-                                                                 VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution) :
+                                                                 VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
+                                                                 ParameterSet* parameterSet) :
     LocomotionControllerBase(),
+    isInitialized_(false),
     legs_(legs),
     torso_(torso),
     robotModel_(robotModel),
@@ -24,7 +26,8 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     footPlacementStrategy_(footPlacementStrategy),
     torsoController_(baseController),
     virtualModelController_(virtualModelController),
-    contactForceDistribution_(contactForceDistribution)
+    contactForceDistribution_(contactForceDistribution),
+    parameterSet_(parameterSet)
 {
 
 }
@@ -35,24 +38,51 @@ LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
 
 bool LocomotionControllerDynamicGait::initialize(double dt)
 {
+  isInitialized_ = false;
+
   for (auto leg : *legs_) {
     leg->advance(dt);
     //  std::cout << *leg << std::endl;
   }
   torso_->advance(dt);
 
+  TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
+
+
+  if (!limbCoordinator_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!limbCoordinator_->initialize(dt)) {
+    return false;
+  }
+  if (!footPlacementStrategy_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!footPlacementStrategy_->initialize(dt)) {
+    return false;
+  }
+
+
+  if (!torsoController_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!torsoController_->initialize(dt)) {
+    return false;
+  }
 
   virtualModelController_->loadParameters();
   contactForceDistribution_->loadParameters();
 
 
 
-  torsoController_->initialize(dt);
-  return true;
+  isInitialized_ = true;
+  return isInitialized_;
 }
 
 void LocomotionControllerDynamicGait::advance(double dt) {
-
+  if (!isInitialized_) {
+    return;
+  }
 
   for (auto leg : *legs_) {
     leg->advance(dt);
@@ -125,6 +155,7 @@ LegGroup* LocomotionControllerDynamicGait::getLegs() {
 FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStrategy() {
   return footPlacementStrategy_;
 }
+
 
 } /* namespace loco */
 

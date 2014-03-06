@@ -21,7 +21,7 @@
 
 #include "loco/common/LegStarlETH.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
-
+#include "loco/common/ParameterSet.hpp"
 #include <memory>
 
 namespace robotTask {
@@ -71,6 +71,7 @@ class LocoExample: public robotTask::TaskRobotBase {
   std::shared_ptr<loco::ContactForceDistribution> contactForceDistribution_;
   std::shared_ptr<loco::VirtualModelController> virtualModelController_;
   std::shared_ptr<loco::LocomotionControllerDynamicGait> locomotionController_;
+  std::shared_ptr<loco::ParameterSet> parameterSet_;
 };
 
 } /* namespace robotTask */
