@@ -60,15 +60,11 @@ set(FOOTPLACMENTSTRATEGY_SRCS
 	../../src/gait_pattern/GaitAPS.cpp
 	../../src/gait_pattern/GaitPatternAPS.cpp
 	
-	../../thirdparty/tinyxml/tinystr.cpp
-	../../thirdparty/tinyxml/tinyxml.cpp
-	../../thirdparty/tinyxml/tinyxmlerror.cpp
-	../../thirdparty/tinyxml/tinyxmlparser.cpp
 )
 
 
 add_executable( runUnitTestsFootPlacementStrategy EXCLUDE_FROM_ALL ${FOOTPLACMENTSTRATEGY_SRCS})
-target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread starlethRobotModel starlethUtils  )
+target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread starlethRobotModel starlethUtils tinyxml )
 add_test( runUnitTestsFootPlacementStrategy ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsFootPlacementStrategy )
 add_dependencies(check runUnitTestsFootPlacementStrategy)
 

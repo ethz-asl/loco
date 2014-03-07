@@ -18,6 +18,7 @@
 
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
+#include "loco/common/ParameterSet.hpp"
 
 #include "RobotModel.hpp"
 #include "TerrainBase.hpp"
@@ -29,7 +30,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel,
                                   robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator,
                                   FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
-                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution);
+                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
+                                  ParameterSet* parameterSet);
   virtual ~LocomotionControllerDynamicGait();
 
   /*!
@@ -49,7 +51,9 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
 
   FootPlacementStrategyBase* getFootPlacementStrategy();
 
+
  protected:
+  bool isInitialized_;
   LegGroup* legs_;
   TorsoBase* torso_;
   robotModel::RobotModel* robotModel_;
@@ -59,6 +63,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   TorsoControlBase* torsoController_;
   VirtualModelController* virtualModelController_;
   ContactForceDistributionBase* contactForceDistribution_;
+  ParameterSet* parameterSet_;
 };
 
 } /* namespace loco */

@@ -24,6 +24,23 @@ LocoExample::~LocoExample() {
 bool LocoExample::LocoExample::add()
 {
   double dt = time_step_;
+  std::string gait = "StaticLateralWalk";
+//  std::string gait = "WalkingTrot";
+
+  std::cout << "Gait: " << gait << std::endl;
+  std::string parameterFile = std::string(getenv("LAB_ROOT")) +"/locomotionControl/examples/sl_example/parameters/" + gait + "Sim.xml";
+
+  parameterSet_.reset(new loco::ParameterSet());
+
+  if (!parameterSet_->loadXmlDocument(parameterFile)) {
+    std::cout << "Could not load parameter file: " << parameterFile  << std::endl;
+    return false;
+  }
+
+
+//  parameterSet_->getHandle().ToNode()->ToDocument()->Print();
+
+
   legs_.reset( new loco::LegGroup);
   leftForeLeg_.reset(new loco::LegStarlETH("leftFore", 0, robotModel_));
   rightForeLeg_.reset(new loco::LegStarlETH("rightFore", 1, robotModel_));
@@ -49,7 +66,9 @@ bool LocoExample::LocoExample::add()
   contactForceDistribution_->setTerrain(&terrain_);
   virtualModelController_.reset(new loco::VirtualModelController(legs_, torso_, contactForceDistribution_));
 
-  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get()));
+  missionController_.reset(new loco::MissionControlJoystick(robotModel_));
+
+  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 
 
   return true;
@@ -57,12 +76,27 @@ bool LocoExample::LocoExample::add()
 
 bool LocoExample::init()
 {
-  locomotionController_->initialize(time_step_);
+  if (!missionController_->loadParameters(parameterSet_->getHandle())) {
+    std::cout << "Could not parameters for mission controller: " << std::endl;
+    return false;
+  }
+
+
+  if (!missionController_->initialize(time_step_)) {
+    std::cout << "Could not initialize mission controller!" << std::endl;
+  }
+
+  if (!locomotionController_->initialize(time_step_)) {
+    std::cout << "Could not initialize locomotion controller!" << std::endl;
+    return false;
+  }
   return true;
 }
 
 bool LocoExample::run()
 {
+  missionController_->advance(time_step_);
+  torso_->getDesiredState().setBaseTwistInBaseFrame(missionController_->getDesiredBaseTwistInBaseFrame());
   locomotionController_->advance(time_step_);
 
   robotModel::VectorActMLeg legMode;

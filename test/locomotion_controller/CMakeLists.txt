@@ -77,18 +77,16 @@ set(LOCOMOTIONCONTROLLER_SRCS
 	../../src/common/LegPropertiesBase.cpp
 	../../src/common/LegPropertiesStarlETH.cpp
 	
+	../../src/common/ParameterSet.cpp
+	
 	../../src/gait_pattern/APS.cpp
 	../../src/gait_pattern/GaitAPS.cpp
 	../../src/gait_pattern/GaitPatternAPS.cpp
 	
-	../../thirdparty/tinyxml/tinystr.cpp
-	../../thirdparty/tinyxml/tinyxml.cpp
-	../../thirdparty/tinyxml/tinyxmlerror.cpp
-	../../thirdparty/tinyxml/tinyxmlparser.cpp
 )
 
 
 add_executable( runUnitTestsLocomotionController EXCLUDE_FROM_ALL  ${LOCOMOTIONCONTROLLER_SRCS})
-target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread starlethRobotModel starlethUtils 	${OOQEI_LIBRARIES})
+target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread starlethRobotModel starlethUtils tinyxml	${OOQEI_LIBRARIES})
 add_test( runUnitTestsLocomotionController ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsLocomotionController )
 add_dependencies(check runUnitTestsLocomotionController)

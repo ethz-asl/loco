@@ -25,6 +25,9 @@
 #include "Logger.hpp"
 #include "TerrainBase.hpp"
 
+#include "PeriodicRBF1DC3.hpp"
+#include "PeriodicRBF1DC1.hpp"
+
 namespace loco {
 
 
@@ -34,6 +37,10 @@ namespace loco {
  * @ingroup robotTask
  */
 class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
+ public:
+ typedef Trajectory1D SwingFootHeightTrajectory;
+//  typedef  rbf::PeriodicRBF1DC1 SwingFootHeightTrajectory;
+
 public:
 	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
 	FootPlacementStrategyInvertedPendulum();
@@ -44,7 +51,7 @@ public:
 
 	// properties
   void setGravity(double gravity);
-  void setSwingFootHeightTrajectory(const Trajectory1D& swingFootHeightTrajectory);
+  void setSwingFootHeightTrajectory(const SwingFootHeightTrajectory& swingFootHeightTrajectory);
   void setSwingPhase(int iLeg, double swingPhase);
   void setStanceDuration(int iLeg, double stanceDuration);
 
@@ -82,8 +89,11 @@ public:
 
 	void setFeedbackScale(double scale);
 
-
+  virtual bool loadParameters(const TiXmlHandle& handle);
+  virtual bool initialize(double dt);
   virtual void advance(double dt);
+
+  bool loadHeightTrajectory(const TiXmlHandle &hTrajectory);
 public:
   LegGroup* legs_;
   robotTerrain::TerrainBase* terrain_;
@@ -103,7 +113,7 @@ public:
   double gravity_;
 
   //! trajectory of the height of the swing foot above ground over the swing phase
-  Trajectory1D swingFootHeightTrajectory_;
+  SwingFootHeightTrajectory swingFootHeightTrajectory_;
 
   //! desired heading speed
   double desiredHeadingSpeedInBaseFrame_;
@@ -118,7 +128,7 @@ public:
   double estimatedGroundHeightCSw_[4];
 
   //! default stepping offset with respect to the hip (only x and y coordinates are considered)
-  Eigen::Vector3d steppingOffsetToHip_CSw_[4];
+  Eigen::Vector3d steppingOffsetToHip_CSmb_[4];
 
   //! position of the hip joint expressed in world frame
   Eigen::Vector3d rHip_CSw_[4];

@@ -48,6 +48,14 @@ void LimbCoordinatorDynamicGait::setShouldBeLegGrounded(int iLeg, bool shouldBeL
 }
 
 
+
+bool LimbCoordinatorDynamicGait::initialize(double dt) {
+  if(!gaitPattern_->initialize(dt)) {
+    return false;
+  }
+  return true;
+}
+
 void LimbCoordinatorDynamicGait::advance(double dt) {
   gaitPattern_->advance(dt);
 //  for (int iLeg=0; iLeg<4; iLeg++) {
@@ -83,6 +91,14 @@ bool LimbCoordinatorDynamicGait::isLegInSwingMode(int iLeg) {
 GaitPatternBase* LimbCoordinatorDynamicGait::getGaitPattern()
 {
   return gaitPattern_;
+}
+
+bool LimbCoordinatorDynamicGait::loadParameters(const TiXmlHandle& handle)
+{
+  if (!gaitPattern_->loadParameters(TiXmlHandle(handle.FirstChild("LimbCoordination")))) {
+    return false;
+  }
+  return true;
 }
 
 } /* namespace loco */

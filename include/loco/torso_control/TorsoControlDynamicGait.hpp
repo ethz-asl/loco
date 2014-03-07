@@ -32,6 +32,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Eigen::Vector3d& axis);
   RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Eigen::Vector3d& vB);
   CoMOverSupportPolygonControl* getCoMControl();
+  virtual bool loadParameters(const TiXmlHandle& handle);
 
  private:
   LegGroup* legs_;
@@ -40,8 +41,12 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   CoMOverSupportPolygonControl comControl_;
 
   double headingDistanceFromForeToHindInBaseFrame_;
+  double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
+  double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
   rbf::PeriodicRBF1DC1 desiredTorsoForeHeightAboveGroundInWorldFrame_;
   rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
+  virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);
+  virtual bool loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory);
 
 };
 

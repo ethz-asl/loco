@@ -9,6 +9,7 @@
 #ifndef LOCO_GAITPATTERNBASE_HPP_
 #define LOCO_GAITPATTERNBASE_HPP_
 
+#include "tinyxml.h"
 
 namespace loco {
 
@@ -49,6 +50,8 @@ public:
    */
   virtual unsigned long int getNGaitCycles() = 0;
 
+  virtual bool initialize(double dt) = 0;
+
   /*! Advance in time
    * @param dt  time step [s]
    */
@@ -59,6 +62,8 @@ public:
   virtual bool shouldBeLegGrounded(int iLeg) = 0;
 
   virtual double getStridePhase() = 0;
+
+  virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 
 
 

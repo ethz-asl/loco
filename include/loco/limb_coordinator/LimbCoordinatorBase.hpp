@@ -10,7 +10,7 @@
 #define LOCO_LIMBCOORDINATIONBASE_HPP_
 
 #include "loco/gait_pattern/GaitPatternBase.hpp"
-
+#include "tinyxml.h"
 
 
 namespace loco {
@@ -33,6 +33,7 @@ class LimbCoordinatorBase {
   */
   virtual bool isLegInSwingMode(int iLeg) = 0;
 
+  virtual bool initialize(double dt) = 0;
   /*! Advance in time
    * @param dt  time step [s]
    */
@@ -41,6 +42,9 @@ class LimbCoordinatorBase {
   virtual void setIsLegGrounded(int iLeg, bool isLegGrounded) = 0;
 
   virtual GaitPatternBase* getGaitPattern() = 0;
+
+
+  virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 };
 
 } /* namespace loco */

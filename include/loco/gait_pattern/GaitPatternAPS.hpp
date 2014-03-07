@@ -28,16 +28,18 @@ public:
    * @param hParameterSet   handle
    * @return  true if all parameters could be loaded
    */
-  virtual bool loadParametersFromXML(TiXmlHandle &hParameterSet, double dt);
+  virtual bool loadParameters(const TiXmlHandle &hParameterSet);
 
   /*! Stores the current parameters in the XML object
    * @param hParameterSet   handle
    * @return  true if all parameters could be loaded
    */
-  virtual bool saveParametersInXML(TiXmlHandle &hParameterSet);
+  virtual bool saveParameters(TiXmlHandle &hParameterSet);
 
 
   bool initialize(const APS& aps, double dt);
+
+  virtual bool initialize(double dt);
 
   /**
     returns the relative phase for the leg whose index is passed in. The number
@@ -74,8 +76,10 @@ public:
 
   virtual double getStridePhase();
 
+
 protected:
   double velocity_;
+  APS initAPS_;
 
 
 };

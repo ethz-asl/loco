@@ -29,15 +29,11 @@ set(GAITPATTERN_SRCS
 	../../src/gait_pattern/GaitAPS.cpp
 	../../src/gait_pattern/GaitPatternAPS.cpp
 	
-	../../thirdparty/tinyxml/tinystr.cpp
-	../../thirdparty/tinyxml/tinyxml.cpp
-	../../thirdparty/tinyxml/tinyxmlerror.cpp
-	../../thirdparty/tinyxml/tinyxmlparser.cpp
 )
 
 # Add test cpp file
 add_executable( runUnitTestsGaitPattern EXCLUDE_FROM_ALL ${GAITPATTERN_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsGaitPattern  gtest_main gtest pthread )
+target_link_libraries(runUnitTestsGaitPattern  gtest_main gtest pthread tinyxml)
 add_test( runUnitTestsGaitPattern ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsGaitPattern )
 add_dependencies(check runUnitTestsGaitPattern)

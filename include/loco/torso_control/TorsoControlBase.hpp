@@ -10,6 +10,8 @@
 #ifndef LOCO_BASECONTROLBASE_HPP_
 #define LOCO_BASECONTROLBASE_HPP_
 
+#include "tinyxml.h"
+
 namespace loco {
 
 class TorsoControlBase {
@@ -18,6 +20,7 @@ class TorsoControlBase {
   virtual ~TorsoControlBase();
   virtual bool initialize(double dt) = 0;
   virtual void advance(double dt) = 0;
+  virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 };
 
 } /* namespace loco */
