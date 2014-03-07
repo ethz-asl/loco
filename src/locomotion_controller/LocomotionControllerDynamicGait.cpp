@@ -92,7 +92,7 @@ void LocomotionControllerDynamicGait::advance(double dt) {
 //  robotModel::VectorO baseDesiredAngularVelocity = robotModel::VectorO::Zero(3);
   robotModel::VectorO baseDesiredAngularVelocity = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().toImplementation());
 
-  virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
+  virtualModelController_->compute();
 
   robotModel::VectorActM desJointModes;
   robotModel::VectorAct desJointPositions, desJointVelocities, desJointTorques;

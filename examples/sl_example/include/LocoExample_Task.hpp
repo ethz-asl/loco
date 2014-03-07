@@ -18,6 +18,8 @@
 #include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
 #include "loco/torso_control/TorsoControlDynamicGait.hpp"
+#include "loco/motion_control/VirtualModelController.hpp"
+#include "loco/contact_force_distribution/ContactForceDistribution.hpp"
 
 #include "loco/common/LegStarlETH.hpp"
 #include "loco/common/TorsoStarlETH.hpp"

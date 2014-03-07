@@ -21,7 +21,7 @@ add_definitions(--std=c++11)
 add_subdirectory(../../src/contact_force_distribution contact_force_distribution)
 
 # Add virtual model control 
-add_subdirectory(../../src/virtual_model_control virtual_model_control)
+add_subdirectory(../../src/motion_control motion_controller)
 
 # Add gait patern
 add_subdirectory(../../src/gait_pattern gait_pattern)

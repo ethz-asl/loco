@@ -1,0 +1,199 @@
+/*
+ * VirtualModelController.cpp
+ *
+ *  Created on: Aug 6, 2013
+ *      Author: Péter Fankhauser
+ *	 Institute: ETH Zurich, Autonomous Systems Lab
+ */
+
+#include "loco/motion_control/VirtualModelController.hpp"
+#include "Logger.hpp"
+#include "Rotations.hpp"
+
+using namespace std;
+using namespace Eigen;
+
+namespace loco {
+
+VirtualModelController::VirtualModelController(std::shared_ptr<LegGroup> legs, std::shared_ptr<TorsoBase> torso,
+                                               std::shared_ptr<ContactForceDistributionBase> contactForceDistribution)
+    : MotionControllerBase(legs, torso),
+      contactForceDistribution_(contactForceDistribution)
+{
+
+}
+
+VirtualModelController::~VirtualModelController()
+{
+
+}
+
+bool VirtualModelController::loadParameters()
+{
+  // TODO Replace this with proper parameters loading (XML)
+  proportionalGainTranslation_ << 500.0, 640.0, 600.0;
+  derivativeGainTranslation_ << 150.0, 100.0, 120.0;
+  feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
+  proportionalGainRotation_ << 400.0, 200.0, 10.0; // 400.0, 200.0, 0.0;
+  derivativeGainRotation_ << 6.0, 9.0, 5.0; // 6.0, 9.0, 0.0;
+  feedforwardGainRotation_ << 0.0, 0.0, 0.0;
+  return MotionControllerBase::loadParameters();
+}
+
+bool VirtualModelController::addToLogger()
+{
+  robotUtils::addEigenMatrixToLog(virtualForce_.toImplementation(), "VMC_desired_force", "N", true);
+  robotUtils::addEigenMatrixToLog(virtualTorque_.toImplementation(), "VMC_desired_torque", "Nm", true);
+  robotUtils::updateLogger();
+  return MotionControllerBase::addToLogger();
+}
+
+bool VirtualModelController::compute()
+{
+  if (!isParametersLoaded()) return false;
+
+  computeError();
+  computeGravityCompensation();
+  computeVirtualForce();
+  computeVirtualTorque();
+  computeJointTorques();
+  return true;
+}
+
+void VirtualModelController::printDebugInformation()
+{
+//  IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");
+//  std::string sep = "\n----------------------------------------\n";
+//  std::cout.precision(3);
+//
+//  Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA().transpose());
+//  Vector3d actualOrientationYawPitchRoll = Rotations::quaternionToYawPitchRoll(actualOrientation);
+////  Vector3d errorYawRollPitch = Rotations::angleAxisToYawPitchRoll(orientationErrorVector_);
+//  Vector3d netForce, netTorque, netForceError, netTorqueError;
+//  contactForceDistribution_.getNetForceAndTorqueOnBase(netForce, netTorque);
+//  netForceError = virtualForce_ - netForce;
+//  netTorqueError = virtualTorque_ - netTorque;
+//
+//  isParametersLoaded();
+//  cout << "Position error" << positionError_.format(CommaInitFmt) << endl;
+//  cout << "Orientation (yaw, pitch, roll)" << actualOrientationYawPitchRoll.format(CommaInitFmt) << endl;
+//  cout << "Orientation error in angle-axis: angle " << orientationError_.angle() << ", axis" << orientationError_.axis().format(CommaInitFmt) << endl;
+//  cout << "Linear velocity error" << linearVelocityError_.format(CommaInitFmt) << endl;
+//  cout << "Angular velocity error" << angularVelocityError_.format(CommaInitFmt)<< endl;
+//  cout << "Desired virtual force" << virtualForce_.format(CommaInitFmt) << endl;
+//  cout << "Desired virtual torque" << virtualTorque_.format(CommaInitFmt) << endl;
+//  cout << "Net force error" << netForceError.format(CommaInitFmt) << endl;
+//  cout << "Net torque error" << netTorqueError.format(CommaInitFmt) << sep;
+}
+
+bool VirtualModelController::computeError()
+{
+  // Errors are defined as (q_desired - q_actual).
+
+  positionError_ = torso_->getDesiredState().getWorldToBasePositionInWorldFrame()
+      - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+  positionError_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionError_);
+
+  orientationError_ = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().boxMinus(
+      torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame());
+
+  linearVelocityError_ = torso_->getDesiredState().getBaseLinearVelocityInBaseFrame() - torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
+
+  angularVelocityError_ = torso_->getDesiredState().getBaseAngularVelocityInBaseFrame() - torso_->getMeasuredState().getBaseAngularVelocityInBaseFrame();
+
+  return true;
+}
+
+bool VirtualModelController::computeGravityCompensation()
+{
+  // Transforming gravity compensation into body frame
+  // TODO Make this with full calculations with all bodies.
+  // TODO Make this getting mass and gravity from common module.
+  // TODO Make acceleration.
+  Vector3d verticalDirection = Vector3d::UnitZ();
+  verticalDirection = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(verticalDirection);
+  gravityCompensationForce_ = Force(25.0 * 9.81 * verticalDirection);
+
+  gravityCompensationTorque_.setZero();
+  return true;
+}
+
+bool VirtualModelController::computeVirtualForce()
+{
+  Vector3d feedforwardTerm = Vector3d::Zero();
+  feedforwardTerm.x() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().x();
+  feedforwardTerm.y() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().y();
+
+  virtualForce_ = Force(proportionalGainTranslation_.cwiseProduct(positionError_.toImplementation())
+                       + derivativeGainTranslation_.cwiseProduct(linearVelocityError_.toImplementation())
+                       + feedforwardGainTranslation_.cwiseProduct(feedforwardTerm)
+                       + gravityCompensationForce_.toImplementation());
+
+  return true;
+}
+
+bool VirtualModelController::computeVirtualTorque()
+{
+  Vector3d feedforwardTerm = Vector3d::Zero();
+  feedforwardTerm.z() += torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().z();
+
+  virtualTorque_ = Torque(proportionalGainRotation_.cwiseProduct(orientationError_)
+                       + derivativeGainRotation_.cwiseProduct(angularVelocityError_.toImplementation())
+                       + feedforwardGainRotation_.cwiseProduct(feedforwardTerm)
+                       + gravityCompensationTorque_.toImplementation());
+
+  return true;
+}
+
+bool VirtualModelController::computeJointTorques()
+{
+  const int nDofPerLeg = 3; // TODO move to robot commons
+  const int nDofPerContactPoint = 3; // TODO move to robot commons
+
+  // TODO Switch to force and torque types
+  contactForceDistribution_->computeForceDistribution(virtualForce_.toImplementation(), virtualTorque_.toImplementation());
+
+//  int legIndexInStackedVector = 0;
+//  for(const auto leg : *legs_)
+//  {
+//    Force contactForce;
+//    bool legInTorqueMode = contactForceDistribution_->getForceForLeg(leg, contactForce);
+//
+//    if (legInTorqueMode)
+//    {
+//      VectorActLeg jointTorques;
+//      computeJointTorquesForLeg(leg, legIndexInStackedVector, contactForce, jointTorques);
+//      desJointTorques_.segment<nDofPerLeg>(legIndexInStackedVector) = jointTorques;
+//      desJointModes_.segment<nDofPerLeg>(legIndexInStackedVector) = VectorActMLeg::Constant(AM_Torque);
+//    }
+//    else
+//    {
+//      desJointModes_.segment<nDofPerLeg>(legIndexInStackedVector) = VectorActMLeg::Constant(AM_Velocity);
+//    }
+//  }
+
+//  legIndexInStackedVector += nDofPerLeg;
+  return true;
+}
+
+//bool VirtualModelController::computeJointTorquesForLeg(
+//    const Legs& leg,
+//    const int& legIndexInStackedVector,
+//    const robotModel::VectorCF& contactForce,
+//    robotModel::VectorActLeg& jointTorques)
+//{
+//  MatrixJ jacobian = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(legIndeces[leg])
+//      ->getJ().block<3, 3>(0, RM_NQB + legIndexInStackedVector);
+//  // TODO replace with "->getJ().block<nDofPerContactPoint, nDofPerLeg>(0, RM_NQB + legIndexInStackedVector);"
+//  jointTorques = jacobian.transpose() * contactForce;
+//}
+
+bool VirtualModelController::isParametersLoaded() const
+{
+  if (isParametersLoaded_) return true;
+
+  cout << "Virtual model control parameters are not loaded." << endl; // TODO use warning output
+  return false;
+}
+
+} /* namespace loco */

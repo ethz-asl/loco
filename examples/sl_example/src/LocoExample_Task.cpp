@@ -47,7 +47,7 @@ bool LocoExample::LocoExample::add()
 
   contactForceDistribution_.reset(new loco::ContactForceDistribution(robotModel_));
   contactForceDistribution_->setTerrain(&terrain_);
-  virtualModelController_.reset(new loco::VirtualModelController(robotModel_, *contactForceDistribution_.get()));
+  virtualModelController_.reset(new loco::VirtualModelController(legs_, torso_, contactForceDistribution_));
 
   locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get()));
 

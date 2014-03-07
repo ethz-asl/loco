@@ -4,23 +4,23 @@
  *  Created on: Aug 6, 2013
  *      Author: Péter Fankhauser
  *	 Institute: ETH Zurich, Autonomous Systems Lab
- * Description: Controller to stabilize the base of the robot based
- *              on a virtual spring-damper system. Based on 'Control
- *              of Dynamic Gaits for a Quadrupedal Robot',
- *              C. Gehring, ICRA, 2013.
  */
 
 #ifndef VIRTUALMODELCONTROLLER_H_
 #define VIRTUALMODELCONTROLLER_H_
 
+// Motion Controller
+#include "loco/motion_control/MotionControllerBase.hpp"
+// Contact force distribution
+#include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
+// Locomotion controller commons
+#include "loco/common/TypeDefs.hpp"
+// Eigen
 #include <Eigen/Core>
-#include <Eigen/Geometry>
-#include "loco/contact_force_distribution/ContactForceDistribution.hpp"
-#include "loco/temp_helpers/Legs.hpp"
 
 namespace loco {
 
-class VirtualModelController
+class VirtualModelController : public MotionControllerBase
 {
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -29,8 +29,8 @@ class VirtualModelController
    * Constructor.
    * @param robotModel the reference to the robot
    */
-  VirtualModelController(robotModel::RobotModel* robotModel, ContactForceDistribution& contactForceDistribution);
-
+  VirtualModelController(std::shared_ptr<LegGroup> legs, std::shared_ptr<TorsoBase> torso,
+                         std::shared_ptr<ContactForceDistributionBase> contactForceDistribution);
   /*!
    * Destructor.
    */
@@ -44,28 +44,15 @@ class VirtualModelController
 
   /*!
    * Add data to logger (optional).
-   * @return true if successful
+   * @return true if successful.
    */
   bool addToLogger();
 
   /*!
    * Computes the joint torques from the desired base pose.
-   * @param[in] desiredPosition in the world frame
-   * @param[in] desiredOrientation w.r.t. the world frame
-   * @param[in] desiredLinearVelocity in the world frame
-   * @param[in] desiredAngularVelocity w.r.t. the world frame in the world frame
-   * @return true if successful
+   * @return true if successful.
    */
-  bool computeTorques(const robotModel::VectorP& desiredPosition, // TODO pack as one struct?
-                      const Eigen::Quaterniond& desiredOrientation,
-                      const robotModel::VectorP& desiredLinearVelocity,
-                      const robotModel::VectorO& desiredAngularVelocity);
-
-  /*!
-   * Gets access to the contactForceDistribution class.
-   * @return reference to the contactForceDistribution class
-   */
-  ContactForceDistributionBase& getContactForceDistribution() const;
+  bool compute();
 
   //! Pack the desired joint actuation modes, positions, velocities and torques
   virtual void packDesiredJointSetpoints(robotModel::VectorActM& jointActuationModesToPack,
@@ -79,30 +66,21 @@ class VirtualModelController
   void printDebugInformation();
 
  private:
-
-  //! Reference to robot model
-  robotModel::RobotModel* robotModel_;
-
-  //! Joint actuation modes, positions, velocities and torques as calculated by the controller
-  robotModel::VectorActM desJointModes_;
-  robotModel::VectorAct desJointPositions_;
-  robotModel::VectorAct desJointVelocities_;
-  robotModel::VectorAct desJointTorques_;
-
-  //! True if parameters are successfully loaded.
-  bool isParametersLoaded_;
-
-  //! Reference to the contact force distribution class.
-  ContactForceDistributionBase& contactForceDistribution_;
+  std::shared_ptr<ContactForceDistributionBase> contactForceDistribution_;
 
   //! Base position error in base frame.
-  robotModel::VectorP positionError_;
-  //! Base orientation error vector in base frame.
-  Eigen::AngleAxisd orientationError_;
+  Position positionError_;
+  //! Base orientation error vector (rotation vector) in base frame.
+  Eigen::Vector3d orientationError_;
   //! Base linear velocity error in base frame.
-  robotModel::VectorP linearVelocityError_;
+  LinearVelocity linearVelocityError_;
   //! Base angular velocity error in base frame.
-  robotModel::VectorO angularVelocityError_;
+  LocalAngularVelocity angularVelocityError_;
+
+  //! Force on torso to compensate for gravity (in base frame).
+  Force gravityCompensationForce_;
+  //! Torque on torso to compensate for gravity (in base frame).
+  Torque gravityCompensationTorque_;
 
   //! Proportional (k_p), derivative (k_d), and feedforward gain vector (k_ff) for translational error (force).
   Eigen::Vector3d proportionalGainTranslation_, derivativeGainTranslation_, feedforwardGainTranslation_;
@@ -110,26 +88,31 @@ class VirtualModelController
   Eigen::Vector3d proportionalGainRotation_, derivativeGainRotation_, feedforwardGainRotation_;
 
   //! Desired virtual force on base in base frame (B_F_B^d).
-  Eigen::Vector3d virtualForce_;
+  Force virtualForce_;
   //! Desired virtual torque on base in base frame (B_T_B^d).
-  Eigen::Vector3d virtualTorque_;
+  Torque virtualTorque_;
 
-  //! Compute error between desired an actual robot pose.
-  //! In world coordinate system
-  bool computePoseError(const robotModel::VectorP& desiredPosition,
-                        const Eigen::Quaterniond& desiredOrientation,
-                        const robotModel::VectorP& desiredLinearVelocity,
-                        const robotModel::VectorO& desiredAngularVelocity);
+  /*!
+   * Compute error between desired an actual robot pose and twist.
+   * @return true if successful.
+   */
+  bool computeError();
+
+  /*!
+   * Computes the gravity compensation force and torque.
+   * @return true if successful.
+   */
+  bool computeGravityCompensation();
 
   //! Compute virtual force based on the form:
   //! F = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
   //! In base frame.
-  bool computeVirtualForce(const robotModel::VectorP& desiredLinearVelocity);
+  bool computeVirtualForce();
 
   //! Compute virtual torque based on the form:
   //! T = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
   //! In base frame.
-  bool computeVirtualTorque(const robotModel::VectorO& desiredAngularVelocity);
+  bool computeVirtualTorque();
 
   //! Distributes the virtual forces to the ground contact forces.
   bool computeJointTorques();
