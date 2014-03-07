@@ -54,15 +54,12 @@ set(LIMBCOORDINATOR_SRCS
 	../../src/gait_pattern/APS.cpp
 	../../src/gait_pattern/GaitAPS.cpp
 	../../src/gait_pattern/GaitPatternAPS.cpp
-	../../thirdparty/tinyxml/tinystr.cpp
-	../../thirdparty/tinyxml/tinyxml.cpp
-	../../thirdparty/tinyxml/tinyxmlerror.cpp
-	../../thirdparty/tinyxml/tinyxmlparser.cpp
+
 )
 
 # Add test cpp file
 add_executable( runUnitTestsLimbCoordinator EXCLUDE_FROM_ALL ${LIMBCOORDINATOR_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsLimbCoordinator  gtest_main gtest pthread starlethRobotModel starlethUtils)
+target_link_libraries(runUnitTestsLimbCoordinator  gtest_main gtest pthread starlethRobotModel starlethUtils tinyxml)
 add_test( runUnitTestsLimbCoordinator ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsLimbCoordinator )
 add_dependencies(check runUnitTestsLimbCoordinator)

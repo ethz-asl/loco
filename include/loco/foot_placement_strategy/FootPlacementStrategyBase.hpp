@@ -14,7 +14,7 @@
 #include "loco/common/TypeDefs.hpp"
 
 #include <Eigen/Core>
-
+#include <tinyxml.h>
 
 namespace loco {
 
@@ -42,6 +42,9 @@ public:
 	 * @return  desired foot position expressed in world coordinates
 	 */
 	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt) = 0;
+
+  virtual bool loadParameters(const TiXmlHandle& handle) = 0;
+  virtual bool initialize(double dt) = 0;
 
 	virtual void advance(double dt) = 0;
 };

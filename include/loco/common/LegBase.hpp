@@ -78,6 +78,8 @@ class LegBase {
   virtual const Position& getWorldToFootPositionInBaseFrame() const = 0;
   virtual const Position& getWorldToHipPositionInBaseFrame() const  = 0;
 
+  virtual const Position& getBaseToFootPositionInBaseFrame() const = 0;
+
   virtual const LinearVelocity& getHipLinearVelocityInWorldFrame() const  = 0;
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
   friend std::ostream& operator << (std::ostream& out, const LegBase& leg);

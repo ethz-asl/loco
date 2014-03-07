@@ -43,13 +43,13 @@ public:
 	 * @param hParameterSet		handle
 	 * @return	true if all parameters could be loaded
 	 */
-	bool loadParametersFromXML(TiXmlHandle &hParameterSet);
+	bool loadParameters(TiXmlHandle &hParameterSet);
 
 	/*! Stores the current paramters in the XML object
 	 * @param hParameterSet		handle
 	 * @return	true if all parameters could be loaded
 	 */
-	bool saveParametersInXML(TiXmlHandle &hParameterSet);
+	bool saveParameters(TiXmlHandle &hParameterSet);
 
 	/*! Computes an interpolated version of the two support polygon settings passed in as parameters.
 	 *	if t is 0, the current setting is set to supportPolygon1, 1 -> supportPolygon2, and values in between
@@ -67,16 +67,16 @@ public:
 protected:
 	  LegGroup* legs_;
     //! this is the minimum weight any leg can have... if this is zero,then the COM will try to be right at center of the support polygon [0,1]
-    double spMinLegWeight;
+    double minSwingLegWeight_;
 
     //! this is the point in the stance phase when the body should start shifting away from the leg... when the stance phase is 1, the leg weight will be minimum
-    double spStPShiftAwayFromLegStart;
+    double startShiftAwayFromLegAtStancePhase_;
 
     //! this is the point in the swing phase when the body should start shifting back towards the leg... when the swing phase is 1, the weight is back full on the leg
-    double spSwPShiftTowardsLegStart;
+    double startShiftTowardsLegAtSwingPhase_;
 
-    double coronalOffset;
-    double sagittalOffset;
+    double lateralOffset_;
+    double headingOffset_;
 
 
     Position errorVector_;

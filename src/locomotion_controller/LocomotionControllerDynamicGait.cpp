@@ -14,8 +14,10 @@ namespace loco {
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel,
                                                                  robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
-                                                                 VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution) :
+                                                                 VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
+                                                                 ParameterSet* parameterSet) :
     LocomotionControllerBase(),
+    isInitialized_(false),
     legs_(legs),
     torso_(torso),
     robotModel_(robotModel),
@@ -24,7 +26,8 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     footPlacementStrategy_(footPlacementStrategy),
     torsoController_(baseController),
     virtualModelController_(virtualModelController),
-    contactForceDistribution_(contactForceDistribution)
+    contactForceDistribution_(contactForceDistribution),
+    parameterSet_(parameterSet)
 {
 
 }
@@ -35,24 +38,57 @@ LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
 
 bool LocomotionControllerDynamicGait::initialize(double dt)
 {
+  isInitialized_ = false;
+
   for (auto leg : *legs_) {
     leg->advance(dt);
     //  std::cout << *leg << std::endl;
   }
   torso_->advance(dt);
 
-
-  virtualModelController_->loadParameters();
-  contactForceDistribution_->loadParameters();
+  TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
 
+  if (!limbCoordinator_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!limbCoordinator_->initialize(dt)) {
+    return false;
+  }
+  if (!footPlacementStrategy_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!footPlacementStrategy_->initialize(dt)) {
+    return false;
+  }
 
-  torsoController_->initialize(dt);
-  return true;
+
+  if (!torsoController_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!torsoController_->initialize(dt)) {
+    return false;
+  }
+
+  if (!virtualModelController_->loadParameters()) {
+    return false;
+  }
+
+  if (!contactForceDistribution_->loadParameters()) {
+    return false;
+  }
+
+
+
+
+  isInitialized_ = true;
+  return isInitialized_;
 }
 
 void LocomotionControllerDynamicGait::advance(double dt) {
-
+  if (!isInitialized_) {
+    return;
+  }
 
   for (auto leg : *legs_) {
     leg->advance(dt);
@@ -78,8 +114,8 @@ void LocomotionControllerDynamicGait::advance(double dt) {
 
   //! Desired base position expressed in inertial frame.
 //  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.475);
-  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.42);
-  baseDesiredPosition = torso_->getDesiredState().getWorldToBasePositionInWorldFrame().toImplementation();
+//  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.42);
+  robotModel::VectorP baseDesiredPosition = torso_->getDesiredState().getWorldToBasePositionInWorldFrame().toImplementation();
   //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Eigen::Quaterniond baseDesiredOrientation = Eigen::Quaterniond::Identity();
   //baseDesiredOrientation = robotUtils::Rotations::yawPitchRollToQuaternion(0.0, 0.0, 0.0);
@@ -125,6 +161,7 @@ LegGroup* LocomotionControllerDynamicGait::getLegs() {
 FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStrategy() {
   return footPlacementStrategy_;
 }
+
 
 } /* namespace loco */
 

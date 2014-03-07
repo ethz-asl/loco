@@ -63,7 +63,7 @@ double GaitPatternAPS::getStancePhaseForLeg(int iLeg){
 
 
 
-bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt)
+bool GaitPatternAPS::loadParameters(const TiXmlHandle &hParameterSet)
 {
 	double value, liftOff, touchDown;
 	int iLeg;
@@ -79,7 +79,7 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt
 
 
 	/* APS */
-	APS newAPS;
+
 
 	pElem = hParameterSet.FirstChild("GaitPattern").FirstChild("APS").Element();
 	if(!pElem) {
@@ -92,30 +92,30 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt
 		printf("Could not find GaitPattern:APS:GaitDiagram\n");
 		return false;
 	}
-	if (pElem->QueryDoubleAttribute("cycleDuration", &newAPS.foreCycleDuration_)!=TIXML_SUCCESS) {
+	if (pElem->QueryDoubleAttribute("cycleDuration", &initAPS_.foreCycleDuration_)!=TIXML_SUCCESS) {
 		printf("Could not find GaitPattern:APS:GaitDiagram:cycleDuration\n");
 		return false;
 	}
-	newAPS.hindCycleDuration_ = newAPS.foreCycleDuration_;
+	initAPS_.hindCycleDuration_ = initAPS_.foreCycleDuration_;
 
 
-	if (pElem->QueryDoubleAttribute("foreLag", &newAPS.foreLag_)!=TIXML_SUCCESS) {
+	if (pElem->QueryDoubleAttribute("foreLag", &initAPS_.foreLag_)!=TIXML_SUCCESS) {
 		printf("Could not find GaitPattern:APS:GaitDiagram:foreLag\n");
 		return false;
 	}
-	if (pElem->QueryDoubleAttribute("hindLag", &newAPS.hindLag_)!=TIXML_SUCCESS) {
+	if (pElem->QueryDoubleAttribute("hindLag", &initAPS_.hindLag_)!=TIXML_SUCCESS) {
 		printf("Could not find GaitPattern:APS:GaitDiagram:hindLag\n");
 		return false;
 	}
-	if (pElem->QueryDoubleAttribute("pairLag", &newAPS.pairLag_)!=TIXML_SUCCESS) {
+	if (pElem->QueryDoubleAttribute("pairLag", &initAPS_.pairLag_)!=TIXML_SUCCESS) {
 		printf("Could not find GaitPattern:APS:GaitDiagram:pairLag\n");
 		return false;
 	}
-	if (pElem->QueryDoubleAttribute("foreDutyFactor", &newAPS.foreDutyFactor_)!=TIXML_SUCCESS) {
+	if (pElem->QueryDoubleAttribute("foreDutyFactor", &initAPS_.foreDutyFactor_)!=TIXML_SUCCESS) {
 		printf("Could not find GaitPattern:APS:GaitDiagram:foreDutyFactor\n");
 		return false;
 	}
-	if (pElem->QueryDoubleAttribute("hindDutyFactor", &newAPS.hindDutyFactor_)!=TIXML_SUCCESS) {
+	if (pElem->QueryDoubleAttribute("hindDutyFactor", &initAPS_.hindDutyFactor_)!=TIXML_SUCCESS) {
 		printf("Could not find GaitPattern:APS:GaitDiagram:hindDutyFactor\n");
 		return false;
 	}
@@ -123,29 +123,29 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt
 
 	pElem = hParameterSet.FirstChild("GaitPattern").FirstChild("APS").FirstChild("CycleDuration").Element();
 	if(pElem) {
-		if (pElem->QueryDoubleAttribute("minVel", &newAPS.foreCycleDurationMinVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVel", &initAPS_.foreCycleDurationMinVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:CycleDuration:minVel\n");
 			return false;
 		}
-		newAPS.hindCycleDurationMinVelocity_ = newAPS.foreCycleDurationMinVelocity_;
+		initAPS_.hindCycleDurationMinVelocity_ = initAPS_.foreCycleDurationMinVelocity_;
 
-		if (pElem->QueryDoubleAttribute("minVelValue", &newAPS.foreCycleDurationMinVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVelValue", &initAPS_.foreCycleDurationMinVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:CycleDuration:minVelValue\n");
 			return false;
 		}
-		newAPS.hindCycleDurationMinVelocityValue_ = newAPS.foreCycleDurationMinVelocityValue_;
+		initAPS_.hindCycleDurationMinVelocityValue_ = initAPS_.foreCycleDurationMinVelocityValue_;
 
-		if (pElem->QueryDoubleAttribute("maxVel", &newAPS.foreCycleDurationMaxVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVel", &initAPS_.foreCycleDurationMaxVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:CycleDuration:maxVel\n");
 			return false;
 		}
-		newAPS.hindCycleDurationMaxVelocity_ = newAPS.foreCycleDurationMaxVelocity_;
+		initAPS_.hindCycleDurationMaxVelocity_ = initAPS_.foreCycleDurationMaxVelocity_;
 
-		if (pElem->QueryDoubleAttribute("maxVelValue", &newAPS.foreCycleDurationMaxVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVelValue", &initAPS_.foreCycleDurationMaxVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:CycleDuration:maxVelValue\n");
 			return false;
 		}
-		newAPS.hindCycleDurationMaxVelocityValue_ = newAPS.foreCycleDurationMaxVelocityValue_;
+		initAPS_.hindCycleDurationMaxVelocityValue_ = initAPS_.foreCycleDurationMaxVelocityValue_;
 
 		std::string law;
 		if (pElem->QueryStringAttribute("law", &law)!=TIXML_SUCCESS) {
@@ -153,39 +153,39 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt
 			return false;
 		}
 		if (law == "none") {
-			newAPS.foreCycleDurationLaw_ = APS::APS_VL_NONE;
-			newAPS.hindCycleDurationLaw_ = APS::APS_VL_NONE;
+			initAPS_.foreCycleDurationLaw_ = APS::APS_VL_NONE;
+			initAPS_.hindCycleDurationLaw_ = APS::APS_VL_NONE;
 		} else  if(law == "lin") {
-			newAPS.foreCycleDurationLaw_ = APS::APS_VL_LIN;
-			newAPS.hindCycleDurationLaw_ = APS::APS_VL_LIN;
+			initAPS_.foreCycleDurationLaw_ = APS::APS_VL_LIN;
+			initAPS_.hindCycleDurationLaw_ = APS::APS_VL_LIN;
 		} else  if(law == "log") {
-			newAPS.foreCycleDurationLaw_ = APS::APS_VL_LOG;
-			newAPS.hindCycleDurationLaw_ = APS::APS_VL_LOG;
+			initAPS_.foreCycleDurationLaw_ = APS::APS_VL_LOG;
+			initAPS_.hindCycleDurationLaw_ = APS::APS_VL_LOG;
 		} else  if(law == "exp") {
-			newAPS.foreCycleDurationLaw_ = APS::APS_VL_EXP;
-			newAPS.hindCycleDurationLaw_ = APS::APS_VL_EXP;
+			initAPS_.foreCycleDurationLaw_ = APS::APS_VL_EXP;
+			initAPS_.hindCycleDurationLaw_ = APS::APS_VL_EXP;
 		}
 	}
 
 
 	pElem = hParameterSet.FirstChild("GaitPattern").FirstChild("APS").FirstChild("ForeDutyFactor").Element();
 	if(pElem) {
-		if (pElem->QueryDoubleAttribute("minVel", &newAPS.foreDutyFactorMinVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVel", &initAPS_.foreDutyFactorMinVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:ForeDutyFactor:minVel\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("minVelValue", &newAPS.foreDutyFactorMinVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVelValue", &initAPS_.foreDutyFactorMinVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:ForeDutyFactor:minVelValue\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("maxVel", &newAPS.foreDutyFactorMaxVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVel", &initAPS_.foreDutyFactorMaxVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:ForeDutyFactor:maxVel\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("maxVelValue", &newAPS.foreDutyFactorMaxVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVelValue", &initAPS_.foreDutyFactorMaxVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:ForeDutyFactor:maxVelValue\n");
 			return false;
 		}
@@ -196,35 +196,35 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt
 			return false;
 		}
 		if (law == "none") {
-			newAPS.foreDutyFactorLaw_ = APS::APS_VL_NONE;
+			initAPS_.foreDutyFactorLaw_ = APS::APS_VL_NONE;
 		} else  if(law == "lin") {
-			newAPS.foreDutyFactorLaw_ = APS::APS_VL_LIN;
+			initAPS_.foreDutyFactorLaw_ = APS::APS_VL_LIN;
 		} else  if(law == "log") {
-			newAPS.foreDutyFactorLaw_ = APS::APS_VL_LOG;
+			initAPS_.foreDutyFactorLaw_ = APS::APS_VL_LOG;
 		} else  if(law == "exp") {
-			newAPS.foreDutyFactorLaw_ = APS::APS_VL_EXP;
+			initAPS_.foreDutyFactorLaw_ = APS::APS_VL_EXP;
 		}
 	}
 
 
 	pElem = hParameterSet.FirstChild("GaitPattern").FirstChild("APS").FirstChild("HindDutyFactor").Element();
 	if(pElem) {
-		if (pElem->QueryDoubleAttribute("minVel", &newAPS.hindDutyFactorMinVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVel", &initAPS_.hindDutyFactorMinVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:HindDutyFactor:minVel\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("minVelValue", &newAPS.hindDutyFactorMinVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVelValue", &initAPS_.hindDutyFactorMinVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:HindDutyFactor:minVelValue\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("maxVel", &newAPS.hindDutyFactorMaxVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVel", &initAPS_.hindDutyFactorMaxVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:HindDutyFactor:maxVel\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("maxVelValue", &newAPS.hindDutyFactorMaxVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVelValue", &initAPS_.hindDutyFactorMaxVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:HindDutyFactor:maxVelValue\n");
 			return false;
 		}
@@ -235,34 +235,34 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt
 			return false;
 		}
 		if (law == "none") {
-			newAPS.hindDutyFactorLaw_ = APS::APS_VL_NONE;
+			initAPS_.hindDutyFactorLaw_ = APS::APS_VL_NONE;
 		} else  if(law == "lin") {
-			newAPS.hindDutyFactorLaw_ = APS::APS_VL_LIN;
+			initAPS_.hindDutyFactorLaw_ = APS::APS_VL_LIN;
 		} else  if(law == "log") {
-			newAPS.hindDutyFactorLaw_ = APS::APS_VL_LOG;
+			initAPS_.hindDutyFactorLaw_ = APS::APS_VL_LOG;
 		} else  if(law == "exp") {
-			newAPS.hindDutyFactorLaw_ = APS::APS_VL_EXP;
+			initAPS_.hindDutyFactorLaw_ = APS::APS_VL_EXP;
 		}
 	}
 
 	pElem = hParameterSet.FirstChild("GaitPattern").FirstChild("APS").FirstChild("PairLag").Element();
 	if(pElem) {
-		if (pElem->QueryDoubleAttribute("minVel", &newAPS.pairLagMinVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVel", &initAPS_.pairLagMinVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:PairLag:minVel\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("minVelValue", &newAPS.pairLagMinVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("minVelValue", &initAPS_.pairLagMinVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:PairLag:minVelValue\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("maxVel", &newAPS.pairLagMaxVelocity_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVel", &initAPS_.pairLagMaxVelocity_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:PairLag:maxVel\n");
 			return false;
 		}
 
-		if (pElem->QueryDoubleAttribute("maxVelValue", &newAPS.pairLagMaxVelocityValue_)!=TIXML_SUCCESS) {
+		if (pElem->QueryDoubleAttribute("maxVelValue", &initAPS_.pairLagMaxVelocityValue_)!=TIXML_SUCCESS) {
 			printf("Could not find GaitPattern:APS:GaitDiagram:PairLag:maxVelValue\n");
 			return false;
 		}
@@ -273,18 +273,18 @@ bool GaitPatternAPS::loadParametersFromXML(TiXmlHandle &hParameterSet, double dt
 			return false;
 		}
 		if (law == "none") {
-			newAPS.pairLagLaw_ = APS::APS_VL_NONE;
+		  initAPS_.pairLagLaw_ = APS::APS_VL_NONE;
 		} else  if(law == "lin") {
-			newAPS.pairLagLaw_ = APS::APS_VL_LIN;
+		  initAPS_.pairLagLaw_ = APS::APS_VL_LIN;
 		} else  if(law == "log") {
-			newAPS.pairLagLaw_ = APS::APS_VL_LOG;
+		  initAPS_.pairLagLaw_ = APS::APS_VL_LOG;
 		} else  if(law == "exp") {
-			newAPS.pairLagLaw_ = APS::APS_VL_EXP;
+		  initAPS_.pairLagLaw_ = APS::APS_VL_EXP;
 		}
 	}
 
-
-	GaitAPS::initAPS(newAPS, dt);
+	// save to remove?
+//	GaitAPS::initAPS(initAPS_, dt);
 
 
 
@@ -297,7 +297,14 @@ bool GaitPatternAPS::initialize(const APS& aps, double dt) {
   return true;
 }
 
-bool GaitPatternAPS::saveParametersInXML(TiXmlHandle &hParameterSet)
+bool GaitPatternAPS::initialize(double dt) {
+  GaitAPS::initAPS(initAPS_, dt);
+
+  return true;
+}
+
+
+bool GaitPatternAPS::saveParameters(TiXmlHandle &hParameterSet)
 {
 
 	TiXmlElement* pElem;
@@ -349,5 +356,7 @@ bool GaitPatternAPS::shouldBeLegGrounded(int iLeg) {
 double GaitPatternAPS::getStridePhase() {
   GaitAPS::getStridePhase();
 }
+
+
 
 } // namespace loco

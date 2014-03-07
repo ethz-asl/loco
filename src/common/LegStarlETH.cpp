@@ -19,7 +19,7 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotMo
   positionWorldToHipInBaseFrame_(),
   linearVelocityHipInWorldFrame_()
 {
-
+  desiredJointControlModes_.setConstant(robotModel::AM_Velocity);
 }
 
 LegStarlETH::~LegStarlETH() {
@@ -64,6 +64,7 @@ void LegStarlETH::advance(double dt) {
 
   this->setMeasuredJointPositions(robotModel_->q().getQj().block<3,1>(iLeg_*3,0));
 
+  positionBaseToFootInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)->getPos());
 }
 
 
@@ -73,6 +74,10 @@ LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPosition
 
 LegPropertiesBase& LegStarlETH::getProperties() {
  return static_cast<LegPropertiesBase&>(properties_);
+}
+
+const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const {
+  return positionBaseToFootInBaseFrame_;
 }
 
 } /* namespace loco */
