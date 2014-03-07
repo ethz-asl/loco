@@ -66,7 +66,7 @@ class LocoExample: public robotTask::TaskRobotBase {
   std::shared_ptr<loco::LegStarlETH> rightHindLeg_;
   std::shared_ptr<loco::TorsoStarlETH> torso_;
 
-  robotTerrain::TerrainPlane terrain_;
+  std::shared_ptr<robotTerrain::TerrainPlane> terrain_;
 
   std::shared_ptr<loco::GaitPatternAPS> gaitPatternAPS_;
   std::shared_ptr<loco::LimbCoordinatorDynamicGait> limbCoordinator_;

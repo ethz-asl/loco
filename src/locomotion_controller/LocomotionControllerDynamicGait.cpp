@@ -130,11 +130,6 @@ void LocomotionControllerDynamicGait::advance(double dt) {
 
   virtualModelController_->compute();
 
-  robotModel::VectorActM desJointModes;
-  robotModel::VectorAct desJointPositions, desJointVelocities, desJointTorques;
-  virtualModelController_->packDesiredJointSetpoints(desJointModes, desJointPositions, desJointVelocities, desJointTorques);
-
-
   /* Set desired joint positions, torques and control mode */
   LegBase::JointControlModes desiredJointControlModes;
   int iLeg = 0;
@@ -145,7 +140,6 @@ void LocomotionControllerDynamicGait::advance(double dt) {
       desiredJointControlModes.setConstant(robotModel::AM_Position);
     }
     leg->setDesiredJointControlModes(desiredJointControlModes);
-    leg->setDesiredJointTorques(desJointTorques.block<3,1>(iLeg*3,0));
     iLeg++;
   }
 

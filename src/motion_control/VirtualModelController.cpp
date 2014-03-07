@@ -31,6 +31,8 @@ VirtualModelController::~VirtualModelController()
 bool VirtualModelController::loadParameters()
 {
   // TODO Replace this with proper parameters loading (XML)
+
+  // walk
   proportionalGainTranslation_ << 500.0, 640.0, 600.0;
   derivativeGainTranslation_ << 150.0, 100.0, 120.0;
   feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
@@ -57,7 +59,7 @@ bool VirtualModelController::compute()
   computeGravityCompensation();
   computeVirtualForce();
   computeVirtualTorque();
-  computeJointTorques();
+  contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
   return true;
 }
 
@@ -145,49 +147,6 @@ bool VirtualModelController::computeVirtualTorque()
 
   return true;
 }
-
-bool VirtualModelController::computeJointTorques()
-{
-  const int nDofPerLeg = 3; // TODO move to robot commons
-  const int nDofPerContactPoint = 3; // TODO move to robot commons
-
-  // TODO Switch to force and torque types
-  contactForceDistribution_->computeForceDistribution(virtualForce_.toImplementation(), virtualTorque_.toImplementation());
-
-//  int legIndexInStackedVector = 0;
-//  for(const auto leg : *legs_)
-//  {
-//    Force contactForce;
-//    bool legInTorqueMode = contactForceDistribution_->getForceForLeg(leg, contactForce);
-//
-//    if (legInTorqueMode)
-//    {
-//      VectorActLeg jointTorques;
-//      computeJointTorquesForLeg(leg, legIndexInStackedVector, contactForce, jointTorques);
-//      desJointTorques_.segment<nDofPerLeg>(legIndexInStackedVector) = jointTorques;
-//      desJointModes_.segment<nDofPerLeg>(legIndexInStackedVector) = VectorActMLeg::Constant(AM_Torque);
-//    }
-//    else
-//    {
-//      desJointModes_.segment<nDofPerLeg>(legIndexInStackedVector) = VectorActMLeg::Constant(AM_Velocity);
-//    }
-//  }
-
-//  legIndexInStackedVector += nDofPerLeg;
-  return true;
-}
-
-//bool VirtualModelController::computeJointTorquesForLeg(
-//    const Legs& leg,
-//    const int& legIndexInStackedVector,
-//    const robotModel::VectorCF& contactForce,
-//    robotModel::VectorActLeg& jointTorques)
-//{
-//  MatrixJ jacobian = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(legIndeces[leg])
-//      ->getJ().block<3, 3>(0, RM_NQB + legIndexInStackedVector);
-//  // TODO replace with "->getJ().block<nDofPerContactPoint, nDofPerLeg>(0, RM_NQB + legIndexInStackedVector);"
-//  jointTorques = jacobian.transpose() * contactForce;
-//}
 
 bool VirtualModelController::isParametersLoaded() const
 {

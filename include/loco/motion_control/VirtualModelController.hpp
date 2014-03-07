@@ -54,12 +54,6 @@ class VirtualModelController : public MotionControllerBase
    */
   bool compute();
 
-  //! Pack the desired joint actuation modes, positions, velocities and torques
-  virtual void packDesiredJointSetpoints(robotModel::VectorActM& jointActuationModesToPack,
-                       robotModel::VectorAct& jointPositionsToPack,
-                       robotModel::VectorAct& jointVelocitiesToPack,
-                       robotModel::VectorAct& jointTorquesToPack) const;
-
   /*!
    * Prints information for debugging.
    */
@@ -113,23 +107,6 @@ class VirtualModelController : public MotionControllerBase
   //! T = k_p*(q_d-q) + k_d*(q_dot_d-q_dot) + k_ff*(...).
   //! In base frame.
   bool computeVirtualTorque();
-
-  //! Distributes the virtual forces to the ground contact forces.
-  bool computeJointTorques();
-
-  /*!
-   * Calculate the joints torque from a desired contact force
-   * with Jacobi transpose.
-   * @param [in] leg
-   * @param [in] legIndexInStackedVector
-   * @param [in] contactForce (in base frame)
-   * @param [out] jointTorque
-   * @return true if successfull
-   */
-  bool computeJointTorquesForLeg(const Legs& leg,
-                          const int& legIndexInStackedVector,
-                          const robotModel::VectorCF& contactForce,
-                          robotModel::VectorActLeg& jointTorque);
 
   /*!
    * Check if parameters are loaded.

@@ -18,7 +18,9 @@ LegBase::LegBase() :
     isInStanceMode_(false),
     isInSwingMode_(true),
     isGrounded_(false),
-    shouldBeGrounded_(false)
+    shouldBeGrounded_(false),
+    loadFactor_(1.0),
+    surfaceNormal_(Eigen::Vector3d::Zero())
 {
 
 }
@@ -32,7 +34,9 @@ LegBase::LegBase(const std::string& name) :
     isInStanceMode_(false),
     isInSwingMode_(true),
     isGrounded_(false),
-    shouldBeGrounded_(false)
+    shouldBeGrounded_(false),
+    loadFactor_(1.0),
+    surfaceNormal_(Eigen::Vector3d::Zero())
 {
 
 }
@@ -78,8 +82,17 @@ double LegBase::getDesiredLoadFactor() const
   return loadFactor_;
 }
 
-void loco::LegBase::setDesiredLoadFactor(double loadFactor)
+const Eigen::Vector3d& LegBase::getSurfaceNormal() const
 {
+  if (isGrounded()) return surfaceNormal_;
+  return Eigen::Vector3d::Zero();
+}
+
+bool LegBase::setSurfaceNormal(const Eigen::Vector3d& surfaceNormal)
+{
+  if(!isGrounded()) return false;
+  surfaceNormal_ = surfaceNormal;
+  return true;
 }
 
 void LegBase::setStancePhase(double phase) {

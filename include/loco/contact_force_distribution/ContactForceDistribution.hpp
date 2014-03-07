@@ -59,8 +59,8 @@ class ContactForceDistribution : public ContactForceDistributionBase
    * @param virtualTorque the desired virtual torque on the base (in base frame).
    * @return true if successful.
    */
-  bool computeForceDistribution(const Eigen::Vector3d& virtualForce,
-                                        const Eigen::Vector3d& virtualTorque);
+  bool computeForceDistribution(const Force& virtualForce,
+                                const Torque& virtualTorque);
 
   /*!
    * Gets the distributed net forces and torques that act on the base, i.e.
@@ -108,13 +108,14 @@ class ContactForceDistribution : public ContactForceDistributionBase
 
   struct LegInfo
   {
-    double loadFactor_;
+    bool isPartOfOptimization_;
     bool isLoadConstraintActive_;
     int indexInStanceLegList_;
     int startIndexInVectorX_;
+    Force desiredContactForce_;
   };
 
-  std::map<const LegBase*, LegInfo> legInfos_;
+  std::map<LegBase*, LegInfo> legInfos_;
 
   /*!
    * Reads foot contact flags and includes user leg load settings from changeLegLoad().
@@ -126,8 +127,8 @@ class ContactForceDistribution : public ContactForceDistributionBase
    * Prepare matrices for the optimization problem.
    * @return true if successful
    */
-  bool prepareOptimization(const Eigen::Vector3d& virtualForce,
-                           const Eigen::Vector3d& virtualTorque);
+  bool prepareOptimization(const Force& virtualForce,
+                           const Torque& virtualTorque);
 
   bool setTerrainNormalsToDefault();
 
@@ -145,9 +146,13 @@ class ContactForceDistribution : public ContactForceDistributionBase
    */
   bool solveOptimization();
 
-  bool resetFootLoadFactors();
+ /*!
+  * Calculate the joint torques from the desired contact forces
+  * with Jacobi transpose.
+  */
+  bool computeJointTorques();
 
-  bool resetConstraints();
+  bool resetOptimization();
 
   /*!
    * Update the data that is recorded by the logger.

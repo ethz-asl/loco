@@ -20,6 +20,7 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotMo
   linearVelocityHipInWorldFrame_()
 {
   desiredJointControlModes_.setConstant(robotModel::AM_Velocity);
+  translationJacobianBaseToFootInBaseFrame_.setZero();
 }
 
 LegStarlETH::~LegStarlETH() {
@@ -46,6 +47,11 @@ const LinearVelocity& LegStarlETH::getHipLinearVelocityInWorldFrame() const {
   return linearVelocityHipInWorldFrame_;
 }
 
+const LegBase::TranslationJacobian& LegStarlETH::getTranslationJacobianFromBaseToFootInBaseFrame() const
+{
+  return translationJacobianBaseToFootInBaseFrame_;
+}
+
 void LegStarlETH::advance(double dt) {
   if (robotModel_->contacts().getCA()(iLeg_) == 1) {
     this->setIsGrounded(true);
@@ -62,9 +68,12 @@ void LegStarlETH::advance(double dt) {
   positionWorldToFootInBaseFrame_ = rquatWorldToBase.rotate(positionWorldToFootInWorldFrame_);
   positionWorldToHipInBaseFrame_ = rquatWorldToBase.rotate(positionWorldToHipInWorldFrame_);
 
-  this->setMeasuredJointPositions(robotModel_->q().getQj().block<3,1>(iLeg_*3,0));
+  this->setMeasuredJointPositions(robotModel_->q().getQj().block<3,1>(iLeg_*nJoints_,0));
 
   positionBaseToFootInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)->getPos());
+
+  translationJacobianBaseToFootInBaseFrame_ = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)
+      ->getJ().block<nDofContactPoint_, nJoints_>(0, RM_NQB + iLeg_*nJoints_);
 }
 
 
