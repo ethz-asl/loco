@@ -9,6 +9,7 @@
 #pragma once
 
 #include "ContactForceDistributionBase.hpp"
+#include "loco/common/LegBase.hpp"
 #include <Eigen/SparseCore>
 
 namespace loco {
@@ -32,9 +33,8 @@ class ContactForceDistribution : public ContactForceDistributionBase
 
   /*!
    * Constructor.
-   * @param robotModel the reference to the robot
    */
-  ContactForceDistribution(robotModel::RobotModel* robotModel);
+  ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<robotTerrain::TerrainBase> terrain);
 
   /*!
    * Destructor.
@@ -54,23 +54,6 @@ class ContactForceDistribution : public ContactForceDistributionBase
   bool addToLogger();
 
   /*!
-   * (Optional) Change how much a leg should be loaded. This needs to be set before
-   * calling computeForceDistribution() and is reset to 1 after each call of
-   * computeForceDistribution(). The contact force distribution is calculated
-   * twice, once without the load factor equality constraint and then
-   * including the equality constraint.
-   * @param leg defines the leg
-   * @param loadFactor sets the factor how much the leg should be loaded
-   *        (related to the unconstrained case without user specified load
-   *        factors), value in the interval [0, 1] where 0: unloaded
-   *        and 1: completely loaded.
-   * @return true if successful, false if leg is not in contact with the
-   *         ground (unless loadFactor = 0).
-   */
-  bool changeLegLoad(const Legs& leg, const double& loadFactor);
-
-
-  /*!
    * Computes the contact force distribution of the virtual force and torque.
    * @param virtualForce the desired virtual force on the base (in base frame).
    * @param virtualTorque the desired virtual torque on the base (in base frame).
@@ -78,14 +61,6 @@ class ContactForceDistribution : public ContactForceDistributionBase
    */
   bool computeForceDistribution(const Eigen::Vector3d& virtualForce,
                                         const Eigen::Vector3d& virtualTorque);
-
-  /*!
-   * Gets the distributed force for a leg at the contact point.
-   * @param[in] leg defines the leg.
-   * @param[out] force is the distributed force on the leg (in base frame).
-   * @return true if leg is active (in stance) and force can be applied, false otherwise.
-   */
-  bool getForceForLeg(const Legs& leg, robotModel::VectorCF& force);
 
   /*!
    * Gets the distributed net forces and torques that act on the base, i.e.
@@ -131,19 +106,15 @@ class ContactForceDistribution : public ContactForceDistributionBase
   //! Vector of force equality constraint
   Eigen::VectorXd c_;
 
-  struct LegStatus
+  struct LegInfo
   {
-    bool isInStance_;
     double loadFactor_;
     bool isLoadConstraintActive_;
     int indexInStanceLegList_;
     int startIndexInVectorX_;
-    robotModel::VectorCF effectiveContactForce_; // in world frame
-    Eigen::Vector3d terrainNormalInWorldFrame_;
-    Eigen::Vector3d terrainNormalInBaseFrame_;
   };
 
-  std::map<Legs, LegStatus> legStatuses_;
+  std::map<const LegBase*, LegInfo> legInfos_;
 
   /*!
    * Reads foot contact flags and includes user leg load settings from changeLegLoad().

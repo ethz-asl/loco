@@ -73,6 +73,15 @@ bool LegBase::isAndShouldBeGrounded() const {
   return (isGrounded_ && shouldBeGrounded_);
 }
 
+double LegBase::getDesiredLoadFactor() const
+{
+  return loadFactor_;
+}
+
+void loco::LegBase::setDesiredLoadFactor(double loadFactor)
+{
+}
+
 void LegBase::setStancePhase(double phase) {
   stancePhase_ = phase;
 }
@@ -104,6 +113,13 @@ void LegBase::setIsGrounded(bool isGrounded) {
 void LegBase::setShouldBeGrounded(bool shouldBeGrounded) {
   shouldBeGrounded_ = shouldBeGrounded;
 }
+
+void LegBase::setDesiredLoadFactor(double loadFactor)
+{
+  // TODO Check for validity
+  loadFactor_ = loadFactor;
+}
+
 
 LegStateTouchDown* LegBase::getStateTouchDown() {
   return &stateTouchDown_;
