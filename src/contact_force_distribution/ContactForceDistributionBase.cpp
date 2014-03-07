@@ -15,13 +15,12 @@ using namespace robotModel;
 
 namespace loco {
 
-ContactForceDistributionBase::ContactForceDistributionBase(robotModel::RobotModel* robotModel)
+ContactForceDistributionBase::ContactForceDistributionBase(std::shared_ptr<LegGroup> legs, std::shared_ptr<robotTerrain::TerrainBase> terrain)
+: legs_(legs),
+  terrain_(terrain)
 {
-  robotModel_ = robotModel;
-  terrain_ = nullptr;
   isParametersLoaded_ = false;
   isLogging_ = false;
-  isTerrainSet_ = false;
   isForceDistributionComputed_ = false;
 }
 
@@ -36,16 +35,6 @@ bool ContactForceDistributionBase::loadParameters()
   return true;
 }
 
-bool ContactForceDistributionBase::setTerrain(const robotTerrain::TerrainBase* terrain)
-{
-  if (terrain != nullptr)
-  {
-    terrain_ = terrain;
-    isTerrainSet_ = true;
-  }
-  return false;
-}
-
 bool ContactForceDistributionBase::addToLogger()
 {
   isLogging_ = true;
@@ -56,13 +45,6 @@ bool ContactForceDistributionBase::checkIfParametersLoaded() const
 {
   if (isParametersLoaded_) return true;
   cout << "Contact force distribution parameters are not loaded." << endl; // TODO use warning output
-  return false;
-}
-
-bool ContactForceDistributionBase::checkIfTerrainSet() const
-{
-  if (isTerrainSet_) return true;
-  cout << "Contact force distribution terrain is not set." << endl; // TODO use warning output
   return false;
 }
 

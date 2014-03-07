@@ -24,8 +24,7 @@ class LegGroup {
   typedef Legs::reference reference;
 
  private:
-  std::vector<LegBase*>  legs_;
-
+  std::vector<LegBase*> legs_;
 
  public:
   LegGroup();

@@ -22,10 +22,11 @@ using namespace sm;
 
 namespace loco {
 
-ContactForceDistribution::ContactForceDistribution(robotModel::RobotModel* robotModel)
-    : ContactForceDistributionBase(robotModel)
+ContactForceDistribution::ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<robotTerrain::TerrainBase> terrain)
+    : ContactForceDistributionBase(legs, terrain)
 {
-  for(auto leg : Legs()) { legStatuses_[leg] = LegStatus(); }
+  for(const auto leg : *legs_) { legInfos_[leg] = LegInfo(); }
+
   resetFootLoadFactors();
 }
 
@@ -48,27 +49,15 @@ bool ContactForceDistribution::loadParameters()
 bool ContactForceDistribution::addToLogger()
 {
   // TODO Is this already implemented somewhere else?
-  for(const auto& leg : Legs()) {
-    string name = "contact_force_" + legNamesShort[leg];
-    VectorCF& contactForce = legStatuses_[leg].effectiveContactForce_;
-    addEigenVector3ToLog(contactForce, name, "N", true);
-  }
+//  for(const auto& leg : Legs()) {
+//    string name = "contact_force_" + legNamesShort[leg];
+//    VectorCF& contactForce = legInfos_[leg].effectiveContactForce_;
+//    addEigenVector3ToLog(contactForce, name, "N", true);
+//  }
 
   updateLoggerData();
 
   return ContactForceDistributionBase::addToLogger();
-}
-
-bool ContactForceDistribution::changeLegLoad(const Legs& leg,
-                                             const double& loadFactor)
-{
-  if (robotModel_->contacts().getCA()(legIndeces[leg]) == 1)
-  {
-    legStatuses_[leg].loadFactor_ = loadFactor;
-    return true;
-  }
-
-  return false;
 }
 
 bool ContactForceDistribution::computeForceDistribution(
@@ -76,7 +65,6 @@ bool ContactForceDistribution::computeForceDistribution(
     const Eigen::Vector3d& virtualTorque)
 {
   if(!checkIfParametersLoaded()) return false;
-  if(!checkIfTerrainSet()) return false;
 
   resetConstraints();
   prepareLegLoading();
@@ -105,25 +93,31 @@ bool ContactForceDistribution::prepareLegLoading()
 {
   nLegsInStance_ = 0;
 
-  for (auto& legStatus : legStatuses_)
-  {
-    legStatus.second.loadFactor_ = legStatus.second.loadFactor_
-        * robotModel_->contacts().getCA().cast<double>()(legIndeces[legStatus.first]);
+  /*
+   * The contact force distribution is calculated
+   * twice, once without the load factor equality constraint and then
+   * including the equality constraint.
+   */
 
-    if (sm::definitelyGreaterThan(legStatus.second.loadFactor_, 0.0))
+  for (auto& legInfo : legInfos_)
+  {
+    legInfo.second.loadFactor_ = legInfo.second.loadFactor_
+        * robotModel_->contacts().getCA().cast<double>()(legIndeces[legInfo.first]);
+
+    if (sm::definitelyGreaterThan(legInfo.second.loadFactor_, 0.0))
     {
-      legStatus.second.isInStance_ = true;
-      legStatus.second.indexInStanceLegList_ = nLegsInStance_;
-      legStatus.second.startIndexInVectorX_ = legStatus.second.indexInStanceLegList_ * nTranslationalDofPerFoot_;
+      legInfo.second.isInStance_ = true;
+      legInfo.second.indexInStanceLegList_ = nLegsInStance_;
+      legInfo.second.startIndexInVectorX_ = legInfo.second.indexInStanceLegList_ * nTranslationalDofPerFoot_;
       nLegsInStance_++;
 
-      if (sm::definitelyLessThan(legStatus.second.loadFactor_,1.0))
-        legStatus.second.isLoadConstraintActive_ = true;
+      if (sm::definitelyLessThan(legInfo.second.loadFactor_,1.0))
+        legInfo.second.isLoadConstraintActive_ = true;
     }
     else
     {
-      legStatus.second.isInStance_ = false;
-      legStatus.second.isLoadConstraintActive_ = false;
+      legInfo.second.isInStance_ = false;
+      legInfo.second.isLoadConstraintActive_ = false;
     }
   }
 
@@ -150,7 +144,7 @@ bool ContactForceDistribution::prepareOptimization(
   A_.middleRows(0, nTranslationalDofPerFoot_) = (Matrix3d::Identity().replicate(1, nLegsInStance_)).sparseView();
 
   MatrixXd A_bottomMatrix(3, n_); // TODO replace 3 with nTranslationalDofPerFoot_
-  for (auto& legStatus : legStatuses_)
+  for (auto& legStatus : legInfos_)
   {
     if (legStatus.second.isInStance_)
     {
@@ -170,7 +164,7 @@ bool ContactForceDistribution::getTerrainNormals()
 {
   if (!checkIfTerrainSet()) return false;
 
-  for (auto& legStatus : legStatuses_)
+  for (auto& legStatus : legInfos_)
   {
     if (legStatus.second.isInStance_)
     {
@@ -198,7 +192,7 @@ bool ContactForceDistribution::addMinimalForceConstraints()
   d_.conservativeResize(rowIndex + nLegsInStance_);
   f_.conservativeResize(rowIndex + nLegsInStance_);
 
-  for (auto& legStatus : legStatuses_)
+  for (auto& legStatus : legInfos_)
   {
     if (legStatus.second.isInStance_)
     {
@@ -233,7 +227,7 @@ bool ContactForceDistribution::addFrictionConstraints()
   d_.conservativeResize(rowIndex + nConstraints);
   f_.conservativeResize(rowIndex + nConstraints);
 
-  for (auto& legStatus : legStatuses_)
+  for (auto& legStatus : legInfos_)
   {
     if (legStatus.second.isInStance_)
     {
@@ -282,7 +276,7 @@ bool ContactForceDistribution::addDesiredLegLoadConstraints()
    * the contact force of leg i at the optimization without user defined leg load constraints.
    */
   int nLegsWithLoadConstraintActive = 0;
-  for (auto& legStatus : legStatuses_)
+  for (auto& legStatus : legInfos_)
   {
     if (legStatus.second.isLoadConstraintActive_)
       nLegsWithLoadConstraintActive++;
@@ -298,7 +292,7 @@ bool ContactForceDistribution::addDesiredLegLoadConstraints()
   C_.middleRows(0, C_temp.rows()) = C_temp;
   c_.conservativeResize(rowIndex + nConstraints);
 
-  for (auto& legStatus : legStatuses_)
+  for (auto& legStatus : legInfos_)
   {
     if (legStatus.second.isLoadConstraintActive_)
     {
@@ -332,7 +326,7 @@ bool ContactForceDistribution::resetConstraints()
 
 bool ContactForceDistribution::resetFootLoadFactors()
 {
-  for (auto& legStatus : legStatuses_)
+  for (auto& legStatus : legInfos_)
   {
     legStatus.second.loadFactor_ = 1.0;
     legStatus.second.isLoadConstraintActive_ = false;
@@ -345,11 +339,11 @@ bool ContactForceDistribution::getForceForLeg(
 {
   if (!checkIfForceDistributionComputed()) return false;
 
-  if (legStatuses_[leg].isInStance_)
+  if (legInfos_[leg].isInStance_)
   {
     // The forces we computed here are actually the ground reaction forces,
     // so the stance legs should push the ground by the opposite amount.
-    force = -x_.segment(legStatuses_[leg].startIndexInVectorX_, nTranslationalDofPerFoot_);
+    force = -x_.segment(legInfos_[leg].startIndexInVectorX_, nTranslationalDofPerFoot_);
     return true;
   }
 
@@ -374,7 +368,7 @@ bool ContactForceDistribution::updateLoggerData()
   if (!isLogging_) return false;
 
   for(const auto& leg : Legs()) {
-    legStatuses_[leg].effectiveContactForce_ = robotModel_->contacts().getCP(legIndeces[leg])->getForce();
+    legInfos_[leg].effectiveContactForce_ = robotModel_->contacts().getCP(legIndeces[leg])->getForce();
   }
 
   return true;

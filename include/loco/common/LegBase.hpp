@@ -45,6 +45,8 @@ class LegBase {
   virtual bool shouldBeGrounded() const;
   virtual bool isAndShouldBeGrounded() const;
 
+  virtual double getDesiredLoadFactor() const;
+
 
   virtual void setStancePhase(double phase);
   virtual void setSwingPhase(double phase);
@@ -58,9 +60,17 @@ class LegBase {
   virtual void setIsGrounded(bool isGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
 
+  /*!
+   * Change how much a leg should be loaded.
+   * @param loadFactor sets the factor how much the leg should be loaded
+   *        (related to the unconstrained case without user specified load
+   *        factors), value in the interval [0, 1] where 0: unloaded
+   *        and 1: completely loaded.
+   */
+  virtual void setDesiredLoadFactor(double loadFactor);
+
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
-
 
   virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;
   virtual const Position& getWorldToHipPositionInWorldFrame() const  = 0;
@@ -100,6 +110,8 @@ class LegBase {
   bool isInSwingMode_;
   bool isGrounded_;
   bool shouldBeGrounded_;
+
+  double loadFactor_;
 
   LegStateTouchDown stateTouchDown_;
   LegStateLiftOff stateLiftOff_;

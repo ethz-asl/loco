@@ -62,8 +62,7 @@ bool LocoExample::LocoExample::add()
   footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), &terrain_));
   torsoController_.reset(new loco::TorsoControlDynamicGait (legs_.get(), torso_.get(), &terrain_));
 
-  contactForceDistribution_.reset(new loco::ContactForceDistribution(robotModel_));
-  contactForceDistribution_->setTerrain(&terrain_);
+  contactForceDistribution_.reset(new loco::ContactForceDistribution(legs_, &terrain_));
   virtualModelController_.reset(new loco::VirtualModelController(legs_, torso_, contactForceDistribution_));
 
   missionController_.reset(new loco::MissionControlJoystick(robotModel_));
