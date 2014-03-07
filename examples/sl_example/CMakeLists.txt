@@ -60,6 +60,8 @@ PARENT_SCOPE)
 ###############
 set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/src/LocoExample_Task.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/src/SCGraphicalDebuggerDynamicGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/src/GaitPatternAPSPreview.cpp  
 PARENT_SCOPE)
 
 #################

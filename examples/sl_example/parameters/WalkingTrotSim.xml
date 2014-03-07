@@ -59,11 +59,6 @@
 			<Yaw 		kp="0" 		kd="0" 		kff="0" 	/>
 		</Gains>
 	</VirtualForceControl>
-	<JointGains>
-		<HAA kp="50" kd="5" />
-		<HFE kp="50" kd="5" />
-		<KFE kp="50" kd="5" />
-	</JointGains>
 	<ContactForceDistribution>
 		<Weights>
 			<Force heading="1.0" lateral="1.0" vertical="1.0" />

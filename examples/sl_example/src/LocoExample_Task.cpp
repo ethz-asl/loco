@@ -24,7 +24,9 @@ LocoExample::~LocoExample() {
 bool LocoExample::LocoExample::add()
 {
   double dt = time_step_;
-  std::string parameterFile = std::string(getenv("LAB_ROOT")) +"/locomotionControl/examples/sl_example/parameters/" + "WalkingTrotSim.xml";
+  std::string gait = "StaticLateralWalk";
+//  std::string gait = "WalkingTrot";
+  std::string parameterFile = std::string(getenv("LAB_ROOT")) +"/locomotionControl/examples/sl_example/parameters/" + gait + "Sim.xml";
 
   parameterSet_.reset(new loco::ParameterSet());
 

@@ -9,22 +9,18 @@
 	<LimbCoordination>
 		<GaitPattern> 
 			<APS>
-	            <GaitDiagram cycleDuration="0.8" foreDutyFactor="0.5" hindDutyFactor="0.5"  foreLag="0.5" hindLag="0.5" pairLag="0.5" />
-	            <CycleDuration minVel="0.0" minVelValue="0.8" maxVel="0.8" maxVelValue="0.47" law="exp" />
-	            <ForeDutyFactor minVel="0.0" minVelValue="0.5" maxVel="0.8" maxVelValue="0.4" law="exp" />
-	            <HindDutyFactor minVel="0.0" minVelValue="0.5" maxVel="0.8" maxVelValue="0.4" law="exp" />
-	            <PairLag minVel="0.0" minVelValue="0.5" maxVel="0.8" maxVelValue="0.5" law="lin" />
+	             <GaitDiagram cycleDuration="1.5" foreLag="0.5" hindLag="0.5" pairLag="0.75" foreDutyFactor="0.77" hindDutyFactor="0.77" />
 	        </APS>
 		</GaitPattern>
 	</LimbCoordination>
 	<TorsoControl>
 		<DynamicGait>
 			<CoMOverSupportPolygonControl>
-				<Weight minSwingLegWeight="0.15" />
-				<Timing startShiftAwayFromLegAtStancePhase="0.7" startShiftTowardsLegAtSwingPhase="0.7" />
+				<Weight minSwingLegWeight="0.4" />
+				<Timing startShiftAwayFromLegAtStancePhase="0.5" startShiftTowardsLegAtSwingPhase="0.8" />
 			</CoMOverSupportPolygonControl>
 			<HipConfiguration>
-				<HeightTrajectory offset="0.41" fore="true" hind="true">
+				<HeightTrajectory offset="0.42" fore="true" hind="true">
 					<Knot t="0.00" v="-0" />
 					<Knot t="0.25" v="0.00" />
 					<Knot t="0.50" v="-0.0" />
@@ -37,37 +33,31 @@
 	<FootPlacementStrategy>
 		<InvertedPendulum>
 			<Offset>
-				<Fore heading="-0.00" lateral="0.00" />
-				<Hind  heading="0.00" lateral="0.00" />
+				<Fore heading="-0.00" lateral="-0.05" />
+				<Hind  heading="0.00" lateral="0.05" />
 			</Offset>
 			<HeightTrajectory>
 				<Knot t="0.0" v="0.0" />
-				<Knot t="0.1" v="0.05" />
-				<Knot t="0.8" v="0.05" />
+				<Knot t="0.5" v="0.09" />
 				<Knot t="1.0" v="-0.00" />
 			</HeightTrajectory>
-	        <Gains feedbackScale="1.2" />
+	        <Gains feedbackScale="1.1" />
         </InvertedPendulum>
 	</FootPlacementStrategy>
 	<VirtualForceControl>
 		<Gains>
-			<Heading 	kp="0" 		kd="150" 	kff="60.0"	/>
-			<Lateral 	kp="640" 	kd="100"	kff="0"		/>
-			<Vertical 	kp="600" 	kd="120" 	kff="270"	/>
-			<Roll 		kp="400" 	kd="6" 		kff="0" 	/>
-			<Pitch 		kp="200" 	kd="9" 		kff="0" 	/>
-			<Yaw 		kp="0" 		kd="0" 		kff="0" 	/>
+			<Sagittal 	kp="500" 		kd="150" 	kff="25.0"	/>
+			<Coronal 	kp="600" 	kd="100"	kff="0"		/>
+			<Vertical 	kp="600" 	kd="100" 	kff="230"/>
+			<Roll 		kp="250" 	kd="100" 	kff="0" />
+			<Pitch 		kp="250" 	kd="100" 	kff="0" />
+			<Yaw 		kp="0" 	kd="0" 	kff="0" /> 	/>
 		</Gains>
 	</VirtualForceControl>
-	<JointGains>
-		<HAA kp="50" kd="5" />
-		<HFE kp="50" kd="5" />
-		<KFE kp="50" kd="5" />
-	</JointGains>
 	<ContactForceDistribution>
 		<Weights>
-			<Force heading="1.0" lateral="1.0" vertical="1.0" />
-			<Torque roll="20" pitch="20" yaw="5" />
+			<Force Sagittal="1.0" Coronal="1.0" Vertical="1" />
+			<Torque Roll="10" Pitch="10" Yaw="5" />
 			<Regularizer value="0.00001"/>
 		</Weights>
 		<Constraints frictionCoefficient="0.7" />
