@@ -26,6 +26,8 @@ bool LocoExample::LocoExample::add()
   double dt = time_step_;
   std::string gait = "StaticLateralWalk";
 //  std::string gait = "WalkingTrot";
+
+  std::cout << "Gait: " << gait << std::endl;
   std::string parameterFile = std::string(getenv("LAB_ROOT")) +"/locomotionControl/examples/sl_example/parameters/" + gait + "Sim.xml";
 
   parameterSet_.reset(new loco::ParameterSet());
@@ -34,7 +36,7 @@ bool LocoExample::LocoExample::add()
     std::cout << "Could not load parameter file: " << parameterFile  << std::endl;
   }
 
-  parameterSet_->getHandle().ToNode()->ToDocument()->Print();
+//  parameterSet_->getHandle().ToNode()->ToDocument()->Print();
 
 
   legs_.reset( new loco::LegGroup);

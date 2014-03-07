@@ -310,7 +310,7 @@ bool FootPlacementStrategyInvertedPendulum::loadHeightTrajectory(const TiXmlHand
       tValues.push_back(t);
       xValues.push_back(value);
       swingFootHeightTrajectory_.addKnot(t, value);
-      printf("t=%f, v=%f\n", t, value);
+//      printf("t=%f, v=%f\n", t, value);
    }
 //   swingFootHeightTrajectory_.setRBFData(tValues, xValues);
 
@@ -353,10 +353,16 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 
   iLeg = 0;
   for (auto leg : *legs_) {
-    const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(iLeg, 0.0);
-    const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-    const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
-    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+    if (leg->isInSwingMode()) {
+      const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(iLeg, 0.0);
+      const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+      const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+
+      leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+    }
+//    else {
+//      leg->setDesiredJointPositions(leg->getMeasuredJointPositions());
+//    }
     iLeg++;
   }
 

@@ -16,11 +16,11 @@
 	<TorsoControl>
 		<DynamicGait>
 			<CoMOverSupportPolygonControl>
-				<Weight minSwingLegWeight="0.4" />
-				<Timing startShiftAwayFromLegAtStancePhase="0.5" startShiftTowardsLegAtSwingPhase="0.8" />
+				<Weight minSwingLegWeight="0.2" />
+				<Timing startShiftAwayFromLegAtStancePhase="0.5" startShiftTowardsLegAtSwingPhase="0.5" />
 			</CoMOverSupportPolygonControl>
 			<HipConfiguration>
-				<HeightTrajectory offset="0.42" fore="true" hind="true">
+				<HeightTrajectory offset="0.39" fore="true" hind="true">
 					<Knot t="0.00" v="-0" />
 					<Knot t="0.25" v="0.00" />
 					<Knot t="0.50" v="-0.0" />
@@ -33,12 +33,12 @@
 	<FootPlacementStrategy>
 		<InvertedPendulum>
 			<Offset>
-				<Fore heading="-0.00" lateral="-0.05" />
-				<Hind  heading="0.00" lateral="0.05" />
+				<Fore heading="-0.00" lateral="-0.01" />
+				<Hind  heading="0.00" lateral="0.07" />
 			</Offset>
 			<HeightTrajectory>
 				<Knot t="0.0" v="0.0" />
-				<Knot t="0.5" v="0.09" />
+				<Knot t="0.5" v="0.07" />
 				<Knot t="1.0" v="-0.00" />
 			</HeightTrajectory>
 	        <Gains feedbackScale="1.1" />
@@ -47,16 +47,16 @@
 	<VirtualForceControl>
 		<Gains>
 			<Sagittal 	kp="500" 		kd="150" 	kff="25.0"	/>
-			<Coronal 	kp="600" 	kd="100"	kff="0"		/>
-			<Vertical 	kp="600" 	kd="100" 	kff="230"/>
-			<Roll 		kp="250" 	kd="100" 	kff="0" />
-			<Pitch 		kp="250" 	kd="100" 	kff="0" />
+			<Coronal 	kp="640" 	kd="100"	kff="0"		/>
+			<Vertical 	kp="600" 	kd="120" 	kff="230"/>
+			<Roll 		kp="400" 	kd="6" 	kff="0" />
+			<Pitch 		kp="200" 	kd="9" 	kff="0" />
 			<Yaw 		kp="0" 	kd="0" 	kff="0" /> 	/>
 		</Gains>
 	</VirtualForceControl>
 	<ContactForceDistribution>
 		<Weights>
-			<Force Sagittal="1.0" Coronal="1.0" Vertical="1" />
+			<Force Sagittal="1.0" Coronal="1.0" Vertical="0.1" />
 			<Torque Roll="10" Pitch="10" Yaw="5" />
 			<Regularizer value="0.00001"/>
 		</Weights>

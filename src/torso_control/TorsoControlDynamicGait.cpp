@@ -68,11 +68,25 @@ void TorsoControlDynamicGait::advance(double dt) {
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
   RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)));
 
-  LinearVelocity desiredLinearVelocity(0.3,0.0,0.0);
+  LinearVelocity desiredLinearVelocity(0.0,0.0,0.0);
   LocalAngularVelocity desiredAngularVelocity;
 
   torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationInWorldFrame));
   torso_->getDesiredState().setBaseTwistInBaseFrame(Twist(desiredLinearVelocity, desiredAngularVelocity));
+
+  for (auto leg : *legs_) {
+    if (leg->isInStanceMode()) {
+//      Position desiredPositionWorldToHipInWorldFrame = torso_->getDesiredState().getWorldToBasePoseInWorldFrame()+ torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(leg->getBaseToHipPositionInBaseFrame());
+      Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
+      if (!leg->isGrounded()) {
+        positionWorldToFootInWorldFrame.z() -= 0.01;
+      }
+      const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+      const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
+      const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+      leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+    }
+  }
 }
 
 inline double safeACOS(double val){
@@ -169,7 +183,6 @@ bool TorsoControlDynamicGait::loadParametersHipConfiguration(const TiXmlHandle &
             }
             if (child->QueryBoolAttribute("fore", &isFore)==TIXML_SUCCESS) {
               if (isFore) {
-                printf("found fore leg\n");
                 desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = offset;
                 TiXmlHandle hTrajectory(child);
                 if(!loadHeightTrajectory(hTrajectory,  desiredTorsoForeHeightAboveGroundInWorldFrame_)) {
@@ -179,7 +192,6 @@ bool TorsoControlDynamicGait::loadParametersHipConfiguration(const TiXmlHandle &
             }
             if (child->QueryBoolAttribute("hind", &isHind)==TIXML_SUCCESS) {
               if (isHind) {
-                printf("found hind leg\n");
                 desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = offset;
                 TiXmlHandle hTrajectory(child);
                 if(!loadHeightTrajectory(hTrajectory,  desiredTorsoHindHeightAboveGroundInWorldFrame_)) {

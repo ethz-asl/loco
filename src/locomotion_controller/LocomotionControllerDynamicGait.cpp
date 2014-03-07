@@ -70,8 +70,14 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
     return false;
   }
 
-  virtualModelController_->loadParameters();
-  contactForceDistribution_->loadParameters();
+  if (!virtualModelController_->loadParameters()) {
+    return false;
+  }
+
+  if (!contactForceDistribution_->loadParameters()) {
+    return false;
+  }
+
 
 
 
@@ -108,8 +114,8 @@ void LocomotionControllerDynamicGait::advance(double dt) {
 
   //! Desired base position expressed in inertial frame.
 //  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.475);
-  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.42);
-  baseDesiredPosition = torso_->getDesiredState().getWorldToBasePositionInWorldFrame().toImplementation();
+//  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.42);
+  robotModel::VectorP baseDesiredPosition = torso_->getDesiredState().getWorldToBasePositionInWorldFrame().toImplementation();
   //! Desired base orientation (quaternion) w.r.t. inertial frame.
   Eigen::Quaterniond baseDesiredOrientation = Eigen::Quaterniond::Identity();
   //baseDesiredOrientation = robotUtils::Rotations::yawPitchRollToQuaternion(0.0, 0.0, 0.0);

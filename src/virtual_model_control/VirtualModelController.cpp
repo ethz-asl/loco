@@ -52,11 +52,13 @@ bool VirtualModelController::addToLogger()
 bool VirtualModelController::loadParameters()
 {
   // TODO Replace this with proper parameters loading (XML)
+
+  // walk
   proportionalGainTranslation_ << 500.0, 640.0, 600.0;
   derivativeGainTranslation_ << 150.0, 100.0, 120.0;
   feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
-  proportionalGainRotation_ << 400.0, 200.0, 10.0; // 400.0, 200.0, 0.0;
-  derivativeGainRotation_ << 6.0, 9.0, 5.0; // 6.0, 9.0, 0.0;
+  proportionalGainRotation_ << 400.0, 200.0, 0.0; // 400.0, 200.0, 0.0;
+  derivativeGainRotation_ << 6.0, 9.0, 0.0; // 6.0, 9.0, 0.0;
   feedforwardGainRotation_ << 0.0, 0.0, 0.0;
 
   isParametersLoaded_ = true;
