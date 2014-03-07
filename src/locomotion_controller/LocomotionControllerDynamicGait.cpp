@@ -128,12 +128,7 @@ void LocomotionControllerDynamicGait::advance(double dt) {
 //  robotModel::VectorO baseDesiredAngularVelocity = robotModel::VectorO::Zero(3);
   robotModel::VectorO baseDesiredAngularVelocity = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().toImplementation());
 
-  virtualModelController_->computeTorques(baseDesiredPosition, baseDesiredOrientation, baseDesiredLinearVelocity, baseDesiredAngularVelocity);
-
-  robotModel::VectorActM desJointModes;
-  robotModel::VectorAct desJointPositions, desJointVelocities, desJointTorques;
-  virtualModelController_->packDesiredJointSetpoints(desJointModes, desJointPositions, desJointVelocities, desJointTorques);
-
+  virtualModelController_->compute();
 
   /* Set desired joint positions, torques and control mode */
   LegBase::JointControlModes desiredJointControlModes;
@@ -145,7 +140,6 @@ void LocomotionControllerDynamicGait::advance(double dt) {
       desiredJointControlModes.setConstant(robotModel::AM_Position);
     }
     leg->setDesiredJointControlModes(desiredJointControlModes);
-    leg->setDesiredJointTorques(desJointTorques.block<3,1>(iLeg*3,0));
     iLeg++;
   }
 

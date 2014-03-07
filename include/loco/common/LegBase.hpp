@@ -14,6 +14,8 @@
 #include "loco/common/TypeDefs.hpp"
 #include "loco/common/LegPropertiesBase.hpp"
 
+#include <Eigen/Core>
+
 #include <string>
 #include <iostream>
 
@@ -22,9 +24,12 @@ namespace loco {
 class LegBase {
  public:
   static constexpr int nJoints_ = 3;
+  static constexpr int nDofContactPoint_ = 3;
   typedef Eigen::Array<double, nJoints_, 1> JointPositions;
   typedef Eigen::Array<char, nJoints_, 1> JointControlModes;
   typedef Eigen::Array<double, nJoints_, 1> JointTorques;
+  typedef Eigen::Matrix<double, nDofContactPoint_, nJoints_> TranslationJacobian;
+
  public:
   LegBase();
   LegBase(const std::string& name);
@@ -69,6 +74,9 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
+  virtual const Eigen::Vector3d& getSurfaceNormal() const;
+  virtual bool setSurfaceNormal(const Eigen::Vector3d& surfaceNormal);
+
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
 
@@ -82,6 +90,9 @@ class LegBase {
 
   virtual const LinearVelocity& getHipLinearVelocityInWorldFrame() const  = 0;
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
+
+  virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const = 0;
+
   friend std::ostream& operator << (std::ostream& out, const LegBase& leg);
 
   virtual void setDesiredJointControlModes(const JointControlModes& jointControlMode);
@@ -112,6 +123,8 @@ class LegBase {
   bool shouldBeGrounded_;
 
   double loadFactor_;
+
+  Eigen::Vector3d surfaceNormal_;
 
   LegStateTouchDown stateTouchDown_;
   LegStateLiftOff stateLiftOff_;

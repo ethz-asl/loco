@@ -42,7 +42,7 @@ endif(BUILD_TEST)
 add_subdirectory(src/contact_force_distribution)
 
 # Add virtual model control 
-add_subdirectory(src/virtual_model_control)
+add_subdirectory(src/motion_control)
 
 # Add gait patern
 add_subdirectory(src/gait_pattern)

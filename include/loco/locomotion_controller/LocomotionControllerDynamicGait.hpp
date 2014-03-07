@@ -14,7 +14,7 @@
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
 #include "loco/torso_control/TorsoControlBase.hpp"
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
-#include "loco/virtual_model_control/VirtualModelController.hpp"
+#include "loco/motion_control/VirtualModelController.hpp"
 
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"

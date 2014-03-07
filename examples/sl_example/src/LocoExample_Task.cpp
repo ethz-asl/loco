@@ -59,15 +59,15 @@ bool LocoExample::LocoExample::add()
   gaitPatternAPS_->initialize(aps, dt);
 
   limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPatternAPS_.get()));
-  footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), &terrain_));
-  torsoController_.reset(new loco::TorsoControlDynamicGait (legs_.get(), torso_.get(), &terrain_));
+  footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), terrain_.get()));
+  torsoController_.reset(new loco::TorsoControlDynamicGait (legs_.get(), torso_.get(), terrain_.get()));
 
-  contactForceDistribution_.reset(new loco::ContactForceDistribution(legs_, &terrain_));
+  contactForceDistribution_.reset(new loco::ContactForceDistribution(legs_, terrain_));
   virtualModelController_.reset(new loco::VirtualModelController(legs_, torso_, contactForceDistribution_));
 
   missionController_.reset(new loco::MissionControlJoystick(robotModel_));
 
-  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
+  locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, terrain_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 
 
   return true;

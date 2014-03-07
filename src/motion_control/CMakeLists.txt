@@ -13,7 +13,8 @@ PARENT_SCOPE)
 ###############
 ### SOURCES ###
 ###############
-set(TASK_SRCS ${TASK_SRCS} 
+set(TASK_SRCS ${TASK_SRCS}
+	${CMAKE_CURRENT_SOURCE_DIR}/MotionControllerBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/VirtualModelController.cpp
 PARENT_SCOPE)
 
