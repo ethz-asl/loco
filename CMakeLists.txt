@@ -53,12 +53,16 @@ add_subdirectory(src/foot_placement_strategy)
 # Add limb coordination
 add_subdirectory(src/limb_coordinator)
 
-# Add base control
+# Add torso control
 add_subdirectory(src/torso_control)
 
+# Add mission control
+add_subdirectory(src/mission_control)
+
+# Add common
 add_subdirectory(src/common)
 
-
+# Add locmotion controller
 add_subdirectory(src/locomotion_controller)
 
 # Add temporal helpers

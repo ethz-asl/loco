@@ -46,9 +46,9 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 void TorsoControlDynamicGait::advance(double dt) {
   comControl_.advance(dt);
   Position lateralAndHeadingErrorInWorldFrame = comControl_.getPositionErrorVectorInWorldFrame();
-  const double desiredforeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
-  const double desiredhindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
-  const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredforeHeightAboveGroundInWorldFrame + desiredhindHeightAboveGroundInWorldFrame)/2.0;
+  const double desiredForeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
+  const double desiredHindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
+  const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredForeHeightAboveGroundInWorldFrame + desiredHindHeightAboveGroundInWorldFrame)/2.0;
   Position desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame() + lateralAndHeadingErrorInWorldFrame;
   Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
   terrain_->getHeight(groundHeightInWorldFrame.toImplementation());
@@ -59,7 +59,7 @@ void TorsoControlDynamicGait::advance(double dt) {
 //  desiredTorsoPositionInWorldFrame.z() = 0.42;
 
   // pitch angle
-  double height = desiredhindHeightAboveGroundInWorldFrame-desiredforeHeightAboveGroundInWorldFrame;
+  double height = desiredHindHeightAboveGroundInWorldFrame-desiredForeHeightAboveGroundInWorldFrame;
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
 
   /*RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());*/
@@ -68,11 +68,11 @@ void TorsoControlDynamicGait::advance(double dt) {
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
   RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)));
 
-  LinearVelocity desiredLinearVelocity(0.0,0.0,0.0);
-  LocalAngularVelocity desiredAngularVelocity;
+//  LinearVelocity desiredLinearVelocity(0.0,0.0,0.0);
+//  LocalAngularVelocity desiredAngularVelocity;
 
   torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationInWorldFrame));
-  torso_->getDesiredState().setBaseTwistInBaseFrame(Twist(desiredLinearVelocity, desiredAngularVelocity));
+//  torso_->getDesiredState().setBaseTwistInBaseFrame(Twist(desiredLinearVelocity, desiredAngularVelocity));
 
   for (auto leg : *legs_) {
     if (leg->isInStanceMode()) {

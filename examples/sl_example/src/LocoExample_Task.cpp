@@ -34,7 +34,9 @@ bool LocoExample::LocoExample::add()
 
   if (!parameterSet_->loadXmlDocument(parameterFile)) {
     std::cout << "Could not load parameter file: " << parameterFile  << std::endl;
+    return false;
   }
+
 
 //  parameterSet_->getHandle().ToNode()->ToDocument()->Print();
 
@@ -64,6 +66,8 @@ bool LocoExample::LocoExample::add()
   contactForceDistribution_->setTerrain(&terrain_);
   virtualModelController_.reset(new loco::VirtualModelController(robotModel_, *contactForceDistribution_.get()));
 
+  missionController_.reset(new loco::MissionControlJoystick(robotModel_));
+
   locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), robotModel_, &terrain_, limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 
 
@@ -72,6 +76,16 @@ bool LocoExample::LocoExample::add()
 
 bool LocoExample::init()
 {
+  if (!missionController_->loadParameters(parameterSet_->getHandle())) {
+    std::cout << "Could not parameters for mission controller: " << std::endl;
+    return false;
+  }
+
+
+  if (!missionController_->initialize(time_step_)) {
+    std::cout << "Could not initialize mission controller!" << std::endl;
+  }
+
   if (!locomotionController_->initialize(time_step_)) {
     std::cout << "Could not initialize locomotion controller!" << std::endl;
     return false;
@@ -81,6 +95,8 @@ bool LocoExample::init()
 
 bool LocoExample::run()
 {
+  missionController_->advance(time_step_);
+  torso_->getDesiredState().setBaseTwistInBaseFrame(missionController_->getDesiredBaseTwistInBaseFrame());
   locomotionController_->advance(time_step_);
 
   robotModel::VectorActMLeg legMode;
