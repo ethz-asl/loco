@@ -78,9 +78,6 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
     return false;
   }
 
-
-
-
   isInitialized_ = true;
   return isInitialized_;
 }
@@ -97,8 +94,6 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   torso_->advance(dt);
   limbCoordinator_->advance(dt);
 
-
-
   for (auto leg : *legs_) {
     const double swingPhase = leg->getSwingPhase();
     if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
@@ -109,25 +104,6 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   }
   footPlacementStrategy_->advance(dt);
   torsoController_->advance(dt);
-
-
-
-  //! Desired base position expressed in inertial frame.
-//  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.475);
-//  robotModel::VectorP baseDesiredPosition(0.0, 0.0, 0.42);
-  robotModel::VectorP baseDesiredPosition = torso_->getDesiredState().getWorldToBasePositionInWorldFrame().toImplementation();
-  //! Desired base orientation (quaternion) w.r.t. inertial frame.
-  Eigen::Quaterniond baseDesiredOrientation = Eigen::Quaterniond::Identity();
-  //baseDesiredOrientation = robotUtils::Rotations::yawPitchRollToQuaternion(0.0, 0.0, 0.0);
-  baseDesiredOrientation = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().toImplementation();
-
-  //! Desired base linear velocity expressed in inertial frame.
-//  robotModel::VectorP baseDesiredLinearVelocity = robotModel::VectorP::Zero(3);
-  robotModel::VectorP baseDesiredLinearVelocity = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().toImplementation());
-  //! Desired base angular velocity expressed w.r.t. inertial frame.
-//  robotModel::VectorO baseDesiredAngularVelocity = robotModel::VectorO::Zero(3);
-  robotModel::VectorO baseDesiredAngularVelocity = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().toImplementation());
-
   virtualModelController_->compute();
 
   /* Set desired joint positions, torques and control mode */

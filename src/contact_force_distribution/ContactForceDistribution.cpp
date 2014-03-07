@@ -83,7 +83,7 @@ bool ContactForceDistribution::computeForceDistribution(
 
     if (isForceDistributionComputed_)
     {
-
+      computeJointTorques();
     }
   }
 
