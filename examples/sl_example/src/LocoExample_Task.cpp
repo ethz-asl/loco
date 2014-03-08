@@ -53,6 +53,7 @@ bool LocoExample::LocoExample::add()
 
   torso_.reset(new loco::TorsoStarlETH(robotModel_));
 
+  terrain_.reset(new robotTerrain::TerrainPlane);
 
   static loco::APS aps(0.8, 0.8, 0.5, 0.5, 0.5, 0.5, 0.5);
   gaitPatternAPS_.reset(new loco::GaitPatternAPS);
