@@ -9,7 +9,7 @@
 	<LimbCoordination>
 		<GaitPattern> 
 			<APS>
-	             <GaitDiagram cycleDuration="1.5" foreLag="0.5" hindLag="0.5" pairLag="0.75" foreDutyFactor="0.77" hindDutyFactor="0.77" />
+	             <GaitDiagram cycleDuration="3" foreLag="0.5" hindLag="0.5" pairLag="0.75" foreDutyFactor="0.77" hindDutyFactor="0.77" />
 	        </APS>
 		</GaitPattern>
 	</LimbCoordination>
@@ -20,7 +20,7 @@
 				<Timing startShiftAwayFromLegAtStancePhase="0.5" startShiftTowardsLegAtSwingPhase="0.5" />
 			</CoMOverSupportPolygonControl>
 			<HipConfiguration>
-				<HeightTrajectory offset="0.39" fore="true" hind="true">
+				<HeightTrajectory offset="0.42" fore="true" hind="true">
 					<Knot t="0.00" v="-0" />
 					<Knot t="0.25" v="0.00" />
 					<Knot t="0.50" v="-0.0" />

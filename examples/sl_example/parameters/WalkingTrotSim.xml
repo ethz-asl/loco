@@ -56,7 +56,7 @@
 			<Vertical 	kp="600" 	kd="120" 	kff="270"	/>
 			<Roll 		kp="400" 	kd="6" 		kff="0" 	/>
 			<Pitch 		kp="200" 	kd="9" 		kff="0" 	/>
-			<Yaw 		kp="0" 		kd="0" 		kff="0" 	/>
+			<Yaw 		kp="0" 		kd="100" 		kff="0" 	/>
 		</Gains>
 	</VirtualForceControl>
 	<ContactForceDistribution>

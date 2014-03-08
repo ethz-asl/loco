@@ -37,7 +37,7 @@ bool VirtualModelController::loadParameters()
   derivativeGainTranslation_ << 150.0, 100.0, 120.0;
   feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
   proportionalGainRotation_ << 400.0, 200.0, 0.0; // 400.0, 200.0, 0.0;
-  derivativeGainRotation_ << 6.0, 9.0, 0.0; // 6.0, 9.0, 0.0;
+  derivativeGainRotation_ << 6.0, 9.0, 100.0; // 6.0, 9.0, 0.0;
   feedforwardGainRotation_ << 0.0, 0.0, 0.0;
 
   return MotionControllerBase::loadParameters();
@@ -73,7 +73,7 @@ bool VirtualModelController::computeError()
   positionError_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionError_);
 
   orientationError_ = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().boxMinus(
-      torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame());
+      torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());
 
   linearVelocityError_ = torso_->getDesiredState().getBaseLinearVelocityInBaseFrame() - torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
 
