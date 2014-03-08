@@ -59,7 +59,7 @@ class ContactForceDistributionBase
    * @param[out] netTorque.
    * @return true if net force and torque can be calculated, false otherwise.
    */
-   virtual bool getNetForceAndTorqueOnBase(Eigen::Vector3d& netForce, Eigen::Vector3d& netTorque) = 0;
+   virtual bool getNetForceAndTorqueOnBase(Force& netForce, Torque& netTorque) = 0;
 
  protected:
   constexpr static int nLegs_ = 4; // TODO move to robotModel

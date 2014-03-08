@@ -8,7 +8,7 @@
 
 #include "loco/motion_control/VirtualModelController.hpp"
 #include "Logger.hpp"
-#include "Rotations.hpp"
+#include "kindr/rotations/eigen/EulerAnglesZyx.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -60,33 +60,8 @@ bool VirtualModelController::compute()
   computeVirtualForce();
   computeVirtualTorque();
   contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
+  printDebugInformation();
   return true;
-}
-
-void VirtualModelController::printDebugInformation()
-{
-//  IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");
-//  std::string sep = "\n----------------------------------------\n";
-//  std::cout.precision(3);
-//
-//  Quaterniond actualOrientation = Quaterniond(robotModel_->kin().getJacobianR(JR_World2Base_CSw)->getA().transpose());
-//  Vector3d actualOrientationYawPitchRoll = Rotations::quaternionToYawPitchRoll(actualOrientation);
-////  Vector3d errorYawRollPitch = Rotations::angleAxisToYawPitchRoll(orientationErrorVector_);
-//  Vector3d netForce, netTorque, netForceError, netTorqueError;
-//  contactForceDistribution_.getNetForceAndTorqueOnBase(netForce, netTorque);
-//  netForceError = virtualForce_ - netForce;
-//  netTorqueError = virtualTorque_ - netTorque;
-//
-//  isParametersLoaded();
-//  cout << "Position error" << positionError_.format(CommaInitFmt) << endl;
-//  cout << "Orientation (yaw, pitch, roll)" << actualOrientationYawPitchRoll.format(CommaInitFmt) << endl;
-//  cout << "Orientation error in angle-axis: angle " << orientationError_.angle() << ", axis" << orientationError_.axis().format(CommaInitFmt) << endl;
-//  cout << "Linear velocity error" << linearVelocityError_.format(CommaInitFmt) << endl;
-//  cout << "Angular velocity error" << angularVelocityError_.format(CommaInitFmt)<< endl;
-//  cout << "Desired virtual force" << virtualForce_.format(CommaInitFmt) << endl;
-//  cout << "Desired virtual torque" << virtualTorque_.format(CommaInitFmt) << endl;
-//  cout << "Net force error" << netForceError.format(CommaInitFmt) << endl;
-//  cout << "Net torque error" << netTorqueError.format(CommaInitFmt) << sep;
 }
 
 bool VirtualModelController::computeError()
@@ -154,6 +129,30 @@ bool VirtualModelController::isParametersLoaded() const
 
   cout << "Virtual model control parameters are not loaded." << endl; // TODO use warning output
   return false;
+}
+
+void VirtualModelController::printDebugInformation()
+{
+  IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");
+  std::string sep = "\n----------------------------------------\n";
+  std::cout.precision(3);
+
+  kindr::rotations::eigen_impl::EulerAnglesYprPD errorYawRollPitch(orientationError_);
+  Force netForce, netForceError;
+  Torque netTorque, netTorqueError;
+  contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
+  netForceError = virtualForce_ - netForce;
+  netTorqueError = virtualTorque_ - netTorque;
+
+  isParametersLoaded();
+  cout << "Position error" << positionError_.toImplementation().format(CommaInitFmt) << endl;
+  cout << "Orientation error" << orientationError_.format(CommaInitFmt) << endl;
+  cout << "Linear velocity error" << linearVelocityError_.toImplementation().format(CommaInitFmt) << endl;
+  cout << "Angular velocity error" << angularVelocityError_.toImplementation().format(CommaInitFmt) << endl;
+  cout << "Desired virtual force" << virtualForce_.toImplementation().format(CommaInitFmt) << endl;
+  cout << "Desired virtual torque" << virtualTorque_.toImplementation().format(CommaInitFmt) << endl;
+  cout << "Net force error" << netForceError.toImplementation().format(CommaInitFmt) << endl;
+  cout << "Net torque error" << netTorqueError.toImplementation().format(CommaInitFmt) << sep;
 }
 
 } /* namespace loco */

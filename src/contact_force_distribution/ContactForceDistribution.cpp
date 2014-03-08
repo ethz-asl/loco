@@ -348,6 +348,8 @@ bool ContactForceDistribution::computeJointTorques()
 
 bool ContactForceDistribution::resetOptimization()
 {
+  isForceDistributionComputed_ = false;
+
   D_.resize(0, 0);
   d_.resize(0);
   f_.resize(0);
@@ -379,14 +381,14 @@ bool ContactForceDistribution::resetOptimization()
 //}
 
 bool ContactForceDistribution::getNetForceAndTorqueOnBase(
-    Eigen::Vector3d& netForce, Eigen::Vector3d& netTorque)
+    Force& netForce, Torque& netTorque)
 {
   if (!checkIfForceDistributionComputed()) return false;
 
   Eigen::Matrix<double, nElementsVirtualForceTorqueVector_, 1> stackedNetForceAndTorque;
   stackedNetForceAndTorque = A_ * x_;
-  netForce = stackedNetForceAndTorque.head(3);
-  netTorque = stackedNetForceAndTorque.tail(3);
+  netForce = Force(stackedNetForceAndTorque.head(3));
+  netTorque = Torque(stackedNetForceAndTorque.tail(3));
 
   return true;
 }

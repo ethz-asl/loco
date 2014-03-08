@@ -70,7 +70,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
    * @param[out] netTorque.
    * @return true if net force and torque can be calculated, false otherwise.
    */
-   bool getNetForceAndTorqueOnBase(Eigen::Vector3d& netForce, Eigen::Vector3d& netTorque);
+   bool getNetForceAndTorqueOnBase(Force& netForce, Torque& netTorque);
 
  private:
   //! Number of legs in stance phase
