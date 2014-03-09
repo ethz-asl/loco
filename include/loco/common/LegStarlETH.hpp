@@ -29,6 +29,7 @@ class LegStarlETH : public loco::LegBase {
   virtual const Position& getWorldToHipPositionInBaseFrame() const;
 
   virtual const Position& getBaseToFootPositionInBaseFrame() const;
+  virtual const Position& getBaseToHipPositionInBaseFrame() const;
 
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame);
 
@@ -48,6 +49,7 @@ class LegStarlETH : public loco::LegBase {
   Position positionWorldToHipInBaseFrame_;
 
   Position positionBaseToFootInBaseFrame_;
+  Position positionBaseToHipInBaseFrame_;
 
   Eigen::Matrix<double, nDofContactPoint_, nJoints_> translationJacobianBaseToFootInBaseFrame_;
 

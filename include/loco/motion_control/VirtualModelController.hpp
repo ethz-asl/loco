@@ -59,6 +59,13 @@ class VirtualModelController : public MotionControllerBase
    */
   void printDebugInformation();
 
+
+  Force getDesiredVirtualForceInBaseFrame() const;
+  Torque getDesiredVirtualTorqueInBaseFrame() const;
+  void getDistributedVirtualForceAndTorqueInBaseFrame(Force& netForce, Torque& netTorque) const;
+
+
+
  private:
   std::shared_ptr<ContactForceDistributionBase> contactForceDistribution_;
 

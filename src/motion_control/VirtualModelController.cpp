@@ -155,4 +155,17 @@ void VirtualModelController::printDebugInformation()
   cout << "Net torque error" << netTorqueError.toImplementation().format(CommaInitFmt) << sep;
 }
 
+Force VirtualModelController::getDesiredVirtualForceInBaseFrame() const {
+  return virtualForce_;
+}
+
+Torque VirtualModelController::getDesiredVirtualTorqueInBaseFrame() const {
+  return virtualTorque_;
+}
+
+void VirtualModelController::getDistributedVirtualForceAndTorqueInBaseFrame(Force& netForce, Torque& netTorque) const {
+  contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
+}
+
+
 } /* namespace loco */

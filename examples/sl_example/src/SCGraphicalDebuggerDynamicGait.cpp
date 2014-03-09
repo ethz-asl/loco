@@ -13,12 +13,14 @@
 namespace loco {
 
 SCGraphicalDebuggerDynamicGait::SCGraphicalDebuggerDynamicGait():
-    drawSupportPolygon_(0),
-    drawDesiredPose_(0),
+    drawSupportPolygon_(1),
+    drawDesiredPose_(1),
     drawMeasuredPose_(0),
     drawTorsoController_(0),
     drawGaitPatternAPS_(1),
     drawContactForces_(0),
+    drawDesiredVirtualForces_(1),
+    drawDistributedVirtualForces_(1),
     gaitPatternWindow_(nullptr)
 {
 
@@ -29,7 +31,8 @@ SCGraphicalDebuggerDynamicGait::SCGraphicalDebuggerDynamicGait():
   ADD_GUI_VISUALIZATION_OPTION_BOOL(&drawTorsoController_, "Draw torso controller");
   ADD_GUI_VISUALIZATION_OPTION_BOOL(&drawGaitPatternAPS_, "Draw gait pattern");
   ADD_GUI_VISUALIZATION_OPTION_BOOL(&drawContactForces_, "Draw contact forces");
-
+  ADD_GUI_VISUALIZATION_OPTION_BOOL(&drawDesiredVirtualForces_, "Draw desired virtual forces (red)");
+  ADD_GUI_VISUALIZATION_OPTION_BOOL(&drawDistributedVirtualForces_, "Draw distributed virtual forces (blue)");
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);
 
 }
@@ -68,6 +71,15 @@ void SCGraphicalDebuggerDynamicGait::draw(bool shadowMode, Character* character,
     if (drawContactForces_) {
       drawContactForces(world);
     }
+
+    if (drawDesiredVirtualForces_) {
+      drawDesiredVirtualForces(locomotionController->getTorso(), locomotionController->getLegs(), locoTask->virtualModelController_.get());
+    }
+
+    if (drawDistributedVirtualForces_) {
+      drawDistributedVirtualForces(locomotionController->getTorso(), locomotionController->getLegs(), locoTask->virtualModelController_.get());
+    }
+
   }
 }
 
@@ -134,6 +146,70 @@ void SCGraphicalDebuggerDynamicGait::drawPose(Character* character, AbstractRBEn
   drawPose(character, world, &desiredPose, drawFlags);
 }
 
+void SCGraphicalDebuggerDynamicGait::drawDesiredVirtualForces(loco::TorsoBase* torso, loco::LegGroup* legs, loco::VirtualModelController* virtualModelController) {
+  const Force forceInBaseFrame = virtualModelController->getDesiredVirtualForceInBaseFrame();
+  const Torque torqueInBaseFrame  = virtualModelController->getDesiredVirtualTorqueInBaseFrame();
+  glPushMatrix();
+  glColor3d(1.0f, 0.0f, 0.0f);
+  drawForceAndTorqueInBaseFrame(forceInBaseFrame, torqueInBaseFrame, torso, legs);
+  glPopMatrix();
+}
+
+
+void SCGraphicalDebuggerDynamicGait::drawDistributedVirtualForces(loco::TorsoBase* torso, loco::LegGroup* legs, loco::VirtualModelController* virtualModelController) {
+  Force netForceInBaseFrame;
+  Torque netTorqueInBaseFrame;
+  virtualModelController->getDistributedVirtualForceAndTorqueInBaseFrame(netForceInBaseFrame, netTorqueInBaseFrame);
+  glPushMatrix();
+  glColor3d(0.0f, 0.0f, 1.0f);
+  drawForceAndTorqueInBaseFrame(netForceInBaseFrame, netTorqueInBaseFrame, torso, legs);
+  glPopMatrix();
+}
+
+void SCGraphicalDebuggerDynamicGait::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, const Torque& torqueInBaseFrame, loco::TorsoBase* torso, loco::LegGroup* legs) {
+
+  double forceScale = 1.0/100.0;
+
+  const Force virtualForceInBaseFrame = forceInBaseFrame;
+  const Torque virtualTorqueInBaseFrame = torqueInBaseFrame;
+  const Position positionWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBasePositionInWorldFrame();
+
+  const Force virtualForceInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(virtualForceInBaseFrame.toImplementation()));
+
+  // force
+
+  GLUtils::drawArrow(Vector3d(virtualForceInWorldFrame.x(), virtualForceInWorldFrame.y(), virtualForceInWorldFrame.z()), Point3d(positionWorldToBaseInWorldFrame.x(), positionWorldToBaseInWorldFrame.y(), positionWorldToBaseInWorldFrame.z()), 0.01, false);
+
+  double lengthHipToHip = legs->getLeftForeLeg()->getBaseToHipPositionInBaseFrame().x()-legs->getLeftHindLeg()->getBaseToHipPositionInBaseFrame().x();
+  const Force forceYawInBaseFrame(0.0, lengthHipToHip*virtualTorqueInBaseFrame.z(), 0.0);
+  const Force forceYawInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forceYawInBaseFrame.toImplementation()));
+
+  const Force forcePitchInBaseFrame(0.0, 0.0 , lengthHipToHip*virtualTorqueInBaseFrame.y());
+  const Force forcePitchInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forcePitchInBaseFrame.toImplementation()));
+
+  const Force forceRollInWorldBase(0.0, 0.0 , lengthHipToHip*virtualTorqueInBaseFrame.x());
+  const Force forceRollInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forceRollInWorldBase.toImplementation()));
+
+  const Position foreMidHipInWorldFrame =  Position((legs->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);
+  const Position hindMidHipInWorldFrame =  Position((legs->getLeftHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightHindLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);
+  const Position leftMidHipInWorldFrame =  Position( positionWorldToBaseInWorldFrame.x(), ((legs->getLeftHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()).y()*0.5, positionWorldToBaseInWorldFrame.z());
+  const Position rightMidHipInWorldFrame = Position( positionWorldToBaseInWorldFrame.x(), ((legs->getRightHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()).y()*0.5, positionWorldToBaseInWorldFrame.z());
+
+  // yaw
+  GLUtils::drawArrow(Vector3d(forceYawInWorldFrame.x(), forceYawInWorldFrame.y(), forceYawInWorldFrame.z()), Point3d(foreMidHipInWorldFrame.x(), foreMidHipInWorldFrame.y(), foreMidHipInWorldFrame.z()), 0.01, false);
+  GLUtils::drawArrow(Vector3d(-forceYawInWorldFrame.x(), -forceYawInWorldFrame.y(), -forceYawInWorldFrame.z()), Point3d(hindMidHipInWorldFrame.x(), hindMidHipInWorldFrame.y(), hindMidHipInWorldFrame.z()), 0.01, false);
+  // pitch
+  GLUtils::drawArrow(Vector3d(-forcePitchInWorldFrame.x(), -forcePitchInWorldFrame.y(), -forcePitchInWorldFrame.z()), Point3d(foreMidHipInWorldFrame.x(), foreMidHipInWorldFrame.y(), foreMidHipInWorldFrame.z()), 0.01, false);
+  GLUtils::drawArrow(Vector3d(forcePitchInWorldFrame.x(), forcePitchInWorldFrame.y(), forcePitchInWorldFrame.z()), Point3d(hindMidHipInWorldFrame.x(), hindMidHipInWorldFrame.y(), hindMidHipInWorldFrame.z()), 0.01, false);
+  // roll
+  GLUtils::drawArrow(Vector3d(forceRollInWorldFrame.x(), forceRollInWorldFrame.y(), forceRollInWorldFrame.z()), Point3d(leftMidHipInWorldFrame.x(), leftMidHipInWorldFrame.y(), leftMidHipInWorldFrame.z()), 0.01, false);
+  GLUtils::drawArrow(Vector3d(-forceRollInWorldFrame.x(), -forceRollInWorldFrame.y(), -forceRollInWorldFrame.z()), Point3d(rightMidHipInWorldFrame.x(), rightMidHipInWorldFrame.y(), rightMidHipInWorldFrame.z()), 0.01, false);
+
+}
+
+
+
+
 void SCGraphicalDebuggerDynamicGait::drawSupportPolygon(loco::LegGroup* legs) {
   if (legs->getLeftForeLeg()->isGrounded() && legs->getLeftHindLeg()->isGrounded()) {
     const loco::Position start = legs->getLeftForeLeg()->getWorldToFootPositionInWorldFrame();
@@ -166,6 +242,7 @@ void SCGraphicalDebuggerDynamicGait::drawSupportPolygon(loco::LegGroup* legs) {
     GLUtils::drawLine(Point3d(start.x(), start.y(), start.z()), Point3d(end.x(), end.y(), end.z()));
   }
 }
+
 
 
 

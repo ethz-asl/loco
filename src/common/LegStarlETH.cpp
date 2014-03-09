@@ -17,6 +17,8 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotMo
   positionWorldToHipInWorldFrame_(),
   positionWorldToFootInBaseFrame_(),
   positionWorldToHipInBaseFrame_(),
+  positionBaseToFootInBaseFrame_(),
+  positionBaseToHipInBaseFrame_(),
   linearVelocityHipInWorldFrame_()
 {
   desiredJointControlModes_.setConstant(robotModel::AM_Velocity);
@@ -52,6 +54,7 @@ const LegBase::TranslationJacobian& LegStarlETH::getTranslationJacobianFromBaseT
   return translationJacobianBaseToFootInBaseFrame_;
 }
 
+
 void LegStarlETH::advance(double dt) {
   if (robotModel_->contacts().getCA()(iLeg_) == 1) {
     this->setIsGrounded(true);
@@ -71,6 +74,7 @@ void LegStarlETH::advance(double dt) {
   this->setMeasuredJointPositions(robotModel_->q().getQj().block<3,1>(iLeg_*nJoints_,0));
 
   positionBaseToFootInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)->getPos());
+  positionBaseToHipInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Hip_CSmb(iLeg_)->getPos());
 
   translationJacobianBaseToFootInBaseFrame_ = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)
       ->getJ().block<nDofContactPoint_, nJoints_>(0, RM_NQB + iLeg_*nJoints_);
@@ -87,6 +91,10 @@ LegPropertiesBase& LegStarlETH::getProperties() {
 
 const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const {
   return positionBaseToFootInBaseFrame_;
+}
+
+const Position& LegStarlETH::getBaseToHipPositionInBaseFrame() const {
+  return positionBaseToHipInBaseFrame_;
 }
 
 } /* namespace loco */

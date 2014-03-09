@@ -12,6 +12,7 @@
 #include "ControlStarlETH/Character.h"
 #include "Physics/AbstractRBEngine.h"
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
+#include "loco/motion_control/VirtualModelController.hpp"
 #include "LocoExample_Task.hpp"
 #include "GaitPatternAPSPreview.hpp"
 
@@ -33,6 +34,9 @@ class SCGraphicalDebuggerDynamicGait {
   void getLocalCoordsRotationAxisForJoint(int jointIndex, Vector3d& rotationAxis);
 
   void drawContactForces(AbstractRBEngine* world);
+  void drawDesiredVirtualForces(loco::TorsoBase* torso, loco::LegGroup* legs, loco::VirtualModelController* virtualModelController);
+  void drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, const Torque& torqueInBaseFrame, loco::TorsoBase* torso, loco::LegGroup* legs);
+  void drawDistributedVirtualForces(loco::TorsoBase* torso, loco::LegGroup* legs, loco::VirtualModelController* virtualModelController);
 
   /*! Check if the index of a joint of the character indicates a hip AA joint
    * @param jIndex  joint index
@@ -59,6 +63,8 @@ class SCGraphicalDebuggerDynamicGait {
   int drawTorsoController_;
   int drawGaitPatternAPS_;
   int drawContactForces_;
+  int drawDesiredVirtualForces_;
+  int drawDistributedVirtualForces_;
 
   loco::GaitPatternAPSPreview* gaitPatternWindow_;
 };
