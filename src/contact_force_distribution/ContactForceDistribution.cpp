@@ -44,100 +44,6 @@ ContactForceDistribution::~ContactForceDistribution()
 //  return ContactForceDistributionBase::loadParameters(handle);
 //}
 
-bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle) {
-  TiXmlElement* pElem = handle.FirstChild("ContactForceDistribution").ToElement();
-  if (!pElem) {
-    std::cout << "Could not find ContactForceDistribution!\n";
-    return false;
-  }
-  TiXmlHandle hFD(handle.FirstChild("ContactForceDistribution"));
-
-  pElem = hFD.FirstChild("Weights").Element();
-  if (!pElem) {
-    printf("Could not find ContactForceDistribution:Weights\n");
-    return false;
-  }
-  TiXmlHandle hFDWeights(handle.FirstChild("ContactForceDistribution").FirstChild("Weights"));
-
-
-
-    pElem = hFDWeights.FirstChild("Force").Element();
-    if (!pElem) {
-      printf("Could not find ContactForceDistribution:Weights:Force!\n");
-      return false;
-    }
-    double value = 0.0;
-    if (pElem->QueryDoubleAttribute("heading", &value)!=TIXML_SUCCESS) {
-      printf("Could not find ContactForceDistribution:Weights:Force:heading!\n");
-      return false;
-    }
-    virtualForceWeights_(0) = value;
-    if (pElem->QueryDoubleAttribute("lateral", &value)!=TIXML_SUCCESS) {
-      printf("Could not find ContactForceDistribution:Weights:Force:lateral!\n");
-      return false;
-    }
-    virtualForceWeights_(1) = value;
-    if (pElem->QueryDoubleAttribute("vertical", &value)!=TIXML_SUCCESS) {
-      printf("Could not find ContactForceDistribution:Weights:Force:vertical!\n");
-      return false;
-    }
-    virtualForceWeights_(2) = value;
-
-
-
-    pElem = hFDWeights.FirstChild("Torque").Element();
-    if (!pElem) {
-      printf("Could not find ContactForceDistribution:Weights:Torque!\n");
-      return false;
-    }
-    if (pElem->QueryDoubleAttribute("roll", &value)!=TIXML_SUCCESS) {
-      printf("Could not find ContactForceDistribution:Weights:Torque:roll!\n");
-      return false;
-    }
-    virtualForceWeights_(3) = value;
-    if (pElem->QueryDoubleAttribute("pitch", &value)!=TIXML_SUCCESS) {
-      printf("Could not find ContactForceDistribution:Weights:Torque:pitch!\n");
-      return false;
-    }
-    virtualForceWeights_(4) = value;
-    if (pElem->QueryDoubleAttribute("yaw", &value)!=TIXML_SUCCESS) {
-      printf("Could not find ContactForceDistribution:Weights:Torque:yaw!\n");
-      return false;
-    }
-    virtualForceWeights_(5) = value;
-
-    pElem = hFDWeights.FirstChild("Regularizer").Element();
-    if (!pElem) {
-      printf("Could not find ContactForceDistribution:Weights:Regularizer!\n");
-      return false;
-    }
-    if (pElem->QueryDoubleAttribute("value", &groundForceWeight_)!=TIXML_SUCCESS) {
-      printf("Could not find ContactForceDistribution:Weights:minimalNormalGroundForce_:value!\n");
-      return false;
-    }
-
-
-
-
-  pElem = hFD.FirstChild("Constraints").Element();
-  if (!pElem) {
-    printf("Could not find ForceDistribution:Constraints\n");
-    return false;
-  }
-  if (pElem->QueryDoubleAttribute("frictionCoefficient", &this->frictionCoefficient_)!=TIXML_SUCCESS) {
-    printf("Could not find ContactForceDistribution:Constraints:frictionCoefficient!\n");
-    return false;
-  }
-  if (pElem->QueryDoubleAttribute("minimalNormalForce", &this->frictionCoefficient_)!=TIXML_SUCCESS) {
-    printf("Could not find ContactForceDistribution:Constraints:minimalNormalForce!\n");
-    return false;
-  }
-
-
-  isParametersLoaded_ = true;
-  return isParametersLoaded_;
-}
-
 bool ContactForceDistribution::addToLogger()
 {
   // TODO Is this already implemented somewhere else?
@@ -492,7 +398,93 @@ bool ContactForceDistribution::getNetForceAndTorqueOnBase(
 bool ContactForceDistribution::updateLoggerData()
 {
   if (!isLogging_) return false;
+  return true;
+}
 
+bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
+{
+  isParametersLoaded_ = false;
+
+  TiXmlElement* element = handle.FirstChild("ContactForceDistribution").ToElement();
+  if (!element) {
+    printf("Could not find ContactForceDistribution\n");
+    return false;
+  }
+  TiXmlHandle forceDistributionHandle(handle.FirstChild("ContactForceDistribution"));
+
+  // Weights
+  element = forceDistributionHandle.FirstChild("Weights").Element();
+  if (!element) {
+    printf("Could not find ContactForceDistribution:Weights\n");
+    return false;
+  }
+  TiXmlHandle weightsHandle(handle.FirstChild("ContactForceDistribution").FirstChild("Weights"));
+
+  // Virtual force weights
+  element = weightsHandle.FirstChild("Force").Element();
+  if (!element) {
+    printf("Could not find ContactForceDistribution:Weights:Force!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("heading", &virtualForceWeights_(0))!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Weights:Force:heading!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("lateral", &virtualForceWeights_(1))!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Weights:Force:lateral!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("vertical", &virtualForceWeights_(2))!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Weights:Force:vertical!\n");
+    return false;
+  }
+
+  // Virtual torque weights
+  element = weightsHandle.FirstChild("Torque").Element();
+  if (!element) {
+    printf("Could not find ContactForceDistribution:Weights:Torque!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("roll", &virtualForceWeights_(3))!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Weights:Torque:roll!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("pitch", &virtualForceWeights_(4))!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Weights:Torque:pitch!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("yaw", &virtualForceWeights_(5))!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Weights:Torque:yaw!\n");
+    return false;
+  }
+
+  // Regularizer
+  element = weightsHandle.FirstChild("Regularizer").Element();
+  if (!element) {
+    printf("Could not find ContactForceDistribution:Weights:Regularizer!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("value", &groundForceWeight_)!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Weights:Regularizer:value!\n");
+    return false;
+  }
+
+  // Constraints
+  element = forceDistributionHandle.FirstChild("Constraints").Element();
+  if (!element) {
+    printf("Could not find ContactForceDistribution:Constraints\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("frictionCoefficient", &frictionCoefficient_)!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Constraints:frictionCoefficient!\n");
+    return false;
+  }
+  if (element->QueryDoubleAttribute("minimalNormalForce", &minimalNormalGroundForce_)!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Constraints:minimalNormalForce!\n");
+    return false;
+  }
+
+  isParametersLoaded_ = true;
   return true;
 }
 
