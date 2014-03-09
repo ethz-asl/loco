@@ -2,7 +2,8 @@
  * LegPropertiesStarlETH.hpp
  *
  *  Created on: Mar 4, 2014
- *      Author: gech
+ *      Author: Christian Gehring, Péter Fankhauser
+ *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
 #ifndef LOCO_LEGPROPERTIESSTARLETH_HPP_
@@ -10,12 +11,19 @@
 
 #include "loco/common/LegPropertiesBase.hpp"
 
+#include "RobotModel.hpp"
+
 namespace loco {
 
 class LegPropertiesStarlETH: public LegPropertiesBase {
  public:
-  LegPropertiesStarlETH();
+  LegPropertiesStarlETH(int iLeg, robotModel::RobotModel* robotModel);
   virtual ~LegPropertiesStarlETH();
+  virtual bool update();
+
+ protected:
+  int iLeg_;
+  robotModel::RobotModel* robotModel_;
 };
 
 } /* namespace loco */

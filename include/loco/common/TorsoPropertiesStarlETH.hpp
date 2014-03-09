@@ -2,7 +2,8 @@
  * TorsoPropertiesStarlETH.hpp
  *
  *  Created on: Mar 4, 2014
- *      Author: gech
+ *      Author: Christian Gehring, Péter Fankhauser
+ *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
 #ifndef LOCO_TORSOPROPERTIESSTARLETH_HPP_
@@ -10,12 +11,18 @@
 
 #include "loco/common/TorsoPropertiesBase.hpp"
 
+#include "RobotModel.hpp"
+
 namespace loco {
 
 class TorsoPropertiesStarlETH: public TorsoPropertiesBase {
  public:
-  TorsoPropertiesStarlETH();
+  TorsoPropertiesStarlETH(robotModel::RobotModel* robotModel);
   virtual ~TorsoPropertiesStarlETH();
+  virtual bool update();
+
+ protected:
+  robotModel::RobotModel* robotModel_;
 };
 
 } /* namespace loco */

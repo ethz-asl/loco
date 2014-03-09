@@ -1,8 +1,9 @@
 /*
- * StateDynamicGait.hpp
+ * TorsoStarlETH.hpp
  *
  *  Created on: Feb 25, 2014
- *      Author: gech
+ *      Author: Christian Gehring, Péter Fankhauser
+ *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
 #ifndef LOCO_STATEDYNAMICGAIT_HPP_

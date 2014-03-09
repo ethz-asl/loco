@@ -13,6 +13,7 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotMo
   LegBase(name),
   iLeg_(iLeg),
   robotModel_(robotModel),
+  properties_(iLeg, robotModel),
   positionWorldToFootInWorldFrame_(),
   positionWorldToHipInWorldFrame_(),
   positionWorldToFootInBaseFrame_(),
@@ -25,27 +26,33 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotMo
   translationJacobianBaseToFootInBaseFrame_.setZero();
 }
 
-LegStarlETH::~LegStarlETH() {
+LegStarlETH::~LegStarlETH()
+{
 
 }
 
-const Position& LegStarlETH::getWorldToFootPositionInWorldFrame() const  {
+const Position& LegStarlETH::getWorldToFootPositionInWorldFrame() const
+{
   return positionWorldToFootInWorldFrame_;
 }
 
-const Position& LegStarlETH::getWorldToHipPositionInWorldFrame() const  {
+const Position& LegStarlETH::getWorldToHipPositionInWorldFrame() const
+{
   return positionWorldToHipInWorldFrame_;
 }
 
-const Position& LegStarlETH::getWorldToFootPositionInBaseFrame() const  {
+const Position& LegStarlETH::getWorldToFootPositionInBaseFrame() const
+{
   return positionWorldToFootInBaseFrame_;
 }
 
-const Position& LegStarlETH::getWorldToHipPositionInBaseFrame() const  {
+const Position& LegStarlETH::getWorldToHipPositionInBaseFrame() const
+{
   return positionWorldToHipInBaseFrame_;
 }
 
-const LinearVelocity& LegStarlETH::getHipLinearVelocityInWorldFrame() const {
+const LinearVelocity& LegStarlETH::getHipLinearVelocityInWorldFrame() const
+{
   return linearVelocityHipInWorldFrame_;
 }
 
@@ -55,7 +62,10 @@ const LegBase::TranslationJacobian& LegStarlETH::getTranslationJacobianFromBaseT
 }
 
 
-void LegStarlETH::advance(double dt) {
+void LegStarlETH::advance(double dt)
+{
+  properties_.update();
+  
   if (robotModel_->contacts().getCA()(iLeg_) == 1) {
     this->setIsGrounded(true);
   } else {
@@ -71,7 +81,7 @@ void LegStarlETH::advance(double dt) {
   positionWorldToFootInBaseFrame_ = rquatWorldToBase.rotate(positionWorldToFootInWorldFrame_);
   positionWorldToHipInBaseFrame_ = rquatWorldToBase.rotate(positionWorldToHipInWorldFrame_);
 
-  this->setMeasuredJointPositions(robotModel_->q().getQj().block<3,1>(iLeg_*nJoints_,0));
+  this->setMeasuredJointPositions(robotModel_->q().getQj().block<3, 1>(iLeg_ * nJoints_, 0));
 
   positionBaseToFootInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)->getPos());
   positionBaseToHipInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Hip_CSmb(iLeg_)->getPos());
@@ -80,16 +90,20 @@ void LegStarlETH::advance(double dt) {
       ->getJ().block<nDofContactPoint_, nJoints_>(0, RM_NQB + iLeg_*nJoints_);
 }
 
-
-LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) {
- return JointPositions(robotModel_->kin().getJointPosFromFootPosCSmb(positionBaseToFootInBaseFrame.toImplementation(), iLeg_));
+LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPositionInBaseFrame(
+    const Position& positionBaseToFootInBaseFrame)
+{
+  return JointPositions(
+      robotModel_->kin().getJointPosFromFootPosCSmb(positionBaseToFootInBaseFrame.toImplementation(), iLeg_));
 }
 
-LegPropertiesBase& LegStarlETH::getProperties() {
- return static_cast<LegPropertiesBase&>(properties_);
+LegPropertiesBase& LegStarlETH::getProperties()
+{
+  return static_cast<LegPropertiesBase&>(properties_);
 }
 
-const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const {
+const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const
+{
   return positionBaseToFootInBaseFrame_;
 }
 

@@ -60,7 +60,7 @@ bool VirtualModelController::compute()
   computeVirtualForce();
   computeVirtualTorque();
   contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
-  printDebugInformation();
+//  cout << *this << endl;
   return true;
 }
 
@@ -87,12 +87,22 @@ bool VirtualModelController::computeGravityCompensation()
   // Transforming gravity compensation into body frame
   // TODO Make this with full calculations with all bodies.
   // TODO Make this getting mass and gravity from common module.
-  // TODO Make acceleration.
-  Vector3d verticalDirection = Vector3d::UnitZ();
-  verticalDirection = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(verticalDirection);
-  gravityCompensationForce_ = Force(25.0 * 9.81 * verticalDirection);
+  Vector3d gravitationalAcceleration = 9.81 * Vector3d::UnitZ(); // TODO Make this a LinearAcceleration type.
+  gravitationalAcceleration = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAcceleration);
 
-  gravityCompensationTorque_.setZero();
+  gravityCompensationForce_ = Force(torso_->getProperties().getMass() * gravitationalAcceleration);
+  for (const auto& leg : *legs_)
+  {
+    gravityCompensationForce_ += Force(leg->getProperties().getMass() * gravitationalAcceleration);
+  }
+
+  gravityCompensationTorque_ = Torque(
+      torso_->getProperties().getCenterOfMassInBaseFrame().toImplementation().cross(torso_->getProperties().getMass() * gravitationalAcceleration));
+  for (const auto& leg : *legs_)
+  {
+    gravityCompensationTorque_ += Torque(
+      leg->getProperties().getCenterOfMassInBaseFrame().toImplementation().cross(leg->getProperties().getMass() * gravitationalAcceleration));
+  }
   return true;
 }
 
@@ -131,28 +141,30 @@ bool VirtualModelController::isParametersLoaded() const
   return false;
 }
 
-void VirtualModelController::printDebugInformation()
+std::ostream& operator << (std::ostream& out, const VirtualModelController& motionController)
 {
   IOFormat CommaInitFmt(StreamPrecision, DontAlignCols, ", ", ", ", "", "", " << ", ";");
-  std::string sep = "\n----------------------------------------\n";
   std::cout.precision(3);
 
-  kindr::rotations::eigen_impl::EulerAnglesYprPD errorYawRollPitch(orientationError_);
+  kindr::rotations::eigen_impl::EulerAnglesYprPD errorYawRollPitch(motionController.orientationError_);
   Force netForce, netForceError;
   Torque netTorque, netTorqueError;
-  contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
-  netForceError = virtualForce_ - netForce;
-  netTorqueError = virtualTorque_ - netTorque;
+  motionController.contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
+  netForceError = motionController.virtualForce_ - netForce;
+  netTorqueError = motionController.virtualTorque_ - netTorque;
 
-  isParametersLoaded();
-  cout << "Position error" << positionError_.toImplementation().format(CommaInitFmt) << endl;
-  cout << "Orientation error" << orientationError_.format(CommaInitFmt) << endl;
-  cout << "Linear velocity error" << linearVelocityError_.toImplementation().format(CommaInitFmt) << endl;
-  cout << "Angular velocity error" << angularVelocityError_.toImplementation().format(CommaInitFmt) << endl;
-  cout << "Desired virtual force" << virtualForce_.toImplementation().format(CommaInitFmt) << endl;
-  cout << "Desired virtual torque" << virtualTorque_.toImplementation().format(CommaInitFmt) << endl;
-  cout << "Net force error" << netForceError.toImplementation().format(CommaInitFmt) << endl;
-  cout << "Net torque error" << netTorqueError.toImplementation().format(CommaInitFmt) << sep;
+  motionController.isParametersLoaded();
+  out << "Position error" << motionController.positionError_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Orientation error" << motionController.orientationError_.format(CommaInitFmt) << endl;
+  out << "Linear velocity error" << motionController.linearVelocityError_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Angular velocity error" << motionController.angularVelocityError_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Gravity compensation force" << motionController.gravityCompensationForce_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Gravity compensation torque" << motionController.gravityCompensationTorque_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Desired virtual force" << motionController.virtualForce_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Desired virtual torque" << motionController.virtualTorque_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Net force error" << netForceError.toImplementation().format(CommaInitFmt) << endl;
+  out << "Net torque error" << netTorqueError.toImplementation().format(CommaInitFmt) << endl;
+  return out;
 }
 
 Force VirtualModelController::getDesiredVirtualForceInBaseFrame() const {

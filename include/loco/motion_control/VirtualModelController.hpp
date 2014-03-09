@@ -17,6 +17,8 @@
 #include "loco/common/TypeDefs.hpp"
 // Eigen
 #include <Eigen/Core>
+// Cout
+#include <iostream>
 
 namespace loco {
 
@@ -54,10 +56,8 @@ class VirtualModelController : public MotionControllerBase
    */
   bool compute();
 
-  /*!
-   * Prints information for debugging.
-   */
-  void printDebugInformation();
+
+  friend std::ostream& operator << (std::ostream& out, const VirtualModelController& motionController);
 
 
   Force getDesiredVirtualForceInBaseFrame() const;

@@ -2,7 +2,8 @@
  * TypeDefs.hpp
  *
  *  Created on: Feb 27, 2014
- *      Author: gech
+ *      Author: Christian Gehring, Péter Fankhauser
+ *   Institute: ETH Zurich, Autonomous Systems Lab
  */
 
 #ifndef LOCO_TYPEDEFS_HPP_
@@ -25,6 +26,8 @@ typedef kindr::positions::eigen_impl::Position3D Position;
 
 typedef kindr::positions::eigen_impl::LinearVelocityD LinearVelocity;
 typedef kindr::rotations::eigen_impl::LocalAngularVelocityAD LocalAngularVelocity;
+
+typedef kindr::vector::eigen_impl::Acceleration3D LinearAcceleration;
 
 typedef kindr::vector::eigen_impl::Force3D Force;
 typedef kindr::vector::eigen_impl::Torque3D Torque;
