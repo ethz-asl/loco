@@ -28,6 +28,22 @@ VirtualModelController::~VirtualModelController()
 
 }
 
+//bool VirtualModelController::loadParameters()
+//{
+//  // TODO Replace this with proper parameters loading (XML)
+//
+//  // walk
+//  proportionalGainTranslation_ << 500.0, 640.0, 600.0;
+//  derivativeGainTranslation_ << 150.0, 100.0, 120.0;
+//  feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
+//  proportionalGainRotation_ << 400.0, 200.0, 0.0; // 400.0, 200.0, 0.0;
+//  derivativeGainRotation_ << 6.0, 9.0, 100.0; // 6.0, 9.0, 0.0;
+//  feedforwardGainRotation_ << 0.0, 0.0, 0.0;
+//
+//  return MotionControllerBase::loadParameters();
+//}
+
+
 bool VirtualModelController::addToLogger()
 {
   robotUtils::addEigenMatrixToLog(virtualForce_.toImplementation(), "VMC_desired_force", "N", true);
@@ -265,7 +281,8 @@ bool VirtualModelController::loadParameters(const TiXmlHandle& handle)
     return false;
   }
 
-  return MotionControllerBase::loadParameters(handle);
+  isParametersLoaded_ = true;
+  return isParametersLoaded_;
 }
 
 

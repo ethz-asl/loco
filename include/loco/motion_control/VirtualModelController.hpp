@@ -45,10 +45,7 @@ class VirtualModelController : public MotionControllerBase
    * Load parameters.
    * @return true if successful
    */
-  bool loadParameters(const TiXmlHandle& handle);
-
-
-  bool loadParameters(const TiXmlHandle& handle);
+  virtual bool loadParameters(const TiXmlHandle& handle);
 
   /*!
    * Add data to logger (optional).

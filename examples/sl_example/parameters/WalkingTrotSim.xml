@@ -65,7 +65,7 @@
 			<Torque roll="20" pitch="20" yaw="5" />
 			<Regularizer value="0.00001"/>
 		</Weights>
-		<Constraints frictionCoefficient="0.7" />
+		<Constraints frictionCoefficient="0.7" minimalNormalForce="2.0"  />
 	</ContactForceDistribution> 
 </LocomotionController>
 

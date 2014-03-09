@@ -29,11 +29,7 @@ ContactForceDistributionBase::~ContactForceDistributionBase()
 
 }
 
-bool ContactForceDistributionBase::loadParameters(const TiXmlHandle& handle)
-{
-  isParametersLoaded_ = true;
-  return true;
-}
+
 
 bool ContactForceDistributionBase::addToLogger()
 {

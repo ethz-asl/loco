@@ -25,11 +25,7 @@ MotionControllerBase::~MotionControllerBase()
 
 }
 
-bool MotionControllerBase::loadParameters(const TiXmlHandle& handle)
-{
-  isParametersLoaded_ = true;
-  return true;
-}
+
 
 bool MotionControllerBase::addToLogger()
 {

@@ -42,7 +42,7 @@ class MotionControllerBase
    * Load parameters.
    * @return true if successful
    */
-  virtual bool loadParameters(const TiXmlHandle& handle);
+  virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 
   /*!
    * Add data to logger (optional).

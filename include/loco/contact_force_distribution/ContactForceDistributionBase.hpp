@@ -35,7 +35,7 @@ class ContactForceDistributionBase
    * Loads the parameters. Has to be done before using this class.
    * @return true if successful.
    */
-  virtual bool loadParameters(const TiXmlHandle& handle);
+  virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 
   /*!
    * Adds class data to the logger (optional).

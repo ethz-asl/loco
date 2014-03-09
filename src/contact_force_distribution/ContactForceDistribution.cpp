@@ -33,15 +33,109 @@ ContactForceDistribution::~ContactForceDistribution()
 
 }
 
-bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
-{
-  // TODO Replace this with proper parameters loading (XML)
-//  virtualForceWeights_ << 1.0, 1.0, 1.0, 10.0, 10.0, 5.0;
-  virtualForceWeights_ << 1.0, 1.0, 0.1, 10.0, 10.0, 5.0;
-  groundForceWeight_ = 0.00001;
-  minimalNormalGroundForce_ = 2.0;
-  frictionCoefficient_ = 2.0;
-  return ContactForceDistributionBase::loadParameters(handle);
+//bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
+//{
+//  // TODO Replace this with proper parameters loading (XML)
+////  virtualForceWeights_ << 1.0, 1.0, 1.0, 10.0, 10.0, 5.0;
+//  virtualForceWeights_ << 1.0, 1.0, 0.1, 10.0, 10.0, 5.0;
+//  groundForceWeight_ = 0.00001;
+//  minimalNormalGroundForce_ = 2.0;
+//  frictionCoefficient_ = 2.0;
+//  return ContactForceDistributionBase::loadParameters(handle);
+//}
+
+bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle) {
+  TiXmlElement* pElem = handle.FirstChild("ContactForceDistribution").ToElement();
+  if (!pElem) {
+    std::cout << "Could not find ContactForceDistribution!\n";
+    return false;
+  }
+  TiXmlHandle hFD(handle.FirstChild("ContactForceDistribution"));
+
+  pElem = hFD.FirstChild("Weights").Element();
+  if (!pElem) {
+    printf("Could not find ContactForceDistribution:Weights\n");
+    return false;
+  }
+  TiXmlHandle hFDWeights(handle.FirstChild("ContactForceDistribution").FirstChild("Weights"));
+
+
+
+    pElem = hFDWeights.FirstChild("Force").Element();
+    if (!pElem) {
+      printf("Could not find ContactForceDistribution:Weights:Force!\n");
+      return false;
+    }
+    double value = 0.0;
+    if (pElem->QueryDoubleAttribute("heading", &value)!=TIXML_SUCCESS) {
+      printf("Could not find ContactForceDistribution:Weights:Force:heading!\n");
+      return false;
+    }
+    virtualForceWeights_(0) = value;
+    if (pElem->QueryDoubleAttribute("lateral", &value)!=TIXML_SUCCESS) {
+      printf("Could not find ContactForceDistribution:Weights:Force:lateral!\n");
+      return false;
+    }
+    virtualForceWeights_(1) = value;
+    if (pElem->QueryDoubleAttribute("vertical", &value)!=TIXML_SUCCESS) {
+      printf("Could not find ContactForceDistribution:Weights:Force:vertical!\n");
+      return false;
+    }
+    virtualForceWeights_(2) = value;
+
+
+
+    pElem = hFDWeights.FirstChild("Torque").Element();
+    if (!pElem) {
+      printf("Could not find ContactForceDistribution:Weights:Torque!\n");
+      return false;
+    }
+    if (pElem->QueryDoubleAttribute("roll", &value)!=TIXML_SUCCESS) {
+      printf("Could not find ContactForceDistribution:Weights:Torque:roll!\n");
+      return false;
+    }
+    virtualForceWeights_(3) = value;
+    if (pElem->QueryDoubleAttribute("pitch", &value)!=TIXML_SUCCESS) {
+      printf("Could not find ContactForceDistribution:Weights:Torque:pitch!\n");
+      return false;
+    }
+    virtualForceWeights_(4) = value;
+    if (pElem->QueryDoubleAttribute("yaw", &value)!=TIXML_SUCCESS) {
+      printf("Could not find ContactForceDistribution:Weights:Torque:yaw!\n");
+      return false;
+    }
+    virtualForceWeights_(5) = value;
+
+    pElem = hFDWeights.FirstChild("Regularizer").Element();
+    if (!pElem) {
+      printf("Could not find ContactForceDistribution:Weights:Regularizer!\n");
+      return false;
+    }
+    if (pElem->QueryDoubleAttribute("value", &groundForceWeight_)!=TIXML_SUCCESS) {
+      printf("Could not find ContactForceDistribution:Weights:minimalNormalGroundForce_:value!\n");
+      return false;
+    }
+
+
+
+
+  pElem = hFD.FirstChild("Constraints").Element();
+  if (!pElem) {
+    printf("Could not find ForceDistribution:Constraints\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("frictionCoefficient", &this->frictionCoefficient_)!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Constraints:frictionCoefficient!\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("minimalNormalForce", &this->frictionCoefficient_)!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:Constraints:minimalNormalForce!\n");
+    return false;
+  }
+
+
+  isParametersLoaded_ = true;
+  return isParametersLoaded_;
 }
 
 bool ContactForceDistribution::addToLogger()

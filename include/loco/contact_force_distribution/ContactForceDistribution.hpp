@@ -46,7 +46,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
    * Loads the parameters. Has to be done before using this class.
    * @return true if successful.
    */
-  bool loadParameters(const TiXmlHandle& handle);
+  virtual bool loadParameters(const TiXmlHandle& handle);
 
   /*!
    * Adds class data to the logger (optional).
@@ -60,7 +60,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
    * @param virtualTorque the desired virtual torque on the base (in base frame).
    * @return true if successful.
    */
-  bool computeForceDistribution(const Force& virtualForce,
+  virtual bool computeForceDistribution(const Force& virtualForce,
                                 const Torque& virtualTorque);
 
   /*!
