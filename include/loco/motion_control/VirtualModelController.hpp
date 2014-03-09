@@ -73,7 +73,7 @@ class VirtualModelController : public MotionControllerBase
   std::shared_ptr<ContactForceDistributionBase> contactForceDistribution_;
 
   //! Base position error in base frame.
-  Position positionError_;
+  Position positionErrorInBaseFrame_;
   //! Base orientation error vector (rotation vector) in base frame.
   Eigen::Vector3d orientationError_;
   //! Base linear velocity error in base frame.

@@ -47,7 +47,7 @@ bool ContactForceDistributionBase::checkIfParametersLoaded() const
 bool ContactForceDistributionBase::checkIfForceDistributionComputed() const
 {
   if (isForceDistributionComputed_) return true;
-  cout << "Contact force distribution is not computed yet or was unsuccessful." << endl; // TODO use warning output
+//  cout << "Contact force distribution is not computed yet or was unsuccessful." << endl; // TODO use warning output
   return false;
 }
 

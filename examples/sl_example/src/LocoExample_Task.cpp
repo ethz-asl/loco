@@ -24,8 +24,8 @@ LocoExample::~LocoExample() {
 bool LocoExample::LocoExample::add()
 {
   double dt = time_step_;
-//  std::string gait = "StaticLateralWalk";
-  std::string gait = "WalkingTrot";
+  std::string gait = "StaticLateralWalk";
+//  std::string gait = "WalkingTrot";
 
   std::cout << "Gait: " << gait << std::endl;
   std::string parameterFile = std::string(getenv("LAB_ROOT")) +"/locomotionControl/examples/sl_example/parameters/" + gait + "Sim.xml";
@@ -97,7 +97,9 @@ bool LocoExample::run()
 {
   missionController_->advance(time_step_);
   torso_->getDesiredState().setBaseTwistInBaseFrame(missionController_->getDesiredBaseTwistInBaseFrame());
-  locomotionController_->advance(time_step_);
+  if(!locomotionController_->advance(time_step_)) {
+//    activateSafetyPilot(false,false);
+  }
 
   robotModel::VectorActMLeg legMode;
   int iLeg = 0;

@@ -20,7 +20,7 @@
 				<Timing startShiftAwayFromLegAtStancePhase="0.5" startShiftTowardsLegAtSwingPhase="0.5" />
 			</CoMOverSupportPolygonControl>
 			<HipConfiguration>
-				<HeightTrajectory offset="0.42" fore="true" hind="true">
+				<HeightTrajectory offset="0.39" fore="true" hind="true">
 					<Knot t="0.00" v="-0" />
 					<Knot t="0.25" v="0.00" />
 					<Knot t="0.50" v="-0.0" />
@@ -33,7 +33,7 @@
 	<FootPlacementStrategy>
 		<InvertedPendulum>
 			<Offset>
-				<Fore heading="-0.00" lateral="-0.01" />
+				<Fore heading="-0.00" lateral="-0.05" />
 				<Hind  heading="0.00" lateral="0.07" />
 			</Offset>
 			<HeightTrajectory>
@@ -44,23 +44,23 @@
 	        <Gains feedbackScale="1.1" />
         </InvertedPendulum>
 	</FootPlacementStrategy>
-	<VirtualForceControl>
+	<VirtualModelController>
 		<Gains>
 			<Heading 	kp="500" 	kd="150" 	kff="25.0"	/>
 			<Lateral 	kp="640" 	kd="100"	kff="0"		/>
 			<Vertical 	kp="600" 	kd="120" 	kff="230"/>
 			<Roll 		kp="400" 	kd="6" 	kff="0" />
 			<Pitch 		kp="200" 	kd="9" 	kff="0" />
-			<Yaw 		kp="0" 		kd="0" 	kff="0" /> 	/>
+			<Yaw 		kp="0" 		kd="50" 	kff="0" /> 	/>
 		</Gains>
-	</VirtualForceControl>
+	</VirtualModelController>
 	<ContactForceDistribution>
 		<Weights>
-			<Force heading="1.0" lateral="1.0" vertical="0.1" />
+			<Force heading="1.0" lateral="1.0" vertical="10" />
 			<Torque roll="10" pitch="10" yaw="5" />
 			<Regularizer value="0.00001"/>
 		</Weights>
-		<Constraints frictionCoefficient="0.7" minimalNormalForce="2.0" />
+		<Constraints frictionCoefficient="0.8" minimalNormalForce="2.0" />
 	</ContactForceDistribution> 
 </LocomotionController>
 

@@ -84,14 +84,17 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   return isInitialized_;
 }
 
-void LocomotionControllerDynamicGait::advance(double dt) {
+bool LocomotionControllerDynamicGait::advance(double dt) {
   if (!isInitialized_) {
-    return;
+//    std::cout << "locomotion controller is not initialized!\n" << std::endl;
+    return false;
   }
+
 
   for (auto leg : *legs_) {
     leg->advance(dt);
     //  std::cout << *leg << std::endl;
+//    std::cout << "leg: " << leg->getName() << (leg->isGrounded() ? "is grounded" : "is NOT grounded") << std::endl;
   }
   torso_->advance(dt);
   limbCoordinator_->advance(dt);
@@ -106,7 +109,11 @@ void LocomotionControllerDynamicGait::advance(double dt) {
   }
   footPlacementStrategy_->advance(dt);
   torsoController_->advance(dt);
-  virtualModelController_->compute();
+  if(!virtualModelController_->compute()) {
+    std::cout << "Error from virtual model controller" << std::endl;
+    return false;
+  }
+
 
   /* Set desired joint positions, torques and control mode */
   LegBase::JointControlModes desiredJointControlModes;
@@ -121,6 +128,7 @@ void LocomotionControllerDynamicGait::advance(double dt) {
     iLeg++;
   }
 
+  return true;
 }
 
 TorsoBase* LocomotionControllerDynamicGait::getTorso() {
@@ -134,6 +142,10 @@ FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStra
   return footPlacementStrategy_;
 }
 
+
+bool LocomotionControllerDynamicGait::isInitialized() const {
+  return isInitialized_;
+}
 
 } /* namespace loco */
 

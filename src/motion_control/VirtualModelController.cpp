@@ -60,7 +60,9 @@ bool VirtualModelController::compute()
   computeGravityCompensation();
   computeVirtualForce();
   computeVirtualTorque();
-  contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_);
+  if (!contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_)) {
+    return false;
+  }
 //  cout << *this << endl;
   return true;
 }
@@ -69,9 +71,9 @@ bool VirtualModelController::computeError()
 {
   // Errors are defined as (q_desired - q_actual).
 
-  positionError_ = torso_->getDesiredState().getWorldToBasePositionInWorldFrame()
+  const Position positionErrorInWorldFrame_ = torso_->getDesiredState().getWorldToBasePositionInWorldFrame()
       - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-  positionError_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionError_);
+  positionErrorInBaseFrame_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionErrorInWorldFrame_);
 
   orientationError_ = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().boxMinus(
       torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());
@@ -113,7 +115,7 @@ bool VirtualModelController::computeVirtualForce()
   feedforwardTerm.x() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().x();
   feedforwardTerm.y() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().y();
 
-  virtualForce_ = Force(proportionalGainTranslation_.cwiseProduct(positionError_.toImplementation())
+  virtualForce_ = Force(proportionalGainTranslation_.cwiseProduct(positionErrorInBaseFrame_.toImplementation())
                        + derivativeGainTranslation_.cwiseProduct(linearVelocityError_.toImplementation())
                        + feedforwardGainTranslation_.cwiseProduct(feedforwardTerm)
                        + gravityCompensationForce_.toImplementation());
@@ -155,7 +157,7 @@ std::ostream& operator << (std::ostream& out, const VirtualModelController& moti
   netTorqueError = motionController.virtualTorque_ - netTorque;
 
   motionController.isParametersLoaded();
-  out << "Position error" << motionController.positionError_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Position error" << motionController.positionErrorInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
   out << "Orientation error" << motionController.orientationError_.format(CommaInitFmt) << endl;
   out << "Linear velocity error" << motionController.linearVelocityError_.toImplementation().format(CommaInitFmt) << endl;
   out << "Angular velocity error" << motionController.angularVelocityError_.toImplementation().format(CommaInitFmt) << endl;
@@ -182,6 +184,7 @@ void VirtualModelController::getDistributedVirtualForceAndTorqueInBaseFrame(Forc
 
 bool VirtualModelController::loadParameters(const TiXmlHandle& handle)
 {
+  isParametersLoaded_ = false;
   TiXmlElement* pElem;
 
   TiXmlHandle hFPS(handle.FirstChild("VirtualModelController").FirstChild("Gains"));

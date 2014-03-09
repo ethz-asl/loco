@@ -42,11 +42,10 @@
 			</Offset>
 			<HeightTrajectory>
 				<Knot t="0.0" v="0.0" />
-				<Knot t="0.1" v="0.05" />
-				<Knot t="0.8" v="0.05" />
+				<Knot t="0.5" v="0.09" />
 				<Knot t="1.0" v="-0.00" />
 			</HeightTrajectory>
-	        <Gains feedbackScale="1.2" />
+	        <Gains feedbackScale="1.1" />
         </InvertedPendulum>
 	</FootPlacementStrategy>
 	<VirtualModelController>

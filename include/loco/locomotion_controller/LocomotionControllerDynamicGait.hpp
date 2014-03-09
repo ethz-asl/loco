@@ -44,7 +44,10 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual void advance(double dt);
+  virtual bool advance(double dt);
+
+
+  virtual bool isInitialized() const;
 
   virtual TorsoBase* getTorso();
   virtual LegGroup* getLegs();

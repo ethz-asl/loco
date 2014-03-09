@@ -27,7 +27,10 @@ class LocomotionControllerBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual void advance(double dt) = 0;
+  virtual bool advance(double dt) = 0;
+
+
+  virtual bool isInitialized() const = 0;
 
 
 

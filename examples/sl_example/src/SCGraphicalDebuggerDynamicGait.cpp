@@ -159,7 +159,9 @@ void SCGraphicalDebuggerDynamicGait::drawDesiredVirtualForces(loco::TorsoBase* t
 void SCGraphicalDebuggerDynamicGait::drawDistributedVirtualForces(loco::TorsoBase* torso, loco::LegGroup* legs, loco::VirtualModelController* virtualModelController) {
   Force netForceInBaseFrame;
   Torque netTorqueInBaseFrame;
+
   virtualModelController->getDistributedVirtualForceAndTorqueInBaseFrame(netForceInBaseFrame, netTorqueInBaseFrame);
+
   glPushMatrix();
   glColor3d(0.0f, 0.0f, 1.0f);
   drawForceAndTorqueInBaseFrame(netForceInBaseFrame, netTorqueInBaseFrame, torso, legs);
