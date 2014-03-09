@@ -29,14 +29,6 @@ ContactForceDistributionBase::~ContactForceDistributionBase()
 
 }
 
-
-
-bool ContactForceDistributionBase::addToLogger()
-{
-  isLogging_ = true;
-  return true;
-}
-
 bool ContactForceDistributionBase::checkIfParametersLoaded() const
 {
   if (isParametersLoaded_) return true;

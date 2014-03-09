@@ -41,7 +41,7 @@ class ContactForceDistributionBase
    * Adds class data to the logger (optional).
    * @return true if successful.
    */
-  virtual bool addToLogger();
+  virtual bool addToLogger() = 0;
 
   /*!
    * Computes the contact force distribution of the virtual force and torque.

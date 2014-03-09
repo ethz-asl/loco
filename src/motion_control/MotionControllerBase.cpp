@@ -25,14 +25,6 @@ MotionControllerBase::~MotionControllerBase()
 
 }
 
-
-
-bool MotionControllerBase::addToLogger()
-{
-  isLogging_ = true;
-  return true;
-}
-
 bool MotionControllerBase::checkIfParametersLoaded() const
 {
   if (isParametersLoaded_) return true;

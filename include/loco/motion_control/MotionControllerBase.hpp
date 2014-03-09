@@ -48,7 +48,7 @@ class MotionControllerBase
    * Add data to logger (optional).
    * @return true if successful
    */
-  virtual bool addToLogger();
+  virtual bool addToLogger() = 0;
 
   /*!
    * Computes the joint torques from the desired base pose.

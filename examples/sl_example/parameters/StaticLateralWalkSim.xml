@@ -49,8 +49,8 @@
 			<Heading 	kp="500" 	kd="150" 	kff="25.0"	/>
 			<Lateral 	kp="640" 	kd="100"	kff="0"		/>
 			<Vertical 	kp="600" 	kd="120" 	kff="230"/>
-			<Roll 		kp="400" 	kd="6" 	kff="0" />
-			<Pitch 		kp="200" 	kd="9" 	kff="0" />
+			<Roll 		kp="400" 	kd="6" 		kff="0" />
+			<Pitch 		kp="200" 	kd="9" 		kff="0" />
 			<Yaw 		kp="0" 		kd="50" 	kff="0" /> 	/>
 		</Gains>
 	</VirtualModelController>

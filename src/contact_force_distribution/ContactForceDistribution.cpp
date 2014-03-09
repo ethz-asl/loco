@@ -149,7 +149,7 @@ bool ContactForceDistribution::addToLogger()
 
   updateLoggerData();
 
-  return ContactForceDistributionBase::addToLogger();
+  return true;
 }
 
 bool ContactForceDistribution::computeForceDistribution(
