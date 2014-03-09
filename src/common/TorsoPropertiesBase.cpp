@@ -11,7 +11,8 @@
 namespace loco {
 
 TorsoPropertiesBase::TorsoPropertiesBase()
-    : mass_(0.0)
+    : mass_(0.0),
+      centerOfMassInBaseFrame_()
 {
 
 }

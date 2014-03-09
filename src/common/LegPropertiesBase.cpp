@@ -11,6 +11,8 @@
 namespace loco {
 
 LegPropertiesBase::LegPropertiesBase()
+    : mass_(0.0),
+      centerOfMassInBaseFrame_()
 {
 
 }

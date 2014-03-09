@@ -85,7 +85,6 @@ bool VirtualModelController::computeError()
 bool VirtualModelController::computeGravityCompensation()
 {
   // Transforming gravity compensation into body frame
-  // TODO Make this with full calculations with all bodies.
   // TODO Make this getting mass and gravity from common module.
   Vector3d gravitationalAcceleration = 9.81 * Vector3d::UnitZ(); // TODO Make this a LinearAcceleration type.
   gravitationalAcceleration = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAcceleration);
@@ -103,6 +102,7 @@ bool VirtualModelController::computeGravityCompensation()
     gravityCompensationTorque_ += Torque(
       leg->getProperties().getCenterOfMassInBaseFrame().toImplementation().cross(leg->getProperties().getMass() * gravitationalAcceleration));
   }
+
   return true;
 }
 
