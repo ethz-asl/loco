@@ -11,6 +11,7 @@
 #include "ContactForceDistributionBase.hpp"
 #include "loco/common/LegBase.hpp"
 #include <Eigen/SparseCore>
+#include "tinyxml.h"
 
 namespace loco {
 
@@ -45,7 +46,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
    * Loads the parameters. Has to be done before using this class.
    * @return true if successful.
    */
-  bool loadParameters();
+  bool loadParameters(const TiXmlHandle& handle);
 
   /*!
    * Adds class data to the logger (optional).

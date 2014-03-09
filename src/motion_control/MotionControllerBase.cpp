@@ -25,7 +25,7 @@ MotionControllerBase::~MotionControllerBase()
 
 }
 
-bool MotionControllerBase::loadParameters()
+bool MotionControllerBase::loadParameters(const TiXmlHandle& handle)
 {
   isParametersLoaded_ = true;
   return true;

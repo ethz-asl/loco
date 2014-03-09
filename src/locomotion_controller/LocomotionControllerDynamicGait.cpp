@@ -70,11 +70,11 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
     return false;
   }
 
-  if (!virtualModelController_->loadParameters()) {
+  if (!virtualModelController_->loadParameters(hLoco)) {
     return false;
   }
 
-  if (!contactForceDistribution_->loadParameters()) {
+  if (!contactForceDistribution_->loadParameters(hLoco)) {
     return false;
   }
 

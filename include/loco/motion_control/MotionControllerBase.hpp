@@ -16,6 +16,8 @@
 #include "loco/common/TorsoBase.hpp"
 // Contact force distribution
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
+// Parameters
+#include "tinyxml.h"
 // Needed?
 #include "loco/temp_helpers/Legs.hpp"
 
@@ -40,7 +42,7 @@ class MotionControllerBase
    * Load parameters.
    * @return true if successful
    */
-  virtual bool loadParameters();
+  virtual bool loadParameters(const TiXmlHandle& handle);
 
   /*!
    * Add data to logger (optional).

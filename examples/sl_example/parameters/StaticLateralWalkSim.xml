@@ -44,16 +44,16 @@
 	        <Gains feedbackScale="1.1" />
         </InvertedPendulum>
 	</FootPlacementStrategy>
-	<VirtualForceControl>
+	<VirtualModelController>
 		<Gains>
-			<Sagittal 	kp="500" 		kd="150" 	kff="25.0"	/>
+			<Sagittal 	kp="500" 	kd="150" 	kff="25.0"	/>
 			<Coronal 	kp="640" 	kd="100"	kff="0"		/>
 			<Vertical 	kp="600" 	kd="120" 	kff="230"/>
-			<Roll 		kp="400" 	kd="6" 	kff="0" />
-			<Pitch 		kp="200" 	kd="9" 	kff="0" />
-			<Yaw 		kp="0" 	kd="0" 	kff="0" /> 	/>
+			<Roll 		kp="400" 	kd="6" 		kff="0" />
+			<Pitch 		kp="200" 	kd="9" 		kff="0" />
+			<Yaw 		kp="0" 		kd="0" 		kff="0" /> 	/>
 		</Gains>
-	</VirtualForceControl>
+	</VirtualModelController>
 	<ContactForceDistribution>
 		<Weights>
 			<Force Sagittal="1.0" Coronal="1.0" Vertical="0.1" />

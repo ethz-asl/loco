@@ -33,15 +33,15 @@ ContactForceDistribution::~ContactForceDistribution()
 
 }
 
-bool ContactForceDistribution::loadParameters()
+bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
 {
   // TODO Replace this with proper parameters loading (XML)
 //  virtualForceWeights_ << 1.0, 1.0, 1.0, 10.0, 10.0, 5.0;
   virtualForceWeights_ << 1.0, 1.0, 0.1, 10.0, 10.0, 5.0;
   groundForceWeight_ = 0.00001;
   minimalNormalGroundForce_ = 2.0;
-  frictionCoefficient_ = 0.7; // 0.8
-  return ContactForceDistributionBase::loadParameters();
+  frictionCoefficient_ = 2.0;
+  return ContactForceDistributionBase::loadParameters(handle);
 }
 
 bool ContactForceDistribution::addToLogger()

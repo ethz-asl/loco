@@ -28,26 +28,6 @@ VirtualModelController::~VirtualModelController()
 
 }
 
-bool VirtualModelController::loadParameters()
-{
-  // TODO Replace this with proper parameters loading (XML)
-
-  // walk
-  proportionalGainTranslation_ << 500.0, 640.0, 600.0;
-  derivativeGainTranslation_ << 150.0, 100.0, 120.0;
-  feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
-  proportionalGainRotation_ << 400.0, 200.0, 0.0; // 400.0, 200.0, 0.0;
-  derivativeGainRotation_ << 6.0, 9.0, 100.0; // 6.0, 9.0, 0.0;
-  feedforwardGainRotation_ << 0.0, 0.0, 0.0;
-
-  return MotionControllerBase::loadParameters();
-}
-
-bool VirtualModelController::loadParameters(const TiXmlHandle& handle) {
-
-  return MotionControllerBase::loadParameters();
-}
-
 bool VirtualModelController::addToLogger()
 {
   robotUtils::addEigenMatrixToLog(virtualForce_.toImplementation(), "VMC_desired_force", "N", true);
@@ -182,6 +162,110 @@ Torque VirtualModelController::getDesiredVirtualTorqueInBaseFrame() const {
 
 void VirtualModelController::getDistributedVirtualForceAndTorqueInBaseFrame(Force& netForce, Torque& netTorque) const {
   contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
+}
+
+bool VirtualModelController::loadParameters(const TiXmlHandle& handle)
+{
+  TiXmlElement* pElem;
+
+  TiXmlHandle hFPS(handle.FirstChild("VirtualModelController").FirstChild("Gains"));
+  pElem = hFPS.Element();
+  if (!pElem) {
+    printf("Could not find VirtualModelController:Gains\n");
+    return false;
+  }
+
+  // Heading
+  pElem = hFPS.FirstChild("Heading").Element();
+  if (pElem->QueryDoubleAttribute("kp", &proportionalGainTranslation_.x())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Heading:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &derivativeGainTranslation_.x())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Heading:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kff", &feedforwardGainTranslation_.x())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Heading:kff\n");
+    return false;
+  }
+
+  // Lateral
+  pElem = hFPS.FirstChild("Lateral").Element();
+  if (pElem->QueryDoubleAttribute("kp", &proportionalGainTranslation_.y())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Lateral:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &derivativeGainTranslation_.y())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Lateral:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kff", &feedforwardGainTranslation_.y())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Lateral:kff\n");
+    return false;
+  }
+
+  // Vertical
+  pElem = hFPS.FirstChild("Vertical").Element();
+  if (pElem->QueryDoubleAttribute("kp", &proportionalGainTranslation_.z())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Vertical:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &derivativeGainTranslation_.z())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Vertical:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kff", &feedforwardGainTranslation_.z())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Vertical:kff\n");
+    return false;
+  }
+
+  // Roll
+  pElem = hFPS.FirstChild("Roll").Element();
+  if (pElem->QueryDoubleAttribute("kp", &proportionalGainRotation_.x())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Roll:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &derivativeGainRotation_.x())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Roll:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kff", &feedforwardGainRotation_.x())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Roll:kff\n");
+    return false;
+  }
+
+  // Pitch
+  pElem = hFPS.FirstChild("Pitch").Element();
+  if (pElem->QueryDoubleAttribute("kp", &proportionalGainRotation_.y())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Pitch:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &derivativeGainRotation_.y())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Pitch:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kff", &feedforwardGainRotation_.y())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Pitch:kff\n");
+    return false;
+  }
+
+  // Yaw
+  pElem = hFPS.FirstChild("Yaw").Element();
+  if (pElem->QueryDoubleAttribute("kp", &proportionalGainRotation_.z())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Yaw:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &derivativeGainRotation_.z())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Yaw:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kff", &feedforwardGainRotation_.z())!=TIXML_SUCCESS) {
+    printf("Could not find VirtualModelController:Gains:Yaw:kff\n");
+    return false;
+  }
+
+  return MotionControllerBase::loadParameters(handle);
 }
 
 

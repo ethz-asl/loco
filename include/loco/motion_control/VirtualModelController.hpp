@@ -19,6 +19,7 @@
 #include <Eigen/Core>
 // Cout
 #include <iostream>
+#include "tinyxml.h"
 
 #include "tinyxml.h"
 
@@ -44,7 +45,7 @@ class VirtualModelController : public MotionControllerBase
    * Load parameters.
    * @return true if successful
    */
-  bool loadParameters();
+  bool loadParameters(const TiXmlHandle& handle);
 
 
   bool loadParameters(const TiXmlHandle& handle);
