@@ -88,6 +88,7 @@ void LegStarlETH::advance(double dt)
 
   translationJacobianBaseToFootInBaseFrame_ = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)
       ->getJ().block<nDofContactPoint_, nJoints_>(0, RM_NQB + iLeg_*nJoints_);
+
 }
 
 LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPositionInBaseFrame(
@@ -109,6 +110,11 @@ const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const
 
 const Position& LegStarlETH::getBaseToHipPositionInBaseFrame() const {
   return positionBaseToHipInBaseFrame_;
+}
+
+
+void LegStarlETH::setSurfaceNormal(const Eigen::Vector3d& surfaceNormal) {
+  surfaceNormal_ = surfaceNormal;
 }
 
 } /* namespace loco */

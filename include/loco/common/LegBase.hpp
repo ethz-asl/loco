@@ -75,7 +75,7 @@ class LegBase {
   virtual void setDesiredLoadFactor(double loadFactor);
 
   virtual const Eigen::Vector3d& getSurfaceNormal() const;
-  virtual bool setSurfaceNormal(const Eigen::Vector3d& surfaceNormal);
+  virtual void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal) = 0;
 
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();

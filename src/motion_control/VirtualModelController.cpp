@@ -43,6 +43,11 @@ bool VirtualModelController::loadParameters()
   return MotionControllerBase::loadParameters();
 }
 
+bool VirtualModelController::loadParameters(const TiXmlHandle& handle) {
+
+  return MotionControllerBase::loadParameters();
+}
+
 bool VirtualModelController::addToLogger()
 {
   robotUtils::addEigenMatrixToLog(virtualForce_.toImplementation(), "VMC_desired_force", "N", true);

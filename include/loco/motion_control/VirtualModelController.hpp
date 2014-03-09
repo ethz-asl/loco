@@ -20,6 +20,8 @@
 // Cout
 #include <iostream>
 
+#include "tinyxml.h"
+
 namespace loco {
 
 class VirtualModelController : public MotionControllerBase
@@ -43,6 +45,9 @@ class VirtualModelController : public MotionControllerBase
    * @return true if successful
    */
   bool loadParameters();
+
+
+  bool loadParameters(const TiXmlHandle& handle);
 
   /*!
    * Add data to logger (optional).

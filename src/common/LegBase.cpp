@@ -84,16 +84,10 @@ double LegBase::getDesiredLoadFactor() const
 
 const Eigen::Vector3d& LegBase::getSurfaceNormal() const
 {
-  if (isGrounded()) return surfaceNormal_;
-  return Eigen::Vector3d::Zero();
+  return surfaceNormal_;
 }
 
-bool LegBase::setSurfaceNormal(const Eigen::Vector3d& surfaceNormal)
-{
-  if(!isGrounded()) return false;
-  surfaceNormal_ = surfaceNormal;
-  return true;
-}
+
 
 void LegBase::setStancePhase(double phase) {
   stancePhase_ = phase;

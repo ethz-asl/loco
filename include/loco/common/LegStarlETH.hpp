@@ -38,6 +38,8 @@ class LegStarlETH : public loco::LegBase {
   virtual void advance(double dt);
 
   virtual LegPropertiesBase& getProperties();
+
+  virtual void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal);
  private:
   int iLeg_;
   robotModel::RobotModel* robotModel_;

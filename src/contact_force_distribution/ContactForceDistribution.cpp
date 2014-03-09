@@ -162,8 +162,10 @@ bool ContactForceDistribution::getTerrainNormals()
   {
     if (legInfo.second.isPartOfOptimization_)
     {
-      Vector3d surfaceNormal;
-      terrain_->getNormal(legInfo.first->getWorldToFootPositionInWorldFrame().toImplementation(), surfaceNormal);
+      Vector3d surfaceNormal = Vector3d::Zero();
+      if (legInfo.first->isGrounded()) {
+        terrain_->getNormal(legInfo.first->getWorldToFootPositionInWorldFrame().toImplementation(), surfaceNormal);
+      }
       legInfo.first->setSurfaceNormal(surfaceNormal);
     }
   }
