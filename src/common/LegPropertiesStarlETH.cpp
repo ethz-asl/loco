@@ -26,11 +26,11 @@ bool LegPropertiesStarlETH::update()
   double mass = robotModel_->params().hip_.m + robotModel_->params().thigh_.m + robotModel_->params().shank_.m;
   setMass(mass);
 
-  Position centerOfMassInBaseFrame = Position(
+  Position positionBaseToCenterOfMassInBaseFrame = Position(
      (robotModel_->kin().getJacobianTByLeg_Base2HipCoG_CSmb(iLeg_)->getPos() * robotModel_->params().hip_.m
     + robotModel_->kin().getJacobianTByLeg_Base2ThighCoG_CSmb(iLeg_)->getPos() * robotModel_->params().thigh_.m
     + robotModel_->kin().getJacobianTByLeg_Base2ShankCoG_CSmb(iLeg_)->getPos() * robotModel_->params().shank_.m) / mass);
-  setCenterOfMassInBaseFrame(centerOfMassInBaseFrame);
+  setBaseToCenterOfMassPositionInBaseFrame(positionBaseToCenterOfMassInBaseFrame);
 
   return true;
 }

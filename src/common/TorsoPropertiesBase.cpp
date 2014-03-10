@@ -12,7 +12,7 @@ namespace loco {
 
 TorsoPropertiesBase::TorsoPropertiesBase()
     : mass_(0.0),
-      centerOfMassInBaseFrame_()
+      positionBaseToCenterOfMassInBaseFrame_()
 {
 
 }
@@ -32,14 +32,14 @@ void TorsoPropertiesBase::setMass(double mass)
   mass_ = mass;
 }
 
-const Position& TorsoPropertiesBase::getCenterOfMassInBaseFrame() const
+const Position& TorsoPropertiesBase::getBaseToCenterOfMassPositionInBaseFrame() const
 {
-  return centerOfMassInBaseFrame_;
+  return positionBaseToCenterOfMassInBaseFrame_;
 }
 
-void TorsoPropertiesBase::setCenterOfMassInBaseFrame(const Position& centerOfMassInBaseFrame)
+void TorsoPropertiesBase::setBaseToCenterOfMassPositionInBaseFrame(const Position& centerOfMassInBaseFrame)
 {
-  centerOfMassInBaseFrame_ = centerOfMassInBaseFrame;
+  positionBaseToCenterOfMassInBaseFrame_ = centerOfMassInBaseFrame;
 }
 
 } /* namespace loco */

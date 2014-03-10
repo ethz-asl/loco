@@ -20,12 +20,12 @@ class TorsoPropertiesBase {
   virtual bool update() = 0;
   virtual double getMass() const;
   virtual void setMass(double mass);
-  virtual const Position& getCenterOfMassInBaseFrame() const;
-  virtual void setCenterOfMassInBaseFrame(const Position& centerOfMassInBaseFrame);
+  virtual const Position& getBaseToCenterOfMassPositionInBaseFrame() const;
+  virtual void setBaseToCenterOfMassPositionInBaseFrame(const Position& centerOfMassInBaseFrame);
 
  private:
   double mass_;
-  Position centerOfMassInBaseFrame_;
+  Position positionBaseToCenterOfMassInBaseFrame_;
 };
 
 } /* namespace loco */

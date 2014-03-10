@@ -99,11 +99,11 @@ bool VirtualModelController::computeGravityCompensation()
   }
 
   gravityCompensationTorque_ = Torque(
-      torso_->getProperties().getCenterOfMassInBaseFrame().toImplementation().cross(torso_->getProperties().getMass() * gravitationalAcceleration));
+      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().toImplementation().cross(torso_->getProperties().getMass() * gravitationalAcceleration));
   for (const auto& leg : *legs_)
   {
     gravityCompensationTorque_ += Torque(
-      leg->getProperties().getCenterOfMassInBaseFrame().toImplementation().cross(leg->getProperties().getMass() * gravitationalAcceleration));
+      leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().toImplementation().cross(leg->getProperties().getMass() * gravitationalAcceleration));
   }
 
   return true;
