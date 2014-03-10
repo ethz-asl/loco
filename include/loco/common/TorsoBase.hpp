@@ -16,6 +16,10 @@
 #include "loco/common/TorsoPropertiesBase.hpp"
 namespace loco {
 
+//! Base class for a torso
+/*! This should be used only as a data container
+ *
+ */
 class TorsoBase {
  public:
   TorsoBase();
@@ -28,6 +32,9 @@ class TorsoBase {
   virtual double getStridePhase() = 0;
   virtual void setStridePhase(double stridePhase) = 0;
 
+  /*! Advances in time, i.e. updates states
+   * @param dt time step between updates
+   */
   virtual void advance(double dt) = 0;
 
 

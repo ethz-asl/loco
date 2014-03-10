@@ -10,6 +10,8 @@
 
 namespace loco {
 
+
+//! Base class for state of the Leg
 class LegStateBase {
  public:
   LegStateBase();

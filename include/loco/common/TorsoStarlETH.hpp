@@ -21,7 +21,10 @@
 
 namespace loco {
 
-
+//! Torso of StarlETH
+/*! This should be used only as a data container
+ *
+ */
 class TorsoStarlETH: public TorsoBase {
  public:
   TorsoStarlETH(robotModel::RobotModel* robotModel);

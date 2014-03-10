@@ -79,10 +79,10 @@ public:
 	/*! Gets the foot position for the swing leg
 	 *
 	 * @param leg	reference to the leg
-	 * @param dt	tiny time step in the future to compute the desired velocities
+	 * @param tinyTimeStep	tiny time step in the future to compute the desired velocities
 	 * @return
 	 */
-	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt);
+	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double tinyTimeStep);
 
 
 
@@ -140,7 +140,7 @@ public:
   Eigen::Vector3d vBase_CSw_;
 
   //! passive rotation quaternion from world to base frame
-  RotationQuaternion p_BW_;
+  RotationQuaternion orientationWorldToBaseInWorldFrame_;
 
 
 

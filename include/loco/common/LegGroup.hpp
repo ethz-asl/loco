@@ -13,8 +13,19 @@
 
 namespace loco {
 
+//! Container of legs for easy access
+/*! Allows to iterate over all legs:
+ *  LegGroup* legs = new LegGroup();
+ *  leg* leg = new LegBase()
+ *  legs.addleg(leg);
+ *  legs.addLeg()
+ *  for (auto leg : *legs) {
+ *    leg->...
+ *  }
+ */
 class LegGroup {
  private:
+  //! Container type
   typedef std::vector<LegBase*> Legs;
  public:
   typedef typename Legs::size_type size_type;
@@ -24,25 +35,31 @@ class LegGroup {
   typedef Legs::reference reference;
 
  private:
+  //! Container of the legs
   std::vector<LegBase*> legs_;
 
  public:
+  //! Constructor
   LegGroup();
+
+  /*! Constructor
+   *
+   * Create leg group with four legs
+   * @param leftForeLeg
+   * @param rightForeLeg
+   * @param leftHindLeg
+   * @param rightHindLeg
+   */
   LegGroup(LegBase* leftForeLeg, LegBase* rightForeLeg, LegBase* leftHindLeg, LegBase* rightHindLeg);
+
+  //! Destructor
   virtual ~LegGroup();
 
-  LegBase* getLeftForeLeg() {
-    return legs_[0];
-  }
-  LegBase* getRightForeLeg() {
-    return legs_[1];
-  }
-  LegBase* getLeftHindLeg() {
-    return legs_[2];
-  }
-  LegBase* getRightHindLeg() {
-    return legs_[3];
-  }
+  LegBase* getLeftForeLeg();
+  LegBase* getRightForeLeg();
+  LegBase* getLeftHindLeg();
+  LegBase* getRightHindLeg();
+
 
   iterator begin() {
     return legs_.begin();
@@ -77,22 +94,28 @@ class LegGroup {
     return legs_.front();
   }
 
-
+  //! @returns number of legs
   size_type size() const {
     return legs_.size();
   }
 
+  /*! Adds a leg to the container
+   *
+   * @param leg
+   */
   void addLeg(LegBase* leg) {
     legs_.push_back(leg);
   }
 
 
+  /*! Gets leg by index
+   *
+   * @param offset  index
+   * @return  reference to leg
+   */
   const LegBase* getLeg(size_type offset) const {
     return legs_[offset];
   }
-
-
-
 
 
 };

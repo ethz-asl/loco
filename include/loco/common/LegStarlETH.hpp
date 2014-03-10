@@ -17,9 +17,20 @@
 
 namespace loco {
 
+//! Leg of StarlETH
+/*! This should be used only as a data container
+ *
+ */
 class LegStarlETH : public loco::LegBase {
  public:
+  /*! Cosntructor
+   *
+   * @param name        name of the leg
+   * @param iLeg        index of the leg (only for internal usage)
+   * @param robotModel  refernce to robot model
+   */
   LegStarlETH(const std::string& name, int iLeg, robotModel::RobotModel* robotModel);
+
   virtual ~LegStarlETH();
   virtual const Position& getWorldToFootPositionInWorldFrame()  const;
   virtual const Position& getWorldToHipPositionInWorldFrame()  const;
@@ -41,8 +52,11 @@ class LegStarlETH : public loco::LegBase {
 
   virtual void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal);
  private:
+  //! index of the leg (only used to access robot model)
   int iLeg_;
+  //! reference to robot model
   robotModel::RobotModel* robotModel_;
+
   Position positionWorldToFootInWorldFrame_;
   Position positionWorldToHipInWorldFrame_;
   LinearVelocity linearVelocityHipInWorldFrame_;

@@ -38,10 +38,10 @@ public:
 	 * This function is invoked to compute the joint angles of the swing leg by inverse kinematics
 	 *
 	 * @param iLeg  index of the leg {0, 1, 2, 3}
-	 * @param dt	tiny time step in the future to compute the desired velocities
+	 * @param tinyTimeStep	tiny time step in the future to compute the desired velocities
 	 * @return  desired foot position expressed in world coordinates
 	 */
-	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double dt) = 0;
+	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double tinyTimeStep) = 0;
 
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
   virtual bool initialize(double dt) = 0;

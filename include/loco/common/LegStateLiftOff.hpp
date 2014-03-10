@@ -15,6 +15,9 @@
 
 namespace loco {
 
+//!  State of the leg at the event of lift-off
+/*!
+ */
 class LegStateLiftOff : public loco::LegStateBase {
  public:
   LegStateLiftOff();

@@ -21,6 +21,10 @@
 
 namespace loco {
 
+//! Base class for a leg
+/*! This should be used only as a data container
+ *
+ */
 class LegBase {
  public:
   static constexpr int nJoints_ = 3;

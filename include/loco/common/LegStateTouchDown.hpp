@@ -12,6 +12,9 @@
 
 namespace loco {
 
+//!  State of the leg at the event of touch-down
+/*!
+ */
 class LegStateTouchDown : public loco::LegStateBase {
  public:
   LegStateTouchDown();

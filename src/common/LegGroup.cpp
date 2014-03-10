@@ -25,4 +25,19 @@ LegGroup::LegGroup(LegBase* leftForeLeg, LegBase* rightForeLeg, LegBase* leftHin
   addLeg(rightHindLeg);
 }
 
+LegBase* LegGroup::getLeftForeLeg() {
+  return legs_[0];
+}
+LegBase* LegGroup::getRightForeLeg() {
+  return legs_[1];
+}
+LegBase* LegGroup::getLeftHindLeg() {
+  return legs_[2];
+}
+LegBase* LegGroup::getRightHindLeg() {
+  return legs_[3];
+}
+
+
+
 } /* namespace loco */
