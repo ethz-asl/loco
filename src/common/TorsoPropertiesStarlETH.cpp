@@ -24,7 +24,7 @@ TorsoPropertiesStarlETH::~TorsoPropertiesStarlETH()
 
 bool TorsoPropertiesStarlETH::update()
 {
-  setGravity(LinearAcceleration(0.0, 0.0, robotModel_->params().gravity_));
+  setGravity(LinearAcceleration(0.0, 0.0, -robotModel_->params().gravity_));
   setMass(robotModel_->params().mainbody_.m);
   setBaseToCenterOfMassPositionInBaseFrame(Position(0.0, 0.0, robotModel_->params().mainbody_.s));
   return true;
