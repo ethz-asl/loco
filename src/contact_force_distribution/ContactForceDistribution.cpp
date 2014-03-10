@@ -33,17 +33,6 @@ ContactForceDistribution::~ContactForceDistribution()
 
 }
 
-//bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
-//{
-//  // TODO Replace this with proper parameters loading (XML)
-////  virtualForceWeights_ << 1.0, 1.0, 1.0, 10.0, 10.0, 5.0;
-//  virtualForceWeights_ << 1.0, 1.0, 0.1, 10.0, 10.0, 5.0;
-//  groundForceWeight_ = 0.00001;
-//  minimalNormalGroundForce_ = 2.0;
-//  frictionCoefficient_ = 2.0;
-//  return ContactForceDistributionBase::loadParameters(handle);
-//}
-
 bool ContactForceDistribution::addToLogger()
 {
   // TODO Is this already implemented somewhere else?
@@ -163,7 +152,8 @@ bool ContactForceDistribution::getTerrainNormals()
     if (legInfo.second.isPartOfOptimization_)
     {
       Vector3d surfaceNormal = Vector3d::Zero();
-      if (legInfo.first->isGrounded()) {
+      if (legInfo.first->isGrounded())
+      {
         terrain_->getNormal(legInfo.first->getWorldToFootPositionInWorldFrame().toImplementation(), surfaceNormal);
       }
       legInfo.first->setSurfaceNormal(surfaceNormal);

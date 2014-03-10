@@ -42,4 +42,14 @@ void TorsoPropertiesBase::setBaseToCenterOfMassPositionInBaseFrame(const Positio
   positionBaseToCenterOfMassInBaseFrame_ = centerOfMassInBaseFrame;
 }
 
+const LinearAcceleration& TorsoPropertiesBase::getGravity() const
+{
+  return gravity_;
+}
+
+void TorsoPropertiesBase::setGravity(const LinearAcceleration& gravity)
+{
+  gravity_ = gravity;
+}
+
 } /* namespace loco */
