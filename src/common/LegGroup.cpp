@@ -18,4 +18,11 @@ LegGroup::~LegGroup() {
 
 }
 
+LegGroup::LegGroup(LegBase* leftForeLeg, LegBase* rightForeLeg, LegBase* leftHindLeg, LegBase* rightHindLeg) {
+  addLeg(leftForeLeg);
+  addLeg(rightForeLeg);
+  addLeg(leftHindLeg);
+  addLeg(rightHindLeg);
+}
+
 } /* namespace loco */

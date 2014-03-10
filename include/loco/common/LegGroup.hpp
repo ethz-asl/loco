@@ -28,6 +28,7 @@ class LegGroup {
 
  public:
   LegGroup();
+  LegGroup(LegBase* leftForeLeg, LegBase* rightForeLeg, LegBase* leftHindLeg, LegBase* rightHindLeg);
   virtual ~LegGroup();
 
   LegBase* getLeftForeLeg() {
