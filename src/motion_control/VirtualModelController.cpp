@@ -28,22 +28,6 @@ VirtualModelController::~VirtualModelController()
 
 }
 
-//bool VirtualModelController::loadParameters()
-//{
-//  // TODO Replace this with proper parameters loading (XML)
-//
-//  // walk
-//  proportionalGainTranslation_ << 500.0, 640.0, 600.0;
-//  derivativeGainTranslation_ << 150.0, 100.0, 120.0;
-//  feedforwardGainTranslation_ << 25.0, 0.0, 0.0;
-//  proportionalGainRotation_ << 400.0, 200.0, 0.0; // 400.0, 200.0, 0.0;
-//  derivativeGainRotation_ << 6.0, 9.0, 100.0; // 6.0, 9.0, 0.0;
-//  feedforwardGainRotation_ << 0.0, 0.0, 0.0;
-//
-//  return MotionControllerBase::loadParameters();
-//}
-
-
 bool VirtualModelController::addToLogger()
 {
   robotUtils::addEigenMatrixToLog(virtualForce_.toImplementation(), "VMC_desired_force", "N", true);
@@ -87,23 +71,21 @@ bool VirtualModelController::computeError()
 
 bool VirtualModelController::computeGravityCompensation()
 {
-  // Transforming gravity compensation into body frame
-  // TODO Make this getting mass and gravity from common module.
-  Vector3d gravitationalAcceleration = 9.81 * Vector3d::UnitZ(); // TODO Make this a LinearAcceleration type.
-  gravitationalAcceleration = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAcceleration);
+  const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
+  const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInBaseFrame);
 
-  gravityCompensationForce_ = Force(torso_->getProperties().getMass() * gravitationalAcceleration);
+  gravityCompensationForce_ = Force((torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
   for (const auto& leg : *legs_)
   {
-    gravityCompensationForce_ += Force(leg->getProperties().getMass() * gravitationalAcceleration);
+    gravityCompensationForce_ += Force((leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
   }
 
   gravityCompensationTorque_ = Torque(
-      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().toImplementation().cross(torso_->getProperties().getMass() * gravitationalAcceleration));
+      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   for (const auto& leg : *legs_)
   {
     gravityCompensationTorque_ += Torque(
-      leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().toImplementation().cross(leg->getProperties().getMass() * gravitationalAcceleration));
+      leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   }
 
   return true;

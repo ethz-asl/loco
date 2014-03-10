@@ -22,8 +22,11 @@ class TorsoPropertiesBase {
   virtual void setMass(double mass);
   virtual const Position& getBaseToCenterOfMassPositionInBaseFrame() const;
   virtual void setBaseToCenterOfMassPositionInBaseFrame(const Position& centerOfMassInBaseFrame);
+  const LinearAcceleration& getGravity() const;
+  void setGravity(const LinearAcceleration& gravity);
 
  private:
+  LinearAcceleration gravity_;
   double mass_;
   Position positionBaseToCenterOfMassInBaseFrame_;
 };
