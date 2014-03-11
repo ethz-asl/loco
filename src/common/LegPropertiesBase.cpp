@@ -42,4 +42,13 @@ void LegPropertiesBase::setBaseToCenterOfMassPositionInBaseFrame(const Position&
   positionBaseToCenterOfMassInBaseFrame_ = centerOfMassInBaseFrame;
 }
 
+const Position& LegPropertiesBase::getDesiredDefaultSteppingPositionHipToFootInBaseFrame() const
+{
+  return desiredDefaultSteppingPositionHipToFootInBaseFrame_;
+}
+void LegPropertiesBase::setDesiredDefaultSteppingPositionHipToFootInBaseFrame(const Position& position)
+{
+  desiredDefaultSteppingPositionHipToFootInBaseFrame_ = position;
+}
+
 } /* namespace loco */

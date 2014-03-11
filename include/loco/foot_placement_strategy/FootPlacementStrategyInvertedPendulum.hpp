@@ -43,116 +43,62 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
 
 public:
 	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
-	FootPlacementStrategyInvertedPendulum();
 	virtual ~FootPlacementStrategyInvertedPendulum();
-
-
-	void setFootLocationAtLiftOff(int iLeg, const loco::Position& footLocationAtLiftOffCSw);
-
-	// properties
-  void setGravity(double gravity);
-  void setSwingFootHeightTrajectory(const SwingFootHeightTrajectory& swingFootHeightTrajectory);
-  void setSwingPhase(int iLeg, double swingPhase);
-  void setStanceDuration(int iLeg, double stanceDuration);
-
-  void setGroundHeight(int iLeg, double groundHeightCSw);
-  void setHipPosition(int iLeg, const loco::Position& rHip_CSw);
-  void setHipVelocity(int iLeg, const loco::LinearVelocity& vHip_CSw);
-  void setBaseVelocity(int iLeg, const loco::LinearVelocity& vBase_CSw);
-
-  void setRotationWorldToBase(const RotationQuaternion& p_BW);
-
-
-  /*!
-   * this is the vector from the leg frame origin to the foot at the moment when the foot's status changes
-   * from stance to swing. Measured in world coordinates.
-   */
-  void setSteppingOffsetToHip(int iLeg, const loco::Position& steppingOffsetToHip_CSw);
-
-
-  /*! Sets the desired heading speed of the robot
-   * @param desiredHeadingSpeed   [m/s]
-   */
-  void setDesiredHeadingSpeed(double desiredHeadingSpeed);
-
-
-	/*! Gets the foot position for the swing leg
-	 *
-	 * @param leg	reference to the leg
-	 * @param tinyTimeStep	tiny time step in the future to compute the desired velocities
-	 * @return
-	 */
-	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double tinyTimeStep);
-
-
-
-
-	void setFeedbackScale(double scale);
 
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual bool initialize(double dt);
   virtual void advance(double dt);
 
-  bool loadHeightTrajectory(const TiXmlHandle &hTrajectory);
 public:
+  //! Reference to the legs
   LegGroup* legs_;
-  robotTerrain::TerrainBase* terrain_;
+  //! Reference to the torso
   TorsoBase* torso_;
-
+  //! Reference to the terrain
+  robotTerrain::TerrainBase* terrain_;
 
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
-	Trajectory1D stepInterpolationFunction;
+	Trajectory1D stepInterpolationFunction_;
 
 	//! this value is used to scale the default feedback contribution for the stepping location
 	double stepFeedbackScale_;
 
-	//! foot location at lift-off expressed in world frame
-  loco::Position footLocationAtLiftOffCSw_[4];
-
-  //! gravitational acceleration (default: 9.81)
-  double gravity_;
-
   //! trajectory of the height of the swing foot above ground over the swing phase
   SwingFootHeightTrajectory swingFootHeightTrajectory_;
 
-  //! desired heading speed
-  double desiredHeadingSpeedInBaseFrame_;
-
-  //! stance duration for each leg
-  double stanceDuration_[4];
-
-  //! current swing phase for each leg  in range [0, 1] (1 if in stance mode)
-  double swingPhase_[4];
-
-  //! estimated ground height for each leg in world frame
-  double groundHeightAtFootInWorldFrame_[4];
-
-  //! default stepping offset with respect to the hip (only x and y coordinates are considered)
-  loco::Position steppingOffsetToHipInBaseFrame_[4];
-
-  //! position of the hip joint expressed in world frame
-  loco::Position positionWorldToHipInWorldFrame_[4];
-
-  //! linear velocity of the hip joint expressed in world frame
-  loco::LinearVelocity linearVelocityHipInWorldFrame_[4];
-
-  //! linear velocity of the base expressed in world frame
-  loco::LinearVelocity linearVelocityBaseInWorldFrame_;
-
-  //! passive rotation quaternion from world to base frame
-  RotationQuaternion orientationWorldToBaseInWorldFrame_;
-
-
-
 protected:
-	double getCoronalComponentOfFootStep(double phase, double initialStepOffset, double stepGuess);
-	double getSagittalComponentOfFootStep(double phase, double initialStepOffset, double stepGuess);
+  /*! Gets the foot position for the swing leg
+   *
+   * @param leg reference to the leg
+   * @param tinyTimeStep  tiny time step in the future to compute the desired velocities
+   * @return
+   */
+  virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
+
+	double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess);
+	double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess);
 
 
-	loco::Position getCurrentFootPositionFromPredictedFootHoldLocation(double phase, const loco::Position& footLocationAtLiftOffCSw, const loco::Position& rFootHold_CSw, const RotationQuaternion& p_BW);
+	/*! Computes current desired foot position by interpolating between the predicted and last foothold depending on the swing phase
+	 *
+	 * @param swingPhase                                           interpolation parameter
+	 * @param positionWorldToFootAtLiftOffInWorldFrame             foot location at lift-off
+	 * @param positionWorldToFootAtNextTouchDownInWorldFrame       foot location at next touch-down
+	 * @return desired foot position in World frame
+	 */
+	Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame);
 
-	double getFootHeightOverTerrain(int iLeg, const loco::Position& position);
+	/*! Gets the height of the terrain in world frame at a certain location
+	 * @param position  location
+	 * @return  height of the terrain
+	 */
+	double getHeightOfTerrainInWorldFrame(const loco::Position& position);
 
+	/*! load foot height trajectory from XML
+	 * @param hTrajectory handle
+	 * @return true if successful
+	 */
+  bool loadHeightTrajectory(const TiXmlHandle &hTrajectory);
 };
 
 } // namespace loco

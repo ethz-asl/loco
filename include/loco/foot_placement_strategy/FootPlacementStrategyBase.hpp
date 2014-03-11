@@ -33,16 +33,6 @@ public:
 	 */
 	virtual ~FootPlacementStrategyBase();
 
-
-	/*! Gets the foot position for the swing leg expressed in world frame
-	 * This function is invoked to compute the joint angles of the swing leg by inverse kinematics
-	 *
-	 * @param iLeg  index of the leg {0, 1, 2, 3}
-	 * @param tinyTimeStep	tiny time step in the future to compute the desired velocities
-	 * @return  desired foot position expressed in world coordinates
-	 */
-	virtual Position getDesiredWorldToFootPositionInWorldFrame(int iLeg, double tinyTimeStep) = 0;
-
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
   virtual bool initialize(double dt) = 0;
 
