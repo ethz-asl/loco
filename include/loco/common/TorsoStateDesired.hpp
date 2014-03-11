@@ -12,6 +12,7 @@
 
 namespace loco {
 
+//! Desired state of the torso
 class TorsoStateDesired: public TorsoStateBase {
  public:
   TorsoStateDesired();

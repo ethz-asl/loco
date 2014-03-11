@@ -37,16 +37,16 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(Leg
 
 
   for (int iLeg=0; iLeg < 4; iLeg++) {
-    estimatedGroundHeightCSw_[iLeg] = 0.0;
+    groundHeightAtFootInWorldFrame_[iLeg] = 0.0;
     stanceDuration_[iLeg] = 0.8;
     swingPhase_[iLeg] = 0.0;
-    footLocationAtLiftOffCSw_[iLeg]  = Eigen::Vector3d::Zero();
-    rHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-    vHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-    steppingOffsetToHip_CSmb_[iLeg]  = Eigen::Vector3d::Zero();
+    footLocationAtLiftOffCSw_[iLeg]  = Position::Zero();
+    positionWorldToHipInWorldFrame_[iLeg] = Position::Zero();
+    linearVelocityHipInWorldFrame_[iLeg] = LinearVelocity::Zero();
+    steppingOffsetToHipInBaseFrame_[iLeg]  = Position::Zero();
   }
 
-  vBase_CSw_ =  Eigen::Vector3d::Zero();
+  linearVelocityBaseInWorldFrame_ =  LinearVelocity::Zero();
 
   desiredHeadingSpeedInBaseFrame_ = 0.0;
 
@@ -69,16 +69,16 @@ FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum() :
 
 
   for (int iLeg=0; iLeg < 4; iLeg++) {
-    estimatedGroundHeightCSw_[iLeg] = 0.0;
+    groundHeightAtFootInWorldFrame_[iLeg] = 0.0;
     stanceDuration_[iLeg] = 0.8;
     swingPhase_[iLeg] = 0.0;
-    footLocationAtLiftOffCSw_[iLeg]  = Eigen::Vector3d::Zero();
-    rHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-    vHip_CSw_[iLeg] = Eigen::Vector3d::Zero();
-    steppingOffsetToHip_CSmb_[iLeg]  = Eigen::Vector3d::Zero();
+    footLocationAtLiftOffCSw_[iLeg]  = Position::Zero();
+    positionWorldToHipInWorldFrame_[iLeg] = Position::Zero();
+    linearVelocityHipInWorldFrame_[iLeg] = LinearVelocity::Zero();
+    steppingOffsetToHipInBaseFrame_[iLeg]  = Position::Zero();
   }
 
-  vBase_CSw_ =  Eigen::Vector3d::Zero();
+  linearVelocityBaseInWorldFrame_ =  LinearVelocity::Zero();
 
   desiredHeadingSpeedInBaseFrame_ = 0.0;
 }
@@ -86,7 +86,7 @@ FootPlacementStrategyInvertedPendulum::~FootPlacementStrategyInvertedPendulum() 
 
 }
 
-void FootPlacementStrategyInvertedPendulum::setFootLocationAtLiftOff(int iLeg, const Eigen::Vector3d& footLocationAtLiftOffCSw)
+void FootPlacementStrategyInvertedPendulum::setFootLocationAtLiftOff(int iLeg, const Position& footLocationAtLiftOffCSw)
 {
   footLocationAtLiftOffCSw_[iLeg] = footLocationAtLiftOffCSw;
 }
@@ -111,25 +111,25 @@ void FootPlacementStrategyInvertedPendulum::setStanceDuration(int iLeg, double s
 }
 
 void FootPlacementStrategyInvertedPendulum::setGroundHeight(int iLeg, double groundHeightCSw) {
-  estimatedGroundHeightCSw_[iLeg] = groundHeightCSw;
+  groundHeightAtFootInWorldFrame_[iLeg] = groundHeightCSw;
 }
 
-void FootPlacementStrategyInvertedPendulum::setHipPosition(int iLeg, const Eigen::Vector3d& rHip_CSw) {
-  rHip_CSw_[iLeg] = rHip_CSw;
+void FootPlacementStrategyInvertedPendulum::setHipPosition(int iLeg, const Position& rHip_CSw) {
+  positionWorldToHipInWorldFrame_[iLeg] = rHip_CSw;
 }
-void FootPlacementStrategyInvertedPendulum::setHipVelocity(int iLeg, const Eigen::Vector3d& vHip_CSw) {
-  vHip_CSw_[iLeg] = vHip_CSw;
+void FootPlacementStrategyInvertedPendulum::setHipVelocity(int iLeg, const LinearVelocity& vHip_CSw) {
+  linearVelocityHipInWorldFrame_[iLeg] = vHip_CSw;
 }
-void FootPlacementStrategyInvertedPendulum::setBaseVelocity(int iLeg, const Eigen::Vector3d& vBase_CSw) {
-  vBase_CSw_ = vBase_CSw;
+void FootPlacementStrategyInvertedPendulum::setBaseVelocity(int iLeg, const LinearVelocity& vBase_CSw) {
+  linearVelocityBaseInWorldFrame_ = vBase_CSw;
 }
 
 void FootPlacementStrategyInvertedPendulum::setRotationWorldToBase(const RotationQuaternion& p_BW) {
   orientationWorldToBaseInWorldFrame_ = p_BW;
 }
 
-void FootPlacementStrategyInvertedPendulum::setSteppingOffsetToHip(int iLeg, const Eigen::Vector3d& steppingOffsetToHip_CSh) {
-  steppingOffsetToHip_CSmb_[iLeg] = steppingOffsetToHip_CSh;
+void FootPlacementStrategyInvertedPendulum::setSteppingOffsetToHip(int iLeg, const Position& steppingOffsetToHip_CSh) {
+  steppingOffsetToHipInBaseFrame_[iLeg] = steppingOffsetToHip_CSh;
 }
 
 void FootPlacementStrategyInvertedPendulum::setDesiredHeadingSpeed(double desiredForwardSpeed) {
@@ -147,18 +147,18 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 {
 
 	const double swingPhase = swingPhase_[iLeg];
-  Eigen::Vector3d rFootHoldOffset_CSw_default = orientationWorldToBaseInWorldFrame_.inverseRotate(steppingOffsetToHip_CSmb_[iLeg]);
-//  Eigen::Vector3d rFootHoldOffset_CSw_default = steppingOffsetToHip_CSmb_[iLeg];
-//  Eigen::Vector3d rFootHoldOffset_CSw_default = Eigen::Vector3d::Zero();
+  Position rFootHoldOffset_CSw_default = orientationWorldToBaseInWorldFrame_.inverseRotate(steppingOffsetToHipInBaseFrame_[iLeg]);
+//  Position rFootHoldOffset_CSw_default = steppingOffsetToHip_CSmb_[iLeg];
+//  Position rFootHoldOffset_CSw_default = Position::Zero();
 
 	/* inverted pendulum stepping offset */
-	Eigen::Vector3d rRef_CSw = rHip_CSw_[iLeg];
-	Eigen::Vector3d vRef_CSw = (vHip_CSw_[iLeg]+vBase_CSw_)/2.0;
-	const Eigen::Vector3d invertedPendulumStepLocation_CSw = rRef_CSw;
+	Position rRef_CSw = positionWorldToHipInWorldFrame_[iLeg];
+	LinearVelocity vRef_CSw = (linearVelocityHipInWorldFrame_[iLeg]+linearVelocityBaseInWorldFrame_)/2.0;
+	const Position invertedPendulumStepLocation_CSw = rRef_CSw;
 	double invertedPendulumHeight = std::max((rRef_CSw.z() - getFootHeightOverTerrain(iLeg, invertedPendulumStepLocation_CSw)), 0.0);
-	Eigen::Vector3d vBaseDes_CSmb = Eigen::Vector3d(desiredHeadingSpeedInBaseFrame_, 0, 0);
-	Eigen::Vector3d vError_CSw = vRef_CSw - orientationWorldToBaseInWorldFrame_.inverseRotate(vBaseDes_CSmb); // do not use A_WB*vBaseDes_CSmb
-	Eigen::Vector3d rFootHoldOffset_CSw_invertedPendulum = vError_CSw*sqrt(invertedPendulumHeight/gravity_);
+	LinearVelocity vBaseDes_CSmb(desiredHeadingSpeedInBaseFrame_, 0, 0);
+	LinearVelocity vError_CSw = vRef_CSw - orientationWorldToBaseInWorldFrame_.inverseRotate(vBaseDes_CSmb); // do not use A_WB*vBaseDes_CSmb
+	Position rFootHoldOffset_CSw_invertedPendulum = Position(vError_CSw)*sqrt(invertedPendulumHeight/gravity_);
 
 	/* feedforward stepping offset */
 	//we also need to add a desired-velocity dependent feed forward step length
@@ -166,25 +166,25 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	//this is relative to the hip location, hence the divide by 2.0
 	double feedForwardStepLength = netCOMDisplacementPerStride / 2.0;
 
-	Eigen::Vector3d rFootHoldOffset_CSw_feedforward = orientationWorldToBaseInWorldFrame_.inverseRotate(Eigen::Vector3d(feedForwardStepLength, 0.0, 0.0));
+	Position rFootHoldOffset_CSw_feedforward = orientationWorldToBaseInWorldFrame_.inverseRotate(Position(feedForwardStepLength, 0.0, 0.0));
 
 
-	Eigen::Vector3d rFootHoldOffset_CSw_final = rFootHoldOffset_CSw_default + rFootHoldOffset_CSw_feedforward + stepFeedbackScale_*rFootHoldOffset_CSw_invertedPendulum;
+	Position rFootHoldOffset_CSw_final = rFootHoldOffset_CSw_default + rFootHoldOffset_CSw_feedforward + stepFeedbackScale_*rFootHoldOffset_CSw_invertedPendulum;
 	rFootHoldOffset_CSw_final(2) = 0.0;
-	Eigen::Vector3d rFootOffset_CSw = getCurrentFootPositionFromPredictedFootHoldLocation(std::min(swingPhase + dt, 1.0),  footLocationAtLiftOffCSw_[iLeg], rFootHoldOffset_CSw_final, orientationWorldToBaseInWorldFrame_);
+	Position rFootOffset_CSw = getCurrentFootPositionFromPredictedFootHoldLocation(std::min(swingPhase + dt, 1.0),  footLocationAtLiftOffCSw_[iLeg], rFootHoldOffset_CSw_final, orientationWorldToBaseInWorldFrame_);
 
 
-	Eigen::Vector3d rFoot_CSw = rRef_CSw + vRef_CSw*dt + rFootOffset_CSw;
+	Position rFoot_CSw = rRef_CSw + Position(vRef_CSw)*dt + rFootOffset_CSw;
 	rFoot_CSw(2) = getFootHeightOverTerrain(iLeg, rFoot_CSw) + swingFootHeightTrajectory_.evaluate(std::min(swingPhase + dt, 1.0));
 
 	return Position(rFoot_CSw);
 }
 
-Eigen::Vector3d FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredictedFootHoldLocation(double phase, const Eigen::Vector3d& footLocationAtLiftOffCSw, const Eigen::Vector3d& rFootHold_CSw, const RotationQuaternion& p_BW)
+Position FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredictedFootHoldLocation(double phase, const Position& footLocationAtLiftOffCSw, const Position& rFootHold_CSw, const RotationQuaternion& p_BW)
 {
-  const Eigen::Vector3d rFootHold_CSmb = p_BW.rotate(rFootHold_CSw);
-  const Eigen::Vector3d rFootLiftOff_CSmb =  p_BW.rotate(footLocationAtLiftOffCSw);
-  const Eigen::Vector3d result = p_BW.inverseRotate(Eigen::Vector3d(getSagittalComponentOfFootStep(phase, rFootLiftOff_CSmb.x(), rFootHold_CSmb.x()), getCoronalComponentOfFootStep(phase,  rFootLiftOff_CSmb.y(), rFootHold_CSmb.y()),0.0));
+  const Position rFootHold_CSmb = p_BW.rotate(rFootHold_CSw);
+  const Position rFootLiftOff_CSmb =  p_BW.rotate(footLocationAtLiftOffCSw);
+  const Position result = p_BW.inverseRotate(Position(getSagittalComponentOfFootStep(phase, rFootLiftOff_CSmb.x(), rFootHold_CSmb.x()), getCoronalComponentOfFootStep(phase,  rFootLiftOff_CSmb.y(), rFootHold_CSmb.y()),0.0));
 	return 	result;
 }
 
@@ -249,8 +249,8 @@ bool FootPlacementStrategyInvertedPendulum::loadParameters(const TiXmlHandle& ha
       printf("Could not find Offset:Fore:lateral!\n");
       return false;
     }
-    Eigen::Vector3d leftOffset(offsetHeading, offsetLateral, 0.0);
-    Eigen::Vector3d rightOffset(offsetHeading, -offsetLateral, 0.0);
+    Position leftOffset(offsetHeading, offsetLateral, 0.0);
+    Position rightOffset(offsetHeading, -offsetLateral, 0.0);
     this->setSteppingOffsetToHip(0, leftOffset);
     this->setSteppingOffsetToHip(1, rightOffset);
   }
@@ -272,8 +272,8 @@ bool FootPlacementStrategyInvertedPendulum::loadParameters(const TiXmlHandle& ha
       printf("Could not find Offset:Hind:lateral!\n");
       return false;
     }
-    Eigen::Vector3d leftOffset(offsetHeading, offsetLateral, 0.0);
-    Eigen::Vector3d rightOffset(offsetHeading, -offsetLateral, 0.0);
+    Position leftOffset(offsetHeading, offsetLateral, 0.0);
+    Position rightOffset(offsetHeading, -offsetLateral, 0.0);
     this->setSteppingOffsetToHip(2, leftOffset);
     this->setSteppingOffsetToHip(3, rightOffset);
   }
@@ -332,22 +332,22 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
       swingPhase = leg->getSwingPhase();
     }
     this->setSwingPhase(iLeg, swingPhase);
-    this->setHipPosition(iLeg, leg->getWorldToHipPositionInWorldFrame().toImplementation());
-    this->setHipVelocity(iLeg, leg->getHipLinearVelocityInWorldFrame().toImplementation());
+    this->setHipPosition(iLeg, leg->getWorldToHipPositionInWorldFrame());
+    this->setHipVelocity(iLeg, leg->getHipLinearVelocityInWorldFrame());
 
-    this->setFootLocationAtLiftOff(iLeg, (leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame()).toImplementation());
+    this->setFootLocationAtLiftOff(iLeg, leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame());
 
 
 
 
 
     // todo
-    //  footPlacementTest.setSteppingOffsetToHip(iLeg, Eigen::Vector3d(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
+    //  footPlacementTest.setSteppingOffsetToHip(iLeg, Position(leg->legProps->steppingOffset.x, leg->legProps->steppingOffset.y, leg->legProps->steppingOffset.z));
     iLeg++;
   }
 
   this->setDesiredHeadingSpeed(torso_->getDesiredState().getHeadingSpeedInBaseFrame());
-  this->setBaseVelocity(iLeg, torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame().toImplementation()));
+  this->setBaseVelocity(iLeg, torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame()));
   this->setRotationWorldToBase(torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());
 
 
@@ -369,14 +369,14 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 
 }
 
-double FootPlacementStrategyInvertedPendulum::getFootHeightOverTerrain(int iLeg, const Eigen::Vector3d& steppingLocationCSw)
+double FootPlacementStrategyInvertedPendulum::getFootHeightOverTerrain(int iLeg, const Position& steppingLocationCSw)
 {
   if (terrain_ == nullptr) {
-    return estimatedGroundHeightCSw_[iLeg];
+    return groundHeightAtFootInWorldFrame_[iLeg];
   } else  {
-    Eigen::Vector3d position = steppingLocationCSw;
-    terrain_->getHeight(position);
-    estimatedGroundHeightCSw_[iLeg] = position.z();
+    Position position = steppingLocationCSw;
+    terrain_->getHeight(position.toImplementation());
+    groundHeightAtFootInWorldFrame_[iLeg] = position.z();
     return position.z();
   }
 }

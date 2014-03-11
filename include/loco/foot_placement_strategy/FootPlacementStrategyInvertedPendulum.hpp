@@ -47,7 +47,7 @@ public:
 	virtual ~FootPlacementStrategyInvertedPendulum();
 
 
-	void setFootLocationAtLiftOff(int iLeg, const Eigen::Vector3d& footLocationAtLiftOffCSw);
+	void setFootLocationAtLiftOff(int iLeg, const loco::Position& footLocationAtLiftOffCSw);
 
 	// properties
   void setGravity(double gravity);
@@ -56,9 +56,9 @@ public:
   void setStanceDuration(int iLeg, double stanceDuration);
 
   void setGroundHeight(int iLeg, double groundHeightCSw);
-  void setHipPosition(int iLeg, const Eigen::Vector3d& rHip_CSw);
-  void setHipVelocity(int iLeg, const Eigen::Vector3d& vHip_CSw);
-  void setBaseVelocity(int iLeg, const Eigen::Vector3d& vBase_CSw);
+  void setHipPosition(int iLeg, const loco::Position& rHip_CSw);
+  void setHipVelocity(int iLeg, const loco::LinearVelocity& vHip_CSw);
+  void setBaseVelocity(int iLeg, const loco::LinearVelocity& vBase_CSw);
 
   void setRotationWorldToBase(const RotationQuaternion& p_BW);
 
@@ -67,7 +67,7 @@ public:
    * this is the vector from the leg frame origin to the foot at the moment when the foot's status changes
    * from stance to swing. Measured in world coordinates.
    */
-  void setSteppingOffsetToHip(int iLeg, const Eigen::Vector3d& steppingOffsetToHip_CSw);
+  void setSteppingOffsetToHip(int iLeg, const loco::Position& steppingOffsetToHip_CSw);
 
 
   /*! Sets the desired heading speed of the robot
@@ -107,7 +107,7 @@ public:
 	double stepFeedbackScale_;
 
 	//! foot location at lift-off expressed in world frame
-  Eigen::Vector3d footLocationAtLiftOffCSw_[4];
+  loco::Position footLocationAtLiftOffCSw_[4];
 
   //! gravitational acceleration (default: 9.81)
   double gravity_;
@@ -125,19 +125,19 @@ public:
   double swingPhase_[4];
 
   //! estimated ground height for each leg in world frame
-  double estimatedGroundHeightCSw_[4];
+  double groundHeightAtFootInWorldFrame_[4];
 
   //! default stepping offset with respect to the hip (only x and y coordinates are considered)
-  Eigen::Vector3d steppingOffsetToHip_CSmb_[4];
+  loco::Position steppingOffsetToHipInBaseFrame_[4];
 
   //! position of the hip joint expressed in world frame
-  Eigen::Vector3d rHip_CSw_[4];
+  loco::Position positionWorldToHipInWorldFrame_[4];
 
   //! linear velocity of the hip joint expressed in world frame
-  Eigen::Vector3d vHip_CSw_[4];
+  loco::LinearVelocity linearVelocityHipInWorldFrame_[4];
 
   //! linear velocity of the base expressed in world frame
-  Eigen::Vector3d vBase_CSw_;
+  loco::LinearVelocity linearVelocityBaseInWorldFrame_;
 
   //! passive rotation quaternion from world to base frame
   RotationQuaternion orientationWorldToBaseInWorldFrame_;
@@ -149,9 +149,9 @@ protected:
 	double getSagittalComponentOfFootStep(double phase, double initialStepOffset, double stepGuess);
 
 
-	Eigen::Vector3d getCurrentFootPositionFromPredictedFootHoldLocation(double phase, const Eigen::Vector3d& footLocationAtLiftOffCSw, const Eigen::Vector3d& rFootHold_CSw, const RotationQuaternion& p_BW);
+	loco::Position getCurrentFootPositionFromPredictedFootHoldLocation(double phase, const loco::Position& footLocationAtLiftOffCSw, const loco::Position& rFootHold_CSw, const RotationQuaternion& p_BW);
 
-	double getFootHeightOverTerrain(int iLeg, const Eigen::Vector3d& position);
+	double getFootHeightOverTerrain(int iLeg, const loco::Position& position);
 
 };
 

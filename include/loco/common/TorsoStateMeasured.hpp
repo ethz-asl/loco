@@ -13,6 +13,8 @@
 
 namespace loco {
 
+
+//! Measured state of the torso
 class TorsoStateMeasured: public TorsoStateBase {
  public:
   TorsoStateMeasured();
