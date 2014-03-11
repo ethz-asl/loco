@@ -11,7 +11,8 @@
 
 #include "kindr/poses/PoseEigen.hpp"
 #include "kindr/poses/PoseDiffEigen.hpp"
-#include "kindr/vector/VectorEigen.hpp"
+#include "kindr/phys_quant/PhysicalQuantitiesEigen.hpp"
+
 
 namespace loco {
 
@@ -22,15 +23,15 @@ typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
 typedef kindr::rotations::eigen_impl::AngleAxisPD AngleAxis;
 typedef kindr::rotations::eigen_impl::RotationMatrixPD RotationMatrix;
 
-typedef kindr::positions::eigen_impl::Position3D Position;
+typedef kindr::phys_quant::eigen_impl::Position3D Position;
 
-typedef kindr::positions::eigen_impl::LinearVelocityD LinearVelocity;
+typedef kindr::phys_quant::eigen_impl::Velocity3D LinearVelocity;
 typedef kindr::rotations::eigen_impl::LocalAngularVelocityAD LocalAngularVelocity;
 
-typedef kindr::vector::eigen_impl::Acceleration3D LinearAcceleration;
+typedef kindr::phys_quant::eigen_impl::Acceleration3D LinearAcceleration;
 
-typedef kindr::vector::eigen_impl::Force3D Force;
-typedef kindr::vector::eigen_impl::Torque3D Torque;
+typedef kindr::phys_quant::eigen_impl::Force3D Force;
+typedef kindr::phys_quant::eigen_impl::Torque3D Torque;
 
 
 } // namespace loco
