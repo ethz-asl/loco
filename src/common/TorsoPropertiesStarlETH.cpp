@@ -23,9 +23,9 @@ TorsoPropertiesStarlETH::~TorsoPropertiesStarlETH()
 }
 
 bool TorsoPropertiesStarlETH::initialize(double dt) {
-  setHeadingAxis(Vector(1.0, 0.0, 0.0));
-  setLateralAxis(Vector(0.0, 1.0, 0.0));
-  setVerticalAxis(Vector(0.0, 0.0, 1.0));
+  setHeadingAxisInBaseFrame(Vector(1.0, 0.0, 0.0));
+  setLateralAxisInBaseFrame(Vector(0.0, 1.0, 0.0));
+  setVerticalAxisInBaseFrame(Vector(0.0, 0.0, 1.0));
 
   return true;
 }

@@ -50,36 +50,41 @@ const LinearAcceleration& TorsoPropertiesBase::getGravity() const
 void TorsoPropertiesBase::setGravity(const LinearAcceleration& gravity)
 {
   gravity_ = gravity;
+  gravityAxisInWorldFrame_ = Vector(gravity).normalized();
 }
 
-const Vector& TorsoPropertiesBase::getHeadingAxis()
+const Vector& TorsoPropertiesBase::getHeadingAxisInBaseFrame()
 {
-  return headingAxis_;
+  return headingAxisInBaseFrame_;
 }
 
-const Vector& TorsoPropertiesBase::getLateralAxis()
+const Vector& TorsoPropertiesBase::getLateralAxisInBaseFrame()
 {
   return lateralAxis_;
 }
 
-const Vector& TorsoPropertiesBase::getVerticalAxis()
+const Vector& TorsoPropertiesBase::getVerticalAxisInBaseFrame()
 {
-  return verticalAxis_;
+  return verticalAxisInBaseFrame_;
 }
 
-void TorsoPropertiesBase::setHeadingAxis(const Vector& axis)
+void TorsoPropertiesBase::setHeadingAxisInBaseFrame(const Vector& axis)
 {
-  headingAxis_ = axis;
+  headingAxisInBaseFrame_ = axis;
 }
 
-void TorsoPropertiesBase::setLateralAxis(const Vector& axis)
+void TorsoPropertiesBase::setLateralAxisInBaseFrame(const Vector& axis)
 {
   lateralAxis_ = axis;
 }
 
-void TorsoPropertiesBase::setVerticalAxis(const Vector& axis)
+void TorsoPropertiesBase::setVerticalAxisInBaseFrame(const Vector& axis)
 {
-  verticalAxis_ = axis;
+  verticalAxisInBaseFrame_ = axis;
+}
+
+const Vector& TorsoPropertiesBase::getGravityAxisInWorldFrame() {
+  return gravityAxisInWorldFrame_;
 }
 
 

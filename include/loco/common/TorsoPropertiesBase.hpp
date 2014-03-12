@@ -26,22 +26,24 @@ class TorsoPropertiesBase {
   const LinearAcceleration& getGravity() const;
   void setGravity(const LinearAcceleration& gravity);
 
-  const Vector& getHeadingAxis();
-  const Vector& getLateralAxis();
-  const Vector& getVerticalAxis();
+  const Vector& getGravityAxisInWorldFrame();
+  const Vector& getHeadingAxisInBaseFrame();
+  const Vector& getLateralAxisInBaseFrame();
+  const Vector& getVerticalAxisInBaseFrame();
 
-  void setHeadingAxis(const Vector& axis);
-  void setLateralAxis(const Vector& axis);
-  void setVerticalAxis(const Vector& axis);
+  void setHeadingAxisInBaseFrame(const Vector& axis);
+  void setLateralAxisInBaseFrame(const Vector& axis);
+  void setVerticalAxisInBaseFrame(const Vector& axis);
 
  private:
   LinearAcceleration gravity_;
+  Vector gravityAxisInWorldFrame_;
   double mass_;
   Position positionBaseToCenterOfMassInBaseFrame_;
 
-  Vector headingAxis_;
+  Vector headingAxisInBaseFrame_;
   Vector lateralAxis_;
-  Vector verticalAxis_;
+  Vector verticalAxisInBaseFrame_;
 };
 
 } /* namespace loco */

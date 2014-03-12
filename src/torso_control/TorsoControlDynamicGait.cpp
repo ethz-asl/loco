@@ -64,7 +64,7 @@ void TorsoControlDynamicGait::advance(double dt) {
 
   /*RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());*/
 
-  const Vector axisUp =  torso_->getProperties().getVerticalAxis();
+  const Vector axisUp =  torso_->getProperties().getGravityAxisInWorldFrame();
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
   RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)));
 
