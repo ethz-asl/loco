@@ -49,9 +49,22 @@ TorsoPropertiesBase& TorsoStarlETH::getProperties()
   return static_cast<TorsoPropertiesBase&>(properties_);
 }
 
-void TorsoStarlETH::advance(double dt)
+bool TorsoStarlETH::initialize(double dt)
 {
-  getProperties().update();
+  if(!this->getProperties().initialize(dt)) {
+    return false;
+  }
+  if (!this->advance(dt)) {
+    return false;
+  }
+  return true;
+}
+
+bool TorsoStarlETH::advance(double dt)
+{
+  if(!getProperties().advance(dt)) {
+    return false;
+  }
 
   kindr::rotations::eigen_impl::RotationQuaternionAD rquatWorldToBaseActive(
       robotModel_->est().getActualEstimator()->getQuat());
@@ -67,6 +80,8 @@ void TorsoStarlETH::advance(double dt)
   const LocalAngularVelocity localAngularVelocity(
       rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
   this->getMeasuredState().setBaseTwistInBaseFrame(Twist(linearVelocity, localAngularVelocity));
+
+  return true;
 }
 
 

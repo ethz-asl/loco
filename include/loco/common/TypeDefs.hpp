@@ -33,6 +33,8 @@ typedef kindr::phys_quant::eigen_impl::Acceleration3D LinearAcceleration;
 typedef kindr::phys_quant::eigen_impl::Force3D Force;
 typedef kindr::phys_quant::eigen_impl::Torque3D Torque;
 
+typedef kindr::phys_quant::eigen_impl::VectorTypeless3D Vector;
+
 
 } // namespace loco
 

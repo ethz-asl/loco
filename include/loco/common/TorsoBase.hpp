@@ -32,10 +32,12 @@ class TorsoBase {
   virtual double getStridePhase() = 0;
   virtual void setStridePhase(double stridePhase) = 0;
 
+  virtual bool initialize(double dt) = 0;
+
   /*! Advances in time, i.e. updates states
    * @param dt time step between updates
    */
-  virtual void advance(double dt) = 0;
+  virtual bool advance(double dt) = 0;
 
 
 

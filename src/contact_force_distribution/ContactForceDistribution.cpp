@@ -156,7 +156,7 @@ bool ContactForceDistribution::getTerrainNormals()
       {
         terrain_->getNormal(legInfo.first->getWorldToFootPositionInWorldFrame().toImplementation(), surfaceNormal);
       }
-      legInfo.first->setSurfaceNormal(surfaceNormal);
+      legInfo.first->setSurfaceNormal(Vector(surfaceNormal));
     }
   }
 
@@ -181,7 +181,7 @@ bool ContactForceDistribution::addMinimalForceConstraints()
     {
       MatrixXd D_row = MatrixXd::Zero(1, n_);
       D_row.block(0, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_)
-        = legInfo.first->getSurfaceNormal().transpose();
+        = legInfo.first->getSurfaceNormal().toImplementation().transpose();
       D_.middleRows(rowIndex, 1) = D_row.sparseView();
       d_(rowIndex) = minimalNormalGroundForce_;
       f_(rowIndex) = std::numeric_limits<double>::max();
@@ -216,7 +216,7 @@ bool ContactForceDistribution::addFrictionConstraints()
     {
       MatrixXd D_rows = MatrixXd::Zero(nDirections, n_);
 
-      const Vector3d& normalDirection = legInfo.first->getSurfaceNormal();
+      const Vector3d& normalDirection = legInfo.first->getSurfaceNormal().toImplementation();
 
       // The choose the first tangential to lie in the XZ-plane of the base frame.
       // This is the same as the requirement as

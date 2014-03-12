@@ -22,7 +22,15 @@ TorsoPropertiesStarlETH::~TorsoPropertiesStarlETH()
 
 }
 
-bool TorsoPropertiesStarlETH::update()
+bool TorsoPropertiesStarlETH::initialize(double dt) {
+  setHeadingAxis(Vector(1.0, 0.0, 0.0));
+  setLateralAxis(Vector(0.0, 1.0, 0.0));
+  setVerticalAxis(Vector(0.0, 0.0, 1.0));
+
+  return true;
+}
+
+bool TorsoPropertiesStarlETH::advance(double dt)
 {
   setGravity(LinearAcceleration(0.0, 0.0, -robotModel_->params().gravity_));
   setMass(robotModel_->params().mainbody_.m);

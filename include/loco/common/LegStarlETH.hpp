@@ -46,11 +46,12 @@ class LegStarlETH : public loco::LegBase {
 
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const;
 
-  virtual void advance(double dt);
+  virtual bool initialize(double dt);
+  virtual bool advance(double dt);
 
   virtual LegPropertiesBase& getProperties();
 
-  virtual void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal);
+  virtual void setSurfaceNormal(const Vector& surfaceNormal);
  private:
   //! index of the leg (only used to access robot model)
   int iLeg_;

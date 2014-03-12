@@ -35,8 +35,8 @@ TorsoControlDynamicGait::~TorsoControlDynamicGait() {
 
 }
 bool TorsoControlDynamicGait::initialize(double dt) {
-  const Position foreHipPosition = Position(legs_->getLeg(0)->getWorldToHipPositionInBaseFrame());
-  const Position hindHipPosition =  Position(legs_->getLeg(2)->getWorldToHipPositionInBaseFrame());
+  const Position foreHipPosition = legs_->getLeg(0)->getWorldToHipPositionInBaseFrame();
+  const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 //  std::cout << "head dist: " << headingDistanceFromForeToHindInBaseFrame_ << std::endl;
 
@@ -64,7 +64,7 @@ void TorsoControlDynamicGait::advance(double dt) {
 
   /*RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());*/
 
-  Eigen::Vector3d axisUp = Eigen::Vector3d::UnitZ();
+  const Vector axisUp =  torso_->getProperties().getVerticalAxis();
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
   RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)));
 
@@ -111,18 +111,18 @@ inline double safeACOS(double val){
   It is assumed that vB is a unit vector!! This method returns TqB, which represents a twist about
   the axis vB.
 */
-RotationQuaternion TorsoControlDynamicGait::decomposeRotation(const RotationQuaternion& AqB, const Eigen::Vector3d& vB) {
+RotationQuaternion TorsoControlDynamicGait::decomposeRotation(const RotationQuaternion& AqB, const Vector& vB) {
 
-  const Eigen::Vector3d vA = AqB.inverseRotate(vB).normalized();
-  Eigen::Vector3d rotAxis = (vA.cross(vB).normalized());
+  const Vector vA = AqB.inverseRotate(vB).normalized();
+  Vector rotAxis = (vA.cross(vB).normalized());
   rotAxis *= -1.0;
   double rotAngle = -safeACOS(vA.dot(vB));
-  const RotationQuaternion TqA = RotationQuaternion(AngleAxis(rotAngle, rotAxis));
+  const RotationQuaternion TqA = RotationQuaternion(AngleAxis(rotAngle, rotAxis.toImplementation()));
   return AqB*TqA; // TqB
 
 }
 
-RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuaternion& rquat, const Eigen::Vector3d& axis) {
+RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuaternion& rquat, const Vector& axis) {
   return decomposeRotation(rquat.conjugated(),axis).conjugated();
 
 }

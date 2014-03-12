@@ -82,7 +82,7 @@ double LegBase::getDesiredLoadFactor() const
   return loadFactor_;
 }
 
-const Eigen::Vector3d& LegBase::getSurfaceNormal() const
+const Vector& LegBase::getSurfaceNormal() const
 {
   return surfaceNormal_;
 }

@@ -18,7 +18,8 @@ class LegPropertiesBase
  public:
   LegPropertiesBase();
   virtual ~LegPropertiesBase();
-  virtual bool update() = 0;
+  virtual bool initialize(double dt) = 0;
+  virtual bool advance(double dt) = 0;
   virtual double getMass() const;
   virtual void setMass(double mass);
   virtual const Position& getBaseToCenterOfMassPositionInBaseFrame() const;

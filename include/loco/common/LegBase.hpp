@@ -78,8 +78,8 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
-  virtual const Eigen::Vector3d& getSurfaceNormal() const;
-  virtual void setSurfaceNormal(const Eigen::Vector3d& surfaceNormal) = 0;
+  virtual const Vector& getSurfaceNormal() const;
+  virtual void setSurfaceNormal(const Vector& surfaceNormal) = 0;
 
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
@@ -110,7 +110,8 @@ class LegBase {
   virtual const JointPositions& getMeasuredJointPositions();
   virtual const JointTorques& getDesiredJointTorques();
 
-  virtual void advance(double dt) = 0;
+  virtual bool initialize(double dt) = 0;
+  virtual bool advance(double dt) = 0;
 
   virtual LegPropertiesBase& getProperties() = 0;
 
@@ -129,7 +130,7 @@ class LegBase {
 
   double loadFactor_;
 
-  Eigen::Vector3d surfaceNormal_;
+  Vector surfaceNormal_;
 
   LegStateTouchDown stateTouchDown_;
   LegStateLiftOff stateLiftOff_;

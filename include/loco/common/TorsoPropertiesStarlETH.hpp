@@ -19,7 +19,8 @@ class TorsoPropertiesStarlETH: public TorsoPropertiesBase {
  public:
   TorsoPropertiesStarlETH(robotModel::RobotModel* robotModel);
   virtual ~TorsoPropertiesStarlETH();
-  virtual bool update();
+  virtual bool initialize(double dt);
+  virtual bool advance(double dt);
 
  protected:
   robotModel::RobotModel* robotModel_;

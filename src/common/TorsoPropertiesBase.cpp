@@ -52,4 +52,37 @@ void TorsoPropertiesBase::setGravity(const LinearAcceleration& gravity)
   gravity_ = gravity;
 }
 
+const Vector& TorsoPropertiesBase::getHeadingAxis()
+{
+  return headingAxis_;
+}
+
+const Vector& TorsoPropertiesBase::getLateralAxis()
+{
+  return lateralAxis_;
+}
+
+const Vector& TorsoPropertiesBase::getVerticalAxis()
+{
+  return verticalAxis_;
+}
+
+void TorsoPropertiesBase::setHeadingAxis(const Vector& axis)
+{
+  headingAxis_ = axis;
+}
+
+void TorsoPropertiesBase::setLateralAxis(const Vector& axis)
+{
+  lateralAxis_ = axis;
+}
+
+void TorsoPropertiesBase::setVerticalAxis(const Vector& axis)
+{
+  verticalAxis_ = axis;
+}
+
+
+
+
 } /* namespace loco */

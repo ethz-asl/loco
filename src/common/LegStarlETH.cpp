@@ -60,11 +60,16 @@ const LegBase::TranslationJacobian& LegStarlETH::getTranslationJacobianFromBaseT
 {
   return translationJacobianBaseToFootInBaseFrame_;
 }
+bool LegStarlETH::initialize(double dt) {
+  if(!this->advance(dt)) {
+    return false;
+  }
+  return true;
+}
 
-
-void LegStarlETH::advance(double dt)
+bool LegStarlETH::advance(double dt)
 {
-  properties_.update();
+  properties_.advance(dt);
   
   if (robotModel_->contacts().getCA()(iLeg_) == 1) {
     this->setIsGrounded(true);
@@ -89,6 +94,7 @@ void LegStarlETH::advance(double dt)
   translationJacobianBaseToFootInBaseFrame_ = robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)
       ->getJ().block<nDofContactPoint_, nJoints_>(0, RM_NQB + iLeg_*nJoints_);
 
+  return true;
 }
 
 LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPositionInBaseFrame(
@@ -113,7 +119,7 @@ const Position& LegStarlETH::getBaseToHipPositionInBaseFrame() const {
 }
 
 
-void LegStarlETH::setSurfaceNormal(const Eigen::Vector3d& surfaceNormal) {
+void LegStarlETH::setSurfaceNormal(const Vector& surfaceNormal) {
   surfaceNormal_ = surfaceNormal;
 }
 

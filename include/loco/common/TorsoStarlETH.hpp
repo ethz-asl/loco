@@ -33,8 +33,9 @@ class TorsoStarlETH: public TorsoBase {
   virtual double getStridePhase();
   virtual void setStridePhase(double stridePhase);
 
+  virtual bool initialize(double dt);
+  virtual bool advance(double dt);
 
-  virtual void advance(double dt);
 
   virtual TorsoStateMeasured& getMeasuredState();
   virtual TorsoStateDesired& getDesiredState();

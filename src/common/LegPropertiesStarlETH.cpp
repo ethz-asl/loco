@@ -17,11 +17,17 @@ LegPropertiesStarlETH::LegPropertiesStarlETH(int iLeg, robotModel::RobotModel* r
 
 }
 
-LegPropertiesStarlETH::~LegPropertiesStarlETH() {
+LegPropertiesStarlETH::~LegPropertiesStarlETH()
+{
 
 }
 
-bool LegPropertiesStarlETH::update()
+bool LegPropertiesStarlETH::initialize(double dt)
+{
+    return true;
+}
+
+bool LegPropertiesStarlETH::advance(double dt)
 {
   double mass = robotModel_->params().hip_.m + robotModel_->params().thigh_.m + robotModel_->params().shank_.m;
   setMass(mass);

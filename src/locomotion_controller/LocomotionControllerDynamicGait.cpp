@@ -41,10 +41,15 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   isInitialized_ = false;
 
   for (auto leg : *legs_) {
-    leg->advance(dt);
+    if(!leg->initialize(dt)) {
+      return false;
+    }
     //  std::cout << *leg << std::endl;
   }
-  torso_->advance(dt);
+  if (!torso_->initialize(dt)) {
+    return false;
+  }
+
 
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 

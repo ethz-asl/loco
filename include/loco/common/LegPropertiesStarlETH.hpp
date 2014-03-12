@@ -19,7 +19,8 @@ class LegPropertiesStarlETH: public LegPropertiesBase {
  public:
   LegPropertiesStarlETH(int iLeg, robotModel::RobotModel* robotModel);
   virtual ~LegPropertiesStarlETH();
-  virtual bool update();
+  virtual bool initialize(double dt);
+  virtual bool advance(double dt);
 
  protected:
   int iLeg_;
