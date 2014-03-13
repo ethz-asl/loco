@@ -65,9 +65,6 @@ add_subdirectory(src/common)
 # Add locmotion controller
 add_subdirectory(src/locomotion_controller)
 
-# Add temporal helpers
-add_subdirectory(src/temp_helpers)
-
 if (BUILD_TEST AND BUILD_GTEST)
 add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()
