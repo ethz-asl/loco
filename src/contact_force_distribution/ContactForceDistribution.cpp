@@ -56,7 +56,7 @@ bool ContactForceDistribution::computeForceDistribution(
   resetOptimization();
   prepareLegLoading();
 
-  if (nLegsInStance_ > 0)
+  if (nLegsInForceDistribution_ > 0)
   {
     prepareOptimization(virtualForce, virtualTorque);
     getTerrainNormals();
@@ -75,6 +75,12 @@ bool ContactForceDistribution::computeForceDistribution(
       computeJointTorques();
     }
   }
+  else
+  {
+    // No leg is part of the force distribution
+    isForceDistributionComputed_ = true;
+    computeJointTorques();
+  }
 
   if (isLogging_) updateLoggerData();
   return isForceDistributionComputed_;
@@ -82,25 +88,24 @@ bool ContactForceDistribution::computeForceDistribution(
 
 bool ContactForceDistribution::prepareLegLoading()
 {
-  nLegsInStance_ = 0;
+  nLegsInForceDistribution_ = 0;
 
   for (auto& legInfo : legInfos_)
   {
-    // TODO isAndShouldBeGrounded() is this the correct one?
     if (sm::definitelyGreaterThan(legInfo.first->getDesiredLoadFactor(), 0.0) && legInfo.first->isAndShouldBeGrounded())
     {
-      legInfo.second.isPartOfOptimization_ = true;
+      legInfo.second.isPartOfForceDistribution_ = true;
       legInfo.second.isLoadConstraintActive_ = false;
-      legInfo.second.indexInStanceLegList_ = nLegsInStance_;
+      legInfo.second.indexInStanceLegList_ = nLegsInForceDistribution_;
       legInfo.second.startIndexInVectorX_ = legInfo.second.indexInStanceLegList_ * nTranslationalDofPerFoot_;
-      nLegsInStance_++;
+      nLegsInForceDistribution_++;
 
       if (sm::definitelyLessThan(legInfo.first->getDesiredLoadFactor(), 1.0))
         legInfo.second.isLoadConstraintActive_ = true;
     }
     else
     {
-      legInfo.second.isPartOfOptimization_ = false;
+      legInfo.second.isPartOfForceDistribution_ = false;
       legInfo.second.isLoadConstraintActive_ = false;
     }
   }
@@ -112,7 +117,7 @@ bool ContactForceDistribution::prepareOptimization(
     const Force& virtualForce,
     const Torque& virtualTorque)
 {
-  n_ = nTranslationalDofPerFoot_ * nLegsInStance_;
+  n_ = nTranslationalDofPerFoot_ * nLegsInForceDistribution_;
 
   /*
    * Finds x that minimizes f = (Ax-b)' S (Ax-b) + x' W x, such that Cx = c and d <= Dx <= f.
@@ -125,12 +130,12 @@ bool ContactForceDistribution::prepareOptimization(
 
   A_.resize(nElementsVirtualForceTorqueVector_, n_);
   A_.setZero();
-  A_.middleRows(0, nTranslationalDofPerFoot_) = (Matrix3d::Identity().replicate(1, nLegsInStance_)).sparseView();
+  A_.middleRows(0, nTranslationalDofPerFoot_) = (Matrix3d::Identity().replicate(1, nLegsInForceDistribution_)).sparseView();
 
   MatrixXd A_bottomMatrix(3, n_); // TODO replace 3 with nTranslationalDofPerFoot_
   for (auto& legInfo : legInfos_)
   {
-    if (legInfo.second.isPartOfOptimization_)
+    if (legInfo.second.isPartOfForceDistribution_)
     {
       const Vector3d& r = legInfo.first->getBaseToFootPositionInBaseFrame().toImplementation();
       A_bottomMatrix.block(0, legInfo.second.indexInStanceLegList_ * r.size(), r.size(), r.size()) =
@@ -139,7 +144,7 @@ bool ContactForceDistribution::prepareOptimization(
   }
   A_.middleRows(nTranslationalDofPerFoot_, A_bottomMatrix.rows()) = A_bottomMatrix.sparseView();
 
-  W_.setIdentity(nTranslationalDofPerFoot_ * nLegsInStance_);
+  W_.setIdentity(nTranslationalDofPerFoot_ * nLegsInForceDistribution_);
   W_ = W_ * groundForceWeight_;
 
   return true;
@@ -149,7 +154,7 @@ bool ContactForceDistribution::getTerrainNormals()
 {
   for (auto& legInfo : legInfos_)
   {
-    if (legInfo.second.isPartOfOptimization_)
+    if (legInfo.second.isPartOfForceDistribution_)
     {
       Vector3d surfaceNormal = Vector3d::Zero();
       if (legInfo.first->isGrounded())
@@ -170,14 +175,14 @@ bool ContactForceDistribution::addMinimalForceConstraints()
    */
   int rowIndex = D_.rows();
   Eigen::SparseMatrix<double, Eigen::RowMajor> D_temp(D_);  // TODO replace with conservativeResize (available in Eigen 3.2)
-  D_.resize(rowIndex + nLegsInStance_, n_);
+  D_.resize(rowIndex + nLegsInForceDistribution_, n_);
   D_.middleRows(0, D_temp.rows()) = D_temp;
-  d_.conservativeResize(rowIndex + nLegsInStance_);
-  f_.conservativeResize(rowIndex + nLegsInStance_);
+  d_.conservativeResize(rowIndex + nLegsInForceDistribution_);
+  f_.conservativeResize(rowIndex + nLegsInForceDistribution_);
 
   for (auto& legInfo : legInfos_)
   {
-    if (legInfo.second.isPartOfOptimization_)
+    if (legInfo.second.isPartOfForceDistribution_)
     {
       MatrixXd D_row = MatrixXd::Zero(1, n_);
       D_row.block(0, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_)
@@ -202,7 +207,7 @@ bool ContactForceDistribution::addFrictionConstraints()
    * friction cone).
    */
   int nDirections = 4;
-  int nConstraints = nDirections * nLegsInStance_;
+  int nConstraints = nDirections * nLegsInForceDistribution_;
   int rowIndex = D_.rows();
   Eigen::SparseMatrix<double, Eigen::RowMajor> D_temp(D_); // TODO replace with conservativeResize (available in Eigen 3.2)
   D_.resize(rowIndex + nConstraints, n_);
@@ -212,7 +217,7 @@ bool ContactForceDistribution::addFrictionConstraints()
 
   for (auto& legInfo : legInfos_)
   {
-    if (legInfo.second.isPartOfOptimization_)
+    if (legInfo.second.isPartOfForceDistribution_)
     {
       MatrixXd D_rows = MatrixXd::Zero(nDirections, n_);
 
@@ -303,7 +308,7 @@ bool ContactForceDistribution::solveOptimization()
 
   for (auto& legInfo : legInfos_)
   {
-    if (legInfo.second.isPartOfOptimization_)
+    if (legInfo.second.isPartOfForceDistribution_)
     {
       // The forces we computed here are actually the ground reaction forces,
       // so the stance legs should push the ground by the opposite amount.
@@ -322,7 +327,7 @@ bool ContactForceDistribution::computeJointTorques()
 
   for (auto& legInfo : legInfos_)
   {
-    if (legInfo.second.isPartOfOptimization_)
+    if (legInfo.second.isPartOfForceDistribution_)
     {
       LegBase::TranslationJacobian jacobian = legInfo.first->getTranslationJacobianFromBaseToFootInBaseFrame();
       Force contactForce = legInfo.second.desiredContactForce_;

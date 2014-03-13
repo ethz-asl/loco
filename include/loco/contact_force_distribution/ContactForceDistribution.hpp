@@ -75,7 +75,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
 
  private:
   //! Number of legs in stance phase
-  int nLegsInStance_;
+  int nLegsInForceDistribution_;
   //! Number of variables to optimize (size of x, n = nTranslationalDofPerFoot_ * nLegsInStance_)
   int n_;
 
@@ -109,7 +109,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
 
   struct LegInfo
   {
-    bool isPartOfOptimization_;
+    bool isPartOfForceDistribution_;
     bool isLoadConstraintActive_;
     int indexInStanceLegList_;
     int startIndexInVectorX_;
