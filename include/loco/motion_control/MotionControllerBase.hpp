@@ -18,8 +18,6 @@
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
 // Parameters
 #include "tinyxml.h"
-// Needed?
-#include "loco/temp_helpers/Legs.hpp"
 
 namespace loco {
 
