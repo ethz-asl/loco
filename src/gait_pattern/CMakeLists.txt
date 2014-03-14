@@ -17,6 +17,7 @@ set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/APS.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GaitAPS.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternAPS.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternFlightPhases.cpp
 PARENT_SCOPE)
 
 #################

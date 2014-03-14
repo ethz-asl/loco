@@ -59,6 +59,10 @@ double GaitPatternAPSPreview::getScaledY(double ymin, double ymax, double yval){
 void GaitPatternAPSPreview::draw(){
   if (gp == NULL)
     return;
+
+  if (!gp->isInitialized())
+    return;
+
   SubGLWindow::preDraw();
 
   //clear a box for this...

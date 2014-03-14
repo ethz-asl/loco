@@ -39,6 +39,8 @@ public:
 	 */
 	Position getPositionErrorVectorInWorldFrame();
 
+	Position getDesiredWorldToCoMPositionInWorldFrame();
+
 	/*! Loads the parameters from the XML object
 	 * @param hParameterSet		handle
 	 * @return	true if all parameters could be loaded
@@ -82,7 +84,7 @@ protected:
     Position errorVector_;
 //    //! target position for logging
     Position defaultTarget_;
-
+    Position desiredWorldToFootPositionInWorldFrame_;
 
 
 

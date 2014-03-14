@@ -18,7 +18,7 @@
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
 #include "GaitPatternAPSPreview.hpp"
-
+#include "GaitPatternFlightPhasesPreview.hpp"
 
 namespace loco {
 
@@ -32,6 +32,7 @@ class VisualizerSC: public VisualizerBase {
   void drawPose(Character* character, AbstractRBEngine* world, ReducedCharacterState* desiredPose, int drawFlags);
 
   void drawGaitPatternAPS(loco::GaitPatternAPS* gaitPattern, double stridePhase);
+  void drawGaitPatternFlightPhases(loco::GaitPatternFlightPhases* gaitPattern);
   void drawMeasuredPose(Character* character, AbstractRBEngine* world, loco::TorsoBase* torso, loco::LegGroup* legs);
   void drawDesiredPose(Character* character, AbstractRBEngine* world, loco::TorsoBase* torso, loco::LegGroup* legs);
   void setCharacterJointState(ReducedCharacterState& newState, const robotModel::VectorQj& Qj, const robotModel::VectorQj& dQj);
@@ -63,6 +64,7 @@ class VisualizerSC: public VisualizerBase {
 
 
   loco::GaitPatternAPSPreview* gaitPatternWindow_;
+  loco::GaitPatternFlightPhasesPreview* gaitPatternFlightPhasesWindow_;
 };
 
 } /* namespace loco */

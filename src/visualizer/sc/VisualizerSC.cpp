@@ -11,14 +11,17 @@
 namespace loco {
 
 VisualizerSC::VisualizerSC() :
- gaitPatternWindow_(nullptr)
+ gaitPatternWindow_(nullptr),
+ gaitPatternFlightPhasesWindow_(nullptr)
 {
 
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);
+  gaitPatternFlightPhasesWindow_ = new GaitPatternFlightPhasesPreview(0, 0, 450, 150);
 
 }
 VisualizerSC::~VisualizerSC() {
   delete gaitPatternWindow_;
+  delete gaitPatternFlightPhasesWindow_;
 }
 
 
@@ -300,6 +303,15 @@ bool VisualizerSC::isHipFE(int jIndex){
 
 bool VisualizerSC::isKneeFE(int jIndex){
   return jIndex == 8 || jIndex == 9 || jIndex == 10 || jIndex == 11;
+}
+
+void VisualizerSC::drawGaitPatternFlightPhases(loco::GaitPatternFlightPhases* gaitPattern)
+{
+  if (gaitPatternFlightPhasesWindow_ != nullptr) {
+    gaitPatternFlightPhasesWindow_->setGaitPattern(gaitPattern);
+//    gaitPatternFlightPhasesWindow_->cursorPosition = stridePhase;
+    gaitPatternFlightPhasesWindow_->draw();
+  }
 }
 
 } /* namespace loco */

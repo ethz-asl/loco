@@ -21,6 +21,7 @@ PARENT_SCOPE)
 set(TASK_SRCS ${TASK_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/VisualizerSC.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternAPSPreview.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternFlightPhasesPreview.cpp
 PARENT_SCOPE)
 
 #################
