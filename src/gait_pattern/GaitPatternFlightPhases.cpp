@@ -89,7 +89,8 @@ void loco::GaitPatternFlightPhases::advance(double dt) {
 }
 
 bool loco::GaitPatternFlightPhases::shouldBeLegGrounded(int iLeg) {
-  return getSwingPhaseForLeg(iLeg)==-1;
+//  printf("leg %d: stance phase: %f\n",iLeg, getStancePhaseForLeg(iLeg));
+  return (getStancePhaseForLeg(iLeg)!=0.0);
 }
 
 double loco::GaitPatternFlightPhases::getStridePhase() {
