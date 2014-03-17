@@ -23,7 +23,7 @@ class GaitPatternFlightPhasesPreview : public SubGLWindow {
  private:
   GaitPatternFlightPhases* gaitPattern_;
 
-  double cursorPosition;
+  double cursorPosition_;
   int nrCycles;
   double maxXCoord;
   double maxYCoord;
@@ -31,9 +31,6 @@ class GaitPatternFlightPhasesPreview : public SubGLWindow {
   double boxStart;
   double boxLength;
 
-//  double getTrajMin(Trajectory1D traj);
-//  double getTrajMax(Trajectory1D traj);
-//  double getScaledY(double ymin, double ymax, double yval);
 };
 
 } /* namespace loco */

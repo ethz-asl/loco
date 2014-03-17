@@ -18,7 +18,7 @@ namespace loco {
 GaitPatternFlightPhasesPreview::GaitPatternFlightPhasesPreview(int posX, int posY, int sizeX, int sizeY) :
     SubGLWindow(posX, posY, sizeX, sizeY),
     gaitPattern_(nullptr),
-    cursorPosition(0.0),
+    cursorPosition_(0.0),
     nrCycles(1)
 {
 
@@ -41,11 +41,35 @@ void GaitPatternFlightPhasesPreview::draw() {
   if (!gaitPattern_->isInitialized())
     return;
 
+  const int numFeet = 4;
+  int numSections = numFeet;
+  double boxWidth = (maxYCoord - 0.1) / numSections;
+
   SubGLWindow::preDraw();
+
+
+
+//  SubGLWindow::postDraw();
+//  return;
+//  for (uint i=0, j=numFeet-1;i<numFeet;i++,j--){
+//    glRasterPos2d(labelsStart, 0.05 + i*boxWidth + boxWidth/3.0);
+//  }
+
 
   //clear a box for this...
   glColor3d(1, 1, 1);
   glBegin(GL_QUADS);
+    glVertex2d(0, 0);
+    glVertex2d(0, 1);
+    glVertex2d(maxXCoord, 1);
+    glVertex2d(maxXCoord, 0);
+  glEnd();
+
+  // draw white box
+  glEnable(GL_DEPTH_TEST);
+  glColor3d(0.0,0.0,0.0);
+  glBegin(GL_QUADS);
+    glColor3d(1.0, 1.0, 1.0);
     glVertex2d(0, 0);
     glVertex2d(0, 1);
     glVertex2d(maxXCoord, 1);
@@ -64,18 +88,16 @@ void GaitPatternFlightPhasesPreview::draw() {
 
   //draw the horizontal lines that delineate the different legs used...
   glBegin(GL_LINES);
-  const int numFeet = 4;
-  int numSections = numFeet;
 
-  double boxWidth = (maxYCoord - 0.1) / numSections;
+
+
   for (int i=0;i<=numSections;i++){
     glVertex2d(labelsStart, 0.05 + i*boxWidth);
     glVertex2d(boxStart + nrCycles * boxLength, 0.05 + i*boxWidth);
   }
   glEnd();
 
-  glColor3d(0.0,0.0,0.0);
-
+      glColor3d(0.0,0.0,0.0);
   //now draw the labels...
 //  for (uint i=0;i<gaitPattern_->footFallPatterns.size();i++){
   for (uint i=0, j=numFeet-1;i<numFeet;i++,j--){
@@ -85,27 +107,20 @@ void GaitPatternFlightPhasesPreview::draw() {
     if (j==1) name = "RF";
     if (j==2) name = "LH";
     if (j==3) name = "RH";
-
     glargeprintf("%s\n",  name.c_str());
-
-
-
-
   }
 
   glColor3d(0.0,0.0,0.0);
+
   glBegin(GL_QUADS);
    for (uint j=0, f=numFeet-1;j<numFeet;j++,f--){
      const int iLeg = f;
      for (int i=-1;i<=nrCycles;i++){
-
        double intervalStart = i + 0; //gaitPattern_->footFallPatterns[f].footLiftOff;
        double intervalEnd = i + 1;//gaitPattern_->footFallPatterns[f].footStrike;
        boundToRange(&intervalStart, 0, nrCycles);
        boundToRange(&intervalEnd, 0, nrCycles);
        double colour = gaitPattern_->getStancePhaseForLeg(iLeg);
-
-
 
            if (gaitPattern_->shouldBeLegGrounded(iLeg)) {
              switch (iLeg) {
@@ -124,7 +139,6 @@ void GaitPatternFlightPhasesPreview::draw() {
                default:
                  glColor3d(0.0,0.0,0.0);
                }
-
              }
              else {
                switch (iLeg) {
@@ -162,8 +176,6 @@ void GaitPatternFlightPhasesPreview::draw() {
   glBegin(GL_QUADS);
   //finally, draw all the regions where the legs are supposed to be in swing mode
 
-
-
   for (uint j=0, f=numFeet-1;j<numFeet;j++,f--){
     int iLeg = f;
     for (int i=-1;i<=nrCycles;i++){
@@ -175,7 +187,6 @@ void GaitPatternFlightPhasesPreview::draw() {
       boundToRange(&intervalEnd, 0, nrCycles);
       double colour = gaitPattern_->getStancePhaseForLeg(iLeg);
 
-      glColor3d(0.0,0.0,0.0);
       glColor3d(1.0,1.0,1.0);
 
       if (intervalStart != intervalEnd){
@@ -189,32 +200,50 @@ void GaitPatternFlightPhasesPreview::draw() {
   }
   glEnd();
 
+
+//  glBegin(GL_QUADS);
+//    glColor3d(0.0,0.0,0.0);
+//    glColor3d(1.0, 0.1, 0.1);
+//    glVertex2d(boxStart + -boxLength, -0.075 +  0*boxWidth);
+//    glVertex2d(boxStart + boxLength, -0.075 + 0*boxWidth);
+//    glVertex2d(boxStart + boxLength, 4.0*boxWidth);
+//    glVertex2d(boxStart + -boxLength, 4.0*boxWidth);
+////    glVertex2d(editorPosX, editorPosY);
+////    glVertex2d(editorPosX, editorPosY+editorPosY);
+////    glVertex2d(editorPosX+editorSizeX, editorPosY+editorPosY);
+////    glVertex2d(editorPosX+editorSizeX, editorPosY);
+//  glEnd();
+
+
+
   //finally, draw the cursor
-    cursorPosition =  gaitPattern_->getStridePhase();
+    cursorPosition_ =  gaitPattern_->getStridePhase();
 
 //  glColor3d(1.0, 0, 0);
   glColor3d(0.0, 0, 1.0);
   glLineWidth(2.0);
   glBegin(GL_LINES);
-    glVertex2d(boxStart + cursorPosition*boxLength, 0.05);
-    glVertex2d(boxStart + cursorPosition*boxLength, 0.95);
+    glVertex2d(boxStart + cursorPosition_*boxLength, 0.05);
+    glVertex2d(boxStart + cursorPosition_*boxLength, 0.95);
   glEnd();
   glLineWidth(1.0);
 
   glBegin(GL_TRIANGLES);
-    glVertex2d(boxStart + cursorPosition*boxLength, 0.05);
-    glVertex2d(boxStart + cursorPosition*boxLength-0.05, 0.0);
-    glVertex2d(boxStart + cursorPosition*boxLength+0.05, 0.0);
+    glVertex2d(boxStart + cursorPosition_*boxLength, 0.05);
+    glVertex2d(boxStart + cursorPosition_*boxLength-0.05, 0.0);
+    glVertex2d(boxStart + cursorPosition_*boxLength+0.05, 0.0);
 
-    glVertex2d(boxStart + cursorPosition*boxLength, 0.95);
-    glVertex2d(boxStart + cursorPosition*boxLength-0.05, 1);
-    glVertex2d(boxStart + cursorPosition*boxLength+0.05, 1);
+    glVertex2d(boxStart + cursorPosition_*boxLength, 0.95);
+    glVertex2d(boxStart + cursorPosition_*boxLength-0.05, 1);
+    glVertex2d(boxStart + cursorPosition_*boxLength+0.05, 1);
   glEnd();
 //  glColor3d(0.0, 0, 0.0);
 //  glRasterPos2d(3.0,0.5);
 //      gprintf("Speed: %0.2f m/s\n",  gp->getVelocity());
 
   //AND DONE!
+
+
 
 
   // Restore attributes
