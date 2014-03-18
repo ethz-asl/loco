@@ -78,7 +78,7 @@ void CoMOverSupportPolygonControl::advance(double dt) {
     iLeg++;
   }
 
-
+  desiredWorldToFootPositionInWorldFrame_ = comTarget+Position(headingOffset_, lateralOffset_, 0.0);
   errorVector_ =  comTarget+Position(headingOffset_, lateralOffset_, 0.0) - defaultTarget_;
 
 }
@@ -178,6 +178,9 @@ Position CoMOverSupportPolygonControl::getDefaultTarget() {
   return defaultTarget_;
 }
 
+Position CoMOverSupportPolygonControl::getDesiredWorldToCoMPositionInWorldFrame() {
+  return desiredWorldToFootPositionInWorldFrame_;
+}
 
 
 } // namespace loco

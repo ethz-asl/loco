@@ -41,6 +41,8 @@ public:
 
   virtual bool initialize(double dt);
 
+  bool isInitialized();
+
   /**
     returns the relative phase for the leg whose index is passed in. The number
     returned is always going to be between 0 and 1 (0 meaning it should still be in stance mode,
@@ -78,6 +80,7 @@ public:
 
 
 protected:
+  bool isInitialized_;
   double velocity_;
   APS initAPS_;
 

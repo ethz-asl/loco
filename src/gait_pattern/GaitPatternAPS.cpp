@@ -17,7 +17,9 @@
 
 namespace loco {
 
-GaitPatternAPS::GaitPatternAPS():velocity_(0.0) {
+GaitPatternAPS::GaitPatternAPS():
+    isInitialized_(false),
+    velocity_(0.0) {
 
 	numGaitCycles = 0;
 
@@ -293,14 +295,53 @@ bool GaitPatternAPS::loadParameters(const TiXmlHandle &hParameterSet)
 
 bool GaitPatternAPS::initialize(const APS& aps, double dt) {
   GaitAPS::initAPS(aps, dt);
-
-  return true;
+  isInitialized_ = true;
+  return isInitialized_;
 }
 
 bool GaitPatternAPS::initialize(double dt) {
+//  APS apsStand;
+////  <GaitDiagram cycleDuration="1" foreLag="0.0" hindLag="0.0" pairLag="0.0" foreDutyFactor="1.0" hindDutyFactor="1.0" />
+//  double cycleDuration = 1.0;
+//  apsStand.foreCycleDuration_ = cycleDuration;
+//  apsStand.hindCycleDuration_ = cycleDuration;
+//  apsStand.foreLag_ = 0.0;
+//  apsStand.hindLag_ = 0.0;
+//  apsStand.pairLag_ = 0.0;
+//  apsStand.foreDutyFactor_ = 1.0;
+//  apsStand.hindDutyFactor_ = 1.0;
+//
+//  APS apsStandToWalk1;
+//  apsStandToWalk1.foreCycleDuration_ = 1.5;
+//  apsStandToWalk1.hindCycleDuration_ = apsStandToWalk1.foreCycleDuration_;
+//  apsStandToWalk1.foreLag_ = 0.0;
+//  apsStandToWalk1.hindLag_ = 0.0;
+//  apsStandToWalk1.pairLag_ = 0.0;
+//  apsStandToWalk1.foreDutyFactor_ = 1.0;
+//  apsStandToWalk1.hindDutyFactor_ = 1.0;
+//
+//  APS apsStandToWalk2;
+//  apsStandToWalk2.foreCycleDuration_ = 1.5;
+//  apsStandToWalk2.hindCycleDuration_ = 3.0;
+//  apsStandToWalk2.foreLag_ = 0.0;
+//  apsStandToWalk2.hindLag_ = 0.0;
+//  apsStandToWalk2.pairLag_ = 0.0;
+//  apsStandToWalk2.foreDutyFactor_ = 1.5;
+//  apsStandToWalk2.hindDutyFactor_ = 1.01;
+//
+//
+//
+//
+//
+//  GaitAPS::initAPS(apsStand, dt);
+//  GaitAPS::addAPS(apsStand);
+//  GaitAPS::addAPS(apsStand);
+//  GaitAPS::addAPS(apsStandToWalk1);
+//  GaitAPS::addAPS(apsStandToWalk2);
+//  GaitAPS::addAPS(initAPS_);
   GaitAPS::initAPS(initAPS_, dt);
-
-  return true;
+  isInitialized_ = true;
+  return isInitialized_;
 }
 
 
@@ -357,6 +398,9 @@ double GaitPatternAPS::getStridePhase() {
   GaitAPS::getStridePhase();
 }
 
+bool GaitPatternAPS::isInitialized() {
+  return isInitialized_;
+}
 
 
 } // namespace loco
