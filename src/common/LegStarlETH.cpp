@@ -21,7 +21,8 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg,  robotModel::RobotMo
   positionBaseToFootInBaseFrame_(),
   positionBaseToHipInBaseFrame_(),
   linearVelocityHipInWorldFrame_(),
-  forceFootContactInWorldFrame_()
+  forceFootContactInWorldFrame_(),
+  normalFootContactInWorldFrame_()
 {
   desiredJointControlModes_.setConstant(robotModel::AM_Velocity);
   translationJacobianBaseToFootInBaseFrame_.setZero();
@@ -96,6 +97,7 @@ bool LegStarlETH::advance(double dt)
       ->getJ().block<nDofContactPoint_, nJoints_>(0, RM_NQB + iLeg_*nJoints_);
 
   forceFootContactInWorldFrame_ = Force(robotModel_->sensors().getContactForceCSw(iLeg_));
+  normalFootContactInWorldFrame_ = Vector(robotModel_->sensors().getContactNormalCSw(iLeg_));
   return true;
 }
 
@@ -128,4 +130,9 @@ void LegStarlETH::setSurfaceNormal(const Vector& surfaceNormal) {
 const Force& LegStarlETH::getFootContactForceInWorldFrame() const {
   return forceFootContactInWorldFrame_;
 }
+
+const Vector& LegStarlETH::getFootContactNormalInWorldFrame() const {
+  return normalFootContactInWorldFrame_;
+}
+
 } /* namespace loco */

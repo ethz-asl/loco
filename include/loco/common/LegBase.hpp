@@ -99,6 +99,7 @@ class LegBase {
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const = 0;
 
   virtual const Force& getFootContactForceInWorldFrame() const = 0;
+  virtual const Vector& getFootContactNormalInWorldFrame() const = 0;
 
   friend std::ostream& operator << (std::ostream& out, const LegBase& leg);
 
