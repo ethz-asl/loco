@@ -78,8 +78,6 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
-  virtual const Vector& getSurfaceNormal() const;
-  virtual void setSurfaceNormal(const Vector& surfaceNormal) = 0;
 
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
@@ -132,8 +130,6 @@ class LegBase {
   bool shouldBeGrounded_;
 
   double loadFactor_;
-
-  Vector surfaceNormal_;
 
   LegStateTouchDown stateTouchDown_;
   LegStateLiftOff stateLiftOff_;

@@ -54,7 +54,6 @@ class LegStarlETH : public loco::LegBase {
 
   virtual LegPropertiesBase& getProperties();
 
-  virtual void setSurfaceNormal(const Vector& surfaceNormal);
  private:
   //! index of the leg (only used to access robot model)
   int iLeg_;

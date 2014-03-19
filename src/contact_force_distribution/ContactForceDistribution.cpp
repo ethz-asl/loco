@@ -59,7 +59,6 @@ bool ContactForceDistribution::computeForceDistribution(
   if (nLegsInForceDistribution_ > 0)
   {
     prepareOptimization(virtualForce, virtualTorque);
-    getTerrainNormals();
 
     // TODO Move these function calls to a separate method which can be overwritten
     // to have different contact force distributions, or let them be activated via parameters.
@@ -150,23 +149,7 @@ bool ContactForceDistribution::prepareOptimization(
   return true;
 }
 
-bool ContactForceDistribution::getTerrainNormals()
-{
-  for (auto& legInfo : legInfos_)
-  {
-    if (legInfo.second.isPartOfForceDistribution_)
-    {
-      Vector3d surfaceNormal = Vector3d::Zero();
-      if (legInfo.first->isGrounded())
-      {
-        terrain_->getNormal(legInfo.first->getWorldToFootPositionInWorldFrame().toImplementation(), surfaceNormal);
-      }
-      legInfo.first->setSurfaceNormal(Vector(surfaceNormal));
-    }
-  }
 
-  return true;
-}
 
 bool ContactForceDistribution::addMinimalForceConstraints()
 {
@@ -186,7 +169,7 @@ bool ContactForceDistribution::addMinimalForceConstraints()
     {
       MatrixXd D_row = MatrixXd::Zero(1, n_);
       D_row.block(0, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_)
-        = legInfo.first->getSurfaceNormal().toImplementation().transpose();
+        = legInfo.first->getFootContactNormalInWorldFrame().toImplementation().transpose();
       D_.middleRows(rowIndex, 1) = D_row.sparseView();
       d_(rowIndex) = minimalNormalGroundForce_;
       f_(rowIndex) = std::numeric_limits<double>::max();
@@ -221,7 +204,7 @@ bool ContactForceDistribution::addFrictionConstraints()
     {
       MatrixXd D_rows = MatrixXd::Zero(nDirections, n_);
 
-      const Vector3d& normalDirection = legInfo.first->getSurfaceNormal().toImplementation();
+      const Vector3d& normalDirection = legInfo.first->getFootContactNormalInWorldFrame().toImplementation();
 
       // The choose the first tangential to lie in the XZ-plane of the base frame.
       // This is the same as the requirement as

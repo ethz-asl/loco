@@ -131,9 +131,6 @@ class ContactForceDistribution : public ContactForceDistributionBase
   bool prepareOptimization(const Force& virtualForce,
                            const Torque& virtualTorque);
 
-  bool setTerrainNormalsToDefault();
-
-  bool getTerrainNormals();
 
   bool addMinimalForceConstraints();
 

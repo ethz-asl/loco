@@ -123,10 +123,6 @@ const Position& LegStarlETH::getBaseToHipPositionInBaseFrame() const {
 }
 
 
-void LegStarlETH::setSurfaceNormal(const Vector& surfaceNormal) {
-  surfaceNormal_ = surfaceNormal;
-}
-
 const Force& LegStarlETH::getFootContactForceInWorldFrame() const {
   return forceFootContactInWorldFrame_;
 }
