@@ -78,8 +78,6 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
-  virtual const Vector& getSurfaceNormal() const;
-  virtual void setSurfaceNormal(const Vector& surfaceNormal) = 0;
 
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
@@ -97,6 +95,9 @@ class LegBase {
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
 
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const = 0;
+
+  virtual const Force& getFootContactForceInWorldFrame() const = 0;
+  virtual const Vector& getFootContactNormalInWorldFrame() const = 0;
 
   friend std::ostream& operator << (std::ostream& out, const LegBase& leg);
 
@@ -129,8 +130,6 @@ class LegBase {
   bool shouldBeGrounded_;
 
   double loadFactor_;
-
-  Vector surfaceNormal_;
 
   LegStateTouchDown stateTouchDown_;
   LegStateLiftOff stateLiftOff_;

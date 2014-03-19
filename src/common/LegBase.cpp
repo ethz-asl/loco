@@ -19,8 +19,7 @@ LegBase::LegBase() :
     isInSwingMode_(true),
     isGrounded_(false),
     shouldBeGrounded_(false),
-    loadFactor_(1.0),
-    surfaceNormal_(Eigen::Vector3d::Zero())
+    loadFactor_(1.0)
 {
 
 }
@@ -35,8 +34,7 @@ LegBase::LegBase(const std::string& name) :
     isInSwingMode_(true),
     isGrounded_(false),
     shouldBeGrounded_(false),
-    loadFactor_(1.0),
-    surfaceNormal_(Eigen::Vector3d::Zero())
+    loadFactor_(1.0)
 {
 
 }
@@ -82,10 +80,7 @@ double LegBase::getDesiredLoadFactor() const
   return loadFactor_;
 }
 
-const Vector& LegBase::getSurfaceNormal() const
-{
-  return surfaceNormal_;
-}
+
 
 
 

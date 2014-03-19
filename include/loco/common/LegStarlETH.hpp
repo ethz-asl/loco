@@ -44,6 +44,9 @@ class LegStarlETH : public loco::LegBase {
 
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame);
 
+  virtual const Force& getFootContactForceInWorldFrame() const;
+  virtual const Vector& getFootContactNormalInWorldFrame() const;
+
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const;
 
   virtual bool initialize(double dt);
@@ -51,7 +54,6 @@ class LegStarlETH : public loco::LegBase {
 
   virtual LegPropertiesBase& getProperties();
 
-  virtual void setSurfaceNormal(const Vector& surfaceNormal);
  private:
   //! index of the leg (only used to access robot model)
   int iLeg_;
@@ -69,6 +71,9 @@ class LegStarlETH : public loco::LegBase {
   Position positionBaseToHipInBaseFrame_;
 
   Eigen::Matrix<double, nDofContactPoint_, nJoints_> translationJacobianBaseToFootInBaseFrame_;
+
+  Force forceFootContactInWorldFrame_;
+  Vector normalFootContactInWorldFrame_;
 
   LegPropertiesStarlETH properties_;
 };

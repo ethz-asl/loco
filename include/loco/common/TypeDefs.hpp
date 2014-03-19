@@ -22,6 +22,7 @@ typedef kindr::poses::eigen_impl::TwistLinearVelocityLocalAngularVelocityD Twist
 typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
 typedef kindr::rotations::eigen_impl::AngleAxisPD AngleAxis;
 typedef kindr::rotations::eigen_impl::RotationMatrixPD RotationMatrix;
+typedef kindr::rotations::eigen_impl::EulerAnglesZyxPD EulerAnglesZyx;
 
 typedef kindr::phys_quant::eigen_impl::Position3D Position;
 
@@ -29,6 +30,7 @@ typedef kindr::phys_quant::eigen_impl::Velocity3D LinearVelocity;
 typedef kindr::rotations::eigen_impl::LocalAngularVelocityAD LocalAngularVelocity;
 
 typedef kindr::phys_quant::eigen_impl::Acceleration3D LinearAcceleration;
+typedef kindr::phys_quant::eigen_impl::AngularAcceleration3D AngularAcceleration;
 
 typedef kindr::phys_quant::eigen_impl::Force3D Force;
 typedef kindr::phys_quant::eigen_impl::Torque3D Torque;
