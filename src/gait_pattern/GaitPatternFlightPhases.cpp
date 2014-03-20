@@ -80,10 +80,14 @@ bool loco::GaitPatternFlightPhases::isInitialized()
 }
 
 void loco::GaitPatternFlightPhases::advance(double dt) {
-  assert(strideDuration!=0.0);
+  if (strideDuration == 0.0) {
+    cyclePhase = 0.0;
+    return;
+  }
   cyclePhase += dt/strideDuration;
   if (cyclePhase > 1.0) {
     cyclePhase = 0.0;
+    numGaitCycles++;
   }
 
 }
