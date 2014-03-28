@@ -44,10 +44,10 @@ bool VirtualModelController::compute()
   computeGravityCompensation();
   computeVirtualForce();
   computeVirtualTorque();
+//  cout << *this << endl;
   if (!contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_)) {
     return false;
   }
-//  cout << *this << endl;
   return true;
 }
 
