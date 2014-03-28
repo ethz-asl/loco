@@ -2,6 +2,9 @@
 #ifndef LOCO_TRAJECTORY_HPP_
 #define LOCO_TRAJECTORY_HPP_
 
+#include "kindr/phys_quant/PhysicalQuantitiesEigen.hpp"
+#include "kindr/rotations/RotationEigen.hpp"
+#include "kindr/rotations/RotationDiffEigen.hpp"
 
 #include <limits>
 
@@ -15,6 +18,8 @@
 #include <vector>
 //#define FANCY_SPLINES
 
+
+
 namespace loco {
 
 /**
@@ -23,8 +28,8 @@ namespace loco {
 	trajectory at any t, through interpolation. This is not used for extrapolation. Outside the range of the knots, the closest known value is returned instead.
 */
 
-template <class T> class GenericTrajectory{
-private:
+template <class T> class GenericTrajectory {
+protected:
 	std::vector<double> tValues;
 	std::vector<T> values;
 
@@ -147,7 +152,7 @@ public:
 	/**
 		Returns the value of the ith knot. It is assumed that i is within the correct range.
 	*/
-	T getKnotValue(int i) const{
+	T getKnotValue(int i) const {
 		return values[i];
 	}
 
@@ -334,6 +339,38 @@ public:
 
 	}
 };
+
+class TrajectoryRotationQuaternion: public GenericTrajectory<kindr::rotations::eigen_impl::RotationQuaternionPD> {
+ public:
+  typedef kindr::rotations::eigen_impl::RotationQuaternionPD ValueType;
+public:
+  TrajectoryRotationQuaternion() {}
+  virtual ~TrajectoryRotationQuaternion() {};
+
+  void simplify_catmull_rom( double maxError, int nbSamples = 100 ) = delete;
+  void evaluate_catmull_rom_traj(const int nPoints, std::vector<double>& tArray, std::vector<ValueType>& valArray) = delete;
+  ValueType evaluate(double t) = delete;
+
+  ValueType evaluate_linear(double t) {
+    int size = tValues.size();
+    if (t<=tValues[0]) return values[0];
+    if (t>=tValues[size-1]) return values[size-1];
+    int index = getFirstLargerIndex(t);
+
+    //now linearly interpolate between inedx-1 and index
+    t = (t-tValues[index-1]) / (tValues[index]-tValues[index-1]);
+//    return (values[index-1]) * (1-t) + (values[index]) * t;
+    return values[index-1].boxPlus(values[index].boxMinus(values[index-1])*t);
+  }
+};
+
+typedef GenericTrajectory<kindr::phys_quant::eigen_impl::VectorTypeless3D> TrajectoryVector;
+typedef GenericTrajectory<kindr::phys_quant::eigen_impl::Position3D> TrajectoryPosition;
+typedef GenericTrajectory<kindr::phys_quant::eigen_impl::Velocity3D> TrajectoryLinearVelocity;
+typedef GenericTrajectory<kindr::rotations::eigen_impl::LocalAngularVelocityPD> TrajectoryLocalAngularVelocity;
+typedef GenericTrajectory<kindr::phys_quant::eigen_impl::AngularAcceleration3D> TrajectoryAngularAcceleration;
+typedef GenericTrajectory<kindr::phys_quant::eigen_impl::Force3D> TrajectoryForce;
+typedef GenericTrajectory<kindr::phys_quant::eigen_impl::Torque3D>  TrajectoryTorque;
 
 
 } // namespace loco
