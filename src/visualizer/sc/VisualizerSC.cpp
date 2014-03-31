@@ -11,6 +11,7 @@
 namespace loco {
 
 VisualizerSC::VisualizerSC() :
+    VisualizerBase(),
  gaitPatternWindow_(nullptr),
  gaitPatternFlightPhasesWindow_(nullptr)
 {
@@ -18,10 +19,42 @@ VisualizerSC::VisualizerSC() :
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);
   gaitPatternFlightPhasesWindow_ = new GaitPatternFlightPhasesPreview(0, 0, 450, 150);
 
+  /* initialize foot trajectories */
+  const double windowSize = 2.0;
+  const double dt = 1.0/desiredFrameRate_;
+  for (int iLeg=0; iLeg<4; iLeg++) {
+    for (double t=0; t<windowSize; t=t+dt) {
+      footTrajectories_[iLeg].addKnot(t, loco::Position());
+    }
+  }
+  for (double t=0; t<windowSize; t=t+dt) {
+    baseTrajectory_.addKnot(t, loco::Position());
+  }
+
+
 }
 VisualizerSC::~VisualizerSC() {
   delete gaitPatternWindow_;
   delete gaitPatternFlightPhasesWindow_;
+}
+
+void VisualizerSC::drawHistoryOfFootPositions(loco::LegGroup* legs) {
+  for (int iLeg=0; iLeg<4; iLeg++) {
+    const loco::LegBase* leg = legs->getLeg(iLeg);
+    footTrajectories_[iLeg].removeKnot(0);
+    const double dt = 1.0/desiredFrameRate_;
+    footTrajectories_[iLeg].addKnot(footTrajectories_[iLeg].getKnotPosition(footTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getWorldToFootPositionInWorldFrame());
+    drawTrajectoryCatMullRomPosition(footTrajectories_[iLeg], dt);
+  }
+}
+
+void VisualizerSC::drawHistoryOfBasePosition(loco::TorsoBase* torso) {
+
+    baseTrajectory_.removeKnot(0);
+    const double dt = 1.0/desiredFrameRate_;
+    baseTrajectory_.addKnot(baseTrajectory_.getKnotPosition(baseTrajectory_.getKnotCount()-1)+dt, torso->getMeasuredState().getWorldToBasePositionInWorldFrame());
+    drawTrajectoryCatMullRomPosition(baseTrajectory_, dt);
+
 }
 
 
@@ -313,5 +346,33 @@ void VisualizerSC::drawGaitPatternFlightPhases(loco::GaitPatternFlightPhases* ga
     gaitPatternFlightPhasesWindow_->draw();
   }
 }
+
+void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt) {
+
+
+  if (c.getKnotCount() == 0)
+    return;
+  glLineWidth(0.5);
+
+  glBegin(GL_LINES);
+    double trajLength = c.getKnotPosition(c.getKnotCount()-1);
+    Position pt = c.evaluate_catmull_rom(0.0);
+    for (double t=dt; t<trajLength-dt/2; t+=dt)
+    {
+      Position nextPt = c.evaluate_catmull_rom(t);
+      glVertex3d(pt.x(), pt.y(), pt.z());
+      glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+      pt = nextPt;
+    }
+    Position nextPt = c.evaluate_catmull_rom(trajLength);
+    glVertex3d(pt.x(), pt.y(), pt.z());
+    glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+  glEnd();
+
+  glLineWidth(1);
+
+}
+
+
 
 } /* namespace loco */

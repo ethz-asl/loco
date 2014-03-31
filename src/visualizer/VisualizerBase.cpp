@@ -6,10 +6,11 @@
  */
 
 #include "loco/visualizer/VisualizerBase.hpp"
-
+#include "AppGUI/Globals.h"
 namespace loco {
 
-VisualizerBase::VisualizerBase() {
+VisualizerBase::VisualizerBase():
+    desiredFrameRate_(Globals::desiredFrameRate) {
 
 
 }
