@@ -67,6 +67,7 @@ public:
   //! trajectory of the height of the swing foot above ground over the swing phase
   SwingFootHeightTrajectory swingFootHeightTrajectory_;
 
+
 protected:
   /*! Gets the foot position for the swing leg
    *
