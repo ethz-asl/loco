@@ -68,6 +68,7 @@ add_subdirectory(src/locomotion_controller)
 
 add_subdirectory(src/visualizer)
 
+add_subdirectory(src/tools)
 
 if (BUILD_TEST AND BUILD_GTEST)
 add_subdirectory(test EXCLUDE_FROM_ALL)
