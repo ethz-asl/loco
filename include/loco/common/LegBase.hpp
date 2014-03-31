@@ -116,6 +116,7 @@ class LegBase {
 
   virtual LegPropertiesBase& getProperties() = 0;
 
+  virtual int getId() const = 0;
  protected:
   std::string name_;
 

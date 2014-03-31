@@ -131,4 +131,9 @@ const Vector& LegStarlETH::getFootContactNormalInWorldFrame() const {
   return normalFootContactInWorldFrame_;
 }
 
+
+int LegStarlETH::getId() const {
+  return iLeg_;
+}
+
 } /* namespace loco */
