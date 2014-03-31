@@ -216,10 +216,10 @@ bool FootPlacementStrategyInvertedPendulum::loadHeightTrajectory(const TiXmlHand
       }
       tValues.push_back(t);
       xValues.push_back(value);
-      swingFootHeightTrajectory_.addKnot(t, value);
+//      swingFootHeightTrajectory_.addKnot(t, value);
 //      printf("t=%f, v=%f\n", t, value);
    }
-//   swingFootHeightTrajectory_.setRBFData(tValues, xValues);
+   swingFootHeightTrajectory_.setRBFData(tValues, xValues);
 
 
   return true;

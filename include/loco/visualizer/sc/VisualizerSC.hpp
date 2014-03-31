@@ -43,6 +43,11 @@ class VisualizerSC: public VisualizerBase {
   void drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, const Torque& torqueInBaseFrame, loco::TorsoBase* torso, loco::LegGroup* legs);
   void drawDistributedVirtualForces(loco::TorsoBase* torso, loco::LegGroup* legs, loco::VirtualModelController* virtualModelController);
 
+
+  void drawHistoryOfFootPositions(loco::LegGroup* legs);
+  void drawHistoryOfBasePosition(loco::TorsoBase* torso);
+  void drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt = 0.1);
+
   /*! Check if the index of a joint of the character indicates a hip AA joint
    * @param jIndex  joint index
    * @return  true if it is a hip AA joint
@@ -65,6 +70,10 @@ class VisualizerSC: public VisualizerBase {
 
   loco::GaitPatternAPSPreview* gaitPatternWindow_;
   loco::GaitPatternFlightPhasesPreview* gaitPatternFlightPhasesWindow_;
+
+ protected:
+  loco::TrajectoryPosition footTrajectories_[4];
+  loco::TrajectoryPosition baseTrajectory_;
 };
 
 } /* namespace loco */
