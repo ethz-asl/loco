@@ -25,8 +25,9 @@
 #include "Logger.hpp"
 #include "TerrainBase.hpp"
 
-#include "PeriodicRBF1DC3.hpp"
-#include "PeriodicRBF1DC1.hpp"
+//#include "PeriodicRBF1DC3.hpp"
+//#include "PeriodicRBF1DC1.hpp"
+#include "BoundedRBF1D.hpp"
 
 namespace loco {
 
@@ -38,8 +39,8 @@ namespace loco {
  */
 class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
  public:
- typedef Trajectory1D SwingFootHeightTrajectory;
-//  typedef  rbf::PeriodicRBF1DC1 SwingFootHeightTrajectory;
+// typedef Trajectory1D SwingFootHeightTrajectory;
+ typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
 
 public:
 	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
