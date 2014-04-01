@@ -15,7 +15,8 @@ PARENT_SCOPE)
 ### SOURCES ###
 ###############
 set(TASK_SRCS ${TASK_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/TuningWithSliderboard.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TuningWithSliderboardBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TuningWithSliderboardLocoDynamicGait.cpp
 PARENT_SCOPE)
 
 #################

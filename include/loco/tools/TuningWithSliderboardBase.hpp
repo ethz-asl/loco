@@ -5,17 +5,17 @@
  *      Author: gech
  */
 
-#ifndef LOCO_TUNINGWITHSLIDERBOARD_HPP_
-#define LOCO_TUNINGWITHSLIDERBOARD_HPP_
+#ifndef LOCO_TUNINGWITHSLIDERBOARDBASE_HPP_
+#define LOCO_TUNINGWITHSLIDERBOARDBASE_HPP_
 
 #include "Sliderboard.hpp"
 
 namespace loco {
 
-class TuningWithSliderboard {
+class TuningWithSliderboardBase {
  public:
-  TuningWithSliderboard(robotUtils::Sliderboard* sliderboard);
-  virtual ~TuningWithSliderboard();
+  TuningWithSliderboardBase(robotUtils::Sliderboard* sliderboard);
+  virtual ~TuningWithSliderboardBase();
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
  protected:
@@ -25,4 +25,4 @@ class TuningWithSliderboard {
 
 } /* namespace loco */
 
-#endif /* LOCO_TUNINGWITHSLIDERBOARD_HPP_ */
+#endif /* LOCO_TUNINGWITHSLIDERBOARDBASE_HPP_ */

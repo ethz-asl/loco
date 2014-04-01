@@ -147,6 +147,13 @@ FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStra
   return footPlacementStrategy_;
 }
 
+VirtualModelController* LocomotionControllerDynamicGait::getVirtualModelController() {
+  return virtualModelController_;
+}
+ContactForceDistributionBase* LocomotionControllerDynamicGait::getContactForceDistribution() {
+  return contactForceDistribution_;
+}
+
 
 bool LocomotionControllerDynamicGait::isInitialized() const {
   return isInitialized_;

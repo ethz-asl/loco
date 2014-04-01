@@ -271,5 +271,107 @@ bool VirtualModelController::loadParameters(const TiXmlHandle& handle)
   return true;
 }
 
+const Eigen::Vector3d& VirtualModelController::getProportionalGainTranslation() const {
+  return proportionalGainTranslation_;
+}
+const Eigen::Vector3d& VirtualModelController::getDerivativeGainTranslation() const {
+  return derivativeGainTranslation_;
+}
+const Eigen::Vector3d& VirtualModelController::getFeedforwardGainTranslation() const {
+  return feedforwardGainTranslation_;
+}
+
+const Eigen::Vector3d& VirtualModelController::getProportionalGainRotation() const {
+  return proportionalGainRotation_;
+}
+const Eigen::Vector3d& VirtualModelController::getDerivativeGainRotation() const {
+  return derivativeGainRotation_;
+}
+const Eigen::Vector3d& VirtualModelController::getFeedforwardGainRotation() const {
+  return feedforwardGainRotation_;
+}
+
+void VirtualModelController::setProportionalGainRotation(const Eigen::Vector3d& gains) {
+  proportionalGainRotation_ = gains;
+}
+void VirtualModelController::setDerivativeGainRotation(const Eigen::Vector3d& gains) {
+  derivativeGainRotation_ = gains;
+}
+void VirtualModelController::setFeedforwardGainRotation(const Eigen::Vector3d& gains) {
+  feedforwardGainRotation_ = gains;
+}
+
+void VirtualModelController::setProportionalGainTranslation(const Eigen::Vector3d& gains) {
+  proportionalGainTranslation_ = gains;
+}
+void VirtualModelController::setDerivativeGainTranslation(const Eigen::Vector3d& gains) {
+  derivativeGainTranslation_ = gains;
+}
+void VirtualModelController::setFeedforwardGainTranslation(const Eigen::Vector3d& gains) {
+  feedforwardGainTranslation_ = gains;
+}
+
+void VirtualModelController::setGainsHeading(double kp, double kd, double kff) {
+  proportionalGainTranslation_.x() = kp;
+  derivativeGainTranslation_.x() = kp;
+  feedforwardGainTranslation_.x() = kp;
+}
+void VirtualModelController::setGainsLateral(double kp, double kd, double kff) {
+  proportionalGainTranslation_.y() = kp;
+  derivativeGainTranslation_.y() = kp;
+  feedforwardGainTranslation_.y() = kp;
+}
+void VirtualModelController::setGainsVertical(double kp, double kd, double kff) {
+  proportionalGainTranslation_.z() = kp;
+  derivativeGainTranslation_.z() = kp;
+  feedforwardGainTranslation_.z() = kp;
+}
+void VirtualModelController::setGainsRoll(double kp, double kd, double kff) {
+  proportionalGainRotation_.x() = kp;
+  derivativeGainRotation_.x() = kp;
+  feedforwardGainRotation_.x() = kp;
+}
+
+void VirtualModelController::setGainsPitch(double kp, double kd, double kff) {
+  proportionalGainRotation_.y() = kp;
+  derivativeGainRotation_.y() = kp;
+  feedforwardGainRotation_.y() = kp;
+}
+void VirtualModelController::setGainsYaw(double kp, double kd, double kff) {
+  proportionalGainRotation_.z() = kp;
+  derivativeGainRotation_.z() = kp;
+  feedforwardGainRotation_.z() = kp;
+}
+
+void VirtualModelController::getGainsHeading(double& kp, double& kd, double& kff) {
+  kp = proportionalGainTranslation_.x();
+  kd = derivativeGainTranslation_.x();
+  kff = feedforwardGainTranslation_.x();
+}
+void VirtualModelController::getGainsLateral(double& kp, double& kd, double& kff) {
+  kp = proportionalGainTranslation_.y();
+  kd = derivativeGainTranslation_.y();
+  kff = feedforwardGainTranslation_.y();
+}
+void VirtualModelController::getGainsVertical(double& kp, double& kd, double& kff) {
+  kp = proportionalGainTranslation_.z();
+  kd = derivativeGainTranslation_.z();
+  kff = feedforwardGainTranslation_.z();
+}
+void VirtualModelController::getGainsRoll(double& kp, double& kd, double& kff) {
+  kp = proportionalGainRotation_.x();
+  kd = derivativeGainRotation_.x();
+  kff = feedforwardGainRotation_.x();
+}
+void VirtualModelController::getGainsPitch(double& kp, double& kd, double& kff) {
+  kp = proportionalGainRotation_.y();
+  kd = derivativeGainRotation_.y();
+  kff = feedforwardGainRotation_.y();
+}
+void VirtualModelController::getGainsYaw(double& kp, double& kd, double& kff) {
+  kp = proportionalGainRotation_.z();
+  kd = derivativeGainRotation_.z();
+  kff = feedforwardGainRotation_.z();
+}
 
 } /* namespace loco */

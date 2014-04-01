@@ -53,8 +53,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   virtual LegGroup* getLegs();
 
   FootPlacementStrategyBase* getFootPlacementStrategy();
-
-
+  VirtualModelController* getVirtualModelController();
+  ContactForceDistributionBase* getContactForceDistribution();
  protected:
   bool isInitialized_;
   LegGroup* legs_;
