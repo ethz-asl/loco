@@ -6,14 +6,15 @@
  */
 
 #include "loco/visualizer/sc/VisualizerSC.hpp"
-#include "Globals.h"
+#include "AppGUI/Globals.h"
 
 namespace loco {
 
 VisualizerSC::VisualizerSC() :
     VisualizerBase(),
  gaitPatternWindow_(nullptr),
- gaitPatternFlightPhasesWindow_(nullptr)
+ gaitPatternFlightPhasesWindow_(nullptr),
+ desiredFrameRate_(Globals::desiredFrameRate)
 {
 
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);

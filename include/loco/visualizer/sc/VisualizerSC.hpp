@@ -72,6 +72,7 @@ class VisualizerSC: public VisualizerBase {
   loco::GaitPatternFlightPhasesPreview* gaitPatternFlightPhasesWindow_;
 
  protected:
+  double desiredFrameRate_;
   loco::TrajectoryPosition footTrajectories_[4];
   loco::TrajectoryPosition baseTrajectory_;
 };
