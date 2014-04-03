@@ -12,6 +12,8 @@
 #include <kindr/phys_quant/PhysicalQuantitiesEigen.hpp>
 #include "RobotModel.hpp"
 
+
+
 namespace loco {
 
 class JointControllerStarlETH : public JointControllerBase {
@@ -30,11 +32,17 @@ class JointControllerStarlETH : public JointControllerBase {
   void setJointControlGainsHAA(double kp, double kd);
   void setJointControlGainsHFE(double kp, double kd);
   void setJointControlGainsKFE(double kp, double kd);
+  void setMaxTorqueHAA(double maxTorque);
+  void setMaxTorqueHFE(double maxTorque);
+  void setMaxTorqueKFE(double maxTorque);
 
+  virtual bool loadParameters(const TiXmlHandle& handle);
 
+  virtual void setIsClampingTorques(bool sClamping);
 
  protected:
   robotModel::RobotModel* robotModel_;
+  bool isClampingTorques_;
   JointTorques jointTorques_;
   //! desired positions used in the low-level velocity control mode
   robotModel::VectorAct desPositionsInVelocityControl_;
@@ -44,6 +52,7 @@ class JointControllerStarlETH : public JointControllerBase {
   JointVector jointPositionControlDerivativeGains_;
   JointVector jointVelocityControlProportionalGains_;
   JointVector jointVelocityControlDerivativeGains_;
+  JointTorques jointMaxTorques_;
 };
 
 } /* namespace loco */

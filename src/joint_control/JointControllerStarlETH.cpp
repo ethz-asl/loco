@@ -6,20 +6,24 @@
  */
 
 #include "loco/joint_control/JointControllerStarlETH.hpp"
-
+#include <limits>
 namespace loco {
 
 JointControllerStarlETH::JointControllerStarlETH(robotModel::RobotModel* robotModel) :
  JointControllerBase(),
- robotModel_(robotModel)
+ robotModel_(robotModel),
+ isClampingTorques_(false)
 {
-
+  jointMaxTorques_.toImplementation().fill(std::numeric_limits<double>::max());
 }
 
 JointControllerStarlETH::~JointControllerStarlETH() {
 
 }
 
+void JointControllerStarlETH::setIsClampingTorques(bool isClamping)  {
+  isClampingTorques_ = isClamping;
+}
 
 bool JointControllerStarlETH::initialize(double dt) {
   desJointModesPrevious_ = robotModel_->act().getMode();
@@ -43,6 +47,7 @@ bool JointControllerStarlETH::advance(double dt) {
     if (desJointModes(i) == robotModel::AM_Position) {
       jointTorques_(i) = jointPositionControlProportionalGains_(i)*(desJointPositions(i)-measJointPositions(i));
       jointTorques_(i) += jointPositionControlDerivativeGains_(i)*(desJointVelocities(i)-measJointVelocities(i));
+
     }
     else if(desJointModes(i) == robotModel::AM_Velocity) {
 
@@ -51,6 +56,7 @@ bool JointControllerStarlETH::advance(double dt) {
       }
       jointTorques_(i) = jointVelocityControlProportionalGains_(i)*(desPositionsInVelocityControl_(i)-measJointPositions(i));
       jointTorques_(i) += jointVelocityControlDerivativeGains_(i)*(desJointVelocities(i)-measJointVelocities(i));
+
     }
     else if(desJointModes(i) == robotModel::AM_Torque) {
       jointTorques_(i) = desJointTorques(i);
@@ -58,7 +64,16 @@ bool JointControllerStarlETH::advance(double dt) {
     else {
      throw "Joint control mode is not supported!";
     }
-    std::cout << "joint mode " << i << " :" << (int) desJointModes(i) << " pos: " << desJointPositions(i) << " vel:"  << desJointVelocities(i) << " tau: " << jointTorques_(i) << std::endl;
+//    std::cout << "joint mode " << i << " :" << (int) desJointModes(i) << " pos: " << desJointPositions(i) << " vel:"  << desJointVelocities(i) << " tau: " << jointTorques_(i) << std::endl;
+    if (isClampingTorques_) {
+      const double maxTorque = jointMaxTorques_(i);
+      if (jointTorques_(i) > maxTorque) {
+        jointTorques_(i) = maxTorque;
+      }
+      else if (jointTorques_(i) < -maxTorque) {
+        jointTorques_(i) = -maxTorque;
+      }
+    }
   }
 
   desJointModesPrevious_ = desJointModes;
@@ -132,6 +147,101 @@ void JointControllerStarlETH::setJointControlGainsKFE(double kp,
   jointVelocityControlDerivativeGains_(5) = kd;
   jointVelocityControlDerivativeGains_(8) = kd;
   jointVelocityControlDerivativeGains_(11) = kd;
+}
+
+void JointControllerStarlETH::setMaxTorqueHAA(double maxTorque) {
+  jointMaxTorques_(0) = maxTorque;
+  jointMaxTorques_(3) = maxTorque;
+  jointMaxTorques_(6) = maxTorque;
+  jointMaxTorques_(9) = maxTorque;
+}
+
+void JointControllerStarlETH::setMaxTorqueHFE(double maxTorque) {
+  jointMaxTorques_(1) = maxTorque;
+  jointMaxTorques_(4) = maxTorque;
+  jointMaxTorques_(7) = maxTorque;
+  jointMaxTorques_(10) = maxTorque;
+}
+
+void JointControllerStarlETH::setMaxTorqueKFE(double maxTorque) {
+  jointMaxTorques_(2) = maxTorque;
+  jointMaxTorques_(5) = maxTorque;
+  jointMaxTorques_(8) = maxTorque;
+  jointMaxTorques_(11) = maxTorque;
+}
+
+
+bool JointControllerStarlETH::loadParameters(const TiXmlHandle& handle) {
+  double kp, kd, maxTorque;
+
+  TiXmlElement* pElem;
+  pElem = handle.FirstChild("JointController").FirstChild("StarlETH").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH\n");
+    return false;
+  }
+  TiXmlHandle hJointController(handle.FirstChild("JointController").FirstChild("StarlETH"));
+
+  pElem = hJointController.FirstChild("HAA").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH:HAA\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kp", &kp)!=TIXML_SUCCESS) {
+    printf("Could not find HAA:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("maxTorque", &maxTorque)!=TIXML_SUCCESS) {
+    printf("Could not find HAA:maxTorque\n");
+    return false;
+  }
+  setJointControlGainsHAA(kp, kd);
+  setMaxTorqueHAA(maxTorque);
+
+  /* HFE */
+  pElem = hJointController.FirstChild("HFE").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH:HFE\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kp", &kp)!=TIXML_SUCCESS) {
+    printf("Could not find HFE:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &kd)!=TIXML_SUCCESS) {
+    printf("Could not find HFE:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("maxTorque", &maxTorque)!=TIXML_SUCCESS) {
+    printf("Could not find HFE:maxTorque\n");
+    return false;
+  }
+  setJointControlGainsHFE(kp, kd);
+  setMaxTorqueHFE(maxTorque);
+
+  /* KFE */
+  pElem = hJointController.FirstChild("KFE").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH:KFE\n");
+    return false;
+  }
+
+  if (pElem->QueryDoubleAttribute("kp", &kp)!=TIXML_SUCCESS) {
+    printf("Could not find KFE:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &kd)!=TIXML_SUCCESS) {
+    printf("Could not find KFE:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("maxTorque", &maxTorque)!=TIXML_SUCCESS) {
+    printf("Could not find KFE:maxTorque\n");
+    return false;
+  }
+  setJointControlGainsKFE(kp, kd);
+  setMaxTorqueKFE(maxTorque);
+
+  return true;
 }
 
 } /* namespace loco */
