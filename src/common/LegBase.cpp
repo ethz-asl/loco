@@ -140,6 +140,11 @@ void LegBase::setMeasuredJointPositions(const JointPositions& jointPositions)
   measuredJointPositions_ = jointPositions;
 }
 
+void LegBase::setMeasuredJointVelocities(const JointVelocities& jointVelocities)
+{
+  measuredJointVelocities_ = jointVelocities;
+}
+
 
 void LegBase::setDesiredJointTorques(const JointTorques& jointTorques)
 {
@@ -156,7 +161,10 @@ const LegBase::JointPositions& LegBase::getMeasuredJointPositions()
   return measuredJointPositions_;
 }
 
-
+const LegBase::JointVelocities& LegBase::getMeasuredJointVelocities()
+{
+  return measuredJointVelocities_;
+}
 
 void LegBase::setDesiredJointControlModes(const JointControlModes& jointControlMode)
 {
