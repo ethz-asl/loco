@@ -67,8 +67,35 @@ class VirtualModelController : public MotionControllerBase
   Torque getDesiredVirtualTorqueInBaseFrame() const;
   void getDistributedVirtualForceAndTorqueInBaseFrame(Force& netForce, Torque& netTorque) const;
 
+  const Eigen::Vector3d& getProportionalGainTranslation() const;
+  const Eigen::Vector3d& getDerivativeGainTranslation() const;
+  const Eigen::Vector3d& getFeedforwardGainTranslation() const;
 
+  const Eigen::Vector3d& getProportionalGainRotation() const;
+  const Eigen::Vector3d& getDerivativeGainRotation() const;
+  const Eigen::Vector3d& getFeedforwardGainRotation() const;
 
+  void setProportionalGainTranslation(const Eigen::Vector3d& gains);
+  void setDerivativeGainTranslation(const Eigen::Vector3d& gains);
+  void setFeedforwardGainTranslation(const Eigen::Vector3d& gains);
+
+  void setProportionalGainRotation(const Eigen::Vector3d& gains);
+  void setDerivativeGainRotation(const Eigen::Vector3d& gains);
+  void setFeedforwardGainRotation(const Eigen::Vector3d& gains);
+
+  void setGainsHeading(double kp, double kd, double kff);
+  void setGainsLateral(double kp, double kd, double kff);
+  void setGainsVertical(double kp, double kd, double kff);
+  void setGainsRoll(double kp, double kd, double kff);
+  void setGainsPitch(double kp, double kd, double kff);
+  void setGainsYaw(double kp, double kd, double kff);
+
+  void getGainsHeading(double& kp, double& kd, double& kff);
+  void getGainsLateral(double& kp, double& kd, double& kff);
+  void getGainsVertical(double& kp, double& kd, double& kff);
+  void getGainsRoll(double& kp, double& kd, double& kff);
+  void getGainsPitch(double& kp, double& kd, double& kff);
+  void getGainsYaw(double& kp, double& kd, double& kff);
  private:
   std::shared_ptr<ContactForceDistributionBase> contactForceDistribution_;
 
@@ -86,16 +113,24 @@ class VirtualModelController : public MotionControllerBase
   //! Torque on torso to compensate for gravity (in base frame).
   Torque gravityCompensationTorque_;
 
-  //! Proportional (k_p), derivative (k_d), and feedforward gain vector (k_ff) for translational error (force).
-  Eigen::Vector3d proportionalGainTranslation_, derivativeGainTranslation_, feedforwardGainTranslation_;
+  //! Proportional gain vector (k_p)  for translational error (force).
+  Eigen::Vector3d proportionalGainTranslation_;
+  //! Derivative gain vector (k_d) for translational error (force).
+  Eigen::Vector3d derivativeGainTranslation_;
+  //! Feedforward gain vector (k_ff) for translational error (force).
+  Eigen::Vector3d feedforwardGainTranslation_;
+
   //! Proportional (k_p), derivative (k_d), and feedforward gain vector (k_ff) for rotational error (torque).
-  Eigen::Vector3d proportionalGainRotation_, derivativeGainRotation_, feedforwardGainRotation_;
+  Eigen::Vector3d proportionalGainRotation_;
+  Eigen::Vector3d derivativeGainRotation_;
+  Eigen::Vector3d feedforwardGainRotation_;
 
   //! Desired virtual force on base in base frame (B_F_B^d).
   Force virtualForce_;
   //! Desired virtual torque on base in base frame (B_T_B^d).
   Torque virtualTorque_;
 
+ private:
   /*!
    * Compute error between desired an actual robot pose and twist.
    * @return true if successful.

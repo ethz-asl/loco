@@ -9,7 +9,7 @@
 
 namespace loco {
 
-TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain):
+TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
   TorsoControlBase(),
   legs_(legs),
   torso_(torso),
@@ -53,7 +53,7 @@ void TorsoControlDynamicGait::advance(double dt) {
   Position desiredLateralAndHeadingPositionInWorldFrame = lateralAndHeadingPositionInWorldFrame;
 //  Position desiredLateralAndHeadingPositionInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame() + lateralAndHeadingErrorInWorldFrame;
   Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
-  terrain_->getHeight(groundHeightInWorldFrame.toImplementation());
+  terrain_->getHeight(groundHeightInWorldFrame);
   Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
 
   // hack:

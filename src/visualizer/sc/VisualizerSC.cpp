@@ -6,14 +6,15 @@
  */
 
 #include "loco/visualizer/sc/VisualizerSC.hpp"
-#include "Globals.h"
+#include "AppGUI/Globals.h"
 
 namespace loco {
 
 VisualizerSC::VisualizerSC() :
     VisualizerBase(),
  gaitPatternWindow_(nullptr),
- gaitPatternFlightPhasesWindow_(nullptr)
+ gaitPatternFlightPhasesWindow_(nullptr),
+ desiredFrameRate_(Globals::desiredFrameRate)
 {
 
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);
@@ -81,7 +82,7 @@ void VisualizerSC::drawDesiredPose(Character* character, AbstractRBEngine* world
   loco::Position positionWorldToBaseInWorldFrame;
   orientationWorldToBaseInWorldFrame = torso->getDesiredState().getWorldToBaseOrientationInWorldFrame();
   positionWorldToBaseInWorldFrame = torso->getDesiredState().getWorldToBasePositionInWorldFrame();
-  robotModel::VectorQj desJointPositions;
+  VectorQj desJointPositions;
   int iLeg =0;
   for (auto leg : *legs) {
     desJointPositions.block<3,1>(iLeg*3,0) = leg->getDesiredJointPositions();
@@ -96,7 +97,7 @@ void VisualizerSC::drawMeasuredPose(Character* character, AbstractRBEngine* worl
   loco::Position positionWorldToBaseInWorldFrame;
   orientationWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
   positionWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBasePositionInWorldFrame();
-  robotModel::VectorQj desJointPositions;
+  VectorQj desJointPositions;
   int iLeg =0;
   for (auto leg : *legs) {
     desJointPositions.block<3,1>(iLeg*3,0) = leg->getMeasuredJointPositions();
@@ -106,7 +107,7 @@ void VisualizerSC::drawMeasuredPose(Character* character, AbstractRBEngine* worl
   drawPose(character, world, positionWorldToBaseInWorldFrame, orientationWorldToBaseInWorldFrame, desJointPositions, SHOW_ABSTRACT_VIEW_MEASURED);
 }
 
-void VisualizerSC::drawPose(Character* character, AbstractRBEngine* world, const loco::Position& positionWorldToBaseInWorldFrame, const loco::RotationQuaternion& orientationWorldToBaseInWorldFrame,  const robotModel::VectorQj& desJointPositions, int drawFlags) {
+void VisualizerSC::drawPose(Character* character, AbstractRBEngine* world, const loco::Position& positionWorldToBaseInWorldFrame, const loco::RotationQuaternion& orientationWorldToBaseInWorldFrame,  const VectorQj& desJointPositions, int drawFlags) {
 
   ReducedCharacterState desiredPose(character->getStateDimension());
   Quaternion quat(orientationWorldToBaseInWorldFrame.w(), orientationWorldToBaseInWorldFrame.x(), orientationWorldToBaseInWorldFrame.y(), orientationWorldToBaseInWorldFrame.z());
@@ -115,7 +116,7 @@ void VisualizerSC::drawPose(Character* character, AbstractRBEngine* world, const
   //desiredPose.setPosition(Point3d(0.2,0.2,0.2));
 
 
-  const robotModel::VectorQj desJointVelocities = robotModel::VectorQj::Zero();
+  const VectorQj desJointVelocities = VectorQj::Zero();
   setCharacterJointState(desiredPose, desJointPositions,desJointVelocities);
   desiredPose.setPosition(Point3d(positionWorldToBaseInWorldFrame.x(),positionWorldToBaseInWorldFrame.y(),positionWorldToBaseInWorldFrame.z()));
   drawPose(character, world, &desiredPose, drawFlags);
@@ -294,7 +295,7 @@ void VisualizerSC::drawPose(Character* character, AbstractRBEngine* world, Reduc
   glDisable(GL_LIGHTING);
 }
 
-void VisualizerSC::setCharacterJointState(ReducedCharacterState& newState, const robotModel::VectorQj& Qj, const robotModel::VectorQj& dQj) {
+void VisualizerSC::setCharacterJointState(ReducedCharacterState& newState, const VectorQj& Qj, const VectorQj& dQj) {
   const int jointMapping_[12] = {0, 4, 8, 1, 5, 9, 2, 6, 10, 3, 7, 11};
 
   Vector3d localRotAxis;

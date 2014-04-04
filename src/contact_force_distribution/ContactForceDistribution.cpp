@@ -16,13 +16,11 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace robotUtils;
-using namespace robotModel;
 using namespace sm;
 
 namespace loco {
 
-ContactForceDistribution::ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<robotTerrain::TerrainBase> terrain)
+ContactForceDistribution::ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
     : ContactForceDistributionBase(legs, terrain)
 {
   for(auto leg : *legs_) { legInfos_[leg] = LegInfo(); }

@@ -11,7 +11,7 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 #   * Release (CMAKE_C_FLAGS_RELEASE or CMAKE_CXX_FLAGS_RELEASE)
 #   * RelWithDebInfo (CMAKE_C_FLAGS_RELWITHDEBINFO or CMAKE_CXX_FLAGS_RELWITHDEBINFO
 #   * MinSizeRel (CMAKE_C_FLAGS_MINSIZEREL or CMAKE_CXX_FLAGS_MINSIZEREL) 
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Debug)
 
 # CMake modules
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
@@ -68,6 +68,9 @@ add_subdirectory(src/locomotion_controller)
 
 add_subdirectory(src/visualizer)
 
+add_subdirectory(src/tools)
+
+add_subdirectory(src/joint_control)
 
 if (BUILD_TEST AND BUILD_GTEST)
 add_subdirectory(test EXCLUDE_FROM_ALL)

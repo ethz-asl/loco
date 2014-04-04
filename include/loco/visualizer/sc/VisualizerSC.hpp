@@ -24,18 +24,20 @@ namespace loco {
 
 class VisualizerSC: public VisualizerBase {
  public:
+  typedef  Eigen::Matrix<double, 12,1> VectorQj;
+ public:
   VisualizerSC();
   virtual ~VisualizerSC();
 
   void drawSupportPolygon(loco::LegGroup* legs);
-  void drawPose(Character* character, AbstractRBEngine* world, const loco::Position& positionWorldToBaseInWorldFrame, const loco::RotationQuaternion& orientationWorldToBaseInWorldFrame,  const robotModel::VectorQj& desJointPositions, int drawFlags);
+  void drawPose(Character* character, AbstractRBEngine* world, const loco::Position& positionWorldToBaseInWorldFrame, const loco::RotationQuaternion& orientationWorldToBaseInWorldFrame,  const VectorQj& desJointPositions, int drawFlags);
   void drawPose(Character* character, AbstractRBEngine* world, ReducedCharacterState* desiredPose, int drawFlags);
 
   void drawGaitPatternAPS(loco::GaitPatternAPS* gaitPattern, double stridePhase);
   void drawGaitPatternFlightPhases(loco::GaitPatternFlightPhases* gaitPattern);
   void drawMeasuredPose(Character* character, AbstractRBEngine* world, loco::TorsoBase* torso, loco::LegGroup* legs);
   void drawDesiredPose(Character* character, AbstractRBEngine* world, loco::TorsoBase* torso, loco::LegGroup* legs);
-  void setCharacterJointState(ReducedCharacterState& newState, const robotModel::VectorQj& Qj, const robotModel::VectorQj& dQj);
+  void setCharacterJointState(ReducedCharacterState& newState, const VectorQj& Qj, const VectorQj& dQj);
   void getLocalCoordsRotationAxisForJoint(int jointIndex, Vector3d& rotationAxis);
 
   void drawContactForces(AbstractRBEngine* world);
@@ -72,6 +74,7 @@ class VisualizerSC: public VisualizerBase {
   loco::GaitPatternFlightPhasesPreview* gaitPatternFlightPhasesWindow_;
 
  protected:
+  double desiredFrameRate_;
   loco::TrajectoryPosition footTrajectories_[4];
   loco::TrajectoryPosition baseTrajectory_;
 };

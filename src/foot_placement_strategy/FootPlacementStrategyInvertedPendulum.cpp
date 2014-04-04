@@ -16,7 +16,7 @@
 
 namespace loco {
 
-FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain) :
+FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain) :
     FootPlacementStrategyBase(),
     legs_(legs),
     torso_(torso),
@@ -77,16 +77,24 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	Position rFootHoldOffset_CSw_feedforward = orientationWorldToBaseInWorldFrame.inverseRotate(Position(feedForwardStepLength, 0.0, 0.0));
 
 
-	Position rFootHoldOffset_CSw_final = rFootHoldOffset_CSw_default + rFootHoldOffset_CSw_feedforward + stepFeedbackScale_*rFootHoldOffset_CSw_invertedPendulum;
+//	Position rFootHoldOffset_CSw_final = rFootHoldOffset_CSw_default + rFootHoldOffset_CSw_feedforward + stepFeedbackScale_*rFootHoldOffset_CSw_invertedPendulum;
+	Position rFootHoldOffset_CSw_final = rFootHoldOffset_CSw_feedforward + stepFeedbackScale_*rFootHoldOffset_CSw_invertedPendulum;
+//	std::cout << leg->getId() << ": footOffsetFinalCSw: " << rFootHoldOffset_CSw_final << std::endl;
 	rFootHoldOffset_CSw_final(2) = 0.0;
 	const Position footLocationAtLiftOffCSw = leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame();
 	Position rFootOffset_CSw = getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(std::min(swingPhase + tinyTimeStep, 1.0),  footLocationAtLiftOffCSw, rFootHoldOffset_CSw_final);
+//  std::cout << leg->getId() << ": footOffsetCurrentCSw: " << rFootHoldOffset_CSw_final << std::endl;
+  Position rFoot_CSw = rRef_CSw + rFootHoldOffset_CSw_default + (Position(vRef_CSw)*tinyTimeStep + rFootOffset_CSw);
 
 
-	Position rFoot_CSw = rRef_CSw + Position(vRef_CSw)*tinyTimeStep + rFootOffset_CSw;
+  // to avoid slippage, do not move the foot in the horizontal plane when the leg is still grounded
+	if (leg->isGrounded()) {
+	  rFoot_CSw = leg->getWorldToFootPositionInWorldFrame();
+	}
+
 	rFoot_CSw(2) = getHeightOfTerrainInWorldFrame(rFoot_CSw) + swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
 
-	return Position(rFoot_CSw);
+	return rFoot_CSw;
 }
 
 Position FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const Position& positionWorldToFootAtLiftOffInWorldFrame, const Position& positionWorldToFootAtNextTouchDownInWorldFrame)
@@ -251,7 +259,7 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 double FootPlacementStrategyInvertedPendulum::getHeightOfTerrainInWorldFrame(const Position& steppingLocationCSw)
 {
   Position position = steppingLocationCSw;
-  terrain_->getHeight(position.toImplementation());
+  terrain_->getHeight(position);
   return position.z();
 }
 

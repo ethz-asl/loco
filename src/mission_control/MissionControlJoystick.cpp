@@ -16,7 +16,9 @@ MissionControlJoystick::MissionControlJoystick(robotModel::RobotModel* robotMode
   baseTwistInBaseFrame_(),
   maximumBaseTwistInBaseFrame_(LinearVelocity(std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max()), LocalAngularVelocity(std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max()) )
 {
-
+  filteredVelocities_[0].setAlpha(0.005);
+  filteredVelocities_[1].setAlpha(0.05);
+  filteredVelocities_[2].setAlpha(0.05);
 }
 
 MissionControlJoystick::~MissionControlJoystick() {
@@ -31,16 +33,20 @@ bool MissionControlJoystick::initialize(double dt) {
 void MissionControlJoystick::advance(double dt) {
   robotUtils::Joystick* joyStick = robotModel_->sensors().getJoystick();
   const double maxHeadingVel = maximumBaseTwistInBaseFrame_.getTranslationalVelocity().x();
-  double headingVel = joyStick->getSagittal();
+  filteredVelocities_[0].update(joyStick->getSagittal());
+  double headingVel = filteredVelocities_[0].val();
   boundToRange(&headingVel, -maxHeadingVel, maxHeadingVel);
 
   const double maxLateralVel = maximumBaseTwistInBaseFrame_.getTranslationalVelocity().y();
-  double lateralVel = joyStick->getCoronal();
+  filteredVelocities_[1].update(joyStick->getCoronal());
+
+  double lateralVel = filteredVelocities_[1].val();
   boundToRange(&lateralVel, -maxLateralVel, maxLateralVel);
   LinearVelocity linearVelocity(headingVel, lateralVel, 0.0);
 
   const double maxTurningVel = maximumBaseTwistInBaseFrame_.getRotationalVelocity().z();
-  double turningVel = joyStick->getYaw();
+  filteredVelocities_[2].update(joyStick->getYaw());
+  double turningVel = filteredVelocities_[2].val();
   boundToRange(&turningVel, -maxTurningVel, maxTurningVel);
   LocalAngularVelocity angularVelocity(0.0, 0.0, turningVel);
 

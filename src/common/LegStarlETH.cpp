@@ -89,6 +89,7 @@ bool LegStarlETH::advance(double dt)
   positionWorldToHipInBaseFrame_ = rquatWorldToBase.rotate(positionWorldToHipInWorldFrame_);
 
   this->setMeasuredJointPositions(robotModel_->q().getQj().block<3, 1>(iLeg_ * nJoints_, 0));
+  this->setMeasuredJointVelocities(robotModel_->q().getdQj().block<3, 1>(iLeg_ * nJoints_, 0));
 
   positionBaseToFootInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)->getPos());
   positionBaseToHipInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Hip_CSmb(iLeg_)->getPos());
@@ -129,6 +130,11 @@ const Force& LegStarlETH::getFootContactForceInWorldFrame() const {
 
 const Vector& LegStarlETH::getFootContactNormalInWorldFrame() const {
   return normalFootContactInWorldFrame_;
+}
+
+
+int LegStarlETH::getId() const {
+  return iLeg_;
 }
 
 } /* namespace loco */

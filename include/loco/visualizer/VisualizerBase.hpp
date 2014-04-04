@@ -15,7 +15,7 @@ class VisualizerBase {
   VisualizerBase();
   virtual ~VisualizerBase();
  protected:
-  double desiredFrameRate_;
+
 };
 
 } /* namespace loco */

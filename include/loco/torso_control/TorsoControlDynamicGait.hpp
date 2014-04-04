@@ -17,14 +17,15 @@
 
 #include "kindr/rotations/RotationEigen.hpp"
 
-#include "TerrainBase.hpp"
+#include "loco/common/TerrainModelBase.hpp"
+
 #include "PeriodicRBF1DC1.hpp"
 
 namespace loco {
 
 class TorsoControlDynamicGait: public TorsoControlBase {
  public:
-  TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
+  TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
   virtual ~TorsoControlDynamicGait();
 
   virtual bool initialize(double dt);
@@ -38,7 +39,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
  private:
   LegGroup* legs_;
   TorsoBase* torso_;
-  robotTerrain::TerrainBase* terrain_;
+  loco::TerrainModelBase* terrain_;
   CoMOverSupportPolygonControl comControl_;
 
   double headingDistanceFromForeToHindInBaseFrame_;

@@ -11,8 +11,8 @@
 
 namespace loco {
 
-LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel,
-                                                                 robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator,
+LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,
+                                                                 LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
                                                                  ParameterSet* parameterSet) :
@@ -20,8 +20,6 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     isInitialized_(false),
     legs_(legs),
     torso_(torso),
-    robotModel_(robotModel),
-    terrain_(terrain),
     limbCoordinator_(limbCoordinator),
     footPlacementStrategy_(footPlacementStrategy),
     torsoController_(baseController),
@@ -145,6 +143,13 @@ LegGroup* LocomotionControllerDynamicGait::getLegs() {
 
 FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStrategy() {
   return footPlacementStrategy_;
+}
+
+VirtualModelController* LocomotionControllerDynamicGait::getVirtualModelController() {
+  return virtualModelController_;
+}
+ContactForceDistributionBase* LocomotionControllerDynamicGait::getContactForceDistribution() {
+  return contactForceDistribution_;
 }
 
 

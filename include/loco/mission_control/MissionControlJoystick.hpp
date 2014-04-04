@@ -10,7 +10,7 @@
 
 #include "loco/mission_control/MissionControlBase.hpp"
 #include "RobotModel.hpp"
-
+#include "loco/temp_helpers/FilteredVariable.hpp"
 
 namespace loco {
 
@@ -28,6 +28,8 @@ class MissionControlJoystick: public MissionControlBase {
   robotModel::RobotModel* robotModel_;
   Twist baseTwistInBaseFrame_;
   Twist maximumBaseTwistInBaseFrame_;
+  //! filtered speeds [sagittal; coronal; turning]
+  FilteredDouble filteredVelocities_[3];
 
 };
 
