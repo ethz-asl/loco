@@ -23,7 +23,7 @@
 
 #include "kindr/rotations/RotationEigen.hpp"
 #include "Logger.hpp"
-#include "TerrainBase.hpp"
+#include "loco/common/TerrainModelBase.hpp"
 
 //#include "PeriodicRBF1DC3.hpp"
 //#include "PeriodicRBF1DC1.hpp"
@@ -43,7 +43,7 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
  typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
 
 public:
-	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain);
+	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
 	virtual ~FootPlacementStrategyInvertedPendulum();
 
   virtual bool loadParameters(const TiXmlHandle& handle);
@@ -56,7 +56,7 @@ public:
   //! Reference to the torso
   TorsoBase* torso_;
   //! Reference to the terrain
-  robotTerrain::TerrainBase* terrain_;
+  loco::TerrainModelBase* terrain_;
 
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
 	Trajectory1D stepInterpolationFunction_;

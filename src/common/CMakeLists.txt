@@ -46,6 +46,9 @@ set(TASK_SRCS ${TASK_SRCS}
 	
 	${CMAKE_CURRENT_SOURCE_DIR}/GeneralizedStateBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GeneralizedStateStarlETH.cpp
+	
+	${CMAKE_CURRENT_SOURCE_DIR}/TerrainModelBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TerrainModelHorizontalPlane.cpp
 PARENT_SCOPE)
 
 #################

@@ -10,12 +10,10 @@
 
 using namespace std;
 using namespace Eigen;
-using namespace robotUtils;
-using namespace robotModel;
 
 namespace loco {
 
-ContactForceDistributionBase::ContactForceDistributionBase(std::shared_ptr<LegGroup> legs, std::shared_ptr<robotTerrain::TerrainBase> terrain)
+ContactForceDistributionBase::ContactForceDistributionBase(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
 : legs_(legs),
   terrain_(terrain)
 {

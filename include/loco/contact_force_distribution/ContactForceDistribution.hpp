@@ -35,7 +35,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
   /*!
    * Constructor.
    */
-  ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<robotTerrain::TerrainBase> terrain);
+  ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain);
 
   /*!
    * Destructor.

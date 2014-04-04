@@ -10,8 +10,10 @@
 
 #include <Eigen/Core>
 #include "loco/common/LegGroup.hpp"
-#include "TerrainBase.hpp"
+#include "loco/common/TerrainModelBase.hpp"
 #include "tinyxml.h"
+
+#include <memory>
 
 namespace loco {
 
@@ -24,7 +26,7 @@ class ContactForceDistributionBase
   /*!
    * Constructor.
    */
-  ContactForceDistributionBase(std::shared_ptr<LegGroup> legs, std::shared_ptr<robotTerrain::TerrainBase> terrain);
+  ContactForceDistributionBase(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain);
 
   /*!
    * Destructor.
@@ -68,7 +70,7 @@ class ContactForceDistributionBase
   constexpr static int nElementsVirtualForceTorqueVector_ = 6;
 
   std::shared_ptr<LegGroup> legs_;
-  std::shared_ptr<robotTerrain::TerrainBase> terrain_;
+  std::shared_ptr<loco::TerrainModelBase> terrain_;
 
   //! True if parameters are successfully loaded.
   bool isParametersLoaded_;

@@ -16,7 +16,7 @@
 
 namespace loco {
 
-FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, robotTerrain::TerrainBase* terrain) :
+FootPlacementStrategyInvertedPendulum::FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain) :
     FootPlacementStrategyBase(),
     legs_(legs),
     torso_(torso),
@@ -259,7 +259,7 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 double FootPlacementStrategyInvertedPendulum::getHeightOfTerrainInWorldFrame(const Position& steppingLocationCSw)
 {
   Position position = steppingLocationCSw;
-  terrain_->getHeight(position.toImplementation());
+  terrain_->getHeight(position);
   return position.z();
 }
 

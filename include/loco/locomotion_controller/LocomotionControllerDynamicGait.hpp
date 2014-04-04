@@ -27,8 +27,7 @@ namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
-  LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, robotModel::RobotModel* robotModel,
-                                  robotTerrain::TerrainBase* terrain, LimbCoordinatorBase* limbCoordinator,
+  LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, LimbCoordinatorBase* limbCoordinator,
                                   FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                   VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
                                   ParameterSet* parameterSet);
@@ -60,7 +59,6 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   LegGroup* legs_;
   TorsoBase* torso_;
   robotModel::RobotModel* robotModel_;
-  robotTerrain::TerrainBase* terrain_;
   LimbCoordinatorBase* limbCoordinator_;
   FootPlacementStrategyBase* footPlacementStrategy_;
   TorsoControlBase* torsoController_;
