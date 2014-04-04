@@ -43,6 +43,9 @@ set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/LegPropertiesStarlETH.cpp
 	
 	${CMAKE_CURRENT_SOURCE_DIR}/ParameterSet.cpp
+	
+	${CMAKE_CURRENT_SOURCE_DIR}/GeneralizedStateBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GeneralizedStateStarlETH.cpp
 PARENT_SCOPE)
 
 #################
