@@ -10,6 +10,7 @@
 
 #include "loco/joint_control/JointControllerBase.hpp"
 #include <kindr/phys_quant/PhysicalQuantitiesEigen.hpp>
+#include <loco/common/TypeDefsStarlETH.hpp>
 #include "RobotModel.hpp"
 
 
@@ -18,7 +19,7 @@ namespace loco {
 
 class JointControllerStarlETH : public JointControllerBase {
  public:
-  typedef kindr::phys_quant::eigen_impl::Torque<double, 12> JointTorques;
+
   typedef kindr::phys_quant::eigen_impl::VectorTypeless<double, 12> JointVector;
  public:
   JointControllerStarlETH(robotModel::RobotModel* robotModel);

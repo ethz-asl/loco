@@ -82,7 +82,7 @@ bool JointControllerStarlETH::advance(double dt) {
   return true;
 }
 
-const JointControllerStarlETH::JointTorques& JointControllerStarlETH::getJointTorques() const {
+const JointTorques& JointControllerStarlETH::getJointTorques() const {
   return jointTorques_;
 }
 
