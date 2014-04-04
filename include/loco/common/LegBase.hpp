@@ -30,6 +30,7 @@ class LegBase {
   static constexpr int nJoints_ = 3;
   static constexpr int nDofContactPoint_ = 3;
   typedef Eigen::Array<double, nJoints_, 1> JointPositions;
+  typedef Eigen::Array<double, nJoints_, 1> JointVelocities;
   typedef Eigen::Array<char, nJoints_, 1> JointControlModes;
   typedef Eigen::Array<double, nJoints_, 1> JointTorques;
   typedef Eigen::Matrix<double, nDofContactPoint_, nJoints_> TranslationJacobian;
@@ -105,10 +106,12 @@ class LegBase {
   virtual void setDesiredJointPositions(const JointPositions& jointPositions);
   virtual void setDesiredJointTorques(const JointTorques& jointTorques);
   virtual void setMeasuredJointPositions(const JointPositions& jointPositions);
+  virtual void setMeasuredJointVelocities(const JointVelocities& jointVelocities);
 
   virtual const JointControlModes& getDesiredJointControlModes();
   virtual const JointPositions& getDesiredJointPositions();
   virtual const JointPositions& getMeasuredJointPositions();
+  virtual const JointVelocities& getMeasuredJointVelocities();
   virtual const JointTorques& getDesiredJointTorques();
 
   virtual bool initialize(double dt) = 0;
@@ -138,6 +141,7 @@ class LegBase {
   JointControlModes desiredJointControlModes_;
   JointPositions desiredJointPositions_;
   JointPositions measuredJointPositions_;
+  JointVelocities measuredJointVelocities_;
   JointTorques desiredJointTorques_;
 };
 
