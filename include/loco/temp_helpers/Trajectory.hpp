@@ -58,6 +58,8 @@ protected:
 	}
 
 public:
+	typedef T Type;
+
 	GenericTrajectory(void){
 		lastIndex = 0;
 	}

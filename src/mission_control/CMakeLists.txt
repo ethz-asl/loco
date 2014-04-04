@@ -24,6 +24,7 @@ PARENT_SCOPE)
 set(TASK_SRCS ${TASK_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlJoystick.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlSpeedTrajectory.cpp
 PARENT_SCOPE)
 
 #################
