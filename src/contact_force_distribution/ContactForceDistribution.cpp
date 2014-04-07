@@ -46,8 +46,8 @@ bool ContactForceDistribution::addToLogger()
 }
 
 bool ContactForceDistribution::computeForceDistribution(
-    const Force& virtualForce,
-    const Torque& virtualTorque)
+    const Force& virtualForceInBaseFrame,
+    const Torque& virtualTorqueInBaseFrame)
 {
   if(!checkIfParametersLoaded()) return false;
 
@@ -56,7 +56,7 @@ bool ContactForceDistribution::computeForceDistribution(
 
   if (nLegsInForceDistribution_ > 0)
   {
-    prepareOptimization(virtualForce, virtualTorque);
+    prepareOptimization(virtualForceInBaseFrame, virtualTorqueInBaseFrame);
 
     // TODO Move these function calls to a separate method which can be overwritten
     // to have different contact force distributions, or let them be activated via parameters.

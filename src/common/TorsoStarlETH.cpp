@@ -44,6 +44,10 @@ TorsoStateDesired& TorsoStarlETH::getDesiredState()
   return stateDesired_;
 }
 
+const TorsoStateDesired& TorsoStarlETH::getDesiredState() const {
+  return stateDesired_;
+}
+
 TorsoPropertiesBase& TorsoStarlETH::getProperties()
 {
   return static_cast<TorsoPropertiesBase&>(properties_);
@@ -82,6 +86,12 @@ bool TorsoStarlETH::advance(double dt)
   this->getMeasuredState().setBaseTwistInBaseFrame(Twist(linearVelocity, localAngularVelocity));
 
   return true;
+}
+
+
+std::ostream& operator << (std::ostream& out, const TorsoStarlETH& torso) {
+  out << "Desired speed: " << torso.getDesiredState().getBaseTwistInBaseFrame();
+  return out;
 }
 
 

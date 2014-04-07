@@ -20,14 +20,18 @@
 #include "GaitPatternAPSPreview.hpp"
 #include "GaitPatternFlightPhasesPreview.hpp"
 
+#include "AppGUI/TaskVisualizer.h"
+
 namespace loco {
 
-class VisualizerSC: public VisualizerBase {
+class VisualizerSC: public VisualizerBase, public TaskVisualizer {
  public:
   typedef  Eigen::Matrix<double, 12,1> VectorQj;
  public:
   VisualizerSC();
   virtual ~VisualizerSC();
+
+  virtual void addParameters();
 
   void drawSupportPolygon(loco::LegGroup* legs);
   void drawPose(Character* character, AbstractRBEngine* world, const loco::Position& positionWorldToBaseInWorldFrame, const loco::RotationQuaternion& orientationWorldToBaseInWorldFrame,  const VectorQj& desJointPositions, int drawFlags);

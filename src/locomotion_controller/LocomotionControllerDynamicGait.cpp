@@ -96,9 +96,13 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
 
   for (auto leg : *legs_) {
     leg->advance(dt);
-    //  std::cout << *leg << std::endl;
+//      std::cout << *leg << std::endl;
 //    std::cout << "leg: " << leg->getName() << (leg->isGrounded() ? "is grounded" : "is NOT grounded") << std::endl;
   }
+
+//  std::cout << "Torso:\n";
+//  std::cout << *torso_ << std::endl;
+
   torso_->advance(dt);
   limbCoordinator_->advance(dt);
 
