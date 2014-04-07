@@ -39,8 +39,12 @@ class TorsoStarlETH: public TorsoBase {
 
   virtual TorsoStateMeasured& getMeasuredState();
   virtual TorsoStateDesired& getDesiredState();
+  virtual const TorsoStateDesired& getDesiredState() const;
 
   virtual TorsoPropertiesBase& getProperties();
+
+
+  friend std::ostream& operator << (std::ostream& out, const TorsoStarlETH& torso);
 protected:
   robotModel::RobotModel* robotModel_;
 

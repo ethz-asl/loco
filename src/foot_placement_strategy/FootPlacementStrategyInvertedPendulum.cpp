@@ -60,12 +60,16 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	/* inverted pendulum stepping offset */
 	const Position rRef_CSw = leg->getWorldToHipPositionInWorldFrame();
-	LinearVelocity vRef_CSw = (leg->getHipLinearVelocityInWorldFrame()+torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame())/2.0;
+	LinearVelocity vRef_CSw = (leg->getHipLinearVelocityInWorldFrame()+orientationWorldToBaseInWorldFrame.inverseRotate(torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame()))/2.0;
 	const Position invertedPendulumStepLocation_CSw = rRef_CSw;
+//	std::cout << "height: " << getHeightOfTerrainInWorldFrame(invertedPendulumStepLocation_CSw) << std::endl;
 	double invertedPendulumHeight = std::max((rRef_CSw.z() - getHeightOfTerrainInWorldFrame(invertedPendulumStepLocation_CSw)), 0.0);
 	LinearVelocity vBaseDes_CSmb(desiredHeadingSpeedInBaseFrame, 0, 0);
+
 	LinearVelocity vError_CSw = vRef_CSw - orientationWorldToBaseInWorldFrame.inverseRotate(vBaseDes_CSmb); // do not use A_WB*vBaseDes_CSmb
-	double gravity = torso_->getProperties().getGravity().norm();
+
+	const double gravity = torso_->getProperties().getGravity().norm();
+
 	Position rFootHoldOffset_CSw_invertedPendulum = Position(vError_CSw)*std::sqrt(invertedPendulumHeight/gravity);
 
 	/* feedforward stepping offset */
@@ -95,6 +99,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	rFoot_CSw(2) = getHeightOfTerrainInWorldFrame(rFoot_CSw) + swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
 
 	return rFoot_CSw;
+
 }
 
 Position FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const Position& positionWorldToFootAtLiftOffInWorldFrame, const Position& positionWorldToFootAtNextTouchDownInWorldFrame)
@@ -243,6 +248,7 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
   for (auto leg : *legs_) {
     if (leg->isInSwingMode()) {
       const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
+      leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
       const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
       const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
 

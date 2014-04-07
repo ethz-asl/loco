@@ -60,8 +60,8 @@ class ContactForceDistribution : public ContactForceDistributionBase
    * @param virtualTorque the desired virtual torque on the base (in base frame).
    * @return true if successful.
    */
-  virtual bool computeForceDistribution(const Force& virtualForce,
-                                const Torque& virtualTorque);
+  virtual bool computeForceDistribution(const Force& virtualForceInBaseFrame,
+                                const Torque& virtualTorqueInBaseFrame);
 
   /*!
    * Gets the distributed net forces and torques that act on the base, i.e.

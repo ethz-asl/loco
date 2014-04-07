@@ -39,6 +39,10 @@ VisualizerSC::~VisualizerSC() {
   delete gaitPatternFlightPhasesWindow_;
 }
 
+void VisualizerSC::addParameters() {
+
+}
+
 void VisualizerSC::drawHistoryOfFootPositions(loco::LegGroup* legs) {
   for (int iLeg=0; iLeg<4; iLeg++) {
     const loco::LegBase* leg = legs->getLeg(iLeg);

@@ -197,7 +197,16 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
 
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;
+
   return out;
+}
+
+const Position& LegBase::getDesiredWorldToFootPositionInWorldFrame() const {
+  return desiredWorldToFootPositionInWorldFrame_;
+}
+
+void LegBase::setDesireWorldToFootPositionInWorldFrame(const Position& position) {
+  desiredWorldToFootPositionInWorldFrame_ = position;
 }
 
 } /* namespace loco */

@@ -120,6 +120,10 @@ class LegBase {
   virtual LegPropertiesBase& getProperties() = 0;
 
   virtual int getId() const = 0;
+
+
+  const Position& getDesiredWorldToFootPositionInWorldFrame() const;
+  void setDesireWorldToFootPositionInWorldFrame(const Position& position);
  protected:
   std::string name_;
 
@@ -143,6 +147,8 @@ class LegBase {
   JointPositions measuredJointPositions_;
   JointVelocities measuredJointVelocities_;
   JointTorques desiredJointTorques_;
+
+  Position desiredWorldToFootPositionInWorldFrame_;
 };
 
 } /* namespace loco */

@@ -27,6 +27,7 @@ class TorsoBase {
 
   virtual TorsoStateMeasured& getMeasuredState() = 0;
   virtual TorsoStateDesired& getDesiredState() = 0;
+  virtual const TorsoStateDesired& getDesiredState() const = 0;
   virtual TorsoPropertiesBase& getProperties() = 0;
 
   virtual double getStridePhase() = 0;
@@ -39,7 +40,7 @@ class TorsoBase {
    */
   virtual bool advance(double dt) = 0;
 
-
+  friend std::ostream& operator << (std::ostream& out, const TorsoBase& torso);
 
 };
 
