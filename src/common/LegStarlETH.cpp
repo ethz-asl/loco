@@ -58,6 +58,11 @@ const LinearVelocity& LegStarlETH::getHipLinearVelocityInWorldFrame() const
   return linearVelocityHipInWorldFrame_;
 }
 
+const LinearVelocity& LegStarlETH::getFootLinearVelocityInWorldFrame() const
+{
+  return linearVelocityFootInWorldFrame_;
+}
+
 const LegBase::TranslationJacobian& LegStarlETH::getTranslationJacobianFromBaseToFootInBaseFrame() const
 {
   return translationJacobianBaseToFootInBaseFrame_;
@@ -81,6 +86,7 @@ bool LegStarlETH::advance(double dt)
   positionWorldToFootInWorldFrame_ = Position(robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(iLeg_)->getPos());
   positionWorldToHipInWorldFrame_ = Position(robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg_)->getPos());
   linearVelocityHipInWorldFrame_ = LinearVelocity(robotModel_->kin().getJacobianTByLeg_World2Hip_CSw(iLeg_)->getVel());
+  linearVelocityFootInWorldFrame_ = LinearVelocity(robotModel_->kin().getJacobianTByLeg_World2Foot_CSw(iLeg_)->getVel());
 
   const Eigen::Vector4d vQuat = robotModel_->est().getActualEstimator()->getQuat();
   RotationQuaternion rquatWorldToBase(vQuat(0), vQuat(1), vQuat(2), vQuat(3));
