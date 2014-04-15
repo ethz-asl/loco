@@ -15,10 +15,76 @@ JointControllerStarlETH::JointControllerStarlETH(robotModel::RobotModel* robotMo
  isClampingTorques_(false)
 {
   jointMaxTorques_.toImplementation().fill(std::numeric_limits<double>::max());
+//  setJointControlGainsHAA(70.0, 3.1);
+//  setJointControlGainsHFE(70.0, 3.2);
+//  setJointControlGainsKFE(26.0, 0.2);
+
+
+  /* X-Configuration */
+  isLegInDefaultConfiguration_[0] = true;
+  isLegInDefaultConfiguration_[1] = true;
+  isLegInDefaultConfiguration_[2] = false;
+  isLegInDefaultConfiguration_[3] = false;
+
+
+
+  const double deltaLimit = 0.05;
+  Eigen::Vector3d jointMinPositionsForLegInDefaultConfiguration;
+  Eigen::Vector3d jointMaxPositionsForLegInDefaultConfiguration;
+  jointMinPositionsForLegInDefaultConfiguration(0) = -0.4+deltaLimit; // -0.2+deltaLimit;
+  jointMaxPositionsForLegInDefaultConfiguration(0) = 0.5-deltaLimit;  //0.5
+  jointMinPositionsForLegInDefaultConfiguration(1) = -0.6+deltaLimit;
+  jointMaxPositionsForLegInDefaultConfiguration(1) = 1.29-deltaLimit; //1.29  1.29-2*deltaLimit;
+  jointMinPositionsForLegInDefaultConfiguration(2) = -2.46+deltaLimit; //-2.46
+  jointMaxPositionsForLegInDefaultConfiguration(2) = -0.1-deltaLimit; // -0.1
+
+
+  setJointPositionLimitsFromDefaultConfiguration(jointMinPositionsForLegInDefaultConfiguration, jointMaxPositionsForLegInDefaultConfiguration, isLegInDefaultConfiguration_);
+
+
+}
+
+
+void JointControllerStarlETH::setJointPositionLimitsFromDefaultConfiguration(const Eigen::Vector3d& jointMinPositionsForLegInDefaultConfiguration,
+                                                                        const Eigen::Vector3d& jointMaxPositionsForLegInDefaultConfiguration,
+                                                                        const bool isLegInDefaultConfiguration[]) {
+  //  LF_LEG position limits
+   jointMinPositions_(0) = jointMinPositionsForLegInDefaultConfiguration(0);
+   jointMaxPositions_(0) = jointMaxPositionsForLegInDefaultConfiguration(0);
+
+   //  RF_LEG position limits
+   jointMinPositions_(3) = -jointMaxPositionsForLegInDefaultConfiguration(0);
+   jointMaxPositions_(3) = -jointMinPositionsForLegInDefaultConfiguration(0);
+
+   //  LH_LEG position limits
+   jointMinPositions_(6) = jointMinPositionsForLegInDefaultConfiguration(0);
+   jointMaxPositions_(6) = jointMaxPositionsForLegInDefaultConfiguration(0);
+
+   //  RH_LEG position limits
+   jointMinPositions_(9) = -jointMaxPositionsForLegInDefaultConfiguration(0);
+   jointMaxPositions_(9) = -jointMinPositionsForLegInDefaultConfiguration(0);
+
+   for (int iLeg=0; iLeg<4; iLeg++) {
+     jointMinPositions_(1+iLeg*3) = isLegInDefaultConfiguration[iLeg] ? jointMinPositionsForLegInDefaultConfiguration(1):  -jointMaxPositionsForLegInDefaultConfiguration(1);
+     jointMaxPositions_(1+iLeg*3) = isLegInDefaultConfiguration[iLeg] ? jointMaxPositionsForLegInDefaultConfiguration(1) : -jointMinPositionsForLegInDefaultConfiguration(1);
+     jointMinPositions_(2+iLeg*3) = isLegInDefaultConfiguration[iLeg] ? jointMinPositionsForLegInDefaultConfiguration(2) : -jointMaxPositionsForLegInDefaultConfiguration(2);
+     jointMaxPositions_(2+iLeg*3) = isLegInDefaultConfiguration[iLeg] ? jointMaxPositionsForLegInDefaultConfiguration(2) : -jointMinPositionsForLegInDefaultConfiguration(2);
+   }
+
+}
+const JointControllerStarlETH::JointVector& JointControllerStarlETH::getJointMaxPositions() const {
+  return jointMaxPositions_;
+}
+const JointControllerStarlETH::JointVector& JointControllerStarlETH::getJointMinPositions() const {
+  return jointMinPositions_;
 }
 
 JointControllerStarlETH::~JointControllerStarlETH() {
 
+}
+
+void JointControllerStarlETH::setDesiredJointPositionsInVelocityControl(const robotModel::VectorAct& positions) {
+  desPositionsInVelocityControl_ = positions;
 }
 
 void JointControllerStarlETH::setIsClampingTorques(bool isClamping)  {
@@ -29,6 +95,7 @@ bool JointControllerStarlETH::initialize(double dt) {
   desJointModesPrevious_ = robotModel_->act().getMode();
   desPositionsInVelocityControl_ = robotModel_->q().getQj(); //robotModel_->act().getPos();
   jointTorques_.setZero();
+  desJointModesPrevious_.fill(robotModel::AM_Velocity);
   return true;
 }
 
@@ -189,6 +256,11 @@ bool JointControllerStarlETH::loadParameters(const TiXmlHandle& handle) {
   }
   if (pElem->QueryDoubleAttribute("kp", &kp)!=TIXML_SUCCESS) {
     printf("Could not find HAA:kp\n");
+    return false;
+  }
+
+  if (pElem->QueryDoubleAttribute("kd", &kd)!=TIXML_SUCCESS) {
+    printf("Could not find HAA:kd\n");
     return false;
   }
   if (pElem->QueryDoubleAttribute("maxTorque", &maxTorque)!=TIXML_SUCCESS) {
