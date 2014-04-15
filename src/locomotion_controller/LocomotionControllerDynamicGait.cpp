@@ -7,11 +7,12 @@
 * @brief
 */
 #include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
-#include "Rotations.hpp"
-
+//#include "Rotations.hpp"
+#include "RobotModel.hpp"
 namespace loco {
 
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,
+                                                                 TerrainPerceptionBase* terrainPerception,
                                                                  LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
@@ -20,6 +21,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     isInitialized_(false),
     legs_(legs),
     torso_(torso),
+    terrainPerception_(terrainPerception),
     limbCoordinator_(limbCoordinator),
     footPlacementStrategy_(footPlacementStrategy),
     torsoController_(baseController),
@@ -51,6 +53,9 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
+  if (!terrainPerception_->initialize(dt)) {
+    return false;
+  }
 
   if (!limbCoordinator_->loadParameters(hLoco)) {
     return false;
@@ -104,6 +109,11 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
 //  std::cout << *torso_ << std::endl;
 
   torso_->advance(dt);
+
+  if (!terrainPerception_->advance(dt)) {
+    return false;
+  }
+
   limbCoordinator_->advance(dt);
 
   for (auto leg : *legs_) {
@@ -158,6 +168,10 @@ ContactForceDistributionBase* LocomotionControllerDynamicGait::getContactForceDi
 
 LimbCoordinatorBase*  LocomotionControllerDynamicGait::getLimbCoordinator() {
   return limbCoordinator_;
+}
+
+TerrainPerceptionBase* LocomotionControllerDynamicGait::getTerrainPerception() {
+  return terrainPerception_;
 }
 
 bool LocomotionControllerDynamicGait::isInitialized() const {

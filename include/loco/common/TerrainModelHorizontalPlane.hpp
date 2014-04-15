@@ -34,6 +34,12 @@ class TerrainModelHorizontalPlane: public TerrainModelBase {
    */
   virtual bool getHeight(loco::Position& position) const;
 
+
+  void setHeight(double height);
+
+ protected:
+  double height_;
+
 };
 
 } /* namespace loco */

@@ -9,7 +9,10 @@
 
 namespace loco {
 
-TerrainModelHorizontalPlane::TerrainModelHorizontalPlane() {
+TerrainModelHorizontalPlane::TerrainModelHorizontalPlane() :
+    TerrainModelBase(),
+    height_(0.0)
+{
 
 
 }
@@ -26,8 +29,12 @@ bool TerrainModelHorizontalPlane::getNormal(const loco::Position& position, loco
 
 bool TerrainModelHorizontalPlane::getHeight(loco::Position& position) const
 {
-  position.z() = 0.0;
+  position.z() = height_;
   return false;
+}
+
+void TerrainModelHorizontalPlane::setHeight(double height) {
+  height_ = height;
 }
 
 } /* namespace loco */

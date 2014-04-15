@@ -65,6 +65,7 @@ add_subdirectory(src/common)
 # Add locmotion controller
 add_subdirectory(src/locomotion_controller)
 
+add_subdirectory(src/terrain_perception)
 
 add_subdirectory(src/visualizer)
 
