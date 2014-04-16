@@ -62,6 +62,8 @@ bool VirtualModelController::computeError()
   orientationError_ = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().boxMinus(
       torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());
 
+//  std::cout << "orientationError: " << orientationError_ << std::endl;
+
   linearVelocityError_ = torso_->getDesiredState().getBaseLinearVelocityInBaseFrame() - torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
 
   angularVelocityError_ = torso_->getDesiredState().getBaseAngularVelocityInBaseFrame() - torso_->getMeasuredState().getBaseAngularVelocityInBaseFrame();
@@ -80,6 +82,10 @@ bool VirtualModelController::computeGravityCompensation()
   {
     gravityCompensationForce_ += Force(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
   }
+//  Force gravityCompensationForceWorldFrame_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(gravityCompensationForce_);
+//  gravityCompensationForceWorldFrame_.x() = 0.0;
+//  gravityCompensationForceWorldFrame_.y() = 0.0;
+//  gravityCompensationForce_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravityCompensationForceWorldFrame_);
 
   gravityCompensationTorque_ = Torque(
       torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
@@ -88,6 +94,7 @@ bool VirtualModelController::computeGravityCompensation()
     gravityCompensationTorque_ += Torque(
       leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   }
+//  gravityCompensationTorque_.setZero();
 
   return true;
 }
@@ -110,6 +117,8 @@ bool VirtualModelController::computeVirtualTorque()
 {
   Vector3d feedforwardTerm = Vector3d::Zero();
   feedforwardTerm.z() += torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().z();
+
+//  std::cout << "proportionalGainRotation: " << proportionalGainRotation_.transpose() << std::endl;
 
   virtualTorque_ = Torque(proportionalGainRotation_.cwiseProduct(orientationError_)
                        + derivativeGainRotation_.cwiseProduct(angularVelocityError_.toImplementation())

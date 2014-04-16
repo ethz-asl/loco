@@ -66,42 +66,42 @@ bool TuningWithSliderboardLocoDynamicGait::initializeVirtualModelController(doub
 
  // VForce heading
  sliderboard_->setSliderName(26, "VF heading kp");
- sliderboard_->setMapLinearMinMidMax(26, 0.0, pGainsTranslation.x(), 100.0);
+ sliderboard_->setMapLinearMinMidMax(26, 0.0, pGainsTranslation.x(), 1000.0);
  sliderboard_->setSliderName(18, "VF heading kd");
- sliderboard_->setMapLinearMinMidMax(18, 0.0, dGainsTranslation.x(), 300.0);
+ sliderboard_->setMapLinearMinMidMax(18, 0.0, dGainsTranslation.x(), 120.0);
  sliderboard_->setSliderName(3, "VF heading kff");
- sliderboard_->setMapLinearMinMidMax(3, 0.0, fGainsTranslation.x(), 300.0);
+ sliderboard_->setMapLinearMinMidMax(3, 0.0, fGainsTranslation.x(), 100.0);
 
  // VForce lateral
  sliderboard_->setSliderName(27, "VF lateral kp");
- sliderboard_->setMapLinearMinMidMax(27, 0.0, pGainsTranslation.y(), 900.0);
+ sliderboard_->setMapLinearMinMidMax(27, 0.0, pGainsTranslation.y(), 1000.0);
  sliderboard_->setSliderName(19, "VF lateral kd");
- sliderboard_->setMapLinearMinMidMax(19, 0.0, dGainsTranslation.y(), 300.0);
+ sliderboard_->setMapLinearMinMidMax(19, 0.0, dGainsTranslation.y(), 120.0);
 
  // VForce vertical
  sliderboard_->setSliderName(28, "VF vertical kp");
- sliderboard_->setMapLinearMinMidMax(28, 0.0, pGainsTranslation.z(), 900.0);
+ sliderboard_->setMapLinearMinMidMax(28, 0.0, pGainsTranslation.z(), 1000.0);
  sliderboard_->setSliderName(20, "VF vertical kd");
- sliderboard_->setMapLinearMinMidMax(20, 0.0, dGainsTranslation.z(), 300.0);
+ sliderboard_->setMapLinearMinMidMax(20, 0.0, dGainsTranslation.z(), 200.0);
 // sliderboard_->setSliderName(12, "VF vertical kff");
 // sliderboard_->setMapLinearMinMidMax(12, 0.0, fGainsTranslation.z(), 350.0);
 
 
  // roll gains
  sliderboard_->setSliderName(29, "VF roll kp");
- sliderboard_->setMapLinearMinMidMax(29, 0.0, pGainsRotation.x(), 600.0);
+ sliderboard_->setMapLinearMinMidMax(29, 0.0, pGainsRotation.x(), 400.0);
  sliderboard_->setSliderName(21, "VF roll kd");
- sliderboard_->setMapLinearMinMidMax(21, 0.0, dGainsRotation.x(), 300.0);
+ sliderboard_->setMapLinearMinMidMax(21, 0.0, dGainsRotation.x(), 50.0);
 
  // pitch gain
  sliderboard_->setSliderName(30, "VF pitch kp");
- sliderboard_->setMapLinearMinMidMax(30, 0.0, pGainsRotation.y(), 600.0);
+ sliderboard_->setMapLinearMinMidMax(30, 0.0, pGainsRotation.y(), 400.0);
  sliderboard_->setSliderName(22, "VF pitch kd");
- sliderboard_->setMapLinearMinMidMax(22, 0.0, dGainsRotation.y(), 300.0);
+ sliderboard_->setMapLinearMinMidMax(22, 0.0, dGainsRotation.y(), 50.0);
 
  // yaw gain
  sliderboard_->setSliderName(30, "VF yaw kp");
- sliderboard_->setMapLinearMinMidMax(31, 0.0, pGainsRotation.z(), 600.0);
+ sliderboard_->setMapLinearMinMidMax(31, 0.0, pGainsRotation.z(), 200.0);
  sliderboard_->setSliderName(22, "VF yaw kd");
  sliderboard_->setMapLinearMinMidMax(23, 0.0, dGainsRotation.z(), 300.0);
 
