@@ -68,7 +68,13 @@ void TorsoControlDynamicGait::advance(double dt) {
 
   const Vector axisUp =  torso_->getProperties().getGravityAxisInWorldFrame();
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-  RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)));
+//  RotationQuaternion desOrientationInWorldFrame = (computeHeading(rquatWorldToBase, axisUp)*RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)));
+  EulerAnglesZyx heading = EulerAnglesZyx(rquatWorldToBase).getUnique();
+  heading.setPitch(0.0);
+  heading.setRoll(0.0);
+  RotationQuaternion desOrientationInWorldFrame = RotationQuaternion(heading.getUnique()*AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
+
+
 
 //  LinearVelocity desiredLinearVelocity(0.0,0.0,0.0);
 //  LocalAngularVelocity desiredAngularVelocity;
@@ -115,8 +121,14 @@ inline double safeACOS(double val){
 */
 RotationQuaternion TorsoControlDynamicGait::decomposeRotation(const RotationQuaternion& AqB, const Vector& vB) {
 
-  const Vector vA = AqB.inverseRotate(vB).normalized();
+
+  const Vector vA =  AqB.inverseRotate(vB).normalized();
+
   Vector rotAxis = (vA.cross(vB).normalized());
+
+  if (rotAxis.norm() == 0) {
+    rotAxis = Vector::UnitZ();
+  }
   rotAxis *= -1.0;
   double rotAngle = -safeACOS(vA.dot(vB));
   const RotationQuaternion TqA = RotationQuaternion(AngleAxis(rotAngle, rotAxis.toImplementation()));
