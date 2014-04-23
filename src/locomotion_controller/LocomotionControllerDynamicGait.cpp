@@ -118,10 +118,21 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
 
   for (auto leg : *legs_) {
     const double swingPhase = leg->getSwingPhase();
-    if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
+//    std::cout << *leg << std::endl;
+
+//    if (leg->isInStanceMode() != leg->wasInStanceMode()) {
+//      std::cout << leg->getName() << " -----------------------------------------------------------------\n";
+//    }
+//
+//    if ((swingPhase >= 0.0 && swingPhase <= 0.5) && leg->wasInStanceMode()) {
+    if (leg->wasInStanceMode() && leg->isInSwingMode()) {
       // possible lift-off
       leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
       leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+//      std::cout << leg->getName() << ": lift-off" << std::endl;
+      leg->getStateLiftOff()->setIsNow(true);
+    } else {
+      leg->getStateLiftOff()->setIsNow(false);
     }
   }
   footPlacementStrategy_->advance(dt);

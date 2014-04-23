@@ -12,7 +12,8 @@ namespace loco {
 LegStateLiftOff::LegStateLiftOff() :
   LegStateBase(),
   footPositionInWorldFrame_(),
-  hipPositionInWorldFrame_()
+  hipPositionInWorldFrame_(),
+  isNow_(false)
 {
 
 }
@@ -36,6 +37,14 @@ void LegStateLiftOff::setHipPositionInWorldFrame(const Position& hipPositionInWo
 void LegStateLiftOff::setFootPositionInWorldFrame(const Position& footPositionInWorldFrame)
 {
   footPositionInWorldFrame_ = footPositionInWorldFrame;
+}
+
+void LegStateLiftOff::setIsNow(bool isNow) {
+  isNow_= isNow;
+}
+
+bool LegStateLiftOff::isNow() const {
+  return isNow_;
 }
 
 } /* namespace loco */
