@@ -72,6 +72,17 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	Position rFootHoldOffset_CSw_invertedPendulum = Position(vError_CSw)*std::sqrt(invertedPendulumHeight/gravity);
 
+	/* limit offset from inverted pendulum */
+	const double legLengthMax = 0.5*leg->getProperties().getLegLength();
+	rFootHoldOffset_CSw_invertedPendulum.z() = 0.0;
+	double desLegLength = rFootHoldOffset_CSw_invertedPendulum.norm();
+	if (desLegLength != 0.0) {
+	  double boundedLegLength = desLegLength;
+	  boundToRange(&boundedLegLength, -legLengthMax, legLengthMax);
+	  rFootHoldOffset_CSw_invertedPendulum *= boundedLegLength/desLegLength;
+	}
+
+
 	/* feedforward stepping offset */
 	//we also need to add a desired-velocity dependent feed forward step length
 	double netCOMDisplacementPerStride = desiredHeadingSpeedInBaseFrame * leg->getStanceDuration();
@@ -85,8 +96,8 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	Position rFootHoldOffset_CSw_final = rFootHoldOffset_CSw_feedforward + stepFeedbackScale_*rFootHoldOffset_CSw_invertedPendulum;
 //	std::cout << leg->getId() << ": footOffsetFinalCSw: " << rFootHoldOffset_CSw_final << std::endl;
 	rFootHoldOffset_CSw_final(2) = 0.0;
-	const Position footLocationAtLiftOffCSw = leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame();
-	Position rFootOffset_CSw = getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(std::min(swingPhase + tinyTimeStep, 1.0),  footLocationAtLiftOffCSw, rFootHoldOffset_CSw_final);
+	const Position positionHipToFootInWorldFrameAtLiftOff = leg->getStateLiftOff()->getHipPositionInWorldFrame()-leg->getStateLiftOff()->getFootPositionInWorldFrame();
+	Position rFootOffset_CSw = getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(std::min(swingPhase + tinyTimeStep, 1.0),  positionHipToFootInWorldFrameAtLiftOff, rFootHoldOffset_CSw_final);
 //  std::cout << leg->getId() << ": footOffsetCurrentCSw: " << rFootHoldOffset_CSw_final << std::endl;
   Position rFoot_CSw = rRef_CSw + rFootHoldOffset_CSw_default + (Position(vRef_CSw)*tinyTimeStep + rFootOffset_CSw);
 
@@ -102,12 +113,12 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 }
 
-Position FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const Position& positionWorldToFootAtLiftOffInWorldFrame, const Position& positionWorldToFootAtNextTouchDownInWorldFrame)
+Position FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const Position& positionHipToFootAtLiftOffInWorldFrame, const Position& positionHipToFootAtNextTouchDownInWorldFrame)
 {
   // rotate positions to base frame to interpolate each direction (lateral and heading) individually
   const RotationQuaternion orientationWorldToBaseInWorldFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-  const Position rFootHold_CSmb = orientationWorldToBaseInWorldFrame.rotate(positionWorldToFootAtNextTouchDownInWorldFrame);
-  const Position rFootLiftOff_CSmb =  orientationWorldToBaseInWorldFrame.rotate(positionWorldToFootAtLiftOffInWorldFrame);
+  const Position rFootHold_CSmb = orientationWorldToBaseInWorldFrame.rotate(positionHipToFootAtNextTouchDownInWorldFrame);
+  const Position rFootLiftOff_CSmb =  orientationWorldToBaseInWorldFrame.rotate(positionHipToFootAtLiftOffInWorldFrame);
   return orientationWorldToBaseInWorldFrame.inverseRotate(Position(getHeadingComponentOfFootStep(swingPhase, rFootLiftOff_CSmb.x(), rFootHold_CSmb.x()), getLateralComponentOfFootStep(swingPhase,  rFootLiftOff_CSmb.y(), rFootHold_CSmb.y()),0.0));
 }
 

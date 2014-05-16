@@ -16,7 +16,9 @@ LegBase::LegBase() :
     stanceDuration_(0.0),
     swingDuration_(0.0),
     isInStanceMode_(false),
+    wasInStanceMode_(false),
     isInSwingMode_(true),
+    wasInSwingMode_(true),
     isGrounded_(false),
     shouldBeGrounded_(false),
     loadFactor_(1.0)
@@ -31,7 +33,9 @@ LegBase::LegBase(const std::string& name) :
     stanceDuration_(0.0),
     swingDuration_(0.0),
     isInStanceMode_(false),
+    wasInStanceMode_(false),
     isInSwingMode_(true),
+    wasInSwingMode_(true),
     isGrounded_(false),
     shouldBeGrounded_(false),
     loadFactor_(1.0)
@@ -64,6 +68,14 @@ bool LegBase::isInStanceMode() const {
 bool LegBase::isInSwingMode() const {
   return isInSwingMode_;
 }
+
+bool LegBase::wasInStanceMode() const {
+  return wasInStanceMode_;
+}
+bool LegBase::wasInSwingMode() const {
+  return wasInSwingMode_;
+}
+
 
 bool LegBase::isGrounded() const {
   return isGrounded_;
@@ -107,6 +119,15 @@ void LegBase::setIsInStanceMode(bool isInStanceMode) {
 void LegBase::setIsInSwingMode(bool isInSwingMode) {
   isInSwingMode_ = isInSwingMode;
 }
+
+void LegBase::setWasInStanceMode(bool wasInStanceMode) {
+  wasInStanceMode_ = wasInStanceMode;
+}
+
+void LegBase::setWasInSwingMode(bool wasInSwingMode) {
+  wasInSwingMode_ = wasInSwingMode;
+}
+
 
 void LegBase::setIsGrounded(bool isGrounded) {
   isGrounded_ = isGrounded;
@@ -194,6 +215,9 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
 
   out << "is in stance mode: " << (leg.isInStanceMode() ? "yes" : "no") << std::endl;
   out << "is in swing mode: " << (leg.isInSwingMode() ? "yes" : "no") << std::endl;
+
+  out << "was in stance mode: " << (leg.wasInStanceMode() ? "yes" : "no") << std::endl;
+  out << "was in swing mode: " << (leg.wasInSwingMode() ? "yes" : "no") << std::endl;
 
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;

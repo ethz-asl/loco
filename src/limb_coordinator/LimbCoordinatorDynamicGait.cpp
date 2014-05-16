@@ -65,7 +65,9 @@ void LimbCoordinatorDynamicGait::advance(double dt) {
     leg->setShouldBeGrounded(shouldBeLegGrounded_[iLeg]);
     leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));
     leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));
+    leg->setWasInStanceMode(leg->isInStanceMode());
     leg->setIsInStanceMode(isLegInStanceMode(iLeg));
+    leg->setWasInSwingMode(leg->isInSwingMode());
     leg->setIsInSwingMode(isLegInSwingMode(iLeg));
     leg->setSwingPhase(gaitPattern_->getSwingPhaseForLeg(iLeg));
     leg->setStancePhase(gaitPattern_->getStancePhaseForLeg(iLeg));
@@ -77,14 +79,14 @@ void LimbCoordinatorDynamicGait::advance(double dt) {
 
 bool LimbCoordinatorDynamicGait::isLegInStanceMode(int iLeg) {
   const double swingPhase = gaitPattern_->getSwingPhaseForLeg(iLeg);
-  if (swingPhase > 0.9 && this->isLegGrounded(iLeg)) return true;
-  return (swingPhase < 0 || swingPhase > 1);
+  if (swingPhase > 0.9 && this->isLegGrounded(iLeg)) return true; // early touch-down -> switch to stance mode
+  return (swingPhase < 0 || swingPhase > 1); // stance mode
 }
 
 
 bool LimbCoordinatorDynamicGait::isLegInSwingMode(int iLeg) {
   const double swingPhase = gaitPattern_->getSwingPhaseForLeg(iLeg);
-  if (swingPhase > 0.9 && this->isLegGrounded(iLeg)) return false;
+  if (swingPhase > 0.9 && this->isLegGrounded(iLeg)) return false; // early touch-down -> switch to stance mode
   return (swingPhase >= 0 && swingPhase <= 1);
 }
 

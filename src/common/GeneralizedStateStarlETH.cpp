@@ -259,5 +259,10 @@ void GeneralizedStateStarlETH::setJointVelocitiesSymmetricToLeftForeLeg(double v
   generalizedVelocities_(17) = -velocityKFE;
 }
 
+void GeneralizedStateStarlETH::setJointPositionsForLeg(int iLeg, const Eigen::Vector3d& angles) {
+  generalizedCoordinates_.block<3,1>(7+iLeg*3,0) = angles;
+
+}
+
 } /* namespace loco */
 

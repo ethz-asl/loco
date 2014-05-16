@@ -27,7 +27,7 @@ class LegPropertiesBase
 
   virtual const Position& getDesiredDefaultSteppingPositionHipToFootInBaseFrame() const;
   virtual void setDesiredDefaultSteppingPositionHipToFootInBaseFrame(const Position& position);
-
+  virtual double getLegLength() = 0;
  private:
 
   //! The total mass of the leg.
