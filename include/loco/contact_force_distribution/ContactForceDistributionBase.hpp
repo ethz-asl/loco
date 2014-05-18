@@ -9,6 +9,7 @@
 #pragma once
 
 #include <Eigen/Core>
+#include "loco/common/TorsoBase.hpp"
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TerrainModelBase.hpp"
 #include "tinyxml.h"
@@ -26,7 +27,7 @@ class ContactForceDistributionBase
   /*!
    * Constructor.
    */
-  ContactForceDistributionBase(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain);
+  ContactForceDistributionBase(std::shared_ptr<TorsoBase> torso, std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain);
 
   /*!
    * Destructor.
@@ -69,6 +70,7 @@ class ContactForceDistributionBase
   constexpr static int nTranslationalDofPerFoot_ = 3; // TODO move to robotModel
   constexpr static int nElementsVirtualForceTorqueVector_ = 6;
 
+  std::shared_ptr<TorsoBase> torso_;
   std::shared_ptr<LegGroup> legs_;
   std::shared_ptr<loco::TerrainModelBase> terrain_;
 

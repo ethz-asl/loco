@@ -20,8 +20,8 @@ using namespace sm;
 
 namespace loco {
 
-ContactForceDistribution::ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
-    : ContactForceDistributionBase(legs, terrain)
+ContactForceDistribution::ContactForceDistribution(std::shared_ptr<TorsoBase> torso, std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
+    : ContactForceDistributionBase(torso, legs, terrain)
 {
   for(auto leg : *legs_) { legInfos_[leg] = LegInfo(); }
 }
@@ -303,6 +303,10 @@ bool ContactForceDistribution::solveOptimization()
 
 bool ContactForceDistribution::computeJointTorques()
 {
+  const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
+  const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
+
+
   const int nDofPerLeg = 3; // TODO move to robot commons
   const int nDofPerContactPoint = 3; // TODO move to robot commons
 
@@ -312,6 +316,7 @@ bool ContactForceDistribution::computeJointTorques()
     {
       LegBase::TranslationJacobian jacobian = legInfo.first->getTranslationJacobianFromBaseToFootInBaseFrame();
       Force contactForce = legInfo.second.desiredContactForce_;
+//      Force gravityForce = Force(-legInfo.first->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
       LegBase::JointTorques jointTorques = LegBase::JointTorques(jacobian.transpose() * contactForce.toImplementation());
       legInfo.first->setDesiredJointTorques(jointTorques);
     }
