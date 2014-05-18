@@ -9,6 +9,7 @@
 #define LOCO_LEGGROUP_HPP_
 
 #include "loco/common/LegBase.hpp"
+
 #include <vector>
 
 namespace loco {

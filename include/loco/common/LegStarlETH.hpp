@@ -29,6 +29,7 @@ class LegStarlETH : public loco::LegBase {
    * @param iLeg        index of the leg (only for internal usage)
    * @param robotModel  refernce to robot model
    */
+//  LegStarlETH(const std::string& name, int iLeg, LegLinkGroup* links, robotModel::RobotModel* robotModel);
   LegStarlETH(const std::string& name, int iLeg, robotModel::RobotModel* robotModel);
 
   virtual ~LegStarlETH();
@@ -49,6 +50,7 @@ class LegStarlETH : public loco::LegBase {
   virtual const Vector& getFootContactNormalInWorldFrame() const;
 
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const;
+
 
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
@@ -77,7 +79,8 @@ class LegStarlETH : public loco::LegBase {
   Position positionBaseToFootInBaseFrame_;
   Position positionBaseToHipInBaseFrame_;
 
-  Eigen::Matrix<double, nDofContactPoint_, nJoints_> translationJacobianBaseToFootInBaseFrame_;
+  TranslationJacobian translationJacobianBaseToFootInBaseFrame_;
+
 
   Force forceFootContactInWorldFrame_;
   Vector normalFootContactInWorldFrame_;

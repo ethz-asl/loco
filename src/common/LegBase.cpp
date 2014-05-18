@@ -11,6 +11,7 @@ namespace loco {
 
 LegBase::LegBase() :
     name_(""),
+    links_(nullptr),
     stancePhase_(0.0),
     swingPhase_(0.0),
     stanceDuration_(0.0),
@@ -26,8 +27,9 @@ LegBase::LegBase() :
 
 }
 
-LegBase::LegBase(const std::string& name) :
+LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     name_(name),
+    links_(links),
     stancePhase_(0.0),
     swingPhase_(0.0),
     stanceDuration_(0.0),
@@ -45,6 +47,10 @@ LegBase::LegBase(const std::string& name) :
 
 LegBase::~LegBase() {
 
+}
+
+LegLinkGroup* LegBase::getLinks() {
+  return links_;
 }
 
 

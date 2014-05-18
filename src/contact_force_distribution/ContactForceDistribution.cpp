@@ -7,6 +7,8 @@
  */
 
 #include "loco/contact_force_distribution/ContactForceDistribution.hpp"
+#include "loco/common/LegLinkGroup.hpp"
+
 #include <Eigen/Geometry>
 #include "LinearAlgebra.hpp"
 #include "sm/numerical_comparisons.hpp"
@@ -307,17 +309,21 @@ bool ContactForceDistribution::computeJointTorques()
   const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
 
 
-  const int nDofPerLeg = 3; // TODO move to robot commons
-  const int nDofPerContactPoint = 3; // TODO move to robot commons
+//  const int nDofPerLeg = 3; // TODO move to robot commons
+//  const int nDofPerContactPoint = 3; // TODO move to robot commons
 
   for (auto& legInfo : legInfos_)
   {
     if (legInfo.second.isPartOfForceDistribution_)
     {
       LegBase::TranslationJacobian jacobian = legInfo.first->getTranslationJacobianFromBaseToFootInBaseFrame();
+
       Force contactForce = legInfo.second.desiredContactForce_;
-//      Force gravityForce = Force(-legInfo.first->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
       LegBase::JointTorques jointTorques = LegBase::JointTorques(jacobian.transpose() * contactForce.toImplementation());
+      /* gravity */
+      for (auto link : *legInfo.first->getLinks()) {
+        jointTorques += LegBase::JointTorques( link->getTranslationJacobianBaseToCoMInBaseFrame().transpose() * Force(-link->getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
+      }
       legInfo.first->setDesiredJointTorques(jointTorques);
     }
     else

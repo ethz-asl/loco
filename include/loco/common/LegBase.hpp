@@ -8,18 +8,28 @@
 #ifndef LOCO_LEGBASE_HPP_
 #define LOCO_LEGBASE_HPP_
 
+//#include "loco/common/LegLink.hpp"
+
 #include "loco/common/LegStateLiftOff.hpp"
 #include "loco/common/LegStateTouchDown.hpp"
 
 #include "loco/common/TypeDefs.hpp"
+
 #include "loco/common/LegPropertiesBase.hpp"
+
+//#include "loco/common/LegLinkGroup.hpp"
 
 #include <Eigen/Core>
 
 #include <string>
 #include <iostream>
 
+
+
 namespace loco {
+
+class LegLink;
+class LegLinkGroup;
 
 //! Base class for a leg
 /*! This should be used only as a data container
@@ -37,10 +47,12 @@ class LegBase {
 
  public:
   LegBase();
-  LegBase(const std::string& name);
+  LegBase(const std::string& name, LegLinkGroup* links);
   virtual ~LegBase();
 
   virtual const std::string& getName() const ;
+
+  LegLinkGroup* getLinks();
 
   virtual double getStancePhase() const;
   virtual double getSwingPhase() const;
@@ -86,6 +98,7 @@ class LegBase {
   virtual void setDesiredLoadFactor(double loadFactor);
 
 
+
   LegStateTouchDown* getStateTouchDown();
   LegStateLiftOff* getStateLiftOff();
 
@@ -103,6 +116,7 @@ class LegBase {
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
 
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const = 0;
+
 
   virtual const Force& getFootContactForceInWorldFrame() const = 0;
   virtual const Vector& getFootContactNormalInWorldFrame() const = 0;
@@ -134,6 +148,8 @@ class LegBase {
   void setDesireWorldToFootPositionInWorldFrame(const Position& position);
  protected:
   std::string name_;
+
+  LegLinkGroup* links_;
 
   double stancePhase_;
   double swingPhase_;
