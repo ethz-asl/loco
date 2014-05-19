@@ -320,9 +320,10 @@ bool ContactForceDistribution::computeJointTorques()
 
       Force contactForce = legInfo.second.desiredContactForce_;
       LegBase::JointTorques jointTorques = LegBase::JointTorques(jacobian.transpose() * contactForce.toImplementation());
+//      jointTorques += LegBase::JointTorques(torso_ Force(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
       /* gravity */
       for (auto link : *legInfo.first->getLinks()) {
-        jointTorques += LegBase::JointTorques( link->getTranslationJacobianBaseToCoMInBaseFrame().transpose() * Force(-link->getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
+        jointTorques -= LegBase::JointTorques( link->getTranslationJacobianBaseToCoMInBaseFrame().transpose() * Force(link->getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
       }
       legInfo.first->setDesiredJointTorques(jointTorques);
     }

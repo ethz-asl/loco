@@ -74,19 +74,19 @@ bool VirtualModelController::computeGravityCompensation()
   const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
   const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
 
-  gravityCompensationForce_ = Force(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+  gravityCompensationForce_ = Force(torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
 
   for (const auto& leg : *legs_)
   {
-    gravityCompensationForce_ += Force(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+    gravityCompensationForce_ += Force(leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
   }
 
   gravityCompensationTorque_ = Torque(
-      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   for (const auto& leg : *legs_)
   {
     gravityCompensationTorque_ += Torque(
-      leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+      leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   }
 
   return true;
@@ -101,7 +101,7 @@ bool VirtualModelController::computeVirtualForce()
   virtualForce_ = Force(proportionalGainTranslation_.cwiseProduct(positionErrorInBaseFrame_.toImplementation())
                        + derivativeGainTranslation_.cwiseProduct(linearVelocityError_.toImplementation())
                        + feedforwardGainTranslation_.cwiseProduct(feedforwardTerm)
-                       + gravityCompensationForce_.toImplementation());
+                       - gravityCompensationForce_.toImplementation());
 
   return true;
 }
@@ -114,7 +114,7 @@ bool VirtualModelController::computeVirtualTorque()
   virtualTorque_ = Torque(proportionalGainRotation_.cwiseProduct(orientationError_)
                        + derivativeGainRotation_.cwiseProduct(angularVelocityError_.toImplementation())
                        + feedforwardGainRotation_.cwiseProduct(feedforwardTerm)
-                       + gravityCompensationTorque_.toImplementation());
+                       - gravityCompensationTorque_.toImplementation());
 
   return true;
 }
