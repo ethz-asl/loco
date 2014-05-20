@@ -27,6 +27,8 @@ class MissionControlSpeedTrajectory: public MissionControlBase {
   loco::TrajectoryLinearVelocity linearVelocityTrajectory_;
   loco::TrajectoryLocalAngularVelocity localAngularVelocityTrajectory_;
   Twist currentBaseTwistInBaseFrame_;
+  bool isInterpolatingTime_;
+  double cycleDuration_;
 
 };
 
