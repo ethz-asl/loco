@@ -79,14 +79,11 @@ bool MissionControlSpeedTrajectory::loadParameters(const TiXmlHandle& handle) {
         printf("Could not find turningSpeed of knot!\n");
         return false;
       }
-
-      linearVelocityTrajectory_.addKnot(t, linearVelocity);
-      if (isInterpolatingTime_) {
-          localAngularVelocityTrajectory_.addKnot(t, localAngularVelocity);
-      } else {
-    	  localAngularVelocityTrajectory_.addKnot(t*cycleDuration_, localAngularVelocity);
+      if (!isInterpolatingTime_) {
+         t *=  cycleDuration_;
       }
-
+      linearVelocityTrajectory_.addKnot(t, linearVelocity);
+      localAngularVelocityTrajectory_.addKnot(t, localAngularVelocity);
 
 
    }
