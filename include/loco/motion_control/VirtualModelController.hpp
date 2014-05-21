@@ -30,6 +30,7 @@ class VirtualModelController : public MotionControllerBase
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  double gravityCompensationForcePercentage = 0.85; //1.0; //0.98; // todo
   /*!
    * Constructor.
    * @param robotModel the reference to the robot

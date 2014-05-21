@@ -44,7 +44,7 @@ bool VirtualModelController::compute()
   computeGravityCompensation();
   computeVirtualForce();
   computeVirtualTorque();
-//  cout << *this << endl;
+  cout << *this << endl;
   if (!contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_)) {
     return false;
   }
@@ -76,7 +76,7 @@ bool VirtualModelController::computeGravityCompensation()
   const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
   const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
 
-  const double gravityCompensationForcePercentage = 1.0; //0.98; // todo
+
 
   gravityCompensationForce_ = Force(-gravityCompensationForcePercentage*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
 
@@ -161,6 +161,7 @@ std::ostream& operator << (std::ostream& out, const VirtualModelController& moti
   out << "Desired virtual torque" << motionController.virtualTorque_.toImplementation().format(CommaInitFmt) << endl;
   out << "Net force error" << netForceError.toImplementation().format(CommaInitFmt) << endl;
   out << "Net torque error" << netTorqueError.toImplementation().format(CommaInitFmt) << endl;
+  out << "gravity comp k: " << motionController.gravityCompensationForcePercentage << endl;
   return out;
 }
 

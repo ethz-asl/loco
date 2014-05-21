@@ -105,20 +105,26 @@ void TorsoControlDynamicGait::advance(double dt) {
   Position desiredHeadingDirectionInWorldFrame = desiredWorldToForeFeetMidPointInWorldFrame-desiredWorldToHindFeetMidPointInWorldFrame;
   desiredHeadingDirectionInWorldFrame.z() = 0.0;
 
-  Position currentHeadingDirectionInWorldFrame = positionForeFeetMidPointInWorldFrame-positionHindFeetMidPointInWorldFrame;
+  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())/0.5;
+   const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())/0.5;
+
+
+  Position currentHeadingDirectionInWorldFrame = positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame;
   currentHeadingDirectionInWorldFrame.z() = 0.0;
 
   RotationQuaternion desiredYawWorldToBase;
 //std::cout << "des: " << desiredHeadingDirectionInWorldFrame << std::endl;
 //std::cout << "cur: " << currentHeadingDirectionInWorldFrame << std::endl;
 //  desiredYawWorldToBase.setFromVectors(desiredHeadingDirectionInWorldFrame.toImplementation(), currentHeadingDirectionInWorldFrame.toImplementation());
-  setFromVectors(desiredYawWorldToBase,desiredHeadingDirectionInWorldFrame.toImplementation(), currentHeadingDirectionInWorldFrame.toImplementation());
+  setFromVectors(desiredYawWorldToBase,currentHeadingDirectionInWorldFrame.toImplementation(),desiredHeadingDirectionInWorldFrame.toImplementation());
 //std::cout << "orient: " << desiredYawWorldToBase << std::endl;
 //std::cout << "com: " << comControl_.getPositionErrorVectorInWorldFrame() << std::endl;
 //
 //      desiredLateralAndHeadingPositionInWorldFrame.y()
 //
   /*RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());*/
+
+  std::cout << "desiredYawWorldToBase: " << EulerAnglesZyx(desiredYawWorldToBase).getUnique() << std::endl;
 
   const Vector axisUp =  torso_->getProperties().getGravityAxisInWorldFrame();
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
