@@ -12,7 +12,9 @@ namespace loco {
 MissionControlSpeedTrajectory::MissionControlSpeedTrajectory() :
   MissionControlBase(),
   time_(0.0),
-  currentBaseTwistInBaseFrame_()
+  currentBaseTwistInBaseFrame_(),
+  isInterpolatingTime_(true),
+  cycleDuration_(0.0)
 {
 
 
@@ -32,9 +34,11 @@ bool MissionControlSpeedTrajectory::initialize(double dt) {
   return true;
 }
 void MissionControlSpeedTrajectory::advance(double dt) {
+
   currentBaseTwistInBaseFrame_.getTranslationalVelocity() = linearVelocityTrajectory_.evaluate_linear(time_);
   currentBaseTwistInBaseFrame_.getRotationalVelocity() = localAngularVelocityTrajectory_.evaluate_linear(time_);
   time_ += dt;
+
 }
 bool MissionControlSpeedTrajectory::loadParameters(const TiXmlHandle& handle) {
   linearVelocityTrajectory_.clear();
@@ -52,11 +56,16 @@ bool MissionControlSpeedTrajectory::loadParameters(const TiXmlHandle& handle) {
     printf("Could not find LocomotionController:Mission:Speed:Trajectory!\n");
     return false;
   }
+  if (pElem->QueryDoubleAttribute("cycleDuration", &cycleDuration_)==TIXML_SUCCESS) {
+	  isInterpolatingTime_ = false;
+  } else {
+	  isInterpolatingTime_ = true;
+  }
   TiXmlElement* child = hSpeedTrajectory.FirstChild().ToElement();
    for( child; child; child=child->NextSiblingElement() ){
       if (child->QueryDoubleAttribute("t", &t)!=TIXML_SUCCESS) {
-        printf("Could not find t of knot!\n");
-        return false;
+			printf("Could not find t  of knot!\n");
+			return false;
       }
       if (child->QueryDoubleAttribute("headingSpeed", &linearVelocity.x())!=TIXML_SUCCESS) {
         printf("Could not find headingSpeed of knot!\n");
@@ -70,9 +79,13 @@ bool MissionControlSpeedTrajectory::loadParameters(const TiXmlHandle& handle) {
         printf("Could not find turningSpeed of knot!\n");
         return false;
       }
-
+      if (!isInterpolatingTime_) {
+         t *=  cycleDuration_;
+      }
       linearVelocityTrajectory_.addKnot(t, linearVelocity);
       localAngularVelocityTrajectory_.addKnot(t, localAngularVelocity);
+
+
    }
   return true;
 }

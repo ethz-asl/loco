@@ -62,6 +62,8 @@ bool VirtualModelController::computeError()
   orientationError_ = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().boxMinus(
       torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());
 
+//  std::cout << "orientationError: " << orientationError_ << std::endl;
+
   linearVelocityError_ = torso_->getDesiredState().getBaseLinearVelocityInBaseFrame() - torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
 
   angularVelocityError_ = torso_->getDesiredState().getBaseAngularVelocityInBaseFrame() - torso_->getMeasuredState().getBaseAngularVelocityInBaseFrame();
@@ -74,20 +76,27 @@ bool VirtualModelController::computeGravityCompensation()
   const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
   const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
 
-  gravityCompensationForce_ = Force(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+  const double gravityCompensationForcePercentage = 1.0; //0.98; // todo
+
+  gravityCompensationForce_ = Force(-gravityCompensationForcePercentage*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
 
   for (const auto& leg : *legs_)
   {
-    gravityCompensationForce_ += Force(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+    gravityCompensationForce_ += Force(-gravityCompensationForcePercentage*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
   }
+//  Force gravityCompensationForceWorldFrame_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(gravityCompensationForce_);
+//  gravityCompensationForceWorldFrame_.x() = 0.0;
+//  gravityCompensationForceWorldFrame_.y() = 0.0;
+//  gravityCompensationForce_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravityCompensationForceWorldFrame_);
 
   gravityCompensationTorque_ = Torque(
-      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-gravityCompensationForcePercentage*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   for (const auto& leg : *legs_)
   {
     gravityCompensationTorque_ += Torque(
-      leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+      -leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(gravityCompensationForcePercentage*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   }
+//  gravityCompensationTorque_.setZero();
 
   return true;
 }
@@ -110,6 +119,8 @@ bool VirtualModelController::computeVirtualTorque()
 {
   Vector3d feedforwardTerm = Vector3d::Zero();
   feedforwardTerm.z() += torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().z();
+
+//  std::cout << "proportionalGainRotation: " << proportionalGainRotation_.transpose() << std::endl;
 
   virtualTorque_ = Torque(proportionalGainRotation_.cwiseProduct(orientationError_)
                        + derivativeGainRotation_.cwiseProduct(angularVelocityError_.toImplementation())

@@ -72,7 +72,8 @@ void TorsoControlDynamicGait::advance(double dt) {
   EulerAnglesZyx heading = EulerAnglesZyx(rquatWorldToBase).getUnique();
   heading.setPitch(0.0);
   heading.setRoll(0.0);
-  RotationQuaternion desOrientationInWorldFrame = RotationQuaternion(heading.getUnique()*AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
+//  RotationQuaternion desOrientationInWorldFrame = RotationQuaternion(heading.getUnique()*AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
+  RotationQuaternion desOrientationInWorldFrame;
 
 
 

@@ -41,6 +41,8 @@ set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/LegStateTouchDown.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LegPropertiesBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LegPropertiesStarlETH.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegLink.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LegLinkGroup.cpp
 	
 	${CMAKE_CURRENT_SOURCE_DIR}/ParameterSet.cpp
 	
