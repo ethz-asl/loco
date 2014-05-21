@@ -26,6 +26,7 @@ VisualizerSC::VisualizerSC() :
   for (int iLeg=0; iLeg<4; iLeg++) {
     for (double t=0; t<windowSize; t=t+dt) {
       footTrajectories_[iLeg].addKnot(t, loco::Position());
+      desiredFootTrajectories_[iLeg].addKnot(t, loco::Position());
     }
   }
   for (double t=0; t<windowSize; t=t+dt) {
@@ -50,6 +51,16 @@ void VisualizerSC::drawHistoryOfFootPositions(loco::LegGroup* legs) {
     const double dt = 1.0/desiredFrameRate_;
     footTrajectories_[iLeg].addKnot(footTrajectories_[iLeg].getKnotPosition(footTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getWorldToFootPositionInWorldFrame());
     drawTrajectoryCatMullRomPosition(footTrajectories_[iLeg], dt);
+  }
+}
+
+void VisualizerSC::drawHistoryOfDesiredFootPositions(loco::LegGroup* legs) {
+  for (int iLeg=0; iLeg<4; iLeg++) {
+    const loco::LegBase* leg = legs->getLeg(iLeg);
+    desiredFootTrajectories_[iLeg].removeKnot(0);
+    const double dt = 1.0/desiredFrameRate_;
+    desiredFootTrajectories_[iLeg].addKnot(desiredFootTrajectories_[iLeg].getKnotPosition(desiredFootTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getDesiredWorldToFootPositionInWorldFrame());
+    drawTrajectoryCatMullRomPosition(desiredFootTrajectories_[iLeg], dt);
   }
 }
 

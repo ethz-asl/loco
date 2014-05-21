@@ -21,7 +21,7 @@ class LegPropertiesStarlETH: public LegPropertiesBase {
   virtual ~LegPropertiesStarlETH();
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
-
+  virtual double getLegLength();
  protected:
   int iLeg_;
   robotModel::RobotModel* robotModel_;

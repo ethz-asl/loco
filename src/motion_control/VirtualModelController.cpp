@@ -76,11 +76,13 @@ bool VirtualModelController::computeGravityCompensation()
   const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
   const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
 
-  gravityCompensationForce_ = Force(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+  const double gravityCompensationForcePercentage = 1.0; //0.98; // todo
+
+  gravityCompensationForce_ = Force(-gravityCompensationForcePercentage*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
 
   for (const auto& leg : *legs_)
   {
-    gravityCompensationForce_ += Force(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+    gravityCompensationForce_ += Force(-gravityCompensationForcePercentage*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
   }
 //  Force gravityCompensationForceWorldFrame_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(gravityCompensationForce_);
 //  gravityCompensationForceWorldFrame_.x() = 0.0;
@@ -88,11 +90,11 @@ bool VirtualModelController::computeGravityCompensation()
 //  gravityCompensationForce_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravityCompensationForceWorldFrame_);
 
   gravityCompensationTorque_ = Torque(
-      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-gravityCompensationForcePercentage*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   for (const auto& leg : *legs_)
   {
     gravityCompensationTorque_ += Torque(
-      leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+      -leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(gravityCompensationForcePercentage*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
   }
 //  gravityCompensationTorque_.setZero();
 

@@ -28,9 +28,15 @@ class LegStateLiftOff : public loco::LegStateBase {
 
   void setHipPositionInWorldFrame(const Position& hipPositionInWorldFrame);
   void setFootPositionInWorldFrame(const Position& footPositionInWorldFrame);
+
+  bool isNow() const;
+
+  void setIsNow(bool isNow);
+
  protected:
   Position footPositionInWorldFrame_;
   Position hipPositionInWorldFrame_;
+  bool isNow_;
 };
 
 } /* namespace loco */

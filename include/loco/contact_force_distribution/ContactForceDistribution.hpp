@@ -10,6 +10,7 @@
 
 #include "ContactForceDistributionBase.hpp"
 #include "loco/common/LegBase.hpp"
+#include "loco/common/TorsoBase.hpp"
 #include <Eigen/SparseCore>
 #include "tinyxml.h"
 
@@ -35,7 +36,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
   /*!
    * Constructor.
    */
-  ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain);
+  ContactForceDistribution(std::shared_ptr<TorsoBase> torso, std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain);
 
   /*!
    * Destructor.
@@ -117,6 +118,8 @@ class ContactForceDistribution : public ContactForceDistributionBase
   };
 
   std::map<LegBase*, LegInfo> legInfos_;
+
+
 
   /*!
    * Reads foot contact flags and includes user leg load settings from changeLegLoad().

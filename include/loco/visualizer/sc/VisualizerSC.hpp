@@ -51,6 +51,7 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
 
 
   void drawHistoryOfFootPositions(loco::LegGroup* legs);
+  void drawHistoryOfDesiredFootPositions(loco::LegGroup* legs);
   void drawHistoryOfBasePosition(loco::TorsoBase* torso);
   void drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt = 0.1);
 
@@ -80,6 +81,7 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
  protected:
   double desiredFrameRate_;
   loco::TrajectoryPosition footTrajectories_[4];
+  loco::TrajectoryPosition desiredFootTrajectories_[4];
   loco::TrajectoryPosition baseTrajectory_;
 };
 
