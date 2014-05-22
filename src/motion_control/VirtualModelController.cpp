@@ -18,7 +18,8 @@ namespace loco {
 VirtualModelController::VirtualModelController(std::shared_ptr<LegGroup> legs, std::shared_ptr<TorsoBase> torso,
                                                std::shared_ptr<ContactForceDistributionBase> contactForceDistribution)
     : MotionControllerBase(legs, torso),
-      contactForceDistribution_(contactForceDistribution)
+      contactForceDistribution_(contactForceDistribution),
+      gravityCompensationForcePercentage_(1.0)
 {
 
 }
@@ -77,25 +78,22 @@ bool VirtualModelController::computeGravityCompensation()
   const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
 
 
-
-  gravityCompensationForce_ = Force(-gravityCompensationForcePercentage*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
-
+  const Force forceTorso = Force(-gravityCompensationForcePercentage_*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+  gravityCompensationForce_ = forceTorso;
+  gravityCompensationTorque_ = Torque(torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(forceTorso));
   for (const auto& leg : *legs_)
   {
-    gravityCompensationForce_ += Force(-gravityCompensationForcePercentage*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+    const Force forceLeg = Force(-gravityCompensationForcePercentage_*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
+    gravityCompensationForce_ += forceLeg;
+    gravityCompensationTorque_ += Torque(leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(forceLeg));
+
   }
 //  Force gravityCompensationForceWorldFrame_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(gravityCompensationForce_);
 //  gravityCompensationForceWorldFrame_.x() = 0.0;
 //  gravityCompensationForceWorldFrame_.y() = 0.0;
 //  gravityCompensationForce_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravityCompensationForceWorldFrame_);
 
-  gravityCompensationTorque_ = Torque(
-      torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(-gravityCompensationForcePercentage*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
-  for (const auto& leg : *legs_)
-  {
-    gravityCompensationTorque_ += Torque(
-      -leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(gravityCompensationForcePercentage*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
-  }
+
 //  gravityCompensationTorque_.setZero();
 
   return true;
@@ -161,7 +159,7 @@ std::ostream& operator << (std::ostream& out, const VirtualModelController& moti
   out << "Desired virtual torque" << motionController.virtualTorque_.toImplementation().format(CommaInitFmt) << endl;
   out << "Net force error" << netForceError.toImplementation().format(CommaInitFmt) << endl;
   out << "Net torque error" << netTorqueError.toImplementation().format(CommaInitFmt) << endl;
-  out << "gravity comp k: " << motionController.gravityCompensationForcePercentage << endl;
+  out << "gravity comp k: " << motionController.gravityCompensationForcePercentage_ << endl;
   return out;
 }
 
@@ -384,6 +382,15 @@ void VirtualModelController::getGainsYaw(double& kp, double& kd, double& kff) {
   kp = proportionalGainRotation_.z();
   kd = derivativeGainRotation_.z();
   kff = feedforwardGainRotation_.z();
+}
+
+void VirtualModelController::setGravityCompensationForcePercentage(double percentage) {
+  gravityCompensationForcePercentage_ = percentage;
+}
+
+
+double VirtualModelController::getGravityCompensationForcePercentage() const {
+  return gravityCompensationForcePercentage_;
 }
 
 } /* namespace loco */

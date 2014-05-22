@@ -105,7 +105,8 @@ bool TuningWithSliderboardLocoDynamicGait::initializeVirtualModelController(doub
  sliderboard_->setSliderName(22, "VF yaw kd");
  sliderboard_->setMapLinearMinMidMax(23, 0.0, dGainsRotation.z(), 300.0);
 
- sliderboard_->setSliderName(1, "gravity");
+
+ sliderboard_->setSliderName(1, "gravity comp. percentage");
  sliderboard_->setMapLinearMinMidMax(1, 0.5, 1.0, 1.5);
 
  return true;
@@ -175,8 +176,8 @@ bool TuningWithSliderboardLocoDynamicGait::advanceVirtualModelController(double 
 
 
   if (sliderboard_->getValue(1, kp)  ) {
-     printf("gravity com v=%f\n", kp);
-     vmController->gravityCompensationForcePercentage = kp;
+     printf("gravity comp. percentage: v=%f\n", kp);
+     vmController->setGravityCompensationForcePercentage(kp);
    }
   return true;
 }

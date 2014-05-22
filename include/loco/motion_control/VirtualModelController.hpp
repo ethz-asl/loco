@@ -30,7 +30,7 @@ class VirtualModelController : public MotionControllerBase
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  double gravityCompensationForcePercentage = 0.85; //1.0; //0.98; // todo
+
   /*!
    * Constructor.
    * @param robotModel the reference to the robot
@@ -97,6 +97,9 @@ class VirtualModelController : public MotionControllerBase
   void getGainsRoll(double& kp, double& kd, double& kff);
   void getGainsPitch(double& kp, double& kd, double& kff);
   void getGainsYaw(double& kp, double& kd, double& kff);
+
+  double getGravityCompensationForcePercentage() const;
+  void setGravityCompensationForcePercentage(double percentage);
  private:
   std::shared_ptr<ContactForceDistributionBase> contactForceDistribution_;
 
@@ -125,6 +128,8 @@ class VirtualModelController : public MotionControllerBase
   Eigen::Vector3d proportionalGainRotation_;
   Eigen::Vector3d derivativeGainRotation_;
   Eigen::Vector3d feedforwardGainRotation_;
+
+  double gravityCompensationForcePercentage_;
 
   //! Desired virtual force on base in base frame (B_F_B^d).
   Force virtualForce_;
