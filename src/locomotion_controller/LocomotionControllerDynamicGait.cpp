@@ -7,11 +7,12 @@
 * @brief
 */
 #include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
-#include "Rotations.hpp"
-
+//#include "Rotations.hpp"
+#include "RobotModel.hpp"
 namespace loco {
 
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,
+                                                                 TerrainPerceptionBase* terrainPerception,
                                                                  LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
@@ -20,6 +21,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     isInitialized_(false),
     legs_(legs),
     torso_(torso),
+    terrainPerception_(terrainPerception),
     limbCoordinator_(limbCoordinator),
     footPlacementStrategy_(footPlacementStrategy),
     torsoController_(baseController),
@@ -51,6 +53,9 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
+  if (!terrainPerception_->initialize(dt)) {
+    return false;
+  }
 
   if (!limbCoordinator_->loadParameters(hLoco)) {
     return false;
@@ -104,20 +109,36 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
 //  std::cout << *torso_ << std::endl;
 
   torso_->advance(dt);
+
+  if (!terrainPerception_->advance(dt)) {
+    return false;
+  }
+
   limbCoordinator_->advance(dt);
 
   for (auto leg : *legs_) {
     const double swingPhase = leg->getSwingPhase();
-    if ((swingPhase >= 0 && swingPhase <= 0.5) && leg->isInStanceMode()) {
+//    std::cout << *leg << std::endl;
+
+//    if (leg->isInStanceMode() != leg->wasInStanceMode()) {
+//      std::cout << leg->getName() << " -----------------------------------------------------------------\n";
+//    }
+//
+//    if ((swingPhase >= 0.0 && swingPhase <= 0.5) && leg->wasInStanceMode()) {
+    if (leg->wasInStanceMode() && leg->isInSwingMode()) {
       // possible lift-off
       leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
       leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+//      std::cout << leg->getName() << ": lift-off" << std::endl;
+      leg->getStateLiftOff()->setIsNow(true);
+    } else {
+      leg->getStateLiftOff()->setIsNow(false);
     }
   }
   footPlacementStrategy_->advance(dt);
   torsoController_->advance(dt);
   if(!virtualModelController_->compute()) {
-    std::cout << "Error from virtual model controller" << std::endl;
+//    std::cout << "Error from virtual model controller" << std::endl;
     return false;
   }
 
@@ -156,6 +177,13 @@ ContactForceDistributionBase* LocomotionControllerDynamicGait::getContactForceDi
   return contactForceDistribution_;
 }
 
+LimbCoordinatorBase*  LocomotionControllerDynamicGait::getLimbCoordinator() {
+  return limbCoordinator_;
+}
+
+TerrainPerceptionBase* LocomotionControllerDynamicGait::getTerrainPerception() {
+  return terrainPerception_;
+}
 
 bool LocomotionControllerDynamicGait::isInitialized() const {
   return isInitialized_;

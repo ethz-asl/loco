@@ -7,6 +7,8 @@
  */
 
 #include "loco/contact_force_distribution/ContactForceDistribution.hpp"
+#include "loco/common/LegLinkGroup.hpp"
+
 #include <Eigen/Geometry>
 #include "LinearAlgebra.hpp"
 #include "sm/numerical_comparisons.hpp"
@@ -20,8 +22,8 @@ using namespace sm;
 
 namespace loco {
 
-ContactForceDistribution::ContactForceDistribution(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
-    : ContactForceDistributionBase(legs, terrain)
+ContactForceDistribution::ContactForceDistribution(std::shared_ptr<TorsoBase> torso, std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
+    : ContactForceDistributionBase(torso, legs, terrain)
 {
   for(auto leg : *legs_) { legInfos_[leg] = LegInfo(); }
 }
@@ -303,16 +305,26 @@ bool ContactForceDistribution::solveOptimization()
 
 bool ContactForceDistribution::computeJointTorques()
 {
-  const int nDofPerLeg = 3; // TODO move to robot commons
-  const int nDofPerContactPoint = 3; // TODO move to robot commons
+  const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
+  const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
+
+
+//  const int nDofPerLeg = 3; // TODO move to robot commons
+//  const int nDofPerContactPoint = 3; // TODO move to robot commons
 
   for (auto& legInfo : legInfos_)
   {
     if (legInfo.second.isPartOfForceDistribution_)
     {
       LegBase::TranslationJacobian jacobian = legInfo.first->getTranslationJacobianFromBaseToFootInBaseFrame();
+
       Force contactForce = legInfo.second.desiredContactForce_;
       LegBase::JointTorques jointTorques = LegBase::JointTorques(jacobian.transpose() * contactForce.toImplementation());
+//      jointTorques += LegBase::JointTorques(torso_ Force(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+      /* gravity */
+      for (auto link : *legInfo.first->getLinks()) {
+        jointTorques -= LegBase::JointTorques( link->getTranslationJacobianBaseToCoMInBaseFrame().transpose() * Force(link->getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
+      }
       legInfo.first->setDesiredJointTorques(jointTorques);
     }
     else

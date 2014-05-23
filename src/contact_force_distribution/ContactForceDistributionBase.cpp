@@ -13,8 +13,9 @@ using namespace Eigen;
 
 namespace loco {
 
-ContactForceDistributionBase::ContactForceDistributionBase(std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
-: legs_(legs),
+ContactForceDistributionBase::ContactForceDistributionBase(std::shared_ptr<TorsoBase> torso, std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
+: torso_(torso),
+  legs_(legs),
   terrain_(terrain)
 {
   isParametersLoaded_ = false;

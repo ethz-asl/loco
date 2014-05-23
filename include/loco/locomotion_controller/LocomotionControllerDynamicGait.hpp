@@ -10,6 +10,8 @@
 #define LOCO_LOCOMOTIONCONTROLLERDYNAMICGAIT_HPP_
 
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
+
+#include "loco/terrain_perception/TerrainPerceptionBase.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
 #include "loco/torso_control/TorsoControlBase.hpp"
@@ -20,14 +22,14 @@
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/ParameterSet.hpp"
 
-#include "RobotModel.hpp"
-#include "TerrainBase.hpp"
 
 namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
-  LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso, LimbCoordinatorBase* limbCoordinator,
+  LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,
+                                  TerrainPerceptionBase* terrainPerception,
+                                  LimbCoordinatorBase* limbCoordinator,
                                   FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                   VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
                                   ParameterSet* parameterSet);
@@ -54,11 +56,13 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   FootPlacementStrategyBase* getFootPlacementStrategy();
   VirtualModelController* getVirtualModelController();
   ContactForceDistributionBase* getContactForceDistribution();
+  LimbCoordinatorBase* getLimbCoordinator();
+  TerrainPerceptionBase* getTerrainPerception();
  protected:
   bool isInitialized_;
   LegGroup* legs_;
   TorsoBase* torso_;
-  robotModel::RobotModel* robotModel_;
+  TerrainPerceptionBase* terrainPerception_;
   LimbCoordinatorBase* limbCoordinator_;
   FootPlacementStrategyBase* footPlacementStrategy_;
   TorsoControlBase* torsoController_;

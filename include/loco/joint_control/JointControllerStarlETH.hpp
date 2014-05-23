@@ -41,6 +41,13 @@ class JointControllerStarlETH : public JointControllerBase {
 
   virtual void setIsClampingTorques(bool sClamping);
 
+  virtual void setDesiredJointPositionsInVelocityControl(const robotModel::VectorAct& positions);
+  void setJointPositionLimitsFromDefaultConfiguration(const Eigen::Vector3d& jointMinPositionsForLegInDefaultConfiguration,
+                                                                          const Eigen::Vector3d& jointMaxPositionsForLegInDefaultConfiguration,
+                                                                          const bool isLegInDefaultConfiguration[]);
+
+  const JointVector& getJointMaxPositions() const;
+  const JointVector& getJointMinPositions() const;
  protected:
   robotModel::RobotModel* robotModel_;
   bool isClampingTorques_;
@@ -54,6 +61,9 @@ class JointControllerStarlETH : public JointControllerBase {
   JointVector jointVelocityControlProportionalGains_;
   JointVector jointVelocityControlDerivativeGains_;
   JointTorques jointMaxTorques_;
+  JointVector jointMaxPositions_;
+  JointVector jointMinPositions_;
+  bool isLegInDefaultConfiguration_[4];
 };
 
 } /* namespace loco */

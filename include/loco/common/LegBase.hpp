@@ -8,18 +8,28 @@
 #ifndef LOCO_LEGBASE_HPP_
 #define LOCO_LEGBASE_HPP_
 
+//#include "loco/common/LegLink.hpp"
+
 #include "loco/common/LegStateLiftOff.hpp"
 #include "loco/common/LegStateTouchDown.hpp"
 
 #include "loco/common/TypeDefs.hpp"
+
 #include "loco/common/LegPropertiesBase.hpp"
+
+//#include "loco/common/LegLinkGroup.hpp"
 
 #include <Eigen/Core>
 
 #include <string>
 #include <iostream>
 
+
+
 namespace loco {
+
+class LegLink;
+class LegLinkGroup;
 
 //! Base class for a leg
 /*! This should be used only as a data container
@@ -37,10 +47,12 @@ class LegBase {
 
  public:
   LegBase();
-  LegBase(const std::string& name);
+  LegBase(const std::string& name, LegLinkGroup* links);
   virtual ~LegBase();
 
   virtual const std::string& getName() const ;
+
+  LegLinkGroup* getLinks();
 
   virtual double getStancePhase() const;
   virtual double getSwingPhase() const;
@@ -50,6 +62,9 @@ class LegBase {
 
   virtual bool isInStanceMode() const;
   virtual bool isInSwingMode() const;
+
+  virtual bool wasInStanceMode() const;
+  virtual bool wasInSwingMode() const;
 
   virtual bool isGrounded() const;
   virtual bool shouldBeGrounded() const;
@@ -67,6 +82,9 @@ class LegBase {
   virtual void setIsInStanceMode(bool isInStanceMode);
   virtual void setIsInSwingMode(bool isInSwingMode);
 
+  virtual void setWasInStanceMode(bool wasInStanceMode);
+  virtual void setWasInSwingMode(bool wasInSwingMode);
+
   virtual void setIsGrounded(bool isGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
 
@@ -78,6 +96,7 @@ class LegBase {
    *        and 1: completely loaded.
    */
   virtual void setDesiredLoadFactor(double loadFactor);
+
 
 
   LegStateTouchDown* getStateTouchDown();
@@ -92,10 +111,12 @@ class LegBase {
   virtual const Position& getBaseToFootPositionInBaseFrame() const = 0;
   virtual const Position& getBaseToHipPositionInBaseFrame() const = 0;
 
+  virtual const LinearVelocity& getFootLinearVelocityInWorldFrame() const  = 0;
   virtual const LinearVelocity& getHipLinearVelocityInWorldFrame() const  = 0;
   virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
 
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const = 0;
+
 
   virtual const Force& getFootContactForceInWorldFrame() const = 0;
   virtual const Vector& getFootContactNormalInWorldFrame() const = 0;
@@ -122,10 +143,13 @@ class LegBase {
   virtual int getId() const = 0;
 
 
+
   const Position& getDesiredWorldToFootPositionInWorldFrame() const;
   void setDesireWorldToFootPositionInWorldFrame(const Position& position);
  protected:
   std::string name_;
+
+  LegLinkGroup* links_;
 
   double stancePhase_;
   double swingPhase_;
@@ -133,7 +157,9 @@ class LegBase {
   double swingDuration_;
 
   bool isInStanceMode_;
+  bool wasInStanceMode_;
   bool isInSwingMode_;
+  bool wasInSwingMode_;
   bool isGrounded_;
   bool shouldBeGrounded_;
 

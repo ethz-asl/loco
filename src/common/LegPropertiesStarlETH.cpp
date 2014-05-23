@@ -41,4 +41,8 @@ bool LegPropertiesStarlETH::advance(double dt)
   return true;
 }
 
+double LegPropertiesStarlETH::getLegLength() {
+  return std::abs(robotModel_->params().hip_.l) + std::abs(robotModel_->params().thigh_.l) + std::abs(robotModel_->params().shank_.l);
+}
+
 } /* namespace loco */

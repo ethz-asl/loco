@@ -25,7 +25,7 @@ class GeneralizedStateStarlETH: public GeneralizedStateBase {
   const GeneralizedAccelerations& getGeneralizedAccelerations() const;
   void setJointPositionsSymmetricToLeftForeLeg(double angleHAA, double angleHFE, double angleKFE);
   void setJointVelocitiesSymmetricToLeftForeLeg(double velocityHAA, double velocityHFE, double velocityKFE);
-
+  void setJointPositionsForLeg(int iLeg, const Eigen::Vector3d& angles);
   bool loadParameters(const TiXmlHandle& handle);
  protected:
   GeneralizedCoordinates generalizedCoordinates_;
