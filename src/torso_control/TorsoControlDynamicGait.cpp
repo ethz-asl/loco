@@ -124,7 +124,7 @@ void TorsoControlDynamicGait::advance(double dt) {
 //
   /*RotationQuaternion desOrientationInWorldFrame(AngleAxis(pitchAngle, 0.0, 1.0, 0.0)*torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());*/
 
-  std::cout << "desiredYawWorldToBase: " << EulerAnglesZyx(desiredYawWorldToBase).getUnique() << std::endl;
+//  std::cout << "desiredYawWorldToBase: " << EulerAnglesZyx(desiredYawWorldToBase).getUnique() << std::endl;
 
   const Vector axisUp =  torso_->getProperties().getGravityAxisInWorldFrame();
   const RotationQuaternion rquatWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
