@@ -43,6 +43,8 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
  typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
 
 public:
+ Position positionWorldToFootHoldInWorldFrame_[4];
+ Position positionWorldToFootHoldInvertedPendulumInWorldFrame_[4];
 	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
 	virtual ~FootPlacementStrategyInvertedPendulum();
 
@@ -76,8 +78,8 @@ protected:
    */
   virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
 
-	double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess);
-	double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess);
+	double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
+	double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 
 
 	/*! Computes current desired foot position by interpolating between the predicted and last foothold depending on the swing phase
@@ -87,7 +89,7 @@ protected:
 	 * @param positionWorldToFootAtNextTouchDownInWorldFrame       foot location at next touch-down
 	 * @return desired foot position in World frame
 	 */
-	Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame);
+	Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame, LegBase* leg);
 
 	/*! Gets the height of the terrain in world frame at a certain location
 	 * @param position  location

@@ -31,8 +31,8 @@ VirtualModelController::~VirtualModelController()
 
 bool VirtualModelController::addToLogger()
 {
-  robotUtils::addEigenMatrixToLog(virtualForce_.toImplementation(), "VMC_desired_force", "N", true);
-  robotUtils::addEigenMatrixToLog(virtualTorque_.toImplementation(), "VMC_desired_torque", "Nm", true);
+  robotUtils::addEigenMatrixToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "N", true);
+  robotUtils::addEigenMatrixToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "Nm", true);
   robotUtils::updateLogger();
   return true;
 }
@@ -46,7 +46,7 @@ bool VirtualModelController::compute()
   computeVirtualForce();
   computeVirtualTorque();
 //  cout << *this << endl;
-  if (!contactForceDistribution_->computeForceDistribution(virtualForce_, virtualTorque_)) {
+  if (!contactForceDistribution_->computeForceDistribution(virtualForceInBaseFrame_, virtualTorqueInBaseFrame_)) {
     return false;
   }
   return true;
@@ -65,9 +65,9 @@ bool VirtualModelController::computeError()
 
 //  std::cout << "orientationError: " << orientationError_ << std::endl;
 
-  linearVelocityError_ = torso_->getDesiredState().getBaseLinearVelocityInBaseFrame() - torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
+  linearVelocityErrorInBaseFrame_ = torso_->getDesiredState().getBaseLinearVelocityInBaseFrame() - torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
 
-  angularVelocityError_ = torso_->getDesiredState().getBaseAngularVelocityInBaseFrame() - torso_->getMeasuredState().getBaseAngularVelocityInBaseFrame();
+  angularVelocityErrorInBaseFrame_ = torso_->getDesiredState().getBaseAngularVelocityInBaseFrame() - torso_->getMeasuredState().getBaseAngularVelocityInBaseFrame();
 
   return true;
 }
@@ -79,13 +79,13 @@ bool VirtualModelController::computeGravityCompensation()
 
 
   const Force forceTorso = Force(-gravityCompensationForcePercentage_*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
-  gravityCompensationForce_ = forceTorso;
-  gravityCompensationTorque_ = Torque(torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(forceTorso));
+  gravityCompensationForceInBaseFrame_ = forceTorso;
+  gravityCompensationTorqueInBaseFrame_ = Torque(torso_->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(forceTorso));
   for (const auto& leg : *legs_)
   {
     const Force forceLeg = Force(-gravityCompensationForcePercentage_*leg->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
-    gravityCompensationForce_ += forceLeg;
-    gravityCompensationTorque_ += Torque(leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(forceLeg));
+    gravityCompensationForceInBaseFrame_ += forceLeg;
+    gravityCompensationTorqueInBaseFrame_ += Torque(leg->getProperties().getBaseToCenterOfMassPositionInBaseFrame().cross(forceLeg));
 
   }
 //  Force gravityCompensationForceWorldFrame_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(gravityCompensationForce_);
@@ -101,29 +101,33 @@ bool VirtualModelController::computeGravityCompensation()
 
 bool VirtualModelController::computeVirtualForce()
 {
-  Vector3d feedforwardTerm = Vector3d::Zero();
-  feedforwardTerm.x() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().x();
-  feedforwardTerm.y() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().y();
+  const RotationQuaternion orientationHeadingToBase = torso_->getMeasuredState().getHeadingToBaseOrientation();
 
-  virtualForce_ = Force(proportionalGainTranslation_.cwiseProduct(positionErrorInBaseFrame_.toImplementation())
-                       + derivativeGainTranslation_.cwiseProduct(linearVelocityError_.toImplementation())
-                       + feedforwardGainTranslation_.cwiseProduct(feedforwardTerm)
-                       + gravityCompensationForce_.toImplementation());
+  Vector3d feedforwardTermInBaseFrame = Vector3d::Zero();
+  feedforwardTermInBaseFrame.x() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().x();
+  feedforwardTermInBaseFrame.y() += torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().y();
+
+  virtualForceInBaseFrame_ = orientationHeadingToBase.rotate(Force(proportionalGainTranslation_.cwiseProduct(orientationHeadingToBase.inverseRotate(positionErrorInBaseFrame_.toImplementation()))))
+                       + orientationHeadingToBase.rotate(Force(derivativeGainTranslation_.cwiseProduct(orientationHeadingToBase.inverseRotate(linearVelocityErrorInBaseFrame_.toImplementation()))))
+                       + orientationHeadingToBase.rotate(Force(feedforwardGainTranslation_.cwiseProduct(orientationHeadingToBase.inverseRotate(feedforwardTermInBaseFrame))))
+                       + gravityCompensationForceInBaseFrame_;
 
   return true;
 }
 
 bool VirtualModelController::computeVirtualTorque()
 {
-  Vector3d feedforwardTerm = Vector3d::Zero();
-  feedforwardTerm.z() += torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().z();
+  const RotationQuaternion orientationHeadingToBase = torso_->getMeasuredState().getHeadingToBaseOrientation();
+
+  Vector3d feedforwardTermInBaseFrame = Vector3d::Zero();
+  feedforwardTermInBaseFrame.z() += torso_->getDesiredState().getBaseAngularVelocityInBaseFrame().z();
 
 //  std::cout << "proportionalGainRotation: " << proportionalGainRotation_.transpose() << std::endl;
 
-  virtualTorque_ = Torque(proportionalGainRotation_.cwiseProduct(orientationError_)
-                       + derivativeGainRotation_.cwiseProduct(angularVelocityError_.toImplementation())
-                       + feedforwardGainRotation_.cwiseProduct(feedforwardTerm)
-                       + gravityCompensationTorque_.toImplementation());
+  virtualTorqueInBaseFrame_ = Torque(proportionalGainRotation_.cwiseProduct(orientationError_))
+                       + orientationHeadingToBase.rotate(Torque(derivativeGainRotation_.cwiseProduct(orientationHeadingToBase.inverseRotate(angularVelocityErrorInBaseFrame_.toImplementation()))))
+                       + orientationHeadingToBase.rotate(Torque(feedforwardGainRotation_.cwiseProduct(orientationHeadingToBase.inverseRotate(feedforwardTermInBaseFrame))))
+                       + gravityCompensationTorqueInBaseFrame_;
 
   return true;
 }
@@ -145,18 +149,18 @@ std::ostream& operator << (std::ostream& out, const VirtualModelController& moti
   Force netForce, netForceError;
   Torque netTorque, netTorqueError;
   motionController.contactForceDistribution_->getNetForceAndTorqueOnBase(netForce, netTorque);
-  netForceError = motionController.virtualForce_ - netForce;
-  netTorqueError = motionController.virtualTorque_ - netTorque;
+  netForceError = motionController.virtualForceInBaseFrame_ - netForce;
+  netTorqueError = motionController.virtualTorqueInBaseFrame_ - netTorque;
 
   motionController.isParametersLoaded();
   out << "Position error" << motionController.positionErrorInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
   out << "Orientation error" << motionController.orientationError_.format(CommaInitFmt) << endl;
-  out << "Linear velocity error" << motionController.linearVelocityError_.toImplementation().format(CommaInitFmt) << endl;
-  out << "Angular velocity error" << motionController.angularVelocityError_.toImplementation().format(CommaInitFmt) << endl;
-  out << "Gravity compensation force" << motionController.gravityCompensationForce_.toImplementation().format(CommaInitFmt) << endl;
-  out << "Gravity compensation torque" << motionController.gravityCompensationTorque_.toImplementation().format(CommaInitFmt) << endl;
-  out << "Desired virtual force" << motionController.virtualForce_.toImplementation().format(CommaInitFmt) << endl;
-  out << "Desired virtual torque" << motionController.virtualTorque_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Linear velocity error" << motionController.linearVelocityErrorInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Angular velocity error" << motionController.angularVelocityErrorInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Gravity compensation force" << motionController.gravityCompensationForceInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Gravity compensation torque" << motionController.gravityCompensationTorqueInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Desired virtual force" << motionController.virtualForceInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
+  out << "Desired virtual torque" << motionController.virtualTorqueInBaseFrame_.toImplementation().format(CommaInitFmt) << endl;
   out << "Net force error" << netForceError.toImplementation().format(CommaInitFmt) << endl;
   out << "Net torque error" << netTorqueError.toImplementation().format(CommaInitFmt) << endl;
   out << "gravity comp k: " << motionController.gravityCompensationForcePercentage_ << endl;
@@ -164,11 +168,11 @@ std::ostream& operator << (std::ostream& out, const VirtualModelController& moti
 }
 
 Force VirtualModelController::getDesiredVirtualForceInBaseFrame() const {
-  return virtualForce_;
+  return virtualForceInBaseFrame_;
 }
 
 Torque VirtualModelController::getDesiredVirtualTorqueInBaseFrame() const {
-  return virtualTorque_;
+  return virtualTorqueInBaseFrame_;
 }
 
 void VirtualModelController::getDistributedVirtualForceAndTorqueInBaseFrame(Force& netForce, Torque& netTorque) const {

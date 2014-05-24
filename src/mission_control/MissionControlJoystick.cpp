@@ -13,8 +13,8 @@ namespace loco {
 
 MissionControlJoystick::MissionControlJoystick(robotModel::RobotModel* robotModel)
 : robotModel_(robotModel),
-  baseTwistInBaseFrame_(),
-  maximumBaseTwistInBaseFrame_(LinearVelocity(std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max()), LocalAngularVelocity(std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max()) )
+  baseTwistInHeadingFrame_(),
+  maximumBaseTwistInHeadingFrame_(LinearVelocity(std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max()), LocalAngularVelocity(std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max(), std::numeric_limits<LinearVelocity::Scalar>::max()) )
 {
   filteredVelocities_[0].setAlpha(0.005);
   filteredVelocities_[1].setAlpha(0.05);
@@ -32,29 +32,29 @@ bool MissionControlJoystick::initialize(double dt) {
 
 void MissionControlJoystick::advance(double dt) {
   robotUtils::Joystick* joyStick = robotModel_->sensors().getJoystick();
-  const double maxHeadingVel = maximumBaseTwistInBaseFrame_.getTranslationalVelocity().x();
+  const double maxHeadingVel = maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().x();
   filteredVelocities_[0].update(joyStick->getSagittal());
   double headingVel = filteredVelocities_[0].val();
   boundToRange(&headingVel, -maxHeadingVel, maxHeadingVel);
 
-  const double maxLateralVel = maximumBaseTwistInBaseFrame_.getTranslationalVelocity().y();
+  const double maxLateralVel = maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().y();
   filteredVelocities_[1].update(joyStick->getCoronal());
 
   double lateralVel = filteredVelocities_[1].val();
   boundToRange(&lateralVel, -maxLateralVel, maxLateralVel);
   LinearVelocity linearVelocity(headingVel, lateralVel, 0.0);
 
-  const double maxTurningVel = maximumBaseTwistInBaseFrame_.getRotationalVelocity().z();
+  const double maxTurningVel = maximumBaseTwistInHeadingFrame_.getRotationalVelocity().z();
   filteredVelocities_[2].update(joyStick->getYaw());
   double turningVel = filteredVelocities_[2].val();
   boundToRange(&turningVel, -maxTurningVel, maxTurningVel);
   LocalAngularVelocity angularVelocity(0.0, 0.0, turningVel);
 
-  baseTwistInBaseFrame_ = Twist(linearVelocity, angularVelocity);
+  baseTwistInHeadingFrame_ = Twist(linearVelocity, angularVelocity);
 }
 
-const Twist& MissionControlJoystick::getDesiredBaseTwistInBaseFrame() const {
-  return baseTwistInBaseFrame_;
+const Twist& MissionControlJoystick::getDesiredBaseTwistInHeadingFrame() const {
+  return baseTwistInHeadingFrame_;
 }
 
 bool MissionControlJoystick::loadParameters(const TiXmlHandle& handle) {
@@ -68,17 +68,17 @@ bool MissionControlJoystick::loadParameters(const TiXmlHandle& handle) {
     printf("Could not find Mission:Speed:Maximum\n");
     return false;
   } else {
-    if (pElem->QueryDoubleAttribute("headingSpeed", &maximumBaseTwistInBaseFrame_.getTranslationalVelocity().x())!=TIXML_SUCCESS) {
+    if (pElem->QueryDoubleAttribute("headingSpeed", &maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().x())!=TIXML_SUCCESS) {
       printf("Could not find Speed:Maximum:headingSpeed\n");
       return false;
     }
-    if (pElem->QueryDoubleAttribute("lateralSpeed", &maximumBaseTwistInBaseFrame_.getTranslationalVelocity().y())!=TIXML_SUCCESS) {
+    if (pElem->QueryDoubleAttribute("lateralSpeed", &maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().y())!=TIXML_SUCCESS) {
       printf("Could not find Speed:Maximum:lateralSpeed\n");
       return false;
     }
 
 
-    if (pElem->QueryDoubleAttribute("turningSpeed", &maximumBaseTwistInBaseFrame_.getRotationalVelocity().z())!=TIXML_SUCCESS) {
+    if (pElem->QueryDoubleAttribute("turningSpeed", &maximumBaseTwistInHeadingFrame_.getRotationalVelocity().z())!=TIXML_SUCCESS) {
       printf("Could not find Speed:Maximum:turningSpeed\n");
       return false;
     }

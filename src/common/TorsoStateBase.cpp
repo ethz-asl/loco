@@ -68,4 +68,19 @@ void TorsoStateBase::setWorldToBasePoseInWorldFrame(const Pose& pose) {
   orientationWorldToBaseInWorldFrame_ = pose.getRotation();
 }
 
+
+const RotationQuaternion& TorsoStateBase::getWorldToHeadingOrientation() const {
+  return orientationWorldToHeading_;
+}
+void TorsoStateBase::setWorldToHeadingOrientation(const RotationQuaternion& orientation) {
+  orientationWorldToHeading_ = orientation;
+}
+
+const RotationQuaternion&  TorsoStateBase::getHeadingToBaseOrientation() const {
+  return orientationHeadingToBase_;
+}
+void TorsoStateBase::setHeadingToBaseOrientation(const RotationQuaternion& orientation) {
+  orientationHeadingToBase_ = orientation;
+}
+
 } /* namespace loco */

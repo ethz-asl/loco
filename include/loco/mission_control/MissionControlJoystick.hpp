@@ -21,13 +21,13 @@ class MissionControlJoystick: public MissionControlBase {
 
   virtual bool initialize(double dt);
   virtual void advance(double dt);
-  virtual const Twist& getDesiredBaseTwistInBaseFrame() const;
+  virtual const Twist& getDesiredBaseTwistInHeadingFrame() const;
 
   virtual bool loadParameters(const TiXmlHandle& handle);
  protected:
   robotModel::RobotModel* robotModel_;
-  Twist baseTwistInBaseFrame_;
-  Twist maximumBaseTwistInBaseFrame_;
+  Twist baseTwistInHeadingFrame_;
+  Twist maximumBaseTwistInHeadingFrame_;
   //! filtered speeds [sagittal; coronal; turning]
   FilteredDouble filteredVelocities_[3];
 

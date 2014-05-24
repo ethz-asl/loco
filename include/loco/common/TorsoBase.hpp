@@ -40,6 +40,8 @@ class TorsoBase {
    */
   virtual bool advance(double dt) = 0;
 
+  virtual void setDesiredBaseTwistInHeadingFrame(const Twist& desiredBaseTwistInHeadingFrame) = 0;
+
   friend std::ostream& operator << (std::ostream& out, const TorsoBase& torso);
 
 };

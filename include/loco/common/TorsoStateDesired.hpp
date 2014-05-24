@@ -17,6 +17,12 @@ class TorsoStateDesired: public TorsoStateBase {
  public:
   TorsoStateDesired();
   virtual ~TorsoStateDesired();
+
+  const RotationQuaternion&  getWorldToHeadingOrientation() const = delete;
+  void setWorldToHeadingOrientation(const RotationQuaternion& orientation) = delete;
+
+  const RotationQuaternion&  getHeadingToBaseOrientation() const = delete;
+  void setHeadingToBaseOrientation(const RotationQuaternion& orientation) = delete;
 };
 
 } /* namespace loco */

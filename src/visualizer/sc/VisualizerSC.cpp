@@ -14,19 +14,23 @@ VisualizerSC::VisualizerSC() :
     VisualizerBase(),
  gaitPatternWindow_(nullptr),
  gaitPatternFlightPhasesWindow_(nullptr),
+ isSimulationRunning_(Globals::animationRunning),
  desiredFrameRate_(Globals::desiredFrameRate)
+
 {
 
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);
   gaitPatternFlightPhasesWindow_ = new GaitPatternFlightPhasesPreview(0, 0, 450, 150);
 
   /* initialize foot trajectories */
-  const double windowSize = 2.0;
+  const double windowSize = 10.0; 2.0;
   const double dt = 1.0/desiredFrameRate_;
   for (int iLeg=0; iLeg<4; iLeg++) {
     for (double t=0; t<windowSize; t=t+dt) {
       footTrajectories_[iLeg].addKnot(t, loco::Position());
       desiredFootTrajectories_[iLeg].addKnot(t, loco::Position());
+      predictedFootHoldTrajectories_[iLeg].addKnot(t, loco::Position());
+      predictedFootHoldInvertedPendulumTrajectories_[iLeg].addKnot(t, loco::Position());
     }
   }
   for (double t=0; t<windowSize; t=t+dt) {
@@ -45,31 +49,58 @@ void VisualizerSC::addParameters() {
 }
 
 void VisualizerSC::drawHistoryOfFootPositions(loco::LegGroup* legs) {
+  const double dt = 1.0/desiredFrameRate_;
   for (int iLeg=0; iLeg<4; iLeg++) {
-    const loco::LegBase* leg = legs->getLeg(iLeg);
-    footTrajectories_[iLeg].removeKnot(0);
-    const double dt = 1.0/desiredFrameRate_;
-    footTrajectories_[iLeg].addKnot(footTrajectories_[iLeg].getKnotPosition(footTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getWorldToFootPositionInWorldFrame());
-    drawTrajectoryCatMullRomPosition(footTrajectories_[iLeg], dt);
+    if (isSimulationRunning_) {
+      const loco::LegBase* leg = legs->getLeg(iLeg);
+      footTrajectories_[iLeg].removeKnot(0);
+      footTrajectories_[iLeg].addKnot(footTrajectories_[iLeg].getKnotPosition(footTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getWorldToFootPositionInWorldFrame());
+    }
+    drawTrajectoryCatMullRomPosition(footTrajectories_[iLeg], dt, 2.0);
   }
 }
 
 void VisualizerSC::drawHistoryOfDesiredFootPositions(loco::LegGroup* legs) {
+  const double dt = 1.0/desiredFrameRate_;
   for (int iLeg=0; iLeg<4; iLeg++) {
-    const loco::LegBase* leg = legs->getLeg(iLeg);
-    desiredFootTrajectories_[iLeg].removeKnot(0);
-    const double dt = 1.0/desiredFrameRate_;
-    desiredFootTrajectories_[iLeg].addKnot(desiredFootTrajectories_[iLeg].getKnotPosition(desiredFootTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getDesiredWorldToFootPositionInWorldFrame());
-    drawTrajectoryCatMullRomPosition(desiredFootTrajectories_[iLeg], dt);
+    if (isSimulationRunning_) {
+      const loco::LegBase* leg = legs->getLeg(iLeg);
+      desiredFootTrajectories_[iLeg].removeKnot(0);
+      desiredFootTrajectories_[iLeg].addKnot(desiredFootTrajectories_[iLeg].getKnotPosition(desiredFootTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getDesiredWorldToFootPositionInWorldFrame());
+    }
+    drawTrajectoryCatMullRomPosition(desiredFootTrajectories_[iLeg], dt, 2.0);
+  }
+}
+
+void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrategyInvertedPendulum* strategy) {
+  const double dt = 1.0/desiredFrameRate_;
+  GLUtilsKindr::glLColor(0.0, 153.0/255.0, 0.0, 1.0);
+
+  for (int iLeg=0; iLeg<4; iLeg++) {
+    if (isSimulationRunning_) {
+      predictedFootHoldTrajectories_[iLeg].removeKnot(0);
+      predictedFootHoldTrajectories_[iLeg].addKnot(predictedFootHoldTrajectories_[iLeg].getKnotPosition(predictedFootHoldTrajectories_[iLeg].getKnotCount()-1)+dt, strategy->positionWorldToFootHoldInWorldFrame_[iLeg]);
+    }
+    drawTrajectoryCatMullRomPosition(predictedFootHoldTrajectories_[iLeg], dt, 2.0);
+  }
+
+  GLUtilsKindr::glLColor(1.0, 1.0, 0.0, 1.0);
+  for (int iLeg=0; iLeg<4; iLeg++) {
+    if (isSimulationRunning_) {
+      predictedFootHoldInvertedPendulumTrajectories_[iLeg].removeKnot(0);
+      predictedFootHoldInvertedPendulumTrajectories_[iLeg].addKnot(predictedFootHoldInvertedPendulumTrajectories_[iLeg].getKnotPosition(predictedFootHoldInvertedPendulumTrajectories_[iLeg].getKnotCount()-1)+dt, strategy->positionWorldToFootHoldInvertedPendulumInWorldFrame_[iLeg]);
+    }
+    drawTrajectoryCatMullRomPosition(predictedFootHoldInvertedPendulumTrajectories_[iLeg], dt, 2.0);
   }
 }
 
 void VisualizerSC::drawHistoryOfBasePosition(loco::TorsoBase* torso) {
-
+  const double dt = 1.0/desiredFrameRate_;
+  if (isSimulationRunning_) {
     baseTrajectory_.removeKnot(0);
-    const double dt = 1.0/desiredFrameRate_;
     baseTrajectory_.addKnot(baseTrajectory_.getKnotPosition(baseTrajectory_.getKnotCount()-1)+dt, torso->getMeasuredState().getWorldToBasePositionInWorldFrame());
-    drawTrajectoryCatMullRomPosition(baseTrajectory_, dt);
+  }
+  drawTrajectoryCatMullRomPosition(baseTrajectory_, dt, 2.0);
 
 }
 
@@ -203,7 +234,9 @@ void VisualizerSC::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, 
 
 
 
-void VisualizerSC::drawSupportPolygon(loco::LegGroup* legs) {
+void VisualizerSC::drawSupportPolygon(loco::LegGroup* legs, double lineWidth) {
+  glLineWidth(lineWidth);
+
   if (legs->getLeftForeLeg()->isGrounded() && legs->getLeftHindLeg()->isGrounded()) {
     const loco::Position start = legs->getLeftForeLeg()->getWorldToFootPositionInWorldFrame();
     const loco::Position end = legs->getLeftHindLeg()->getWorldToFootPositionInWorldFrame();
@@ -363,12 +396,12 @@ void VisualizerSC::drawGaitPatternFlightPhases(loco::GaitPatternFlightPhases* ga
   }
 }
 
-void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt) {
+void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt, double lineWidth) {
 
 
   if (c.getKnotCount() == 0)
     return;
-  glLineWidth(0.5);
+  glLineWidth(lineWidth);
 
   glBegin(GL_LINES);
     double trajLength = c.getKnotPosition(c.getKnotCount()-1);

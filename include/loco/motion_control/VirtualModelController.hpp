@@ -108,14 +108,14 @@ class VirtualModelController : public MotionControllerBase
   //! Base orientation error vector (rotation vector) in base frame.
   Eigen::Vector3d orientationError_;
   //! Base linear velocity error in base frame.
-  LinearVelocity linearVelocityError_;
+  LinearVelocity linearVelocityErrorInBaseFrame_;
   //! Base angular velocity error in base frame.
-  LocalAngularVelocity angularVelocityError_;
+  LocalAngularVelocity angularVelocityErrorInBaseFrame_;
 
   //! Force on torso to compensate for gravity (in base frame).
-  Force gravityCompensationForce_;
+  Force gravityCompensationForceInBaseFrame_;
   //! Torque on torso to compensate for gravity (in base frame).
-  Torque gravityCompensationTorque_;
+  Torque gravityCompensationTorqueInBaseFrame_;
 
   //! Proportional gain vector (k_p)  for translational error (force).
   Eigen::Vector3d proportionalGainTranslation_;
@@ -132,9 +132,9 @@ class VirtualModelController : public MotionControllerBase
   double gravityCompensationForcePercentage_;
 
   //! Desired virtual force on base in base frame (B_F_B^d).
-  Force virtualForce_;
+  Force virtualForceInBaseFrame_;
   //! Desired virtual torque on base in base frame (B_T_B^d).
-  Torque virtualTorque_;
+  Torque virtualTorqueInBaseFrame_;
 
  private:
   /*!

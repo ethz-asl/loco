@@ -11,7 +11,8 @@
 namespace loco {
 
 LegPropertiesStarlETH::LegPropertiesStarlETH(int iLeg, robotModel::RobotModel* robotModel)
-    : iLeg_(iLeg),
+    : LegPropertiesBase(),
+      iLeg_(iLeg),
       robotModel_(robotModel)
 {
 
