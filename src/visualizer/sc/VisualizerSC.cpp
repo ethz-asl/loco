@@ -84,7 +84,7 @@ void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrate
     drawTrajectoryCatMullRomPosition(predictedFootHoldTrajectories_[iLeg], dt, 2.0);
   }
 
-  GLUtilsKindr::glLColor(1.0, 1.0, 0.0, 1.0);
+  GLUtilsKindr::glLColor(0.0, 0.0,  0.0, 1.0);
   for (int iLeg=0; iLeg<4; iLeg++) {
     if (isSimulationRunning_) {
       predictedFootHoldInvertedPendulumTrajectories_[iLeg].removeKnot(0);

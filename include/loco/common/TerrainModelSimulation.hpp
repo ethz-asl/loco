@@ -35,6 +35,8 @@ class TerrainModelSimulation: public TerrainModelBase {
    */
   virtual bool getHeight(loco::Position& position) const;
 
+  virtual bool initialize(double dt);
+
  private:
 
   //! Reference to terrain.

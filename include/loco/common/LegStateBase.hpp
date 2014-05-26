@@ -16,6 +16,12 @@ class LegStateBase {
  public:
   LegStateBase();
   virtual ~LegStateBase();
+
+  bool isNow() const;
+  void setIsNow(bool isNow);
+
+ protected:
+  bool isNow_;
 };
 
 } /* namespace loco */

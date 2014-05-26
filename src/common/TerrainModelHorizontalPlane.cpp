@@ -37,4 +37,10 @@ void TerrainModelHorizontalPlane::setHeight(double height) {
   height_ = height;
 }
 
+
+bool TerrainModelHorizontalPlane::initialize(double dt) {
+  height_ = 0.0;
+  return true;
+}
+
 } /* namespace loco */

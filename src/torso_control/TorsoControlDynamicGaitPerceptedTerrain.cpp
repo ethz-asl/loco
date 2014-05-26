@@ -5,17 +5,20 @@
  *      Author: gech
  */
 
-#include "loco/torso_control/TorsoControlDynamicGait.hpp"
+#include "loco/torso_control/TorsoControlDynamicGaitPerceptedTerrain.hpp"
+#include "loco/common/TerrainModelPerceptedPlane.hpp"
 
 namespace loco {
 
-TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
+TorsoControlDynamicGaitPerceptedTerrain::TorsoControlDynamicGaitPerceptedTerrain(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
   TorsoControlBase(),
   legs_(legs),
   torso_(torso),
   terrain_(terrain),
   comControl_(legs),
-  headingDistanceFromForeToHindInBaseFrame_(0.0)
+  headingDistanceFromForeToHindInBaseFrame_(0.0),
+  terrainSlopeAngle_(0.0),
+  terrainRollAngle_(0.0)
 {
 
   std::vector<double> tValues, xValues;
@@ -31,10 +34,10 @@ TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* tors
   desiredTorsoHindHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
 }
 
-TorsoControlDynamicGait::~TorsoControlDynamicGait() {
+TorsoControlDynamicGaitPerceptedTerrain::~TorsoControlDynamicGaitPerceptedTerrain() {
 
 }
-bool TorsoControlDynamicGait::initialize(double dt) {
+bool TorsoControlDynamicGaitPerceptedTerrain::initialize(double dt) {
   const Position foreHipPosition = legs_->getLeg(0)->getWorldToHipPositionInBaseFrame();
   const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
@@ -45,7 +48,7 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 
 
 
-void TorsoControlDynamicGait::advance(double dt) {
+void TorsoControlDynamicGaitPerceptedTerrain::advance(double dt) {
   comControl_.advance(dt);
 
   const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getWorldToHeadingOrientation();
@@ -68,7 +71,20 @@ void TorsoControlDynamicGait::advance(double dt) {
   // pitch angle
   double height = desiredHindHeightAboveGroundInWorldFrame-desiredForeHeightAboveGroundInWorldFrame;
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
-  RotationQuaternion orientationDesiredHeadingToBase = RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
+
+  double dampingFactor=1.0;
+    terrainSlopeAngle_=terrainSlopeAngle_+dampingFactor*(((TerrainModelPerceptedPlane*) terrain_)->getSlopeAngle()-terrainSlopeAngle_);
+    terrainRollAngle_=terrainRollAngle_+dampingFactor*(((TerrainModelPerceptedPlane*) terrain_)->getRollAngle()-terrainRollAngle_);
+
+
+//    std::cout << "terrain roll angle = " << terrainRollAngle_*180/M_PI << std::endl;
+
+
+
+
+
+    RotationQuaternion orientationDesiredHeadingToBase = RotationQuaternion(EulerAnglesZyx(0, pitchAngle-terrainSlopeAngle_*3/4, -terrainRollAngle_*0/4));
+//  RotationQuaternion orientationDesiredHeadingToBase = RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
 
   const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())/0.5;
   const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())/0.5;
@@ -140,7 +156,7 @@ inline double safeACOS(double val){
   It is assumed that vB is a unit vector!! This method returns TqB, which represents a twist about
   the axis vB.
 */
-RotationQuaternion TorsoControlDynamicGait::decomposeRotation(const RotationQuaternion& AqB, const Vector& vB) {
+RotationQuaternion TorsoControlDynamicGaitPerceptedTerrain::decomposeRotation(const RotationQuaternion& AqB, const Vector& vB) {
 
 
   const Vector vA =  AqB.inverseRotate(vB).normalized();
@@ -157,17 +173,17 @@ RotationQuaternion TorsoControlDynamicGait::decomposeRotation(const RotationQuat
 
 }
 
-RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuaternion& rquat, const Vector& axis) {
+RotationQuaternion TorsoControlDynamicGaitPerceptedTerrain::computeHeading(const RotationQuaternion& rquat, const Vector& axis) {
   return decomposeRotation(rquat.conjugated(),axis).conjugated();
 
 }
 
 
-CoMOverSupportPolygonControl* TorsoControlDynamicGait::getCoMControl() {
+CoMOverSupportPolygonControl* TorsoControlDynamicGaitPerceptedTerrain::getCoMControl() {
   return &comControl_;
 }
 
-bool TorsoControlDynamicGait::loadParameters(const TiXmlHandle& handle) {
+bool TorsoControlDynamicGaitPerceptedTerrain::loadParameters(const TiXmlHandle& handle) {
   TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
   if (!comControl_.loadParameters(hDynGait)) {
     return false;
@@ -181,7 +197,7 @@ bool TorsoControlDynamicGait::loadParameters(const TiXmlHandle& handle) {
 
 
 
-bool TorsoControlDynamicGait::loadParametersHipConfiguration(const TiXmlHandle &hParameterSet)
+bool TorsoControlDynamicGaitPerceptedTerrain::loadParametersHipConfiguration(const TiXmlHandle &hParameterSet)
 {
 
 
@@ -319,7 +335,7 @@ bool TorsoControlDynamicGait::loadParametersHipConfiguration(const TiXmlHandle &
   return true;
 }
 
-bool TorsoControlDynamicGait::loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory)
+bool TorsoControlDynamicGaitPerceptedTerrain::loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory)
 {
   TiXmlElement* pElem;
   int iKnot;

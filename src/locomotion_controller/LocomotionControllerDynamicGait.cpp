@@ -53,6 +53,7 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   }
 
 
+
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
   if (!terrainPerception_->initialize(dt)) {
@@ -144,6 +145,14 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
     } else {
       leg->getStateLiftOff()->setIsNow(false);
     }
+
+    if (leg->wasInSwingMode() && leg->isInStanceMode()) {
+      // possible touch-down
+      leg->getStateTouchDown()->setIsNow(true);
+    } else {
+      leg->getStateTouchDown()->setIsNow(false);
+    }
+
   }
   footPlacementStrategy_->advance(dt);
   torsoController_->advance(dt);

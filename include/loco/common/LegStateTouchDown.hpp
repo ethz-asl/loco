@@ -19,6 +19,7 @@ class LegStateTouchDown : public loco::LegStateBase {
  public:
   LegStateTouchDown();
   virtual ~LegStateTouchDown();
+
 };
 
 } /* namespace loco */
