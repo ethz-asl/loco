@@ -13,6 +13,7 @@ namespace loco {
 
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,
                                                                  TerrainPerceptionBase* terrainPerception,
+                                                                 ContactDetectorBase* contactDetector,
                                                                  LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
@@ -22,6 +23,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     legs_(legs),
     torso_(torso),
     terrainPerception_(terrainPerception),
+    contactDetector_(contactDetector),
     limbCoordinator_(limbCoordinator),
     footPlacementStrategy_(footPlacementStrategy),
     torsoController_(baseController),
@@ -54,6 +56,10 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
   if (!terrainPerception_->initialize(dt)) {
+    return false;
+  }
+
+  if (!contactDetector_->initialize(dt)) {
     return false;
   }
 
@@ -109,6 +115,10 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
 //  std::cout << *torso_ << std::endl;
 
   torso_->advance(dt);
+
+  if (!contactDetector_->advance(dt)) {
+    return false;
+  }
 
   if (!terrainPerception_->advance(dt)) {
     return false;
