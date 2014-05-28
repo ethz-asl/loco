@@ -6,7 +6,7 @@
  */
 
 #include "loco/torso_control/TorsoControlDynamicGait.hpp"
-
+#include <exception>
 namespace loco {
 
 TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
@@ -86,8 +86,15 @@ void TorsoControlDynamicGait::advance(double dt) {
   currentHeadingDirectionInWorldFrame.z() = 0.0;
 
   RotationQuaternion orientationHeadingToDesiredHeading;
-  orientationHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(),desiredHeadingDirectionInWorldFrame.toImplementation());
-
+  try {
+    orientationHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(),desiredHeadingDirectionInWorldFrame.toImplementation());
+  } catch (std::exception& e)
+  {
+    std::cout << e.what() << '\n';
+    std::cout << "currentHeadingDirectionInWorldFrame: " << currentHeadingDirectionInWorldFrame <<std::endl;
+    std::cout << "desiredHeadingDirectionInWorldFrame: " << desiredHeadingDirectionInWorldFrame <<std::endl;
+    orientationHeadingToDesiredHeading.setIdentity();
+  }
 
 
 
