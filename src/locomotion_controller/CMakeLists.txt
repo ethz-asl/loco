@@ -22,6 +22,7 @@ PARENT_SCOPE)
 set(TASK_SRCS ${TASK_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerDynamicGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerJump.cpp
 PARENT_SCOPE)
 
 #################
