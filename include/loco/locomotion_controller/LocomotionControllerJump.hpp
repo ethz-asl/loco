@@ -14,7 +14,6 @@
 #include "loco/contact_detection/ContactDetectorBase.hpp"
 #include "loco/terrain_perception/TerrainPerceptionBase.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
-#include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
 #include "loco/torso_control/TorsoControlBase.hpp"
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
