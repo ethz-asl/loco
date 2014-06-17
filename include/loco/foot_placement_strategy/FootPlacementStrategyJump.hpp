@@ -1,11 +1,11 @@
 /*!
-* @file   FootPlacementStrategyJump.hpp
-* @author wko
-* @date   Jun 6, 2014
-* @version  1.0
-* @ingroup  robotTask
-* @brief
-*/
+ * @file   FootPlacementStrategyJump.hpp
+ * @author wko
+ * @date   Jun 6, 2014
+ * @version  1.0
+ * @ingroup  robotTask
+ * @brief
+ */
 
 #ifndef LOCO_FOOTPLACEMENTSTRATEGYJUMP_HPP_
 #define LOCO_FOOTPLACEMENTSTRATEGYJUMP_HPP_
@@ -34,21 +34,23 @@ namespace loco {
 /*!
  * @ingroup robotTask
  */
-class FootPlacementStrategyJump: public FootPlacementStrategyBase {
+class FootPlacementStrategyJump : public FootPlacementStrategyBase {
  public:
- typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
+  typedef rbf::BoundedRBF1D SwingFootHeightTrajectory;
 
-public:
- Position positionWorldToFootHoldInWorldFrame_[4];
- Position positionWorldToFootHoldJumpInWorldFrame_[4];
-  FootPlacementStrategyJump(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
+ public:
+  Position positionWorldToFootHoldInWorldFrame_[4];
+  Position positionWorldToFootHoldJumpInWorldFrame_[4];
+
+  FootPlacementStrategyJump(LegGroup* legs, TorsoBase* torso,
+                            loco::TerrainModelBase* terrain);
   virtual ~FootPlacementStrategyJump();
 
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual bool initialize(double dt);
   virtual void advance(double dt);
 
-public:
+ public:
   //! Reference to the legs
   LegGroup* legs_;
   //! Reference to the torso
@@ -65,28 +67,7 @@ public:
   //! trajectory of the height of the swing foot above ground over the swing phase
   SwingFootHeightTrajectory swingFootHeightTrajectory_;
 
-protected:
-  /*! Gets the foot position for the swing leg
-   *
-   * @param leg reference to the leg
-   * @param tinyTimeStep  tiny time step in the future to compute the desired velocities
-   * @return
-   */
-  virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
-
-  double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
-  double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
-
-
-  /*! Computes current desired foot position by interpolating between the predicted and last foothold depending on the swing phase
-   *
-   * @param swingPhase                                           interpolation parameter
-   * @param positionWorldToFootAtLiftOffInWorldFrame             foot location at lift-off
-   * @param positionWorldToFootAtNextTouchDownInWorldFrame       foot location at next touch-down
-   * @return desired foot position in World frame
-   */
-  Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame, LegBase* leg);
-
+ protected:
   /*! Gets the height of the terrain in world frame at a certain location
    * @param position  location
    * @return  height of the terrain
@@ -100,5 +81,5 @@ protected:
   bool loadHeightTrajectory(const TiXmlHandle &hTrajectory);
 };
 
-} // namespace loco
+}  // namespace loco
 #endif /* LOCO_FOOTPLACEMENTSTRATEGYJUMP_HPP_ */

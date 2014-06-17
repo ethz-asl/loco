@@ -51,7 +51,8 @@ class LegGroup {
    * @param leftHindLeg
    * @param rightHindLeg
    */
-  LegGroup(LegBase* leftForeLeg, LegBase* rightForeLeg, LegBase* leftHindLeg, LegBase* rightHindLeg);
+  LegGroup(LegBase* leftForeLeg, LegBase* rightForeLeg, LegBase* leftHindLeg,
+           LegBase* rightHindLeg);
 
   //! Destructor
   virtual ~LegGroup();
@@ -60,7 +61,6 @@ class LegGroup {
   LegBase* getRightForeLeg();
   LegBase* getLeftHindLeg();
   LegBase* getRightHindLeg();
-
 
   iterator begin() {
     return legs_.begin();
@@ -77,7 +77,6 @@ class LegGroup {
   const_iterator end() const {
     return legs_.end();
   }
-
 
   const_reference back() const {
     return legs_.back();
@@ -108,7 +107,6 @@ class LegGroup {
     legs_.push_back(leg);
   }
 
-
   /*! Gets leg by index
    *
    * @param offset  index
@@ -117,7 +115,6 @@ class LegGroup {
   const LegBase* getLeg(size_type offset) const {
     return legs_[offset];
   }
-
 
 };
 
