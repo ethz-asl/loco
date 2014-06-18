@@ -22,6 +22,10 @@ GeneralizedStateStarlETH::~GeneralizedStateStarlETH() {
 
 }
 
+void GeneralizedStateStarlETH::setPositionWorldToBaseInWorldFrame(const Position& worldToBaseInWorldFrame) {
+  generalizedCoordinates_.block<3,1>(0,0) = worldToBaseInWorldFrame.toImplementation();
+}
+
 const GeneralizedCoordinates& GeneralizedStateStarlETH::getGeneralizedCoordinates() const {
   return generalizedCoordinates_;
 }
