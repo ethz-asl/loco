@@ -309,22 +309,22 @@ void FootPlacementStrategyJump::advance(double dt) {
   LegBase* leftHindleg = legs_->getLeftHindLeg();
   LegBase* rightHindleg = legs_->getRightHindLeg();
 
-  if (leftForeleg->isInSwingMode() && !leftForeleg->isGrounded()) {
+  if (!leftForeleg->isInSwingMode() && !leftForeleg->isGrounded()) {
     leftForeleg->setDesiredJointPositions(
         leftForeleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
             leftForeLandingPosition));
   }
-  if (rightForeleg->isInSwingMode() && !rightForeleg->isGrounded()) {
+  if (!rightForeleg->isInSwingMode() && !rightForeleg->isGrounded()) {
     rightForeleg->setDesiredJointPositions(
         rightForeleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
             rightForeLandingPosition));
   }
-  if (leftHindleg->isInSwingMode() && !leftHindleg->isGrounded()) {
+  if (!leftHindleg->isInSwingMode() && !leftHindleg->isGrounded()) {
     leftHindleg->setDesiredJointPositions(
         leftHindleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
             leftHindLandingPosition));
   }
-  if (rightHindleg->isInSwingMode() && !rightHindleg->isGrounded()) {
+  if (!rightHindleg->isInSwingMode() && !rightHindleg->isGrounded()) {
     rightHindleg->setDesiredJointPositions(
         rightHindleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
             rightHindLandingPosition));
