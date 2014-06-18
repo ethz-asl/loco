@@ -9,7 +9,7 @@
 #define LOCO_TERRAINMODELPerceptedPLANE_HPP_
 
 #include "loco/common/TerrainModelBase.hpp"
-#include "Logger.hpp"
+#include "robotUtils/loggers/Logger.hpp"
 
 
 namespace loco {

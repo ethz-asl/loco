@@ -10,11 +10,11 @@
 #include "loco/common/LegLinkGroup.hpp"
 
 #include <Eigen/Geometry>
-#include "LinearAlgebra.hpp"
+#include "robotUtils/math/LinearAlgebra.hpp"
 #include "sm/numerical_comparisons.hpp"
 #include "OoqpEigenInterface.hpp"
 #include "QuadraticProblemFormulation.hpp"
-#include "Logger.hpp"
+#include "robotUtils/loggers/Logger.hpp"
 
 using namespace std;
 using namespace Eigen;
