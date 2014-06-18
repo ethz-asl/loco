@@ -152,8 +152,10 @@ LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPosition
 
 LegPropertiesBase& LegStarlETH::getProperties()
 {
-  return static_cast<LegPropertiesBase&>(properties_);
+//  return static_cast<LegPropertiesBase&>(properties_);
+  return properties_;
 }
+
 
 const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const
 {

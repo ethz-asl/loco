@@ -17,6 +17,9 @@
 
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
+
+#include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
+
 #include "GaitPatternAPSPreview.hpp"
 #include "GaitPatternFlightPhasesPreview.hpp"
 
@@ -33,7 +36,7 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
 
   virtual void addParameters();
 
-  void drawSupportPolygon(loco::LegGroup* legs);
+  void drawSupportPolygon(loco::LegGroup* legs, double lineWidth = 0.5);
   void drawPose(Character* character, AbstractRBEngine* world, const loco::Position& positionWorldToBaseInWorldFrame, const loco::RotationQuaternion& orientationWorldToBaseInWorldFrame,  const VectorQj& desJointPositions, int drawFlags);
   void drawPose(Character* character, AbstractRBEngine* world, ReducedCharacterState* desiredPose, int drawFlags);
 
@@ -53,7 +56,9 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
   void drawHistoryOfFootPositions(loco::LegGroup* legs);
   void drawHistoryOfDesiredFootPositions(loco::LegGroup* legs);
   void drawHistoryOfBasePosition(loco::TorsoBase* torso);
-  void drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt = 0.1);
+  void drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt = 0.1, double lineWidth = 0.5);
+
+  virtual void drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrategyInvertedPendulum* strategy);
 
   /*! Check if the index of a joint of the character indicates a hip AA joint
    * @param jIndex  joint index
@@ -79,9 +84,12 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
   loco::GaitPatternFlightPhasesPreview* gaitPatternFlightPhasesWindow_;
 
  protected:
+  bool isSimulationRunning_;
   double desiredFrameRate_;
   loco::TrajectoryPosition footTrajectories_[4];
   loco::TrajectoryPosition desiredFootTrajectories_[4];
+  loco::TrajectoryPosition predictedFootHoldTrajectories_[4];
+  loco::TrajectoryPosition predictedFootHoldInvertedPendulumTrajectories_[4];
   loco::TrajectoryPosition baseTrajectory_;
 };
 

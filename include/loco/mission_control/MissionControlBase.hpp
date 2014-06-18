@@ -18,7 +18,7 @@ class MissionControlBase {
   MissionControlBase();
   virtual ~MissionControlBase();
 
-  virtual const Twist& getDesiredBaseTwistInBaseFrame() const = 0;
+  virtual const Twist& getDesiredBaseTwistInHeadingFrame() const = 0;
   virtual bool initialize(double dt) = 0;
   virtual void advance(double dt) = 0;
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;

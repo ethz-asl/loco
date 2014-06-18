@@ -10,11 +10,11 @@
 #include "loco/common/LegLinkGroup.hpp"
 
 #include <Eigen/Geometry>
-#include "LinearAlgebra.hpp"
+#include "robotUtils/math/LinearAlgebra.hpp"
 #include "sm/numerical_comparisons.hpp"
 #include "OoqpEigenInterface.hpp"
 #include "QuadraticProblemFormulation.hpp"
-#include "Logger.hpp"
+#include "robotUtils/loggers/Logger.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -163,13 +163,20 @@ bool ContactForceDistribution::addMinimalForceConstraints()
   d_.conservativeResize(rowIndex + nLegsInForceDistribution_);
   f_.conservativeResize(rowIndex + nLegsInForceDistribution_);
 
+  const RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+
   for (auto& legInfo : legInfos_)
   {
     if (legInfo.second.isPartOfForceDistribution_)
     {
+      Position positionWorldToFootInWorldFrame = legInfo.first->getWorldToFootPositionInWorldFrame();
+      Vector footContactNormalInWorldFrame;
+      terrain_->getNormal(positionWorldToFootInWorldFrame, footContactNormalInWorldFrame);
+      Vector footContactNormalInBaseFrame = orientationWorldToBase.rotate(footContactNormalInWorldFrame);
+
       MatrixXd D_row = MatrixXd::Zero(1, n_);
       D_row.block(0, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_)
-        = legInfo.first->getFootContactNormalInWorldFrame().toImplementation().transpose();
+        = footContactNormalInBaseFrame.toImplementation().transpose();
       D_.middleRows(rowIndex, 1) = D_row.sparseView();
       d_(rowIndex) = minimalNormalGroundForce_;
       f_(rowIndex) = std::numeric_limits<double>::max();
@@ -198,20 +205,36 @@ bool ContactForceDistribution::addFrictionConstraints()
   d_.conservativeResize(rowIndex + nConstraints);
   f_.conservativeResize(rowIndex + nConstraints);
 
+  const RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+  const RotationQuaternion orientationHeadingToBase = torso_->getMeasuredState().getHeadingToBaseOrientation();
+
   for (auto& legInfo : legInfos_)
   {
     if (legInfo.second.isPartOfForceDistribution_)
     {
       MatrixXd D_rows = MatrixXd::Zero(nDirections, n_);
 
-      const Vector3d& normalDirection = legInfo.first->getFootContactNormalInWorldFrame().toImplementation();
+
+      Position positionWorldToFootInWorldFrame = legInfo.first->getWorldToFootPositionInWorldFrame();
+      Vector footContactNormalInWorldFrame;
+      terrain_->getNormal(positionWorldToFootInWorldFrame, footContactNormalInWorldFrame);
+      Vector footContactNormalInBaseFrame = orientationWorldToBase.rotate(footContactNormalInWorldFrame);
+
+//      const Vector3d& normalDirection = legInfo.first->getFootContactNormalInWorldFrame().toImplementation();
+      const Vector3d normalDirection = footContactNormalInBaseFrame.toImplementation();
 
       // The choose the first tangential to lie in the XZ-plane of the base frame.
       // This is the same as the requirement as
       // 1) firstTangential perpendicular to normalDirection,
       // 2) firstTangential perpendicular to normal of XZ-plane of the base frame,
       // 3) firstTangential has unit norm.
-      Vector3d firstTangential = normalDirection.cross(Vector3d::UnitY()).normalized();
+//      Vector3d firstTangential = normalDirection.cross(Vector3d::UnitY()).normalized();
+
+      Vector3d vectorY = Vector3d::UnitY();
+      Vector3d firstTangentialInBaseFrame = orientationHeadingToBase.rotate(vectorY);
+      Vector3d firstTangential = normalDirection.cross(firstTangentialInBaseFrame).normalized();
+
+
 
       // The second tangential is perpendicular to the normal and the first tangential.
       Vector3d secondTangential = normalDirection.cross(firstTangential).normalized();
@@ -286,6 +309,8 @@ bool ContactForceDistribution::addDesiredLegLoadConstraints()
 
 bool ContactForceDistribution::solveOptimization()
 {
+
+  // Finds x that minimizes (Ax-b)' S (Ax-b) + x' W x, such that Cx = c and d <= Dx <= f
   if (!ooqpei::QuadraticProblemFormulation::solve(A_, S_, b_, W_, C_, c_, D_, d_, f_, x_))
     return false;
 

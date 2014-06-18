@@ -12,7 +12,7 @@ namespace loco {
 MissionControlSpeedTrajectory::MissionControlSpeedTrajectory() :
   MissionControlBase(),
   time_(0.0),
-  currentBaseTwistInBaseFrame_(),
+  currentBaseTwistInHeadingFrame_(),
   isInterpolatingTime_(true),
   cycleDuration_(0.0)
 {
@@ -24,19 +24,19 @@ MissionControlSpeedTrajectory::~MissionControlSpeedTrajectory() {
 
 }
 
-const Twist& MissionControlSpeedTrajectory::getDesiredBaseTwistInBaseFrame() const {
-  return currentBaseTwistInBaseFrame_;
+const Twist& MissionControlSpeedTrajectory::getDesiredBaseTwistInHeadingFrame() const {
+  return currentBaseTwistInHeadingFrame_;
 }
 
 bool MissionControlSpeedTrajectory::initialize(double dt) {
-  currentBaseTwistInBaseFrame_.setZero();
+  currentBaseTwistInHeadingFrame_.setZero();
   time_ = 0.0;
   return true;
 }
 void MissionControlSpeedTrajectory::advance(double dt) {
 
-  currentBaseTwistInBaseFrame_.getTranslationalVelocity() = linearVelocityTrajectory_.evaluate_linear(time_);
-  currentBaseTwistInBaseFrame_.getRotationalVelocity() = localAngularVelocityTrajectory_.evaluate_linear(time_);
+  currentBaseTwistInHeadingFrame_.getTranslationalVelocity() = linearVelocityTrajectory_.evaluate_linear(time_);
+  currentBaseTwistInHeadingFrame_.getRotationalVelocity() = localAngularVelocityTrajectory_.evaluate_linear(time_);
   time_ += dt;
 
 }

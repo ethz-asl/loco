@@ -53,6 +53,10 @@ TorsoPropertiesBase& TorsoStarlETH::getProperties()
   return static_cast<TorsoPropertiesBase&>(properties_);
 }
 
+void TorsoStarlETH::setDesiredBaseTwistInHeadingFrame(const Twist& desiredBaseTwistInHeadingFrame) {
+  desiredBaseTwistInHeadingFrame_ = desiredBaseTwistInHeadingFrame;
+}
+
 bool TorsoStarlETH::initialize(double dt)
 {
   if(!this->getProperties().initialize(dt)) {
@@ -72,19 +76,30 @@ bool TorsoStarlETH::advance(double dt)
 
   kindr::rotations::eigen_impl::RotationQuaternionAD rquatWorldToBaseActive(
       robotModel_->est().getActualEstimator()->getQuat());
-  RotationQuaternion rquatWorldToBase = rquatWorldToBaseActive.getPassive();
+  const RotationQuaternion orientationWorldToBase = rquatWorldToBaseActive.getPassive();
   const Position positionWorldToBaseInWorldFrame = Position(
       robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos());
 //  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
 //  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
 
-  this->getMeasuredState().setWorldToBasePoseInWorldFrame(Pose(positionWorldToBaseInWorldFrame, rquatWorldToBase));
+  this->getMeasuredState().setWorldToBasePoseInWorldFrame(Pose(positionWorldToBaseInWorldFrame, orientationWorldToBase));
   const LinearVelocity linearVelocity(
-      rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
+      orientationWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
   const LocalAngularVelocity localAngularVelocity(
-      rquatWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
+      orientationWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
   this->getMeasuredState().setBaseTwistInBaseFrame(Twist(linearVelocity, localAngularVelocity));
 
+
+  EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(orientationWorldToBase).getUnique();
+  orientationWorldToHeadingEulerZyx.setPitch(0.0);
+  orientationWorldToHeadingEulerZyx.setRoll(0.0);
+  RotationQuaternion orientationWorldToHeading = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
+  this->getMeasuredState().setWorldToHeadingOrientation(orientationWorldToHeading);
+  const RotationQuaternion orientationHeadingToBase = orientationWorldToBase*orientationWorldToHeading.inverted();
+  this->getMeasuredState().setHeadingToBaseOrientation(orientationHeadingToBase);
+
+  const Twist desiredBaseTwistInBaseFrame = Twist(orientationHeadingToBase.rotate(desiredBaseTwistInHeadingFrame_.getTranslationalVelocity()),orientationHeadingToBase.rotate(desiredBaseTwistInHeadingFrame_.getRotationalVelocity()));
+  this->getDesiredState().setBaseTwistInBaseFrame(desiredBaseTwistInBaseFrame);
   return true;
 }
 

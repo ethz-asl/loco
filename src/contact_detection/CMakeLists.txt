@@ -4,25 +4,24 @@ cmake_minimum_required (VERSION 2.8)
 project(locomotion_control)
 
 
-find_package(Eigen REQUIRED)
-find_package(Kindr REQUIRED)
+
+
+
 
 ################
 ### INCLUDES ###
 ################
 set(TASK_INCL ${TASK_INCL} 
-	${EIGEN_INCLUDE_DIRS}
-	${Kindr_INCLUDE_DIRS}
+
 PARENT_SCOPE)
 
 ###############
 ### SOURCES ###
 ###############
 set(TASK_SRCS ${TASK_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGait.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControl.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGaitPerceptedTerrain.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ContactDetectorBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ContactDetectorConstantDuringStance.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ContactDetectorFeedThrough.cpp
 PARENT_SCOPE)
 
 #################
@@ -32,5 +31,5 @@ set(TASK_LIBS ${TASK_LIBS}
 
 PARENT_SCOPE)
 
+
 set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")
-set(USE_UTIL_POLYHARMONICSPLINES ON CACHE BOOL "polyharmonic splines")

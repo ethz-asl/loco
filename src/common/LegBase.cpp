@@ -239,4 +239,6 @@ void LegBase::setDesireWorldToFootPositionInWorldFrame(const Position& position)
   desiredWorldToFootPositionInWorldFrame_ = position;
 }
 
+
+
 } /* namespace loco */

@@ -9,13 +9,23 @@
 
 namespace loco {
 
-LegStateBase::LegStateBase() {
+LegStateBase::LegStateBase() :
+      isNow_(false)
+{
 
 
 }
 
 LegStateBase::~LegStateBase() {
 
+}
+
+void LegStateBase::setIsNow(bool isNow) {
+  isNow_= isNow;
+}
+
+bool LegStateBase::isNow() const {
+  return isNow_;
 }
 
 } /* namespace loco */

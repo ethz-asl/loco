@@ -11,6 +11,7 @@
 
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
 
+#include "loco/contact_detection/ContactDetectorBase.hpp"
 #include "loco/terrain_perception/TerrainPerceptionBase.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
@@ -29,6 +30,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
   LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,
                                   TerrainPerceptionBase* terrainPerception,
+                                  ContactDetectorBase* contactDetector,
                                   LimbCoordinatorBase* limbCoordinator,
                                   FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                   VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
@@ -63,6 +65,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   LegGroup* legs_;
   TorsoBase* torso_;
   TerrainPerceptionBase* terrainPerception_;
+  ContactDetectorBase* contactDetector_;
   LimbCoordinatorBase* limbCoordinator_;
   FootPlacementStrategyBase* footPlacementStrategy_;
   TorsoControlBase* torsoController_;

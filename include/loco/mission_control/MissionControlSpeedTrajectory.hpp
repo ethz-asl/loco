@@ -18,7 +18,7 @@ class MissionControlSpeedTrajectory: public MissionControlBase {
   MissionControlSpeedTrajectory();
   virtual ~MissionControlSpeedTrajectory();
 
-  virtual const Twist& getDesiredBaseTwistInBaseFrame() const;
+  virtual const Twist& getDesiredBaseTwistInHeadingFrame() const;
   virtual bool initialize(double dt);
   virtual void advance(double dt);
   virtual bool loadParameters(const TiXmlHandle& handle);
@@ -26,7 +26,7 @@ class MissionControlSpeedTrajectory: public MissionControlBase {
   double time_;
   loco::TrajectoryLinearVelocity linearVelocityTrajectory_;
   loco::TrajectoryLocalAngularVelocity localAngularVelocityTrajectory_;
-  Twist currentBaseTwistInBaseFrame_;
+  Twist currentBaseTwistInHeadingFrame_;
   bool isInterpolatingTime_;
   double cycleDuration_;
 

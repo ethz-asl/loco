@@ -9,7 +9,9 @@
 
 namespace loco {
 
-LegStateTouchDown::LegStateTouchDown() {
+LegStateTouchDown::LegStateTouchDown() :
+  LegStateBase()
+{
 
 
 }
@@ -17,5 +19,8 @@ LegStateTouchDown::LegStateTouchDown() {
 LegStateTouchDown::~LegStateTouchDown() {
 
 }
+
+
+
 
 } /* namespace loco */

@@ -37,6 +37,8 @@ class TerrainModelHorizontalPlane: public TerrainModelBase {
 
   void setHeight(double height);
 
+  virtual bool initialize(double dt);
+
  protected:
   double height_;
 

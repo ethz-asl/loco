@@ -17,6 +17,9 @@ class TerrainModelBase {
   TerrainModelBase();
   virtual ~TerrainModelBase();
 
+
+  virtual bool initialize(double dt) = 0;
+
   /*!
    * Gets the surface normal of the terrain at a certain position.
    * @param[in] position the place to get the surface normal from (in the world frame)

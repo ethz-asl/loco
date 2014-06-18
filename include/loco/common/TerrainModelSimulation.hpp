@@ -9,7 +9,7 @@
 #define LOCO_TERRAINMODELSIMULATION_HPP_
 
 #include "loco/common/TerrainModelBase.hpp"
-#include "TerrainBase.hpp"
+#include "robotUtils/terrains/TerrainBase.hpp"
 
 namespace loco {
 
@@ -34,6 +34,8 @@ class TerrainModelSimulation: public TerrainModelBase {
    * @return true if successful, false otherwise.
    */
   virtual bool getHeight(loco::Position& position) const;
+
+  virtual bool initialize(double dt);
 
  private:
 

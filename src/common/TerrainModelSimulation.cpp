@@ -36,4 +36,9 @@ bool TerrainModelSimulation::getHeight(loco::Position& position) const
   return true;
 }
 
+bool TerrainModelSimulation::initialize(double dt) {
+
+  return true;
+}
+
 } /* namespace loco */

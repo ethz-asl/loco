@@ -33,14 +33,25 @@ class TorsoStateBase {
   void setBaseTwistInBaseFrame(const Twist& twist);
   void setWorldToBasePoseInWorldFrame(const Pose& pose);
 
+  const RotationQuaternion&  getWorldToHeadingOrientation() const;
+  void setWorldToHeadingOrientation(const RotationQuaternion& orientation);
+
+  const RotationQuaternion&  getHeadingToBaseOrientation() const;
+  void setHeadingToBaseOrientation(const RotationQuaternion& orientation);
+
  protected:
   Position positionWorldToBaseInWorldFrame_;
   RotationQuaternion orientationWorldToBaseInWorldFrame_;
+  RotationQuaternion orientationWorldToHeading_;
+  RotationQuaternion orientationHeadingToBase_;
   Pose poseBaseToWorldInWorldFrame_;
 
   LinearVelocity linearVelocityBaseInBaseFrame_;
   LocalAngularVelocity angularVelocityBaseInBaseFrame_;
   Twist twistBaseInBaseFrame_;
+
+
+
 };
 
 } /* namespace loco */

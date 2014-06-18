@@ -12,7 +12,8 @@ namespace loco {
 
 LegPropertiesBase::LegPropertiesBase()
     : mass_(0.0),
-      positionBaseToCenterOfMassInBaseFrame_()
+      positionBaseToCenterOfMassInBaseFrame_(),
+      desiredDefaultSteppingPositionHipToFootInHeadingFrame_(0.2, 0.3, 0.4)
 {
 
 }
@@ -42,13 +43,15 @@ void LegPropertiesBase::setBaseToCenterOfMassPositionInBaseFrame(const Position&
   positionBaseToCenterOfMassInBaseFrame_ = centerOfMassInBaseFrame;
 }
 
-const Position& LegPropertiesBase::getDesiredDefaultSteppingPositionHipToFootInBaseFrame() const
+const Position& LegPropertiesBase::getDesiredDefaultSteppingPositionHipToFootInHeadingFrame() const
 {
-  return desiredDefaultSteppingPositionHipToFootInBaseFrame_;
+  return desiredDefaultSteppingPositionHipToFootInHeadingFrame_;
 }
-void LegPropertiesBase::setDesiredDefaultSteppingPositionHipToFootInBaseFrame(const Position& position)
+
+
+void LegPropertiesBase::setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(const Position& position)
 {
-  desiredDefaultSteppingPositionHipToFootInBaseFrame_ = position;
-}
+  desiredDefaultSteppingPositionHipToFootInHeadingFrame_ = position;
+ }
 
 } /* namespace loco */
