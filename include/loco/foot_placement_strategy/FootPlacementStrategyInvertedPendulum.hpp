@@ -22,7 +22,7 @@
 #include "loco/temp_helpers/Trajectory.hpp"
 
 #include "kindr/rotations/RotationEigen.hpp"
-#include "Logger.hpp"
+#include "robotUtils/loggers/Logger.hpp"
 #include "loco/common/TerrainModelBase.hpp"
 
 //#include "PeriodicRBF1DC3.hpp"

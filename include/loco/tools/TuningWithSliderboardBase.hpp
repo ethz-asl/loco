@@ -8,7 +8,7 @@
 #ifndef LOCO_TUNINGWITHSLIDERBOARDBASE_HPP_
 #define LOCO_TUNINGWITHSLIDERBOARDBASE_HPP_
 
-#include "Sliderboard.hpp"
+#include "robotUtils/sensors/Sliderboard.hpp"
 
 namespace loco {
 
