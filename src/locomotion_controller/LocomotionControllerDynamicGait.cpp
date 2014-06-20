@@ -157,7 +157,6 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
   footPlacementStrategy_->advance(dt);
   torsoController_->advance(dt);
   if(!virtualModelController_->compute()) {
-//    std::cout << "Error from virtual model controller" << std::endl;
     return false;
   }
 
