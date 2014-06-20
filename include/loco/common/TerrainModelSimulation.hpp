@@ -9,7 +9,7 @@
 #define LOCO_TERRAINMODELSIMULATION_HPP_
 
 #include "loco/common/TerrainModelBase.hpp"
-#include "TerrainBase.hpp"
+#include "robotUtils/terrains/TerrainBase.hpp"
 
 namespace loco {
 

@@ -54,6 +54,8 @@ bool TuningWithSliderboardLocoDynamicGait::advance(double dt) {
 bool TuningWithSliderboardLocoDynamicGait::initializeVirtualModelController(double dt)
 {
   printf("init sliderboard\n");
+
+
   VirtualModelController* vmController = locomotionController_->getVirtualModelController();
 
   Eigen::Vector3d pGainsTranslation = vmController->getProportionalGainTranslation();

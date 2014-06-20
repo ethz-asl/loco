@@ -7,7 +7,7 @@
  */
 
 #include "loco/motion_control/VirtualModelController.hpp"
-#include "Logger.hpp"
+#include "robotUtils/loggers/Logger.hpp"
 #include "kindr/rotations/eigen/EulerAnglesZyx.hpp"
 
 using namespace std;
