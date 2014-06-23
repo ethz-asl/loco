@@ -19,7 +19,6 @@
 
 #include "loco/common/TerrainModelBase.hpp"
 
-#include "PeriodicRBF1DC1.hpp"
 #include "GaussianKernel.hpp"
 
 namespace loco {
@@ -49,12 +48,8 @@ class TorsoControlJump : public TorsoControlBase {
   double headingDistanceFromForeToHindInBaseFrame_;
   double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
   double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
-  rbf::PeriodicRBF1DC1 desiredTorsoForeHeightAboveGroundInWorldFrame_;
-  rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
+
   dmp::GaussianKernel desiredTrajectory_;
-  virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);
-  virtual bool loadHeightTrajectory(const TiXmlHandle &hTrajectory,
-                                    rbf::PeriodicRBF1DC1& trajectory);
   virtual bool loadTrajectory(const TiXmlHandle &hTrajectory,
                               dmp::GaussianKernel& trajectory);
 

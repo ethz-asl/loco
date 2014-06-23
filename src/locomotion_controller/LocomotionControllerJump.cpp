@@ -13,6 +13,7 @@ namespace loco {
 LocomotionControllerJump::LocomotionControllerJump(LegGroup* legs, TorsoBase* torso,
                                                    TerrainPerceptionBase* terrainPerception,
                                                    ContactDetectorBase* contactDetector,
+                                                   LimbCoordinatorBase* limbCoordinator,
                                                    FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                    VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
                                                    ParameterSet* parameterSet) :
@@ -22,6 +23,7 @@ LocomotionControllerJump::LocomotionControllerJump(LegGroup* legs, TorsoBase* to
         torso_(torso),
         terrainPerception_(terrainPerception),
         contactDetector_(contactDetector),
+        limbCoordinator_(limbCoordinator),
         footPlacementStrategy_(footPlacementStrategy),
         torsoController_(baseController),
         virtualModelController_(virtualModelController),
@@ -57,7 +59,9 @@ bool LocomotionControllerJump::initialize(double dt)
   if (!contactDetector_->initialize(dt)) {
     return false;
   }
-
+  if (!limbCoordinator_->initialize(dt)) {
+    return false;
+  }
   if (!footPlacementStrategy_->loadParameters(hLoco)) {
     return false;
   }
@@ -89,7 +93,6 @@ bool LocomotionControllerJump::advance(double dt) {
     return false;
   }
 
-
   for (auto leg : *legs_) {
     leg->advance(dt);
   }
@@ -103,6 +106,8 @@ bool LocomotionControllerJump::advance(double dt) {
   if (!terrainPerception_->advance(dt)) {
     return false;
   }
+
+  limbCoordinator_->advance(dt);
 
   for (auto leg : *legs_) {
     const double swingPhase = leg->getSwingPhase();
@@ -159,8 +164,13 @@ FootPlacementStrategyBase* LocomotionControllerJump::getFootPlacementStrategy() 
 VirtualModelController* LocomotionControllerJump::getVirtualModelController() {
   return virtualModelController_;
 }
+
 ContactForceDistributionBase* LocomotionControllerJump::getContactForceDistribution() {
   return contactForceDistribution_;
+}
+
+LimbCoordinatorBase* LocomotionControllerJump::getLimbCoordinator() {
+  return limbCoordinator_;
 }
 
 TerrainPerceptionBase* LocomotionControllerJump::getTerrainPerception() {

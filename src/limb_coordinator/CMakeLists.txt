@@ -20,6 +20,7 @@ PARENT_SCOPE)
 set(TASK_SRCS ${TASK_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/LimbCoordinatorBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LimbCoordinatorDynamicGait.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/LimbCoordinatorJump.cpp
 PARENT_SCOPE)
 
 #################

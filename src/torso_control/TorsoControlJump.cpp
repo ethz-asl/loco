@@ -18,22 +18,9 @@ TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
       comControl_(legs),
       headingDistanceFromForeToHindInBaseFrame_(0.0) {
 
-  std::vector<double> tValues, xValues;
   const double defaultHeight = 0.42;
   desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
   desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
-  tValues.push_back(0.00);
-  xValues.push_back(0.0);
-  tValues.push_back(0.25);
-  xValues.push_back(0.0);
-  tValues.push_back(0.50);
-  xValues.push_back(0.0);
-  tValues.push_back(0.75);
-  xValues.push_back(0.0);
-  tValues.push_back(1.00);
-  xValues.push_back(0.0);
-  desiredTorsoForeHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
-  desiredTorsoHindHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
 }
 
 TorsoControlJump::~TorsoControlJump() {
@@ -63,107 +50,41 @@ void TorsoControlJump::advance(double dt) {
 
   //TODO: Change these to make use of Jump trajectory instead of Periodic trajectory
   //TODO: Use predict to get a height over parameter x (goes from 0 to 1)
-  const double desiredForeHeightAboveGroundInWorldFrame =
-      desiredTorsoForeHeightAboveGroundInWorldFrameOffset_
-          + desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(
-              torso_->getStridePhase());
-  const double desiredHindHeightAboveGroundInWorldFrame =
-      desiredTorsoHindHeightAboveGroundInWorldFrameOffset_
-          + desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(
-              torso_->getStridePhase());
-  const double desiredMiddleHeightAboveGroundInWorldFrame =
-      (desiredForeHeightAboveGroundInWorldFrame
-          + desiredHindHeightAboveGroundInWorldFrame) / 2.0;
 
   Position desiredLateralAndHeadingPositionInWorldFrame =
       lateralAndHeadingPositionInWorldFrame;
   Position groundHeightInWorldFrame =
       desiredLateralAndHeadingPositionInWorldFrame;
+
   terrain_->getHeight(groundHeightInWorldFrame);
+
+  /* Small test to see if torso follows a simple declining vertical trajectory */
+  static double desiredTorsoHeightAboveGroundInWorldFrame = 1;
+  if (desiredTorsoHeightAboveGroundInWorldFrame > 0) {
+    desiredTorsoHeightAboveGroundInWorldFrame -= 0.001;
+    std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
+  }
+
+  //TODO: Create Timer and introduce max_duration parameter to propagate Gaussian
+//   double desiredTorsoHeightAboveGroundInWorldFrame;
+//   desiredTrajectory_.predict(0.5, desiredTorsoHeightAboveGroundInWorldFrame,
+//   false);
+
   Position desiredTorsoPositionInWorldFrame(
-      desiredLateralAndHeadingPositionInWorldFrame.x(),
-      desiredLateralAndHeadingPositionInWorldFrame.y(),
-      desiredMiddleHeightAboveGroundInWorldFrame
-          + groundHeightInWorldFrame.z());
-//  Position desiredTorsoPositionInWorldFrame(0.0, desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+      0.0, desiredLateralAndHeadingPositionInWorldFrame.y(),
+      desiredTorsoHeightAboveGroundInWorldFrame + groundHeightInWorldFrame.z());
+
+//  std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
 
   /* --- desired orientation --- */
 
-  // pitch angle
-  double height = desiredHindHeightAboveGroundInWorldFrame
-      - desiredForeHeightAboveGroundInWorldFrame;
-  double pitchAngle = atan2(height, headingDistanceFromForeToHindInBaseFrame_);
-  RotationQuaternion orientationDesiredHeadingToBase = RotationQuaternion(
-      AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
-
-  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()
-      ->getWorldToFootPositionInWorldFrame()
-      + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame()) / 0.5;
-  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()
-      ->getWorldToFootPositionInWorldFrame()
-      + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame()) / 0.5;
-  Position positionWorldToDesiredForeFeetMidPointInWorldFrame =
-      positionForeFeetMidPointInWorldFrame
-          + comControl_.getPositionErrorVectorInWorldFrame();
-  Position positionWorldToDesiredHindFeetMidPointInWorldFrame =
-      positionHindFeetMidPointInWorldFrame
-          + comControl_.getPositionErrorVectorInWorldFrame();
-
-  Vector desiredHeadingDirectionInWorldFrame = Vector(
-      positionWorldToDesiredForeFeetMidPointInWorldFrame
-          - positionWorldToDesiredHindFeetMidPointInWorldFrame);
-  desiredHeadingDirectionInWorldFrame.z() = 0.0;
-
-  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()
-      ->getWorldToHipPositionInWorldFrame()
-      + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame()) / 0.5;
-  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()
-      ->getWorldToHipPositionInWorldFrame()
-      + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame()) / 0.5;
-
-  Vector currentHeadingDirectionInWorldFrame = Vector(
-      positionForeHipsMidPointInWorldFrame
-          - positionHindHipsMidPointInWorldFrame);
-  currentHeadingDirectionInWorldFrame.z() = 0.0;
-
-  RotationQuaternion orientationHeadingToDesiredHeading;
-  try {
-    orientationHeadingToDesiredHeading.setFromVectors(
-        currentHeadingDirectionInWorldFrame.toImplementation(),
-        desiredHeadingDirectionInWorldFrame.toImplementation());
-  } catch (std::exception& e) {
-    std::cout << e.what() << '\n';
-    std::cout << "currentHeadingDirectionInWorldFrame: "
-        << currentHeadingDirectionInWorldFrame << std::endl;
-    std::cout << "desiredHeadingDirectionInWorldFrame: "
-        << desiredHeadingDirectionInWorldFrame << std::endl;
-    orientationHeadingToDesiredHeading.setIdentity();
-  }
-
-  RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBase
-      * orientationHeadingToDesiredHeading * orientationWorldToHeading;
+  // Just keep torso parallel to ground for now
+  RotationQuaternion desOrientationWorldToBase = RotationQuaternion(0, 0, 0, 0);
 
   /* --- end desired orientation --- */
 
   torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
       Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
-//  torso_->getDesiredState().setBaseTwistInBaseFrame(Twist(desiredLinearVelocity, desiredAngularVelocity));
-
-  /* if a stance leg lost contact, lower it to re-gain contact */
-  /*for (auto leg : *legs_) {
-   if (leg->isInStanceMode()) {
-   Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
-
-
-   if (!leg->isGrounded()) {
-   positionWorldToFootInWorldFrame.z() -= 0.01;
-   }
-   const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-   const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
-   const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
-   leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
-   }
-   }*/
 }
 
 inline double safeACOS(double val) {
@@ -221,100 +142,11 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   if (!comControl_.loadParameters(hJump)) {
     return false;
   }
-  if (!loadParametersHipConfiguration(hJump)) {
-    return false;
-  }
   if (!loadTrajectory(hJump, desiredTrajectory_)) {
     return false;
   }
 
   std::cout << desiredTrajectory_.getInfoString() << std::endl;
-
-  return true;
-}
-
-bool TorsoControlJump::loadParametersHipConfiguration(
-    const TiXmlHandle &hParameterSet) {
-  int iKnot;
-  double t, value;
-  TiXmlElement* pElem;
-  std::string legFrame;
-
-  /* Swing foot configuration*/
-  pElem = hParameterSet.FirstChild("HipConfiguration").Element();
-  if (!pElem) {
-    printf("Could not find HipConfiguration\n");
-    return false;
-  }
-
-  /**************************************************************************
-   * HEIGHT
-   ***************************************************************************/
-
-  /* offset */
-  pElem = hParameterSet.FirstChild("HipConfiguration").Element();
-  if (!pElem) {
-    printf("Could not find HipConfiguration!\n");
-    return false;
-  }
-  TiXmlElement* child =
-      hParameterSet.FirstChild("HipConfiguration").FirstChild().ToElement();
-  for (child; child; child = child->NextSiblingElement()) {
-    if (child->ValueStr().compare("HeightTrajectory") == 0) {
-      bool isFore = false;
-      bool isHind = false;
-      double offset = 0.0;
-      if (child->QueryDoubleAttribute("offset", &offset) != TIXML_SUCCESS) {
-        printf("Could not find offset!\n");
-      }
-      if (child->QueryBoolAttribute("fore", &isFore) == TIXML_SUCCESS) {
-        if (isFore) {
-          desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = offset;
-          TiXmlHandle hTrajectory(child);
-          if (!loadHeightTrajectory(
-              hTrajectory, desiredTorsoForeHeightAboveGroundInWorldFrame_)) {
-            return false;
-          }
-        }
-      }
-      if (child->QueryBoolAttribute("hind", &isHind) == TIXML_SUCCESS) {
-        if (isHind) {
-          desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = offset;
-          TiXmlHandle hTrajectory(child);
-          if (!loadHeightTrajectory(
-              hTrajectory, desiredTorsoHindHeightAboveGroundInWorldFrame_)) {
-            return false;
-          }
-        }
-      }
-    }
-
-  }
-
-  return true;
-}
-
-bool TorsoControlJump::loadHeightTrajectory(const TiXmlHandle &hTrajectory,
-                                            rbf::PeriodicRBF1DC1& trajectory) {
-  TiXmlElement* pElem;
-  int iKnot;
-  double t, value;
-  std::vector<double> tValues, xValues;
-
-  TiXmlElement* child = hTrajectory.FirstChild().ToElement();
-  for (child; child; child = child->NextSiblingElement()) {
-    if (child->QueryDoubleAttribute("t", &t) != TIXML_SUCCESS) {
-      printf("Could not find t of knot!\n");
-      return false;
-    }
-    if (child->QueryDoubleAttribute("v", &value) != TIXML_SUCCESS) {
-      printf("Could not find v of knot!\n");
-      return false;
-    }
-    tValues.push_back(t);
-    xValues.push_back(value);
-  }
-  trajectory.setRBFData(tValues, xValues);
 
   return true;
 }

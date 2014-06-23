@@ -10,7 +10,6 @@
 #define LOCO_LIMBCOORDINATORJUMP_HPP_
 
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
-#include "loco/gait_pattern/GaitPatternBase.hpp"
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
 
@@ -28,10 +27,6 @@ class LimbCoordinatorJump: public LimbCoordinatorBase {
     returns true if the leg is in stance mode, false otherwise.
   */
   virtual bool isLegInStanceMode(int iLeg);
-
-  /**
-    returns true if the leg is in swing mode, false otherwise.
-  */
   virtual bool isLegInSwingMode(int iLeg);
 
   virtual void setIsLegGrounded(int iLeg, bool isLegGrounded);
@@ -51,7 +46,8 @@ class LimbCoordinatorJump: public LimbCoordinatorBase {
   bool shouldBeLegGrounded_[4];
 
   virtual void setShouldBeLegGrounded(int iLeg, bool shouldBeLegGrounded);
-
+  virtual GaitPatternBase* getGaitPattern();
+  virtual bool loadParameters(const TiXmlHandle& handle);
 };
 
 } /* namespace loco */
