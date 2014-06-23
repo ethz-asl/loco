@@ -55,7 +55,6 @@ bool LimbCoordinatorJump::initialize(double dt) {
     leg->setWasInSwingMode(false);
     leg->setIsGrounded(true);
 
-    std::cout << *leg << std::endl;
     iLeg++;
   }
 

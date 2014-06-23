@@ -44,17 +44,21 @@ class TorsoControlJump : public TorsoControlBase {
   TorsoBase* torso_;
   loco::TerrainModelBase* terrain_;
   CoMOverSupportPolygonControl comControl_;
+  dmp::GaussianKernel desiredTrajectory_;
 
+  double currentTime_;
+  double maxDuration_;
   double headingDistanceFromForeToHindInBaseFrame_;
   double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
   double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
 
-  dmp::GaussianKernel desiredTrajectory_;
-  virtual bool loadTrajectory(const TiXmlHandle &hTrajectory,
-                              dmp::GaussianKernel& trajectory);
+  virtual bool loadTrajectory(const TiXmlHandle &hJump);
+  virtual bool loadGaussianKernel(const TiXmlHandle &hTrajectory);
+  virtual bool loadMovement(const TiXmlHandle &hTrajectory);
 
 };
 
-} /* namespace loco */
+}
+/* namespace loco */
 
 #endif /* LOCO_BASECONTROLDYNAMICGAIT_HPP_ */

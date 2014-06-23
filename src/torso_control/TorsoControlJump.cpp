@@ -142,7 +142,7 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   if (!comControl_.loadParameters(hJump)) {
     return false;
   }
-  if (!loadTrajectory(hJump, desiredTrajectory_)) {
+  if (!loadTrajectory(hJump)) {
     return false;
   }
 
@@ -151,16 +151,34 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   return true;
 }
 
-bool TorsoControlJump::loadTrajectory(const TiXmlHandle &hTrajectory,
-                                      dmp::GaussianKernel& trajectory) {
+/**
+ * Loads parameters for the trajectory to follow.
+ */
+bool TorsoControlJump::loadTrajectory(const TiXmlHandle &hJump) {
+  TiXmlHandle hTrajectory(hJump.FirstChild("Trajectory"));
+
+  if (!loadGaussianKernel(hTrajectory)) {
+    return false;
+  }
+  if (!loadMovement(hTrajectory)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Loads parameters for the GaussianKernel to shape the trajectory.
+ * @param hTrajectory: Parent XML tag of the GaussianKernel tag.
+ */
+bool TorsoControlJump::loadGaussianKernel(const TiXmlHandle &hTrajectory) {
   TiXmlElement* pElem;
   int numBasisFunctions;
   double activation, canSysCutOff;
   bool exponentiallySpaced;
 
-  pElem = hTrajectory.FirstChild("Trajectory").FirstChild("GaussianKernel")
-      .Element();
+  pElem = hTrajectory.FirstChild("GaussianKernel").Element();
   if (!pElem) {
+
     printf("Could not find Jump:Trajectory:GaussianKernel\n");
     return false;
   }
@@ -170,23 +188,51 @@ bool TorsoControlJump::loadTrajectory(const TiXmlHandle &hTrajectory,
     printf("Could not find parameter numBasisFunctions!\n");
     return false;
   }
+
   if (pElem->QueryDoubleAttribute("activation", &activation) != TIXML_SUCCESS) {
     printf("Could not find activation parameter!\n");
     return false;
   }
+
   if (pElem->QueryDoubleAttribute("canSysCutOff", &canSysCutOff)
       != TIXML_SUCCESS) {
     printf("Could not find parameter canSysCutOff!\n");
     return false;
   }
+
   if (pElem->QueryBoolAttribute("exponentiallySpaced", &exponentiallySpaced)
       != TIXML_SUCCESS) {
     printf("Could not find parameter exponentiallySpaced!\n");
     return false;
   }
 
-  trajectory.initialize(numBasisFunctions, activation, exponentiallySpaced,
-                        canSysCutOff);
+  desiredTrajectory_.initialize(numBasisFunctions, activation,
+                                exponentiallySpaced, canSysCutOff);
+
+  return true;
+}
+
+/**
+ * Loads parameter for the duration of the jump.
+ * @param hTrajectory: Parent XML tag of the Movement tag.
+ */
+bool TorsoControlJump::loadMovement(const TiXmlHandle &hTrajectory) {
+  double maxDuration;cd
+
+  TiXmlElement* pElem;
+  pElem = hTrajectory.FirstChild("Movement").Element();
+  if (!pElem) {
+    printf("Could not find Jump:Trajectory:Movement\n");
+    return false;
+  }
+
+  if (pElem->QueryDoubleAttribute("maxDuration", &maxDuration)
+      != TIXML_SUCCESS) {
+    printf("Could not find parameter maxDuration!\n");
+    return false;
+  }
+
+  maxDuration_ = maxDuration;
   return true;
 }
 
