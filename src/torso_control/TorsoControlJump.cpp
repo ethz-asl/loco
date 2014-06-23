@@ -59,16 +59,16 @@ void TorsoControlJump::advance(double dt) {
   terrain_->getHeight(groundHeightInWorldFrame);
 
   /* Small test to see if torso follows a simple declining vertical trajectory
-  static double desiredTorsoHeightAboveGroundInWorldFrame = 1;
-  if (desiredTorsoHeightAboveGroundInWorldFrame > 0) {
-    desiredTorsoHeightAboveGroundInWorldFrame -= 0.001;
-//    std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
-  }*/
+   static double desiredTorsoHeightAboveGroundInWorldFrame = 1;
+   if (desiredTorsoHeightAboveGroundInWorldFrame > 0) {
+   desiredTorsoHeightAboveGroundInWorldFrame -= 0.001;
+   //    std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
+   }*/
 
   //TODO: Find out how to create sensible trajectory to follow. All the GaussianKernel trajectories created so far only return 0.
-   double desiredTorsoHeightAboveGroundInWorldFrame;
-   desiredTrajectory_.predict(propagateStep(dt), desiredTorsoHeightAboveGroundInWorldFrame,
-   false);
+  double desiredTorsoHeightAboveGroundInWorldFrame;
+  desiredTrajectory_.predict(propagateStep(dt),
+                             desiredTorsoHeightAboveGroundInWorldFrame, false);
 
   Position desiredTorsoPositionInWorldFrame(
       0.0, desiredLateralAndHeadingPositionInWorldFrame.y(),
@@ -93,7 +93,7 @@ void TorsoControlJump::advance(double dt) {
  * @param lower: Lower bound.
  * @param upper: Upper bound.
  */
-inline double clamp(float number, float lower, float upper) {
+inline double clamp(double number, double lower, double upper) {
   return std::max(lower, std::min(number, upper));
 }
 
@@ -217,11 +217,20 @@ bool TorsoControlJump::loadGaussianKernel(const TiXmlHandle &hTrajectory) {
     return false;
   }
 
-  if (pElem->QueryIntAttribute("numBasisFunctions", &numBasisFunctions)
-      != TIXML_SUCCESS) {
-    printf("Could not find parameter numBasisFunctions!\n");
+  TiXmlElement* child = hTrajectory.FirstChild("GaussianKernel").FirstChild()
+      .ToElement();
+
+  TiXmlHandle hThetas(child);
+
+  if (!loadThetas(hThetas)) {
     return false;
   }
+
+//  if (pElem->QueryIntAttribute("numBasisFunctions", &numBasisFunctions)
+//      != TIXML_SUCCESS) {
+//    printf("Could not find parameter numBasisFunctions!\n");
+//    return false;
+//  }
 
   if (pElem->QueryDoubleAttribute("activation", &activation) != TIXML_SUCCESS) {
     printf("Could not find activation parameter!\n");
@@ -240,8 +249,15 @@ bool TorsoControlJump::loadGaussianKernel(const TiXmlHandle &hTrajectory) {
     return false;
   }
 
+  numBasisFunctions = thetas_->size();
   desiredTrajectory_.initialize(numBasisFunctions, activation,
                                 exponentiallySpaced, canSysCutOff);
+
+  for (int i = 0; i < thetas_->size(); i++) {
+    std::cout << "theta[" << i << "] = " << (*thetas_)(i) << std::endl;
+  }
+
+  desiredTrajectory_.setThetas(*thetas_);
 
   return true;
 }
@@ -267,6 +283,31 @@ bool TorsoControlJump::loadMovement(const TiXmlHandle &hTrajectory) {
   }
 
   maxDuration_ = maxDuration;
+  return true;
+}
+
+bool TorsoControlJump::loadThetas(const TiXmlHandle &hThetas) {
+  TiXmlElement* pElem;
+  double value;
+  std::vector<double> values;
+
+  TiXmlElement* child = hThetas.FirstChild().ToElement();
+  for (child; child; child = child->NextSiblingElement()) {
+    if (child->QueryDoubleAttribute("v", &value) != TIXML_SUCCESS) {
+      printf("Could not find value of theta!\n");
+      return false;
+    }
+
+    values.push_back(value);
+  }
+
+  thetas_ = new Eigen::VectorXd(values.size());
+
+  for (int i = 0; i < values.size(); i++) {
+    (*thetas_)[i] = values.at(i);
+//    std::cout << "theta[" << i << "] = " << (*thetas_)(i) << std::endl;
+  }
+
   return true;
 }
 

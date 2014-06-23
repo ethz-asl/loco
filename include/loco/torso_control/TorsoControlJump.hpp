@@ -20,6 +20,8 @@
 #include "loco/common/TerrainModelBase.hpp"
 
 #include "GaussianKernel.hpp"
+#include <stdio.h>
+#include <Eigen/Core>
 
 namespace loco {
 
@@ -51,10 +53,12 @@ class TorsoControlJump : public TorsoControlBase {
   double headingDistanceFromForeToHindInBaseFrame_;
   double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
   double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
+  Eigen::VectorXd *thetas_;
 
   virtual bool loadTrajectory(const TiXmlHandle &hJump);
   virtual bool loadGaussianKernel(const TiXmlHandle &hTrajectory);
   virtual bool loadMovement(const TiXmlHandle &hTrajectory);
+  virtual bool loadThetas(const TiXmlHandle &hThetas);
 
   void resetTime();
   void incrementTime(double dt);
