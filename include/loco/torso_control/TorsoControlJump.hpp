@@ -56,6 +56,9 @@ class TorsoControlJump : public TorsoControlBase {
   virtual bool loadGaussianKernel(const TiXmlHandle &hTrajectory);
   virtual bool loadMovement(const TiXmlHandle &hTrajectory);
 
+  void resetTime();
+  void incrementTime(double dt);
+  double propagateStep(double dt);
 };
 
 }
