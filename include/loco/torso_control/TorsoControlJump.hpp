@@ -6,8 +6,8 @@
  * @ingroup
  * @brief
  */
-#ifndef LOCO_BASECONTROLDYNAMICGAIT_HPP_
-#define LOCO_BASECONTROLDYNAMICGAIT_HPP_
+
+#pragma once
 
 #include "loco/torso_control/TorsoControlBase.hpp"
 #include "loco/torso_control/CoMOverSupportPolygonControl.hpp"
@@ -41,6 +41,11 @@ class TorsoControlJump : public TorsoControlBase {
   CoMOverSupportPolygonControl* getCoMControl();
   virtual bool loadParameters(const TiXmlHandle& handle);
 
+  void addMeasureToTrajectory(double baseHeight);
+  std::vector<double> getMeasuredTrajectory();
+  double getMaxDuration();
+  double getProgress();
+
  private:
   LegGroup* legs_;
   TorsoBase* torso_;
@@ -51,8 +56,7 @@ class TorsoControlJump : public TorsoControlBase {
   double currentTime_;
   double maxDuration_;
   double headingDistanceFromForeToHindInBaseFrame_;
-  double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
-  double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
+
   Eigen::VectorXd *thetas_;
 
   virtual bool loadTrajectory(const TiXmlHandle &hJump);
@@ -62,10 +66,7 @@ class TorsoControlJump : public TorsoControlBase {
 
   void resetTime();
   void incrementTime(double dt);
-  double propagateStep(double dt);
 };
 
 }
 /* namespace loco */
-
-#endif /* LOCO_BASECONTROLDYNAMICGAIT_HPP_ */

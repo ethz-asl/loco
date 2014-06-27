@@ -55,6 +55,7 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   virtual TorsoBase* getTorso();
   virtual LegGroup* getLegs();
 
+  TorsoControlBase* getTorsoController();
   FootPlacementStrategyBase* getFootPlacementStrategy();
   VirtualModelController* getVirtualModelController();
   ContactForceDistributionBase* getContactForceDistribution();

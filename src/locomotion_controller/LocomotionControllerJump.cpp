@@ -161,6 +161,11 @@ FootPlacementStrategyBase* LocomotionControllerJump::getFootPlacementStrategy() 
   return footPlacementStrategy_;
 }
 
+TorsoControlBase* LocomotionControllerJump::getTorsoController() {
+  return torsoController_;
+}
+
+
 VirtualModelController* LocomotionControllerJump::getVirtualModelController() {
   return virtualModelController_;
 }

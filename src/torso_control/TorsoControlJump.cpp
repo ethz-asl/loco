@@ -19,14 +19,12 @@ TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
       headingDistanceFromForeToHindInBaseFrame_(0.0) {
 
   currentTime_ = 0.0;
-  const double defaultHeight = 0.42;
-  desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
-  desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
 }
 
 TorsoControlJump::~TorsoControlJump() {
-
+  delete thetas_;
 }
+
 bool TorsoControlJump::initialize(double dt) {
   const Position foreHipPosition = legs_->getLeg(0)
       ->getWorldToHipPositionInBaseFrame();
@@ -34,7 +32,6 @@ bool TorsoControlJump::initialize(double dt) {
       ->getWorldToHipPositionInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()
       - hindHipPosition.x();
-//  std::cout << "head dist: " << headingDistanceFromForeToHindInBaseFrame_ << std::endl;
 
   return true;
 }
@@ -45,11 +42,8 @@ void TorsoControlJump::advance(double dt) {
   const RotationQuaternion orientationWorldToHeading =
       torso_->getMeasuredState().getWorldToHeadingOrientation();
 
-  //TODO: Check if anything needs to be changed here in comControl
   Position lateralAndHeadingPositionInWorldFrame = comControl_
       .getDesiredWorldToCoMPositionInWorldFrame();
-
-  //TODO: Use predict to get a height over parameter x (goes from 0 to 1)
 
   Position desiredLateralAndHeadingPositionInWorldFrame =
       lateralAndHeadingPositionInWorldFrame;
@@ -58,28 +52,23 @@ void TorsoControlJump::advance(double dt) {
 
   terrain_->getHeight(groundHeightInWorldFrame);
 
-  /* Small test to see if torso follows a simple declining vertical trajectory
-   static double desiredTorsoHeightAboveGroundInWorldFrame = 1;
-   if (desiredTorsoHeightAboveGroundInWorldFrame > 0) {
-   desiredTorsoHeightAboveGroundInWorldFrame -= 0.001;
-   //    std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
-   }*/
-
-  //TODO: Find out how to create sensible trajectory to follow. All the GaussianKernel trajectories created so far only return 0.
   double desiredTorsoHeightAboveGroundInWorldFrame;
-  desiredTrajectory_.predict(propagateStep(dt),
+
+  incrementTime(dt);
+  desiredTrajectory_.predict(getProgress(),
                              desiredTorsoHeightAboveGroundInWorldFrame, false);
 
   Position desiredTorsoPositionInWorldFrame(
-      0.0, desiredLateralAndHeadingPositionInWorldFrame.y(),
+      desiredLateralAndHeadingPositionInWorldFrame.x(),
+      desiredLateralAndHeadingPositionInWorldFrame.y(),
       desiredTorsoHeightAboveGroundInWorldFrame + groundHeightInWorldFrame.z());
 
-//  std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
+  //std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
 
   /* --- desired orientation --- */
 
-// Just keep torso parallel to ground for now
-  RotationQuaternion desOrientationWorldToBase = RotationQuaternion(0, 0, 0, 0);
+  // Just keep torso parallel to ground for now
+  RotationQuaternion desOrientationWorldToBase = RotationQuaternion();
 
   /* --- end desired orientation --- */
 
@@ -98,6 +87,13 @@ inline double clamp(double number, double lower, double upper) {
 }
 
 /**
+ * Returns max duration of jump.
+ */
+double TorsoControlJump::getMaxDuration() {
+  return maxDuration_;
+}
+
+/**
  * Resets the timer.
  */
 void TorsoControlJump::resetTime() {
@@ -112,12 +108,9 @@ void TorsoControlJump::incrementTime(double dt) {
 }
 
 /**
- * Returns a value x between 0 and 1 to propagate through GaussianKernel.
- * @param dt: timestep
+ * Keeps track of how much of the trajectory has already been followed in terms of progress (between 0 and 1).
  */
-double TorsoControlJump::propagateStep(double dt) {
-  incrementTime(dt);
-
+double TorsoControlJump::getProgress() {
   return clamp(currentTime_ / maxDuration_, 0.0, 1.0);
 }
 
@@ -226,11 +219,7 @@ bool TorsoControlJump::loadGaussianKernel(const TiXmlHandle &hTrajectory) {
     return false;
   }
 
-//  if (pElem->QueryIntAttribute("numBasisFunctions", &numBasisFunctions)
-//      != TIXML_SUCCESS) {
-//    printf("Could not find parameter numBasisFunctions!\n");
-//    return false;
-//  }
+  numBasisFunctions = thetas_->size();
 
   if (pElem->QueryDoubleAttribute("activation", &activation) != TIXML_SUCCESS) {
     printf("Could not find activation parameter!\n");
@@ -249,14 +238,13 @@ bool TorsoControlJump::loadGaussianKernel(const TiXmlHandle &hTrajectory) {
     return false;
   }
 
-  numBasisFunctions = thetas_->size();
   desiredTrajectory_.initialize(numBasisFunctions, activation,
                                 exponentiallySpaced, canSysCutOff);
 
-  for (int i = 0; i < thetas_->size(); i++) {
-    std::cout << "theta[" << i << "] = " << (*thetas_)(i) << std::endl;
-  }
-
+  /* Print out thetas to check correctness */
+//  for (int i = 0; i < thetas_->size(); i++) {
+//    std::cout << "theta[" << i << "] = " << (*thetas_)(i) << std::endl;
+//  }
   desiredTrajectory_.setThetas(*thetas_);
 
   return true;
@@ -286,6 +274,10 @@ bool TorsoControlJump::loadMovement(const TiXmlHandle &hTrajectory) {
   return true;
 }
 
+/**
+ * Loads thetas for GaussianKernel.
+ * @param hTrajectory: Parent XML tag of the Movement tag.
+ */
 bool TorsoControlJump::loadThetas(const TiXmlHandle &hThetas) {
   TiXmlElement* pElem;
   double value;
@@ -297,7 +289,6 @@ bool TorsoControlJump::loadThetas(const TiXmlHandle &hThetas) {
       printf("Could not find value of theta!\n");
       return false;
     }
-
     values.push_back(value);
   }
 
@@ -305,7 +296,6 @@ bool TorsoControlJump::loadThetas(const TiXmlHandle &hThetas) {
 
   for (int i = 0; i < values.size(); i++) {
     (*thetas_)[i] = values.at(i);
-//    std::cout << "theta[" << i << "] = " << (*thetas_)(i) << std::endl;
   }
 
   return true;
