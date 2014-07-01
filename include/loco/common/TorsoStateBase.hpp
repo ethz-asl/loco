@@ -51,7 +51,6 @@ class TorsoStateBase {
   Twist twistBaseInBaseFrame_;
 
 
-
 };
 
 } /* namespace loco */

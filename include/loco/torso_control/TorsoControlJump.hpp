@@ -57,6 +57,7 @@ class TorsoControlJump : public TorsoControlBase {
   double maxDuration_;
   double headingDistanceFromForeToHindInBaseFrame_;
 
+  std::vector<double> measuredHeightTrajectory_;
   Eigen::VectorXd *thetas_;
 
   virtual bool loadTrajectory(const TiXmlHandle &hJump);

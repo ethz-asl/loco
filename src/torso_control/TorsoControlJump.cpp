@@ -74,6 +74,16 @@ void TorsoControlJump::advance(double dt) {
 
   torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
       Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
+  addMeasureToTrajectory(
+      torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
+}
+
+void TorsoControlJump::addMeasureToTrajectory(double baseHeight) {
+  measuredHeightTrajectory_.push_back(baseHeight);
+}
+
+std::vector<double> TorsoControlJump::getMeasuredTrajectory() {
+  return measuredHeightTrajectory_;
 }
 
 /**
@@ -173,7 +183,7 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
     return false;
   }
 
-  std::cout << desiredTrajectory_.getInfoString() << std::endl;
+//  std::cout << desiredTrajectory_.getInfoString() << std::endl;
 
   return true;
 }

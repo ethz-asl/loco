@@ -51,7 +51,8 @@ void FootPlacementStrategyJump::advance(double dt) {
   LegBase* leftHindleg = legs_->getLeftHindLeg();
   LegBase* rightHindleg = legs_->getRightHindLeg();
 
-  if ((torso_->getMeasuredState()).getBaseLinearVelocityInBaseFrame().z() > 0.5) {
+//  if ((torso_->getMeasuredState()).getBaseLinearVelocityInBaseFrame().z()
+//      > 0.5) {
     if (leftForeleg->isInSwingMode() && !leftForeleg->isGrounded()) {
       leftForeleg->setDesiredJointPositions(
           leftForeleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
@@ -72,7 +73,7 @@ void FootPlacementStrategyJump::advance(double dt) {
           rightHindleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
               rightHindLandingPosition));
     }
-  }
+//  }
 }
 
 }  // namespace loco
