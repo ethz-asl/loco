@@ -17,11 +17,12 @@ TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
       terrain_(terrain),
       comControl_(legs),
       headingDistanceFromForeToHindInBaseFrame_(0.0) {
-
+  output_.open("./output.txt");
   currentTime_ = 0.0;
 }
 
 TorsoControlJump::~TorsoControlJump() {
+  output_.close();
   delete thetas_;
 }
 
@@ -76,6 +77,7 @@ void TorsoControlJump::advance(double dt) {
       Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
   addMeasureToTrajectory(
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
+  output_ << currentTime_ << " " << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z() << std::endl;
 }
 
 void TorsoControlJump::addMeasureToTrajectory(double baseHeight) {

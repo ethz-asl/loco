@@ -56,6 +56,7 @@ class TorsoControlJump : public TorsoControlBase {
   double currentTime_;
   double maxDuration_;
   double headingDistanceFromForeToHindInBaseFrame_;
+  std::ofstream output_;
 
   std::vector<double> measuredHeightTrajectory_;
   Eigen::VectorXd *thetas_;
