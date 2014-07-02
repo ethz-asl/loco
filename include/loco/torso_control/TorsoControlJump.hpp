@@ -25,6 +25,13 @@
 
 namespace loco {
 
+enum Leg {
+  FRONT_LEFT = 0,
+  FRONT_RIGHT,
+  HIND_RIGHT,
+  HIND_LEFT,
+};
+
 class TorsoControlJump : public TorsoControlBase {
  public:
   TorsoControlJump(LegGroup* legs, TorsoBase* torso,
@@ -41,8 +48,9 @@ class TorsoControlJump : public TorsoControlBase {
   CoMOverSupportPolygonControl* getCoMControl();
   virtual bool loadParameters(const TiXmlHandle& handle);
 
-  void addMeasureToTrajectory(double baseHeight);
+  void addMeasuresToTrajectory(double baseHeight);
   std::vector<double> getMeasuredTrajectory();
+  std::vector<bool> getMeasuredContactFlags(Leg leg);
   double getMaxDuration();
   double getProgress();
 
@@ -59,6 +67,10 @@ class TorsoControlJump : public TorsoControlBase {
   std::ofstream output_;
 
   std::vector<double> measuredHeightTrajectory_;
+  std::vector<bool> leftFrontContactFlagTrajectory_;
+  std::vector<bool> rightFrontContactFlagTrajectory_;
+  std::vector<bool> leftHindContactFlagTrajectory_;
+  std::vector<bool> rightHindContactFlagTrajectory_;
   Eigen::VectorXd *thetas_;
 
   virtual bool loadTrajectory(const TiXmlHandle &hJump);

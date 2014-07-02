@@ -75,13 +75,34 @@ void TorsoControlJump::advance(double dt) {
 
   torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
       Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
-  addMeasureToTrajectory(
+  addMeasuresToTrajectory(
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
   output_ << currentTime_ << " " << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z() << std::endl;
 }
 
-void TorsoControlJump::addMeasureToTrajectory(double baseHeight) {
+void TorsoControlJump::addMeasuresToTrajectory(double baseHeight) {
   measuredHeightTrajectory_.push_back(baseHeight);
+
+  leftFrontContactFlagTrajectory_.push_back(legs_->getLeftForeLeg()->isGrounded());
+  leftHindContactFlagTrajectory_.push_back(legs_->getLeftHindLeg()->isGrounded());
+  rightHindContactFlagTrajectory_.push_back(legs_->getRightHindLeg()->isGrounded());
+  rightFrontContactFlagTrajectory_.push_back(legs_->getRightForeLeg()->isGrounded());
+}
+
+std::vector<bool> TorsoControlJump::getMeasuredContactFlags(Leg leg) {
+  switch (leg) {
+    case FRONT_LEFT:
+      return leftFrontContactFlagTrajectory_;
+    case FRONT_RIGHT:
+      return leftFrontContactFlagTrajectory_;
+    case HIND_LEFT:
+      return leftFrontContactFlagTrajectory_;
+    case HIND_RIGHT:
+      return leftFrontContactFlagTrajectory_;
+    default:
+      std::vector<bool> emptyVector;
+      return emptyVector;
+  }
 }
 
 std::vector<double> TorsoControlJump::getMeasuredTrajectory() {
