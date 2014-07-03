@@ -15,9 +15,9 @@ JointControllerStarlETH::JointControllerStarlETH(robotModel::RobotModel* robotMo
  isClampingTorques_(false)
 {
   jointMaxTorques_.toImplementation().fill(std::numeric_limits<double>::max());
-  setJointControlGainsHAA(70.0, 3.1);
-  setJointControlGainsHFE(70.0, 3.2);
-  setJointControlGainsKFE(26.0, 0.2);
+//  setJointControlGainsHAA(70.0, 3.1);
+//  setJointControlGainsHFE(70.0, 3.2);
+//  setJointControlGainsKFE(26.0, 0.2);
 
 
   /* X-Configuration */
