@@ -33,7 +33,7 @@
 
 
 
-namespace testbed {
+namespace loco {
 
 typedef kindr::phys_quant::eigen_impl::VectorTypeless<double, 12> JointVector;
 typedef kindr::phys_quant::eigen_impl::Torque<double, 12> JointTorques;

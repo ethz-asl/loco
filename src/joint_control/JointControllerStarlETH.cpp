@@ -25,11 +25,11 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
 */
-#include "testbed/JointControllerStarlETH.hpp"
+#include "loco/joint_control/JointControllerStarlETH.hpp"
 #include <limits>
 #include <iostream>
 
-namespace testbed {
+namespace loco {
 
 JointControllerStarlETH::JointControllerStarlETH(robotModel::RobotModel* robotModel) :
  robotModel_(robotModel),
