@@ -38,6 +38,9 @@ VisualizerSC::VisualizerSC() :
   }
 
 
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+
 }
 VisualizerSC::~VisualizerSC() {
   delete gaitPatternWindow_;
@@ -305,8 +308,8 @@ void VisualizerSC::drawPose(Character* character, AbstractRBEngine* world, Reduc
 
   bool shadowMode = false;
   bool drawMesh = false;
-  int flags = (drawMesh)?(SHOW_MESH | SHOW_EYE_BLINK):(SHOW_ABSTRACT_VIEW | drawFlags /*| SHOW_BODY_FRAME | SHOW_ABSTRACT_VIEW*/);
-
+//  int flags = (drawMesh)?(SHOW_MESH | SHOW_EYE_BLINK):(SHOW_ABSTRACT_VIEW | drawFlags /*| SHOW_BODY_FRAME | SHOW_ABSTRACT_VIEW*/);
+  int flags = drawFlags;
     flags |= SHOW_CHARACTER;
 //  flags = SHOW_ABSTRACT_VIEW;
   //if we are drawing shadows, we don't need to enable textures or lighting, since we only want the projection anyway
@@ -321,17 +324,19 @@ void VisualizerSC::drawPose(Character* character, AbstractRBEngine* world, Reduc
   }else
     glDisable(GL_LIGHTING);
 
-  if (world == NULL)
+  if (character == NULL)
     return;
 
   character->getAF()->root->draw(flags);
   for (int i=0; i<character->getJointCount(); i++) {
       character->getJoint(i)->getChild()->draw(flags);
   }
-//  world->drawRBs(flags);
+
   glDisable(GL_TEXTURE_2D);
   glDisable(GL_LIGHTING);
-  glColor3d(0,0,0);
+
+
+  //glColor3d(0,0,0);
 
 
 
@@ -340,7 +345,9 @@ void VisualizerSC::drawPose(Character* character, AbstractRBEngine* world, Reduc
 
   world->setState(&worldState);
 
-  glDisable(GL_LIGHTING);
+//  glDisable(GL_LIGHTING);
+
+//  glEnable(GL_LIGHTING); // todo
 }
 
 void VisualizerSC::setCharacterJointState(ReducedCharacterState& newState, const VectorQj& Qj, const VectorQj& dQj) {
@@ -422,6 +429,43 @@ void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, doubl
 
 }
 
+
+
+void VisualizerSC::drawFrictionPyramidOfContactForceDistribution(loco::LegGroup* legs, loco::ContactForceDistribution* contactForceDistribution, double heightOfFrictionPyramid) {
+
+  glPushMatrix();
+
+  for (auto leg : *legs) {
+    // Only draw if leg is grounded:
+    if (leg->isGrounded()) {
+
+      // Get Friction coefficient:
+      const double frictionCoefficient = contactForceDistribution->getFrictionCoefficient(leg);
+
+      const double widthOfFrictionPyramid1 = frictionCoefficient*heightOfFrictionPyramid;
+      const double widthOfFrictionPyramid2 = frictionCoefficient*heightOfFrictionPyramid;
+
+      const Vector normaltoGround = -contactForceDistribution->getNormalDirectionOfFrictionPyramidInWorldFrame(leg).normalized()*heightOfFrictionPyramid;
+      const loco::Vector tangential1 = contactForceDistribution->getFirstDirectionOfFrictionPyramidInWorldFrame(leg);
+      const loco::Vector tangential2 = contactForceDistribution->getSecondDirectionOfFrictionPyramidInWorldFrame(leg);
+
+
+      const Position originOfFrictionPyramid = leg->getWorldToFootPositionInWorldFrame()-loco::Position(normaltoGround);
+
+
+      // set color from outside of the method
+//      GLUtilsKindr::glLColor(1.0,0.0,0,0.7);
+      glDepthMask(GL_FALSE);
+      GLUtilsKindr::drawPyramid(widthOfFrictionPyramid1, widthOfFrictionPyramid2, tangential1, tangential2, normaltoGround, originOfFrictionPyramid);
+      glDepthMask(GL_TRUE);
+
+
+    }
+
+  }
+  glPopMatrix();
+
+}
 
 
 } /* namespace loco */

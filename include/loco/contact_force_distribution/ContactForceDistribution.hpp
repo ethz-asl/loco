@@ -74,6 +74,11 @@ class ContactForceDistribution : public ContactForceDistributionBase
    */
    bool getNetForceAndTorqueOnBase(Force& netForce, Torque& netTorque);
 
+   const Vector& getFirstDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
+   const Vector& getSecondDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
+   const Vector& getNormalDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
+   double getFrictionCoefficient(LegBase* leg) const;
+
  private:
   //! Number of legs in stance phase
   int nLegsInForceDistribution_;
@@ -115,6 +120,13 @@ class ContactForceDistribution : public ContactForceDistributionBase
     int indexInStanceLegList_;
     int startIndexInVectorX_;
     Force desiredContactForce_;
+    //! for logging
+    Vector firstDirectionOfFrictionPyramidInWorldFrame_;
+    //! for logging
+    Vector secondDirectionOfFrictionPyramidInWorldFrame_;
+    //! for logging
+    Vector normalDirectionOfFrictionPyramidInWorldFrame_;
+    double frictionCoefficient_;
   };
 
   std::map<LegBase*, LegInfo> legInfos_;
