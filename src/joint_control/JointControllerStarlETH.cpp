@@ -418,6 +418,86 @@ void JointControllerStarlETH::setMinTorqueKFE(double minTorque) {
 }
 
 
+bool JointControllerStarlETH::loadParameters(const TiXmlHandle& handle) {
+  double kp, kd, maxTorque;
+
+  TiXmlElement* pElem;
+  pElem = handle.FirstChild("JointController").FirstChild("StarlETH").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH\n");
+    return false;
+  }
+  TiXmlHandle hJointController(
+      handle.FirstChild("JointController").FirstChild("StarlETH"));
+
+  pElem = hJointController.FirstChild("HAA").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH:HAA\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kp", &kp) != TIXML_SUCCESS) {
+    printf("Could not find HAA:kp\n");
+    return false;
+  }
+
+  if (pElem->QueryDoubleAttribute("kd", &kd) != TIXML_SUCCESS) {
+    printf("Could not find HAA:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("maxTorque", &maxTorque) != TIXML_SUCCESS) {
+    printf("Could not find HAA:maxTorque\n");
+    return false;
+  }
+  setJointControlGainsHAA(kp, kd);
+  setMaxTorqueHAA(maxTorque);
+
+  /* HFE */
+  pElem = hJointController.FirstChild("HFE").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH:HFE\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kp", &kp) != TIXML_SUCCESS) {
+    printf("Could not find HFE:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &kd) != TIXML_SUCCESS) {
+    printf("Could not find HFE:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("maxTorque", &maxTorque) != TIXML_SUCCESS) {
+    printf("Could not find HFE:maxTorque\n");
+    return false;
+  }
+  setJointControlGainsHFE(kp, kd);
+  setMaxTorqueHFE(maxTorque);
+
+  /* KFE */
+  pElem = hJointController.FirstChild("KFE").Element();
+  if (!pElem) {
+    printf("Could not find JointController:StarlETH:KFE\n");
+    return false;
+  }
+
+  if (pElem->QueryDoubleAttribute("kp", &kp) != TIXML_SUCCESS) {
+    printf("Could not find KFE:kp\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("kd", &kd) != TIXML_SUCCESS) {
+    printf("Could not find KFE:kd\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("maxTorque", &maxTorque) != TIXML_SUCCESS) {
+    printf("Could not find KFE:maxTorque\n");
+    return false;
+  }
+  setJointControlGainsKFE(kp, kd);
+  setMaxTorqueKFE(maxTorque);
+
+  return true;
+}
+
+
 std::ostream& operator << (std::ostream& out, const JointControllerStarlETH& controller) {
 
   out <<  (controller.isClampingPositions_ ? "Joint positions are limited.\n" : "Joint positions are NOT limited.\n");

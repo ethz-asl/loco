@@ -28,7 +28,9 @@
 #ifndef TESTBED_JOINTCONTROLLERSTARLETH_HPP_
 #define TESTBED_JOINTCONTROLLERSTARLETH_HPP_
 
+#include "loco/joint_control/JointControllerBase.hpp"
 #include <kindr/phys_quant/PhysicalQuantitiesEigen.hpp>
+#include <loco/common/TypeDefsStarlETH.hpp>
 #include "RobotModel.hpp"
 
 
@@ -44,7 +46,7 @@ typedef Eigen::Matrix<double, 18, 1> GeneralizedVelocities;
 typedef Eigen::Matrix<double, 18, 1> GeneralizedAccelerations;
 
 
-class JointControllerStarlETH  {
+class JointControllerStarlETH :JointControllerBase {
  public:
   JointControllerStarlETH(robotModel::RobotModel* robotModel);
   virtual ~JointControllerStarlETH();
@@ -70,7 +72,7 @@ class JointControllerStarlETH  {
   virtual void setIsClampingPositions(bool isClamping);
   virtual void setIsClampingVelocities(bool isClamping);
 
-
+  virtual bool loadParameters(const TiXmlHandle& handle);
   virtual void setDesiredJointPositionsInVelocityControl(const robotModel::VectorAct& positions);
 
   void setJointPositionLimitsFromDefaultConfiguration(const Eigen::Vector3d& jointMinPositionsForLegInDefaultConfiguration,
