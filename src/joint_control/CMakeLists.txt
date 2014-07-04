@@ -15,7 +15,8 @@ PARENT_SCOPE)
 ###############
 set(TASK_SRCS ${TASK_SRCS}
     ${CMAKE_CURRENT_SOURCE_DIR}/JointControllerBase.cpp
-     ${CMAKE_CURRENT_SOURCE_DIR}/JointControllerStarlETH.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/JointControllerStarlETH.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/JointControllerStarlETHWithSEA.cpp
 PARENT_SCOPE)
 
 #################
