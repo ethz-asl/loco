@@ -17,6 +17,7 @@
 
 #include "loco/locomotion_controller/LocomotionControllerBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
+#include "loco/contact_force_distribution/ContactForceDistribution.hpp"
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
 
@@ -60,6 +61,9 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
 
   virtual void drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrategyInvertedPendulum* strategy);
 
+
+  virtual void drawFrictionPyramidOfContactForceDistribution(loco::LegGroup* legs, loco::ContactForceDistribution* contactForceDistribution, double heightOfFrictionPyramid=0.15);
+
   /*! Check if the index of a joint of the character indicates a hip AA joint
    * @param jIndex  joint index
    * @return  true if it is a hip AA joint
@@ -77,6 +81,8 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
    * @return  true if it is a knee FE joint
    */
   bool isKneeFE(int jIndex);
+
+
 
 
 

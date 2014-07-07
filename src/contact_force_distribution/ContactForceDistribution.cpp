@@ -223,6 +223,9 @@ bool ContactForceDistribution::addFrictionConstraints()
 //      const Vector3d& normalDirection = legInfo.first->getFootContactNormalInWorldFrame().toImplementation();
       const Vector3d normalDirection = footContactNormalInBaseFrame.toImplementation();
 
+      // for logging
+      legInfo.second.normalDirectionOfFrictionPyramidInWorldFrame_ = loco::Vector(footContactNormalInWorldFrame);
+
       // The choose the first tangential to lie in the XZ-plane of the base frame.
       // This is the same as the requirement as
       // 1) firstTangential perpendicular to normalDirection,
@@ -234,10 +237,17 @@ bool ContactForceDistribution::addFrictionConstraints()
       Vector3d firstTangentialInBaseFrame = orientationHeadingToBase.rotate(vectorY);
       Vector3d firstTangential = normalDirection.cross(firstTangentialInBaseFrame).normalized();
 
+      // logging
+      legInfo.second.firstDirectionOfFrictionPyramidInWorldFrame_ = loco::Vector(orientationWorldToBase.inverseRotate(firstTangential));
 
+      // logging
+      legInfo.second.frictionCoefficient_ = frictionCoefficient_;
 
       // The second tangential is perpendicular to the normal and the first tangential.
       Vector3d secondTangential = normalDirection.cross(firstTangential).normalized();
+
+      // logging
+      legInfo.second.secondDirectionOfFrictionPyramidInWorldFrame_ = loco::Vector(orientationWorldToBase.inverseRotate(secondTangential));
 
       // First tangential, positive
       D_rows.block(0, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) =
@@ -412,6 +422,20 @@ bool ContactForceDistribution::updateLoggerData()
 {
   if (!isLogging_) return false;
   return true;
+}
+
+const Vector& ContactForceDistribution::getFirstDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
+  return legInfos_.find(leg)->second.firstDirectionOfFrictionPyramidInWorldFrame_;
+}
+const Vector& ContactForceDistribution::getSecondDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
+  return legInfos_.find(leg)->second.secondDirectionOfFrictionPyramidInWorldFrame_;
+}
+const Vector& ContactForceDistribution::getNormalDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
+  return legInfos_.find(leg)->second.normalDirectionOfFrictionPyramidInWorldFrame_;
+}
+
+double ContactForceDistribution::getFrictionCoefficient(LegBase* leg) const {
+  return legInfos_.find(leg)->second.frictionCoefficient_;
 }
 
 bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
