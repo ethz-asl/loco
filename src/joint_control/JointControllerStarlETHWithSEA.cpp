@@ -1,12 +1,34 @@
 /*
- * JointControllerStarlETHWithSEA.cpp
+ * Copyright (c) 2014, Christian Gehring
+ * All rights reserved.
  *
- *  Created on: Apr 2, 2014
- *      Author: gech
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Autonomous Systems Lab, ETH Zurich nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Christian Gehring
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-
 #include "loco/joint_control/JointControllerStarlETHWithSEA.hpp"
 #include <limits>
+#include <iostream>
+
 namespace loco {
 
 JointControllerStarlETHWithSEA::JointControllerStarlETHWithSEA(
@@ -28,7 +50,7 @@ JointControllerStarlETHWithSEA::JointControllerStarlETHWithSEA(
   isLegInDefaultConfiguration_[3] = false;
 
   /* set position limits */
-  const double deltaLimit = DELTA_LIMIT;  // [rad]
+  const double deltaLimit = 0.05;  // [rad]
   Eigen::Vector3d jointMinPositionsForLegInDefaultConfiguration;
   Eigen::Vector3d jointMaxPositionsForLegInDefaultConfiguration;
   jointMinPositionsForLegInDefaultConfiguration(0) = -0.4 + deltaLimit;  // -0.2+deltaLimit;
@@ -43,7 +65,7 @@ JointControllerStarlETHWithSEA::JointControllerStarlETHWithSEA(
       isLegInDefaultConfiguration_);
 
   /* set torque limits */
-  const double absMaxTorque = ABSOLUTE_MAX_TORQUE;  // [Nm]
+  const double absMaxTorque = 20.0;  // [Nm]
   Eigen::Vector3d jointMinTorquesForLegInDefaultConfiguration;
   Eigen::Vector3d jointMaxTorquesForLegInDefaultConfiguration;
   jointMinTorquesForLegInDefaultConfiguration(0) = -absMaxTorque;
@@ -58,7 +80,7 @@ JointControllerStarlETHWithSEA::JointControllerStarlETHWithSEA(
       isLegInDefaultConfiguration_);
 
   /* set velocity limits */
-  const double absMaxVelocity = ABSOLUTE_MAX_VELOCITY;  // [m/s]
+  const double absMaxVelocity = 10.0;  // [m/s]
   Eigen::Vector3d jointMinVelocitiesForLegInDefaultConfiguration;
   Eigen::Vector3d jointMaxVelocitiesForLegInDefaultConfiguration;
   jointMinVelocitiesForLegInDefaultConfiguration(0) = -absMaxVelocity;
@@ -78,19 +100,19 @@ void JointControllerStarlETHWithSEA::setJointPositionLimitsFromDefaultConfigurat
     const Eigen::Vector3d& jointMinPositionsForLegInDefaultConfiguration,
     const Eigen::Vector3d& jointMaxPositionsForLegInDefaultConfiguration,
     const bool isLegInDefaultConfiguration[]) {
-  //  LF_LEG position limits
+  //  LF_LEG limits
   jointMinPositions_(0) = jointMinPositionsForLegInDefaultConfiguration(0);
   jointMaxPositions_(0) = jointMaxPositionsForLegInDefaultConfiguration(0);
 
-  //  RF_LEG position limits
+  //  RF_LEG limits
   jointMinPositions_(3) = -jointMaxPositionsForLegInDefaultConfiguration(0);
   jointMaxPositions_(3) = -jointMinPositionsForLegInDefaultConfiguration(0);
 
-  //  LH_LEG position limits
+  //  LH_LEG limits
   jointMinPositions_(6) = jointMinPositionsForLegInDefaultConfiguration(0);
   jointMaxPositions_(6) = jointMaxPositionsForLegInDefaultConfiguration(0);
 
-  //  RH_LEG position limits
+  //  RH_LEG limits
   jointMinPositions_(9) = -jointMaxPositionsForLegInDefaultConfiguration(0);
   jointMaxPositions_(9) = -jointMinPositionsForLegInDefaultConfiguration(0);
 
@@ -195,7 +217,6 @@ void JointControllerStarlETHWithSEA::setJointVelocityLimitsFromDefaultConfigurat
             jointMaxVelocitiesForLegInDefaultConfiguration(2) :
             -jointMinVelocitiesForLegInDefaultConfiguration(2);
   }
-
 }
 
 const JointPositions& JointControllerStarlETHWithSEA::getMaxJointPositions() const {
@@ -220,111 +241,7 @@ const JointTorques& JointControllerStarlETHWithSEA::getMinJointTorques() const {
 }
 
 JointControllerStarlETHWithSEA::~JointControllerStarlETHWithSEA() {
-
-}
-
-/**
- * Ensures that a number is clamped between a lower bound and an upper bound.
- * @param number: Number to be clamped.
- * @param lower: Lower bound.
- * @param upper: Upper bound.
- */
-inline double clamp(double number, double lower, double upper) {
-  return std::max(lower, std::min(number, upper));
-}
-
-/**
- * Transfer function from desired torque to measured torque.
- * Tracks a given reference joint torque
- * @param dt: time step
- */
-bool JointControllerStarlETHWithSEA::trackMotorTorques(double dt) {
-  const robotModel::VectorAct desJointTorques = robotModel_->act().getTau();
-
-  for (int i = 0; i < desJointTorques.size(); i++) {
-    desJointTorques_(i) = desJointTorques(i);
-    desiredMotorVelocities_(i) = pGains_(i)
-        * (desJointTorques_(i) - previousMeasuredJointTorques_(i));
-  }
-
-  return trackMotorVelocities(dt);
-}
-
-/**
- * Transfer function for motor dynamics (from desired motor velocity to measured motor velocity).
- * Tracks a given reference motor velocity
- * @param dt: time step
- */
-bool JointControllerStarlETHWithSEA::trackMotorVelocities(double dt) {
-
-  measuredMotorVelocities_ = desiredMotorVelocities_;
-
-  JointVelocities maxVelocities, minVelocities;
-
-  // Just fill evertyhing with absolute max velocity if all torques are zero
-  if (previousMeasuredJointTorques_.sum() == 0.0) {
-    maxVelocities = jointMaxVelocities_;
-    minVelocities = jointMinVelocities_;
-  } else {
-    // Otherwise, calculate max velocity by using max power, but still use absolute max velocity if torque is zero.
-    for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i++) {
-      maxVelocities(i) =
-          previousMeasuredJointTorques_(i) == 0.0 ?
-              ABSOLUTE_MAX_VELOCITY :
-              MAX_POWER / previousMeasuredJointTorques_(i);
-    }
-    minVelocities = -maxVelocities;
-  }
-
-  for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i++) {
-    clamp((double) desiredMotorVelocities_(i), (double) jointMinVelocities_(i),
-          (double) jointMaxVelocities_(i));
-
-    clamp((double) desiredMotorVelocities_(i), (double) minVelocities(i),
-          (double) maxVelocities(i));
-  }
-
-  measuredMotorVelocities_ = desiredMotorVelocities_;
-  return transferFunctionMotorVelocitiesToTorques(dt);
-}
-
-/**
- * Transfer function from motor velocity to joint torque.
- * Closes the loop for torque control.
- * @param dt: time step
- */
-bool JointControllerStarlETHWithSEA::transferFunctionMotorVelocitiesToTorques(
-    double dt) {
-
-  robotModel::VectorQj motorPositionsToSet;
-  robotModel::VectorAct jointTorquesToSet;
-
-  for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i++) {
-    measuredMotorPositions_(i) += measuredMotorVelocities_(i) * dt;
-    motorPositionsToSet(i) = measuredMotorPositions_(i);
-
-    measuredJointVelocities_(i) = robotModel_->q().getdQj()(i);
-    measuredJointPositions_(i) = robotModel_->q().getQj()(i);
-    previousMeasuredJointTorques_(i) = measuredJointTorques_(i);
-
-    measuredJointTorques_(i) = springStiffnesses_(i)
-        * (measuredMotorPositions_(i) - measuredJointPositions_(i))
-        + springDampings_(i)
-            * (measuredMotorVelocities_(i) - measuredJointVelocities_(i));
-
-    jointTorquesToSet(i) = measuredJointTorques_(i);
-  }
-
-  robotModel_->sensors().setMotorPos(motorPositionsToSet);
-
-  robotModel_->sensors().setJointTorques(jointTorquesToSet);
-  robotModel_->act().setTau(jointTorquesToSet);
-
-  return true;
-}
-
-const JointTorques& JointControllerStarlETHWithSEA::getJointTorques() const {
-  return jointTorques_;
+  output_.close();
 }
 
 void JointControllerStarlETHWithSEA::setDesiredJointPositionsInVelocityControl(
@@ -346,31 +263,17 @@ void JointControllerStarlETHWithSEA::setIsClampingVelocities(bool isClamping) {
 
 bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
-  // We start in the air, so torques are zero.
+  desJointModesPrevious_ = robotModel_->act().getMode();
+  desPositionsInVelocityControl_ = robotModel_->q().getQj();  //robotModel_->act().getPos();
   desJointTorques_.setZero();
-
-  robotModel::VectorQj motorPositionsToSet;
-  robotModel::VectorAct measuredJointTorques = robotModel_->sensors()
-      .getJointTorques();
-
-  for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i++) {
-    previousMeasuredJointTorques_(i) = measuredJointTorques(i);
-
-    // Set motor positions to joint positions for initialization
-    measuredJointPositions_(i) = robotModel_->q().getQj()(i);
-    motorPositionsToSet(i) = measuredJointPositions_(i);
-  }
-
-  robotModel_->sensors().setMotorPos(motorPositionsToSet);
-
-  // Ensure that motor velocities are zero
   measuredMotorVelocities_.setZero();
-  robotModel::VectorQj motorVelocitiesToSet;
-  motorVelocitiesToSet.fill(0);
+  desJointModesPrevious_.fill(robotModel::AM_Velocity);
+  previousJointTorques_.setZero();
 
-  robotModel_->sensors().setMotorVel(motorVelocitiesToSet);
+  measuredMotorPositions_ = JointPositions(robotModel_->q().getQj());
 
-  // Put spring parameters in vectors
+  output_.open("debug");
+
   for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i +=
       (int) JointTypes::NUMBER_OF_JOINT_TYPES) {
 
@@ -381,94 +284,210 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
     springStiffnesses_[JointTypes::KFE + i] = robotModel_->params()
         .springStiffnesses_.kfe;
 
-    springDampings_[JointTypes::HAA + i] = robotModel_->params()
-        .springDampings_.haa;
-    springDampings_[JointTypes::HFE + i] = robotModel_->params()
-        .springDampings_.hfe;
-    springDampings_[JointTypes::KFE + i] = robotModel_->params()
-        .springDampings_.kfe;
+    springDampings_[JointTypes::HAA + i] = robotModel_->params().springDampings_
+        .haa;
+    springDampings_[JointTypes::HFE + i] = robotModel_->params().springDampings_
+        .hfe;
+    springDampings_[JointTypes::KFE + i] = robotModel_->params().springDampings_
+        .kfe;
 
     // Set P-gains
     pGains_[JointTypes::HAA + i] = PGAIN_HAA;
     pGains_[JointTypes::HFE + i] = PGAIN_HFE;
     pGains_[JointTypes::KFE + i] = PGAIN_KFE;
-  }
 
-  desJointModesPrevious_ = robotModel_->act().getMode();
-  desPositionsInVelocityControl_ = robotModel_->q().getQj();  //robotModel_->act().getPos();
-  jointTorques_.setZero();
-  desJointModesPrevious_.fill(robotModel::AM_Velocity);
+  }
 
   return true;
 }
 
-bool JointControllerStarlETHWithSEA::advance(double dt) {
-/*
-   if (!trackMotorTorques(dt)) {
-   std::cout << "Error while tracking torques!" << std::endl;
+/**
+ * Calculates torque according to actuation model with springs.
+ * Calculation is done by taking the spring deflections in position ands velocity and multiply them with spring stiffnesses and dampings.
+ * @param
+ */
+double JointControllerStarlETHWithSEA::calculateTorqueFromSprings(
+    int index, double dt, double measuredMotorVelocity) {
 
-   return false;
-   }
-*/
+  double measuredJointVelocity, measuredJointPosition;
+
+  measuredJointPosition = robotModel_->q().getQj()(index);
+  measuredJointVelocity = robotModel_->q().getdQj()(index);
+
+//  output_ << index << "Position Before: " << measuredMotorPositions_(index)
+//          << std::endl;
+
+  measuredMotorPositions_(index) += measuredMotorVelocity * dt;
+
+//  output_ << index << "Position After: " << measuredMotorPositions_(index)
+//          << std::endl;
+
+  return springStiffnesses_(index)
+      * (measuredMotorPositions_(index) - measuredJointPosition)
+      + springDampings_(index) * (measuredMotorVelocity - measuredJointVelocity);
+//   return desJointTorques_(index);
+}
+
+/**
+ * Transfer function for motor dynamics (from desired motor velocity to measured motor velocity).
+ * Tracks a given reference motor velocity.
+ * @param index: index of current joint
+ * @param dt: time step
+ * @param desMotorVelocity: velocity reference for current joint
+ */
+double JointControllerStarlETHWithSEA::trackMotorVelocity(
+    int index, double dt, double desMotorVelocity) {
+
+  double measuredMotorVelocity = desMotorVelocity;
+
+  double maxVelocity;
+
+  // Set max velocity to absolute max velocity (physical limit) if previous torque is zero.
+  // Otherwise, calculate max velocity by using max power
+  maxVelocity =
+      previousJointTorques_(index) == 0.0 ?
+          ABSOLUTE_MAX_VELOCITY :
+          MAX_POWER / previousJointTorques_(index);
+
+  // Clamp velocity according to power limit.
+  if (measuredMotorVelocity > maxVelocity) {
+    measuredMotorVelocity = maxVelocity;
+  } else if (measuredMotorVelocity < -maxVelocity) {
+    measuredMotorVelocity = -maxVelocity;
+  }
+
+  // Make sure the velocity is still within bounds of physical limits.
+  if (measuredMotorVelocity > jointMaxVelocities_(index)) {
+    measuredMotorVelocity = jointMaxVelocities_(index);
+  } else if (measuredMotorVelocity < jointMinVelocities_(index)) {
+    measuredMotorVelocity = jointMinVelocities_(index);
+  }
+
+  measuredMotorVelocities_(index) = measuredMotorVelocity;
+
+  return measuredMotorVelocity;
+}
+
+/**
+ * Tracks reference torque as defined by desJointTorques.
+ * @param index: index of current joint
+ * @param dt: time step
+ */
+double JointControllerStarlETHWithSEA::trackJointTorque(int index, double dt) {
+  double torqueToSet;
+  double desMotorVelocity, measuredMotorVelocity;
+
+  desMotorVelocity = (desJointTorques_(index) - previousJointTorques_(index))
+      * pGains_(index);
+
+  measuredMotorVelocity = trackMotorVelocity(index, dt, desMotorVelocity);
+
+  torqueToSet = calculateTorqueFromSprings(index, dt, measuredMotorVelocity);
+
+  return -torqueToSet;
+}
+
+bool JointControllerStarlETHWithSEA::advance(double dt) {
+
+  desJointPositions_ = JointPositions(robotModel_->act().getPos());
+  desJointVelocities_ = JointVelocities(robotModel_->act().getVel());
 
   const robotModel::VectorActM desJointModes = robotModel_->act().getMode();
-  jointPositions_ = JointPositions(robotModel_->act().getPos());
-  jointVelocities_ = JointVelocities(robotModel_->act().getVel());
   const robotModel::VectorAct desJointTorques = robotModel_->act().getTau();
-
   const robotModel::VectorQj measJointPositions = robotModel_->q().getQj();
   const robotModel::VectorQj measJointVelocities = robotModel_->q().getdQj();
+
+  robotModel::VectorQj measMotorPositions;
+  robotModel::VectorQj measMotorVelocities;
+  robotModel::VectorAct jointTorquesToSet;
 
   for (int i = 0; i < desJointModes.size(); i++) {
     if (desJointModes(i) == robotModel::AM_Position) {
       if (isClampingPositions_) {
-        if (jointPositions_(i) > jointMaxPositions_(i)) {
-          jointPositions_(i) = jointMaxPositions_(i);
-        } else if (jointPositions_(i) < jointMinPositions_(i)) {
-          jointPositions_(i) = jointMinPositions_(i);
+        if (desJointPositions_(i) > jointMaxPositions_(i)) {
+          desJointPositions_(i) = jointMaxPositions_(i);
+        } else if (desJointPositions_(i) < jointMinPositions_(i)) {
+          desJointPositions_(i) = jointMinPositions_(i);
         }
       }
-      jointTorques_(i) = jointPositionControlProportionalGains_(i)
-          * (jointPositions_(i) - measJointPositions(i));
-      jointTorques_(i) += jointPositionControlDerivativeGains_(i)
-          * (jointVelocities_(i) - measJointVelocities(i));
+      jointTorquesToSet_(i) = jointPositionControlProportionalGains_(i)
+          * (desJointPositions_(i) - measJointPositions(i));
+      jointTorquesToSet_(i) += jointPositionControlDerivativeGains_(i)
+          * (desJointVelocities_(i) - measJointVelocities(i));
 
     } else if (desJointModes(i) == robotModel::AM_Velocity) {
       if (isClampingVelocities_) {
-        if (jointVelocities_(i) > jointMaxVelocities_(i)) {
-          jointVelocities_(i) = jointMaxVelocities_(i);
-        } else if (jointVelocities_(i) < jointMinVelocities_(i)) {
-          jointVelocities_(i) = jointMinVelocities_(i);
+        if (desJointVelocities_(i) > jointMaxVelocities_(i)) {
+          desJointVelocities_(i) = jointMaxVelocities_(i);
+        } else if (desJointVelocities_(i) < jointMinVelocities_(i)) {
+          desJointVelocities_(i) = jointMinVelocities_(i);
         }
       }
       if (desJointModes(i) != desJointModesPrevious_(i)) {
-        desPositionsInVelocityControl_(i) = jointPositions_(i);
+        desPositionsInVelocityControl_(i) = desJointPositions_(i);
       }
-      jointTorques_(i) = jointVelocityControlProportionalGains_(i)
+      jointTorquesToSet_(i) = jointVelocityControlProportionalGains_(i)
           * (desPositionsInVelocityControl_(i) - measJointPositions(i));
-      jointTorques_(i) += jointVelocityControlDerivativeGains_(i)
-          * (jointVelocities_(i) - measJointVelocities(i));
+      jointTorquesToSet_(i) += jointVelocityControlDerivativeGains_(i)
+          * (desJointVelocities_(i) - measJointVelocities(i));
 
     } else if (desJointModes(i) == robotModel::AM_Torque) {
-      jointTorques_(i) = desJointTorques(i);
+      // Remember the reference signal so we can get it from outside this class if needed.
+      // Also needed to track joint torque.
+//      desJointTorques_(i) = desJointTorques(i);
+//
+//      jointTorquesToSet(i) = trackJointTorque(i, dt);
+//
+//      measMotorPositions(i) = measuredMotorPositions_(i);
+//      measMotorVelocities(i) = measuredMotorVelocities_(i);
+//      jointTorquesToSet_(i) = jointTorquesToSet(i);
+      jointTorquesToSet_(i) = desJointTorques(i);
     } else {
       throw "Joint control mode is not supported!";
     }
 //    std::cout << "joint mode " << i << " :" << (int) desJointModes(i) << " pos: " << desJointPositions(i) << " vel:"  << desJointVelocities(i) << " tau: " << jointTorques_(i) << std::endl;
     if (isClampingTorques_) {
-      if (jointTorques_(i) > jointMaxTorques_(i)) {
-        jointTorques_(i) = jointMaxTorques_(i);
-      } else if (jointTorques_(i) < jointMinTorques_(i)) {
-        jointTorques_(i) = jointMinTorques_(i);
+      if (desJointTorques(i) > jointMaxTorques_(i)) {
+        jointTorquesToSet_(i) = jointMaxTorques_(i);
+      } else if (desJointTorques(i) < jointMinTorques_(i)) {
+        jointTorquesToSet_(i) = jointMinTorques_(i);
       }
     }
+//    output_ << "DESIRED: " << desJointTorques(i) << " FINAL: " << jointTorquesToSet_(i) << std::endl;
   }
 
+  robotModel_->sensors().setMotorPos(measMotorPositions);
+  robotModel_->sensors().setMotorVel(measMotorVelocities);
+  robotModel_->sensors().setJointTorques(jointTorquesToSet);
+
+
+//  for (int i = 0 ; i < TOTAL_NUMBER_OF_JOINTS; i++) {
+//    output_ << "INIT previous joint torques: " << previousJointTorques_(i)
+//            << std::endl;
+//  }
+//
+//  output_ << ""
+//          << std::endl;
+
+  previousJointTorques_ = jointTorquesToSet_;
   desJointModesPrevious_ = desJointModes;
 
   return true;
+}
 
-//  return trackMotorTorques(dt);
+const JointTorques& JointControllerStarlETHWithSEA::getJointTorques() const {
+  return jointTorquesToSet_;
+}
+
+const JointTorques& JointControllerStarlETHWithSEA::getDesiredJointTorques() const {
+  return desJointTorques_;
+}
+
+const JointPositions& JointControllerStarlETHWithSEA::getJointPositions() const {
+  return desJointPositions_;
+}
+const JointVelocities& JointControllerStarlETHWithSEA::getJointVelocities() const {
+  return desJointVelocities_;
 }
 
 void JointControllerStarlETHWithSEA::setJointControlGainsHAA(double kp,
@@ -555,6 +574,27 @@ void JointControllerStarlETHWithSEA::setMaxTorqueKFE(double maxTorque) {
   jointMaxTorques_(11) = maxTorque;
 }
 
+void JointControllerStarlETHWithSEA::setMinTorqueHAA(double minTorque) {
+  jointMinTorques_(0) = minTorque;
+  jointMinTorques_(3) = minTorque;
+  jointMinTorques_(6) = minTorque;
+  jointMinTorques_(9) = minTorque;
+}
+
+void JointControllerStarlETHWithSEA::setMinTorqueHFE(double minTorque) {
+  jointMinTorques_(1) = minTorque;
+  jointMinTorques_(4) = minTorque;
+  jointMinTorques_(7) = minTorque;
+  jointMinTorques_(10) = minTorque;
+}
+
+void JointControllerStarlETHWithSEA::setMinTorqueKFE(double minTorque) {
+  jointMinTorques_(2) = minTorque;
+  jointMinTorques_(5) = minTorque;
+  jointMinTorques_(8) = minTorque;
+  jointMinTorques_(11) = minTorque;
+}
+
 bool JointControllerStarlETHWithSEA::loadParameters(const TiXmlHandle& handle) {
   double kp, kd, maxTorque;
 
@@ -632,6 +672,154 @@ bool JointControllerStarlETHWithSEA::loadParameters(const TiXmlHandle& handle) {
   setMaxTorqueKFE(maxTorque);
 
   return true;
+}
+
+std::ostream& operator <<(std::ostream& out,
+                          const JointControllerStarlETHWithSEA& controller) {
+
+  out << (
+      controller.isClampingPositions_ ?
+          "Joint positions are limited.\n" :
+          "Joint positions are NOT limited.\n");
+  out << (
+      controller.isClampingVelocities_ ?
+          "Joint velocities are limited.\n" :
+          "Joint velocities are NOT limited.\n");
+  out << (
+      controller.isClampingTorques_ ?
+          "Joint torques are limited.\n" : "Joint torques are NOT limited.\n");
+
+  out << "\nJoint position limits [min, max] rad: \n";
+  out << "LF_HAA: [" << controller.jointMinPositions_(0) << ", "
+      << controller.jointMaxPositions_(0) << "]\n";
+  out << "LF_HFE: [" << controller.jointMinPositions_(1) << ", "
+      << controller.jointMaxPositions_(1) << "]\n";
+  out << "LF_KFE: [" << controller.jointMinPositions_(2) << ", "
+      << controller.jointMaxPositions_(2) << "]\n";
+  out << "RF_HAA: [" << controller.jointMinPositions_(3) << ", "
+      << controller.jointMaxPositions_(3) << "]\n";
+  out << "RF_HFE: [" << controller.jointMinPositions_(4) << ", "
+      << controller.jointMaxPositions_(4) << "]\n";
+  out << "RF_KFE: [" << controller.jointMinPositions_(5) << ", "
+      << controller.jointMaxPositions_(5) << "]\n";
+  out << "LH_HAA: [" << controller.jointMinPositions_(6) << ", "
+      << controller.jointMaxPositions_(6) << "]\n";
+  out << "LH_HFE: [" << controller.jointMinPositions_(7) << ", "
+      << controller.jointMaxPositions_(7) << "]\n";
+  out << "LH_KFE: [" << controller.jointMinPositions_(8) << ", "
+      << controller.jointMaxPositions_(8) << "]\n";
+  out << "RH_HAA: [" << controller.jointMinPositions_(9) << ", "
+      << controller.jointMaxPositions_(9) << "]\n";
+  out << "RH_HFE: [" << controller.jointMinPositions_(10) << ", "
+      << controller.jointMaxPositions_(10) << "]\n";
+  out << "RH_KFE: [" << controller.jointMinPositions_(11) << ", "
+      << controller.jointMaxPositions_(11) << "]\n";
+
+  out << "\nJoint velocity limits: [min, max] rad/s\n";
+  out << "LF_HAA: [" << controller.jointMinVelocities_(0) << ", "
+      << controller.jointMaxVelocities_(0) << "]\n";
+  out << "LF_HFE: [" << controller.jointMinVelocities_(1) << ", "
+      << controller.jointMaxVelocities_(1) << "]\n";
+  out << "LF_KFE: [" << controller.jointMinVelocities_(2) << ", "
+      << controller.jointMaxVelocities_(2) << "]\n";
+  out << "RF_HAA: [" << controller.jointMinVelocities_(3) << ", "
+      << controller.jointMaxVelocities_(3) << "]\n";
+  out << "RF_HFE: [" << controller.jointMinVelocities_(4) << ", "
+      << controller.jointMaxVelocities_(4) << "]\n";
+  out << "RF_KFE: [" << controller.jointMinVelocities_(5) << ", "
+      << controller.jointMaxVelocities_(5) << "]\n";
+  out << "LH_HAA: [" << controller.jointMinVelocities_(6) << ", "
+      << controller.jointMaxVelocities_(6) << "]\n";
+  out << "LH_HFE: [" << controller.jointMinVelocities_(7) << ", "
+      << controller.jointMaxVelocities_(7) << "]\n";
+  out << "LH_KFE: [" << controller.jointMinVelocities_(8) << ", "
+      << controller.jointMaxVelocities_(8) << "]\n";
+  out << "RH_HAA: [" << controller.jointMinVelocities_(9) << ", "
+      << controller.jointMaxVelocities_(9) << "]\n";
+  out << "RH_HFE: [" << controller.jointMinVelocities_(10) << ", "
+      << controller.jointMaxVelocities_(10) << "]\n";
+  out << "RH_KFE: [" << controller.jointMinVelocities_(11) << ", "
+      << controller.jointMaxVelocities_(11) << "]\n";
+
+  out << "\nJoint torque limits: [min, max] Nm\n";
+  out << "LF_HAA: [" << controller.jointMinTorques_(0) << ", "
+      << controller.jointMaxTorques_(0) << "]\n";
+  out << "LF_HFE: [" << controller.jointMinTorques_(1) << ", "
+      << controller.jointMaxTorques_(1) << "]\n";
+  out << "LF_KFE: [" << controller.jointMinTorques_(2) << ", "
+      << controller.jointMaxTorques_(2) << "]\n";
+  out << "RF_HAA: [" << controller.jointMinTorques_(3) << ", "
+      << controller.jointMaxTorques_(3) << "]\n";
+  out << "RF_HFE: [" << controller.jointMinTorques_(4) << ", "
+      << controller.jointMaxTorques_(4) << "]\n";
+  out << "RF_KFE: [" << controller.jointMinTorques_(5) << ", "
+      << controller.jointMaxTorques_(5) << "]\n";
+  out << "LH_HAA: [" << controller.jointMinTorques_(6) << ", "
+      << controller.jointMaxTorques_(6) << "]\n";
+  out << "LH_HFE: [" << controller.jointMinTorques_(7) << ", "
+      << controller.jointMaxTorques_(7) << "]\n";
+  out << "LH_KFE: [" << controller.jointMinTorques_(8) << ", "
+      << controller.jointMaxTorques_(8) << "]\n";
+  out << "RH_HAA: [" << controller.jointMinTorques_(9) << ", "
+      << controller.jointMaxTorques_(9) << "]\n";
+  out << "RH_HFE: [" << controller.jointMinTorques_(10) << ", "
+      << controller.jointMaxTorques_(10) << "]\n";
+  out << "RH_KFE: [" << controller.jointMinTorques_(11) << ", "
+      << controller.jointMaxTorques_(11) << "]\n";
+
+  out << "\nPosition-control gains: [p-gain, d-gain]\n";
+  out << "LF_HAA: [" << controller.jointPositionControlProportionalGains_(0)
+      << ", " << controller.jointPositionControlDerivativeGains_(0) << "]\n";
+  out << "LF_HFE: [" << controller.jointPositionControlProportionalGains_(1)
+      << ", " << controller.jointPositionControlDerivativeGains_(1) << "]\n";
+  out << "LF_KFE: [" << controller.jointPositionControlProportionalGains_(2)
+      << ", " << controller.jointPositionControlDerivativeGains_(2) << "]\n";
+  out << "RF_HAA: [" << controller.jointPositionControlProportionalGains_(3)
+      << ", " << controller.jointPositionControlDerivativeGains_(3) << "]\n";
+  out << "RF_HFE: [" << controller.jointPositionControlProportionalGains_(4)
+      << ", " << controller.jointPositionControlDerivativeGains_(4) << "]\n";
+  out << "RF_KFE: [" << controller.jointPositionControlProportionalGains_(5)
+      << ", " << controller.jointPositionControlDerivativeGains_(5) << "]\n";
+  out << "LH_HAA: [" << controller.jointPositionControlProportionalGains_(6)
+      << ", " << controller.jointPositionControlDerivativeGains_(6) << "]\n";
+  out << "LH_HFE: [" << controller.jointPositionControlProportionalGains_(7)
+      << ", " << controller.jointPositionControlDerivativeGains_(7) << "]\n";
+  out << "LH_KFE: [" << controller.jointPositionControlProportionalGains_(8)
+      << ", " << controller.jointPositionControlDerivativeGains_(8) << "]\n";
+  out << "RH_HAA: [" << controller.jointPositionControlProportionalGains_(9)
+      << ", " << controller.jointPositionControlDerivativeGains_(9) << "]\n";
+  out << "RH_HFE: [" << controller.jointPositionControlProportionalGains_(10)
+      << ", " << controller.jointPositionControlDerivativeGains_(10) << "]\n";
+  out << "RH_KFE: [" << controller.jointPositionControlProportionalGains_(11)
+      << ", " << controller.jointPositionControlDerivativeGains_(11) << "]\n";
+
+  out << "\nVelocity-control gains: [p-gain, d-gain]\n";
+  out << "LF_HAA: [" << controller.jointVelocityControlProportionalGains_(0)
+      << ", " << controller.jointVelocityControlDerivativeGains_(0) << "]\n";
+  out << "LF_HFE: [" << controller.jointVelocityControlProportionalGains_(1)
+      << ", " << controller.jointVelocityControlDerivativeGains_(1) << "]\n";
+  out << "LF_KFE: [" << controller.jointVelocityControlProportionalGains_(2)
+      << ", " << controller.jointVelocityControlDerivativeGains_(2) << "]\n";
+  out << "RF_HAA: [" << controller.jointVelocityControlProportionalGains_(3)
+      << ", " << controller.jointVelocityControlDerivativeGains_(3) << "]\n";
+  out << "RF_HFE: [" << controller.jointVelocityControlProportionalGains_(4)
+      << ", " << controller.jointVelocityControlDerivativeGains_(4) << "]\n";
+  out << "RF_KFE: [" << controller.jointVelocityControlProportionalGains_(5)
+      << ", " << controller.jointVelocityControlDerivativeGains_(5) << "]\n";
+  out << "LH_HAA: [" << controller.jointVelocityControlProportionalGains_(6)
+      << ", " << controller.jointVelocityControlDerivativeGains_(6) << "]\n";
+  out << "LH_HFE: [" << controller.jointVelocityControlProportionalGains_(7)
+      << ", " << controller.jointVelocityControlDerivativeGains_(7) << "]\n";
+  out << "LH_KFE: [" << controller.jointVelocityControlProportionalGains_(8)
+      << ", " << controller.jointVelocityControlDerivativeGains_(8) << "]\n";
+  out << "RH_HAA: [" << controller.jointVelocityControlProportionalGains_(9)
+      << ", " << controller.jointVelocityControlDerivativeGains_(9) << "]\n";
+  out << "RH_HFE: [" << controller.jointVelocityControlProportionalGains_(10)
+      << ", " << controller.jointVelocityControlDerivativeGains_(10) << "]\n";
+  out << "RH_KFE: [" << controller.jointVelocityControlProportionalGains_(11)
+      << ", " << controller.jointVelocityControlDerivativeGains_(11) << "]\n";
+
+  return out;
 }
 
 } /* namespace loco */

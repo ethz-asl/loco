@@ -77,16 +77,22 @@ void TorsoControlJump::advance(double dt) {
       Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
   addMeasuresToTrajectory(
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
-  output_ << currentTime_ << " " << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z() << std::endl;
+  output_ << currentTime_ << " "
+          << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
+          << std::endl;
 }
 
 void TorsoControlJump::addMeasuresToTrajectory(double baseHeight) {
   measuredHeightTrajectory_.push_back(baseHeight);
 
-  leftFrontContactFlagTrajectory_.push_back(legs_->getLeftForeLeg()->isGrounded());
-  leftHindContactFlagTrajectory_.push_back(legs_->getLeftHindLeg()->isGrounded());
-  rightHindContactFlagTrajectory_.push_back(legs_->getRightHindLeg()->isGrounded());
-  rightFrontContactFlagTrajectory_.push_back(legs_->getRightForeLeg()->isGrounded());
+  leftFrontContactFlagTrajectory_.push_back(
+      legs_->getLeftForeLeg()->isGrounded());
+  leftHindContactFlagTrajectory_.push_back(
+      legs_->getLeftHindLeg()->isGrounded());
+  rightHindContactFlagTrajectory_.push_back(
+      legs_->getRightHindLeg()->isGrounded());
+  rightFrontContactFlagTrajectory_.push_back(
+      legs_->getRightForeLeg()->isGrounded());
 }
 
 std::vector<bool> TorsoControlJump::getMeasuredContactFlags(Leg leg) {
@@ -116,7 +122,12 @@ std::vector<double> TorsoControlJump::getMeasuredTrajectory() {
  * @param upper: Upper bound.
  */
 inline double clamp(double number, double lower, double upper) {
-  return std::max(lower, std::min(number, upper));
+  if (number > upper) {
+    number = upper;
+  } else if (number < lower) {
+    number = lower;
+  }
+  return number;
 }
 
 /**

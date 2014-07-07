@@ -1,12 +1,32 @@
 /*
- * JointControllerStarlETHWithSEA.hpp
+ * Copyright (c) 2014, Christian Gehring
+ * All rights reserved.
  *
- *  Created on: Apr 2, 2014
- *      Author: gech
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Autonomous Systems Lab, ETH Zurich nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Christian Gehring
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY,
+ * OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+ * GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-
-#ifndef LOCO_JOINTCONTROLLERSTARLETHWITHSEA_HPP_
-#define LOCO_JOINTCONTROLLERSTARLETHWITHSEA_HPP_
+#ifndef TESTBED_JOINTCONTROLLERSTARLETH_HPP_
+#define TESTBED_JOINTCONTROLLERSTARLETH_HPP_
 
 #include "loco/joint_control/JointControllerBase.hpp"
 #include <kindr/phys_quant/PhysicalQuantitiesEigen.hpp>
@@ -21,6 +41,10 @@
 #define PGAIN_HAA 38.0
 #define PGAIN_HFE 38.0
 #define PGAIN_KFE 20.0
+
+//#define PGAIN_HAA 0.0
+//#define PGAIN_HFE 0.0
+//#define PGAIN_KFE 0.0
 
 #define TOTAL_NUMBER_OF_JOINTS robotModel_->q().getQj().size() //Get total number of joints from number of minimal coordinates of joints
 
@@ -37,8 +61,7 @@ typedef Eigen::Matrix<double, 12, 1> JointPGains;
 typedef Eigen::Matrix<double, 12, 1> SpringStiffnesses;
 typedef Eigen::Matrix<double, 12, 1> SpringDampings;
 
-class JointControllerStarlETHWithSEA : public JointControllerBase {
-
+class JointControllerStarlETHWithSEA : JointControllerBase {
   enum JointTypes {
     HAA = 0,
     HFE,
@@ -53,6 +76,7 @@ class JointControllerStarlETHWithSEA : public JointControllerBase {
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
 
+  const JointTorques& getDesiredJointTorques() const;
   const JointTorques& getJointTorques() const;
   const JointPositions& getJointPositions() const;
   const JointVelocities& getJointVelocities() const;
@@ -72,63 +96,58 @@ class JointControllerStarlETHWithSEA : public JointControllerBase {
   virtual void setIsClampingVelocities(bool isClamping);
 
   virtual bool loadParameters(const TiXmlHandle& handle);
-  virtual void setDesiredJointPositionsInVelocityControl(const robotModel::VectorAct& positions);
+  virtual void setDesiredJointPositionsInVelocityControl(
+      const robotModel::VectorAct& positions);
 
   void setJointPositionLimitsFromDefaultConfiguration(
       const Eigen::Vector3d& jointMinPositionsForLegInDefaultConfiguration,
       const Eigen::Vector3d& jointMaxPositionsForLegInDefaultConfiguration,
       const bool isLegInDefaultConfiguration[]);
 
-  void setJointTorqueLimitsFromDefaultConfiguration(const Eigen::Vector3d& jointMinTorquesForLegInDefaultConfiguration,
-                                                      const Eigen::Vector3d& jointMaxTorquesForLegInDefaultConfiguration,
-                                                      const bool isLegInDefaultConfiguration[]);
+  void setJointTorqueLimitsFromDefaultConfiguration(
+      const Eigen::Vector3d& jointMinTorquesForLegInDefaultConfiguration,
+      const Eigen::Vector3d& jointMaxTorquesForLegInDefaultConfiguration,
+      const bool isLegInDefaultConfiguration[]);
 
-    void setJointVelocityLimitsFromDefaultConfiguration(const Eigen::Vector3d& jointMinVelocitiesForLegInDefaultConfiguration,
-                                                        const Eigen::Vector3d& jointMaxVelocitiesForLegInDefaultConfiguration,
-                                                        const bool isLegInDefaultConfiguration[]);
+  void setJointVelocityLimitsFromDefaultConfiguration(
+      const Eigen::Vector3d& jointMinVelocitiesForLegInDefaultConfiguration,
+      const Eigen::Vector3d& jointMaxVelocitiesForLegInDefaultConfiguration,
+      const bool isLegInDefaultConfiguration[]);
 
-    const JointPositions& getMaxJointPositions() const;
-    const JointPositions& getMinJointPositions() const;
+  const JointPositions& getMaxJointPositions() const;
+  const JointPositions& getMinJointPositions() const;
 
-    const JointVelocities& getMaxJointVelocities() const;
-    const JointVelocities& getMinJointVelocities() const;
+  const JointVelocities& getMaxJointVelocities() const;
+  const JointVelocities& getMinJointVelocities() const;
 
-    const JointTorques& getMaxJointTorques() const;
-    const JointTorques& getMinJointTorques() const;
+  const JointTorques& getMaxJointTorques() const;
+  const JointTorques& getMinJointTorques() const;
 
-    friend std::ostream& operator << (std::ostream& out, const JointControllerStarlETHWithSEA& controller);
+  double clamp(double number, double lower, double upper);
 
-    bool trackMotorTorques(double dt);
+  friend std::ostream& operator <<(
+      std::ostream& out, const JointControllerStarlETHWithSEA& controller);
 
  protected:
-  bool trackMotorVelocities(double dt);
-  bool transferFunctionMotorVelocitiesToTorques(double dt);
-
+  std::ofstream output_;
   robotModel::RobotModel* robotModel_;
-
   bool isClampingTorques_;
   bool isClampingPositions_;
   bool isClampingVelocities_;
-
-  robotModel::VectorActM desJointModes_;
-  JointTorques desJointTorques_;
-  JointVelocities desiredMotorVelocities_;
-
-  JointTorques measuredJointTorques_;
-  JointVelocities measuredMotorVelocities_;
-  JointPositions measuredMotorPositions_;
-  JointVelocities measuredJointVelocities_;
-  JointPositions measuredJointPositions_;
-
-  JointTorques previousMeasuredJointTorques_;
 
   JointPGains pGains_;
   SpringStiffnesses springStiffnesses_;
   SpringDampings springDampings_;
 
-  JointTorques jointTorques_;
-  JointPositions jointPositions_;
-  JointVelocities jointVelocities_;
+  JointTorques previousJointTorques_;
+  JointTorques jointTorquesToSet_;
+
+  JointTorques desJointTorques_;
+  JointPositions desJointPositions_;
+  JointVelocities desJointVelocities_;
+
+  JointPositions measuredMotorPositions_;
+  JointVelocities measuredMotorVelocities_;
 
   //! desired positions used in the low-level velocity control mode
   robotModel::VectorAct desPositionsInVelocityControl_;
@@ -146,8 +165,12 @@ class JointControllerStarlETHWithSEA : public JointControllerBase {
   JointVelocities jointMinVelocities_;
 
   bool isLegInDefaultConfiguration_[4];
+
+  double trackJointTorque(int index, double dt);
+  double trackMotorVelocity(int index, double dt, double desMotorVelocity);
+  double calculateTorqueFromSprings(int index, double dt, double measuredMotorVelocity);
 };
 
 } /* namespace loco */
 
-#endif /* LOCO_JOINTCONTROLLERSTARLETHWITHSEA_HPP_ */
+#endif /* LOCO_JOINTCONTROLLERSTARLETH_HPP_ */
