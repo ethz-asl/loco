@@ -26,7 +26,7 @@ TerrainModelHorizontalPlane::~TerrainModelHorizontalPlane() {
 bool TerrainModelHorizontalPlane::initialize(double dt) {
   heightInWorldFrame_ = 0.0;
   normalInWorldFrame_ = loco::Vector::UnitZ();
-  frictionCoefficientBetweenTerrainAndFoot_ = 0.0;
+  frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
   return true;
 }
 
