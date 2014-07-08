@@ -45,6 +45,14 @@ class TerrainModelHorizontalPlane: public TerrainModelBase {
    */
   virtual bool getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const;
 
+
+  /*! Gets the friction coefficient between foot and terrain at a certain location.
+   * @param positionWorldToLocationInWorldFrame   position of the requested location expressed in world frame
+   * @param frictionCoefficient   friction coefficient
+   * @returns true if successful, false otherwise
+   */
+  virtual bool getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const;
+
   /*! Sets the height of the plane expressed in world frame
    *
    * @param heightInWorldFrame
@@ -57,6 +65,8 @@ class TerrainModelHorizontalPlane: public TerrainModelBase {
   double heightInWorldFrame_;
   //! Normal vector of the horizontal plane expressed in world frame
   loco::Vector normalInWorldFrame_;
+  //! Friction coefficient between terrain and foot
+  double frictionCoefficientBetweenTerrainAndFoot_;
 
 };
 

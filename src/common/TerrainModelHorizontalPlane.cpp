@@ -12,7 +12,8 @@ namespace loco {
 TerrainModelHorizontalPlane::TerrainModelHorizontalPlane() :
     TerrainModelBase(),
     heightInWorldFrame_(0.0),
-    normalInWorldFrame_(loco::Vector::UnitZ())
+    normalInWorldFrame_(loco::Vector::UnitZ()),
+    frictionCoefficientBetweenTerrainAndFoot_(0.8)
 {
 
 
@@ -24,6 +25,8 @@ TerrainModelHorizontalPlane::~TerrainModelHorizontalPlane() {
 
 bool TerrainModelHorizontalPlane::initialize(double dt) {
   heightInWorldFrame_ = 0.0;
+  normalInWorldFrame_ = loco::Vector::UnitZ();
+  frictionCoefficientBetweenTerrainAndFoot_ = 0.0;
   return true;
 }
 
@@ -48,6 +51,11 @@ bool TerrainModelHorizontalPlane::getHeight(const loco::Position& positionWorldT
 
 void TerrainModelHorizontalPlane::setHeight(double heightInWorldFrame) {
   heightInWorldFrame_ = heightInWorldFrame;
+}
+
+bool TerrainModelHorizontalPlane::getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const {
+  frictionCoefficient = frictionCoefficientBetweenTerrainAndFoot_;
+  return true;
 }
 
 

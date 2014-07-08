@@ -48,6 +48,12 @@ class TerrainModelSimulation: public TerrainModelBase {
    */
   virtual bool getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const;
 
+  /*! Gets the friction coefficient between foot and terrain at a certain location.
+   * @param positionWorldToLocationInWorldFrame   position of the requested location expressed in world frame
+   * @param frictionCoefficient   friction coefficient
+   * @returns true if successful, false otherwise
+   */
+  virtual bool getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const;
 
 
  private:

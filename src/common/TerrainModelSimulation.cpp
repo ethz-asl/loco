@@ -22,6 +22,10 @@ TerrainModelSimulation::~TerrainModelSimulation()
 
 }
 
+bool TerrainModelSimulation::initialize(double dt) {
+  return true;
+}
+
 bool TerrainModelSimulation::getNormal(const loco::Position& position, loco::Vector& normal) const
 {
   robotModel::VectorP tempPosition = position.vector();
@@ -50,10 +54,12 @@ bool TerrainModelSimulation::getHeight(const loco::Position& positionWorldToLoca
   return true;
 }
 
-
-bool TerrainModelSimulation::initialize(double dt) {
-
-  return true;
+bool TerrainModelSimulation::getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const {
+  assert(false); // not yet implemented!
+  return false;
 }
+
+
+
 
 } /* namespace loco */
