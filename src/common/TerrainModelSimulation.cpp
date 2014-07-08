@@ -11,7 +11,8 @@
 namespace loco {
 
 TerrainModelSimulation::TerrainModelSimulation(robotTerrain::TerrainBase* terrain)
-    : terrain_(terrain)
+    : TerrainModelBase(),
+      terrain_(terrain)
 {
 
 }
@@ -28,13 +29,27 @@ bool TerrainModelSimulation::getNormal(const loco::Position& position, loco::Vec
   return true;
 }
 
-bool TerrainModelSimulation::getHeight(loco::Position& position) const
+bool TerrainModelSimulation::getHeight(loco::Position& positionWorldToLocationInWorldFrame) const
 {
-  robotModel::VectorP tempPosition = position.vector();
-  if(!terrain_->getHeight(tempPosition)) return false;
-  position.z() = tempPosition.z();
+  robotModel::VectorP tempPosition = positionWorldToLocationInWorldFrame.vector();
+  if(!terrain_->getHeight(tempPosition)) {
+    positionWorldToLocationInWorldFrame.z() = 0.0;
+    return false;
+  }
+  positionWorldToLocationInWorldFrame.z() = tempPosition.z();
   return true;
 }
+
+bool TerrainModelSimulation::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
+  robotModel::VectorP tempPosition = positionWorldToLocationInWorldFrame.vector();
+  if(!terrain_->getHeight(tempPosition)) {
+    heightInWorldFrame = 0.0;
+    return false;
+  }
+  heightInWorldFrame = tempPosition.z();
+  return true;
+}
+
 
 bool TerrainModelSimulation::initialize(double dt) {
 
