@@ -11,7 +11,8 @@ namespace loco {
 
 TerrainModelHorizontalPlane::TerrainModelHorizontalPlane() :
     TerrainModelBase(),
-    height_(0.0)
+    heightInWorldFrame_(0.0),
+    normalInWorldFrame_(loco::Vector::UnitZ())
 {
 
 
@@ -21,26 +22,33 @@ TerrainModelHorizontalPlane::~TerrainModelHorizontalPlane() {
 
 }
 
-bool TerrainModelHorizontalPlane::getNormal(const loco::Position& position, loco::Vector& normal) const
-{
-  normal = loco::Vector::UnitZ();
+bool TerrainModelHorizontalPlane::initialize(double dt) {
+  heightInWorldFrame_ = 0.0;
   return true;
 }
 
-bool TerrainModelHorizontalPlane::getHeight(loco::Position& position) const
+
+bool TerrainModelHorizontalPlane::getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const
 {
-  position.z() = height_;
+  normalInWorldFrame = normalInWorldFrame_;
+  return true;
+}
+
+bool TerrainModelHorizontalPlane::getHeight(loco::Position& positionWorldToLocationInWorldFrame) const
+{
+  positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
   return false;
 }
 
-void TerrainModelHorizontalPlane::setHeight(double height) {
-  height_ = height;
-}
 
-
-bool TerrainModelHorizontalPlane::initialize(double dt) {
-  height_ = 0.0;
+bool TerrainModelHorizontalPlane::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
+  heightInWorldFrame = heightInWorldFrame_;
   return true;
 }
+
+void TerrainModelHorizontalPlane::setHeight(double heightInWorldFrame) {
+  heightInWorldFrame_ = heightInWorldFrame;
+}
+
 
 } /* namespace loco */

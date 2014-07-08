@@ -22,7 +22,6 @@ set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGait.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControl.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGaitPerceptedTerrain.cpp
 PARENT_SCOPE)
 
 #################

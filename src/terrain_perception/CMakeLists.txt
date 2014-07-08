@@ -16,7 +16,6 @@ PARENT_SCOPE)
 set(TASK_SRCS ${TASK_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionHorizontalPlane.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionPredictedPlane.cpp
 PARENT_SCOPE)
 
 #################
