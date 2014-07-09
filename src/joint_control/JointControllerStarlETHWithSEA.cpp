@@ -241,7 +241,7 @@ const JointTorques& JointControllerStarlETHWithSEA::getMinJointTorques() const {
 }
 
 JointControllerStarlETHWithSEA::~JointControllerStarlETHWithSEA() {
-//  output_.close();
+  output_.close();
 //  output2_.close();
 }
 
@@ -273,7 +273,7 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
   measuredMotorPositions_ = JointPositions(robotModel_->q().getQj());
 
-//  output_.open("debug");
+  output_.open("debug");
 //  output2_.open("debug2");
 
   for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i +=
@@ -293,7 +293,20 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
     springDampings_[JointTypes::KFE + i] = robotModel_->params().springDampings_
         .kfe;
 
-    // Set P-gains
+    // Set gains for position control
+    motorPositionGains_[JointTypes::HAA + i] = 50.0;
+    motorPositionGains_[JointTypes::HFE + i] = 50.0;
+    motorPositionGains_[JointTypes::KFE + i] = 30.0;
+
+    jointPositionGains_[JointTypes::HAA + i] = -20;
+    jointPositionGains_[JointTypes::HFE + i] = -20;
+    jointPositionGains_[JointTypes::KFE + i] = 0.0;
+
+    jointVelocityGains_[JointTypes::HAA + i] = 0.0;
+    jointVelocityGains_[JointTypes::HFE + i] = 0.6;
+    jointVelocityGains_[JointTypes::KFE + i] = 0.0;
+
+    // Set P-gains for torque control
     pGains_[JointTypes::HAA + i] = PGAIN_HAA;
     pGains_[JointTypes::HFE + i] = PGAIN_HFE;
     pGains_[JointTypes::KFE + i] = PGAIN_KFE;
@@ -309,30 +322,11 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
  * @param
  */
 double JointControllerStarlETHWithSEA::calculateTorqueFromSprings(
-    int index, double dt, double measuredMotorVelocity) {
+    int index, double dt) {
 
-  double measuredJointVelocity, measuredJointPosition;
-
-  measuredJointPosition = robotModel_->q().getQj()(index);
-  measuredJointVelocity = robotModel_->q().getdQj()(index);
-
-  measuredMotorPositions_(index) += measuredMotorVelocity * dt;
-
-//  if (index == 1) {
-//    output_ << index << " Motor Position : " << measuredMotorPositions_(index)
-//            << std::endl;
-//    output_ << index << " Joint Position : " << measuredJointPosition
-//            << std::endl;
-//  }
-//  output_ << index << " Motor Velocity : " << measuredMotorVelocity
-//          << std::endl;
-//  output_ << index << " Joint Velocity : " << measuredJointVelocity
-//          << std::endl;
-
-//  output_ << std::endl;
   return springStiffnesses_(index)
-      * (measuredMotorPositions_(index) - measuredJointPosition)
-      + springDampings_(index) * (measuredMotorVelocity - measuredJointVelocity);
+      * (measuredMotorPositions_(index) - measuredJointPositions_(index))
+      + springDampings_(index) * (measuredMotorVelocities_(index) - measuredJointVelocities_(index));
 }
 
 /**
@@ -370,6 +364,8 @@ double JointControllerStarlETHWithSEA::trackMotorVelocity(
     measuredMotorVelocity = jointMinVelocities_(index);
   }
 
+  measuredMotorPositions_(index) += measuredMotorVelocity * dt;
+
   measuredMotorVelocities_(index) = measuredMotorVelocity;
 
   return measuredMotorVelocity;
@@ -389,16 +385,36 @@ double JointControllerStarlETHWithSEA::trackJointTorque(int index, double dt) {
 
   measuredMotorVelocity = trackMotorVelocity(index, dt, desMotorVelocity);
 
-//  if (index == 1) {
-//    std::cout << "DESIRED MOTOR VEL " << desMotorVelocity << std::endl;
-//
-//    std::cout << "MEASURED MOTOR VEL " << measuredMotorVelocity << std::endl;
-//  }
-  torqueToSet = calculateTorqueFromSprings(index, dt, measuredMotorVelocity);
+  torqueToSet = calculateTorqueFromSprings(index, dt);
 
   return torqueToSet;
 
-//  return previousJointTorques_(index);
+}
+
+/**
+ * Tracks reference position as defined by desJointPosition.
+ * @param index: index of current joint
+ * @param dt: time step
+ */
+double JointControllerStarlETHWithSEA::trackJointPosition(int index,
+                                                          double dt) {
+  double positionToSet;
+  double desMotorVelocity, measuredMotorVelocity;
+
+  desMotorVelocity =
+      (desJointPositions_(index) - measuredMotorPositions_(index))
+          * motorPositionGains_(index)
+          + (desJointPositions_(index) - measuredJointPositions_(index))
+              * jointPositionGains_(index)
+          + (-measuredJointVelocities_(index))
+              * jointVelocityGains_(index);
+
+  measuredMotorVelocity = trackMotorVelocity(index, dt, desMotorVelocity);
+
+  positionToSet = measuredMotorPositions_(index);
+
+  return positionToSet;
+
 }
 
 bool JointControllerStarlETHWithSEA::advance(double dt) {
@@ -414,18 +430,25 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
   robotModel::VectorQj measMotorPositions;
   robotModel::VectorQj measMotorVelocities;
   robotModel::VectorAct jointTorquesToSet;
+  JointPositions jointPositionsToSet;
 
   for (int i = 0; i < desJointModes.size(); i++) {
+    measuredJointVelocities_(i) = measJointVelocities(i);
+    measuredJointPositions_(i) = measJointPositions(i);
+
     if (desJointModes(i) == robotModel::AM_Position) {
+      jointPositionsToSet(i) = trackJointPosition(i, dt);
+
       if (isClampingPositions_) {
-        if (desJointPositions_(i) > jointMaxPositions_(i)) {
-          desJointPositions_(i) = jointMaxPositions_(i);
+        if (jointPositionsToSet(i) > jointMaxPositions_(i)) {
+          jointPositionsToSet(i) = jointMaxPositions_(i);
         } else if (desJointPositions_(i) < jointMinPositions_(i)) {
-          desJointPositions_(i) = jointMinPositions_(i);
+          jointPositionsToSet(i) = jointMinPositions_(i);
         }
       }
-      desJointTorques_(i) = jointPositionControlProportionalGains_(i)
-          * (desJointPositions_(i) - measJointPositions(i));
+
+       desJointTorques_(i) = jointPositionControlProportionalGains_(i)
+          * (jointPositionsToSet(i) - measJointPositions(i));
       desJointTorques_(i) += jointPositionControlDerivativeGains_(i)
           * (desJointVelocities_(i) - measJointVelocities(i));
 
@@ -460,6 +483,9 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
     measMotorPositions(i) = measuredMotorPositions_(i);
     measMotorVelocities(i) = measuredMotorVelocities_(i);
     jointTorquesToSet_(i) = jointTorquesToSet(i);
+
+//       std::cout << jointTorquesToSet(i) << std::endl;
+
 
 //    std::cout << "joint mode " << i << " :" << (int) desJointModes(i) << " pos: " << desJointPositions(i) << " vel:"  << desJointVelocities(i) << " tau: " << jointTorques_(i) << std::endl;
     if (isClampingTorques_) {
