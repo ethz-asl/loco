@@ -36,19 +36,10 @@
 #define MAX_POWER 180 //[W]
 #define ABSOLUTE_MAX_VELOCITY 10 //[rad/s]
 #define ABSOLUTE_MAX_TORQUE 20 //[Nm]
-#define DELTA_LIMIT 0.5 //[rad]
-
-//#define PGAIN_HAA 15
-//#define PGAIN_HFE 15
-//#define PGAIN_KFE 15
-
-//#define PGAIN_HAA 2.5
-//#define PGAIN_HFE 2.5
-//#define PGAIN_KFE 1.25
 
 #define PGAIN_HAA 1.25
 #define PGAIN_HFE 1.25
-#define PGAIN_KFE 0.75
+#define PGAIN_KFE 1.25
 
 #define TOTAL_NUMBER_OF_JOINTS robotModel_->q().getQj().size() //Get total number of joints from number of minimal coordinates of joints
 
@@ -61,7 +52,7 @@ typedef kindr::phys_quant::eigen_impl::Velocity<double, 12> JointVelocities;
 typedef Eigen::Matrix<double, 19, 1> GeneralizedCoordinates;
 typedef Eigen::Matrix<double, 18, 1> GeneralizedVelocities;
 typedef Eigen::Matrix<double, 18, 1> GeneralizedAccelerations;
-typedef Eigen::Matrix<double, 12, 1> JointPGains;
+typedef Eigen::Matrix<double, 12, 1> JointGains;
 typedef Eigen::Matrix<double, 12, 1> SpringStiffnesses;
 typedef Eigen::Matrix<double, 12, 1> SpringDampings;
 
@@ -133,24 +124,30 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
       std::ostream& out, const JointControllerStarlETHWithSEA& controller);
 
  protected:
-//  std::ofstream output_;
+  std::ofstream output_;
 //  std::ofstream output2_;
   robotModel::RobotModel* robotModel_;
   bool isClampingTorques_;
   bool isClampingPositions_;
   bool isClampingVelocities_;
 
-  JointPGains pGains_;
+  JointGains pGains_;
+  JointGains motorPositionGains_;
+  JointGains jointPositionGains_;
+  JointGains jointVelocityGains_;
   SpringStiffnesses springStiffnesses_;
   SpringDampings springDampings_;
 
-  JointTorques previousJointTorques_;
   JointTorques jointTorquesToSet_;
 
   JointTorques desJointTorques_;
+
+  JointPositions measuredJointPositions_;
+   JointVelocities measuredJointVelocities_;
   JointPositions desJointPositions_;
   JointVelocities desJointVelocities_;
 
+  JointVelocities desMotorVelocities_;
   JointPositions measuredMotorPositions_;
   JointVelocities measuredMotorVelocities_;
 
@@ -171,9 +168,11 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
 
   bool isLegInDefaultConfiguration_[4];
 
+  double lowPass(int index, double cutOff, double dt);
   double trackJointTorque(int index, double dt);
-  double trackMotorVelocity(int index, double dt, double desMotorVelocity);
-  double calculateTorqueFromSprings(int index, double dt, double measuredMotorVelocity);
+  double trackMotorVelocity(int index, double dt);
+  double calculateTorqueFromSprings(int index, double dt);
+  double trackJointPosition(int index, double dt);
 };
 
 } /* namespace loco */
