@@ -17,6 +17,11 @@ inline void boundToRange(double* v, double min, double max){
   if (*v > max) *v = max;
 }
 
+inline double boundToRange(double v, double min, double max){
+  if (v < min) return min;
+  if (v > max) return max;
+  return v;
+}
 
 /*
   if v < min, this method returns 0. If v > max, it returns 1. For everything else it returns some interpolated value;
