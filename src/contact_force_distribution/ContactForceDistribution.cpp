@@ -11,14 +11,14 @@
 
 #include <Eigen/Geometry>
 #include "robotUtils/math/LinearAlgebra.hpp"
-#include "sm/numerical_comparisons.hpp"
+//#include "sm/numerical_comparisons.hpp"
 #include "OoqpEigenInterface.hpp"
 #include "QuadraticProblemFormulation.hpp"
 #include "robotUtils/loggers/Logger.hpp"
 
 using namespace std;
 using namespace Eigen;
-using namespace sm;
+//using namespace sm;
 
 namespace loco {
 
@@ -91,7 +91,8 @@ bool ContactForceDistribution::prepareLegLoading()
 
   for (auto& legInfo : legInfos_)
   {
-    if (sm::definitelyGreaterThan(legInfo.first->getDesiredLoadFactor(), 0.0) && legInfo.first->isAndShouldBeGrounded())
+//    if (sm::definitelyGreaterThan(legInfo.first->getDesiredLoadFactor(), 0.0) && legInfo.first->isAndShouldBeGrounded())
+    if ((legInfo.first->getDesiredLoadFactor() > 0.0) && legInfo.first->isAndShouldBeGrounded()) // get rid of sm dependency
     {
       legInfo.second.isPartOfForceDistribution_ = true;
       legInfo.second.isLoadConstraintActive_ = false;
@@ -99,7 +100,8 @@ bool ContactForceDistribution::prepareLegLoading()
       legInfo.second.startIndexInVectorX_ = legInfo.second.indexInStanceLegList_ * nTranslationalDofPerFoot_;
       nLegsInForceDistribution_++;
 
-      if (sm::definitelyLessThan(legInfo.first->getDesiredLoadFactor(), 1.0))
+//      if (sm::definitelyLessThan(legInfo.first->getDesiredLoadFactor(), 1.0))
+      if (legInfo.first->getDesiredLoadFactor() < 1.0)
         legInfo.second.isLoadConstraintActive_ = true;
     }
     else

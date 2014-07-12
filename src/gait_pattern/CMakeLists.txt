@@ -6,14 +6,14 @@ project(locomotion_control)
 ################
 ### INCLUDES ###
 ################
-set(TASK_INCL ${TASK_INCL} 
+set(LOCO_INCL ${LOCO_INCL} 
 
 PARENT_SCOPE)
 
 ###############
 ### SOURCES ###
 ###############
-set(TASK_SRCS ${TASK_SRCS} 
+set(LOCO_SRCS ${LOCO_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/APS.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GaitAPS.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternAPS.cpp
@@ -23,7 +23,7 @@ PARENT_SCOPE)
 #################
 ### LIBRARIES ###
 #################
-set(TASK_LIBS ${TASK_LIBS} 
+set(LOCO_LIBS ${LOCO_LIBS} 
 
 PARENT_SCOPE)
 

@@ -13,15 +13,16 @@ find_package(Kindr REQUIRED)
 ################
 ### INCLUDES ###
 ################
-set(TASK_INCL ${TASK_INCL} 
+set(LOCO_INCL ${LOCO_INCL} 
 	${EIGEN_INCLUDE_DIRS}
 	${Kindr_INCLUDE_DIRS}
+	${CMAKE_CURRENT_SOURCE_DIR}/../../../robotBase/robotUtils/function_approximators/polyharmonicSplines
 PARENT_SCOPE)
 
 ###############
 ### SOURCES ###
 ###############
-set(TASK_SRCS ${TASK_SRCS} 
+set(LOCO_SRCS ${LOCO_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/FootPlacementStrategyBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/FootPlacementStrategyInvertedPendulum.cpp
 PARENT_SCOPE)
@@ -29,9 +30,9 @@ PARENT_SCOPE)
 #################
 ### LIBRARIES ###
 #################
-set(TASK_LIBS ${TASK_LIBS} 
+set(LOCO_LIBS ${LOCO_LIBS} 
 
 PARENT_SCOPE)
 
 
-set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")
+set(USE_UTIL_POLYHARMONICSPLINES ON CACHE BOOL "polyharmonic splines")

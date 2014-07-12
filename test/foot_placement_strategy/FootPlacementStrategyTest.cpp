@@ -15,12 +15,13 @@
 
 #include "loco/common/LegStarlETH.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
+#include "loco/common/TerrainModelHorizontalPlane.hpp"
 
 #include "RobotModel.hpp"
-#include "TerrainPlane.hpp"
+#include "robotUtils/terrains/TerrainPlane.hpp"
 
 TEST(FootPlacementTest, test) {
-  robotTerrain::TerrainPlane terrain;
+  loco::TerrainModelHorizontalPlane terrain;
 
   double dt = 0.0025;
   robotModel::RobotModel robotModel;

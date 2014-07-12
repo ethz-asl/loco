@@ -12,6 +12,6 @@
 
 
 
-TEST(FootPlacementTest, test) {
+TEST(TorsoControlTest, test) {
 
 }

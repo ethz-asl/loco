@@ -41,7 +41,8 @@ include_directories(../../include)
 set(LOCOMOTIONCONTROLLER_SRCS
 	../test_main.cpp
 	LocomotionControllerTest.cpp
-	
+	)
+	set(asfasdf
 	../../src/locomotion_controller/LocomotionControllerBase.cpp
 	../../src/locomotion_controller/LocomotionControllerDynamicGait.cpp
 	
@@ -87,6 +88,6 @@ set(LOCOMOTIONCONTROLLER_SRCS
 
 
 add_executable( runUnitTestsLocomotionController EXCLUDE_FROM_ALL  ${LOCOMOTIONCONTROLLER_SRCS})
-target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread starlethRobotModel starlethUtils tinyxml	${OOQEI_LIBRARIES})
+target_link_libraries(runUnitTestsLocomotionController  gtest_main gtest pthread  loco ${LOCO_LIBS}	)
 add_test( runUnitTestsLocomotionController ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsLocomotionController )
 add_dependencies(check runUnitTestsLocomotionController)

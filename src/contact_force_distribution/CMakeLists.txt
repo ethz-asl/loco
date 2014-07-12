@@ -8,14 +8,14 @@ find_package(OOQPEI REQUIRED)
 ################
 ### INCLUDES ###
 ################
-set(TASK_INCL ${TASK_INCL}
+set(LOCO_INCL ${LOCO_INCL}
 	${OOQPEI_INCLUDE_DIRS}
 PARENT_SCOPE)
 
 ###############
 ### SOURCES ###
 ###############
-set(TASK_SRCS ${TASK_SRCS}
+set(LOCO_SRCS ${LOCO_SRCS}
     ${CMAKE_CURRENT_SOURCE_DIR}/ContactForceDistributionBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ContactForceDistribution.cpp
 PARENT_SCOPE)
@@ -23,7 +23,7 @@ PARENT_SCOPE)
 #################
 ### LIBRARIES ###
 #################
-set(TASK_LIBS ${TASK_LIBS} 
+set(LOCO_LIBS ${LOCO_LIBS} 
 	${OOQEI_LIBRARIES}
 PARENT_SCOPE)
 

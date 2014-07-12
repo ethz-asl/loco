@@ -19,52 +19,24 @@ find_package(Kindr REQUIRED)
 include_directories(${UTILS_INCL})
 include_directories(${ROBOTMODEL_INCL})
 
-#message(STATUS "robotModel: ${ROBOTMODEL_INCL}")
 
 include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${Kindr_INCLUDE_DIRS})
 include_directories(../../include)
-
+include_directories(../../../robotUtils/include)
+include_directories(${LOCO_INCL})
 
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
-include_directories(../../thirdparty/tinyxml)
 
 
 set(FOOTPLACMENTSTRATEGY_SRCS
 	../test_main.cpp
 	FootPlacementStrategyTest.cpp
 	
-	../../src/foot_placement_strategy/FootPlacementStrategyBase.cpp
-	../../src/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.cpp
-	
-	../../src/limb_coordinator/LimbCoordinatorBase.cpp
-	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
-	
-	../../src/common/TorsoBase.cpp
-	../../src/common/TorsoStarlETH.cpp
-	../../src/common/TorsoStateBase.cpp
-	../../src/common/TorsoStateMeasured.cpp
-	../../src/common/TorsoStateDesired.cpp
-	../../src/common/TorsoPropertiesBase.cpp
-	../../src/common/TorsoPropertiesStarlETH.cpp
-	../../src/common/LegGroup.cpp
-	../../src/common/LegBase.cpp
-	../../src/common/LegStarlETH.cpp
-	../../src/common/LegStateBase.cpp
-	../../src/common/LegStateLiftOff.cpp
-	../../src/common/LegStateTouchDown.cpp
-	../../src/common/LegPropertiesBase.cpp
-	../../src/common/LegPropertiesStarlETH.cpp
-	
-	../../src/gait_pattern/APS.cpp
-	../../src/gait_pattern/GaitAPS.cpp
-	../../src/gait_pattern/GaitPatternAPS.cpp
-	
 )
 
-
 add_executable( runUnitTestsFootPlacementStrategy EXCLUDE_FROM_ALL ${FOOTPLACMENTSTRATEGY_SRCS})
-target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread starlethRobotModel starlethUtils tinyxml )
+target_link_libraries(runUnitTestsFootPlacementStrategy  gtest_main gtest pthread loco ${LOCO_LIBS} )
 add_test( runUnitTestsFootPlacementStrategy ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsFootPlacementStrategy )
 add_dependencies(check runUnitTestsFootPlacementStrategy)
 
