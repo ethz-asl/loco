@@ -33,7 +33,7 @@ CoMOverSupportPolygonControl::~CoMOverSupportPolygonControl() {
 
 }
 
-Position CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame() {
+const Position& CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame() const {
  return errorVector_;
 }
 
@@ -63,23 +63,23 @@ void CoMOverSupportPolygonControl::advance(double dt) {
   }
 
 
-  defaultTarget_ = Position();
+  positionWorldToMiddleOfStanceFeetInWorldFrame_ = Position();
   Position comTarget;
 
   iLeg=0;
   for (auto leg : *legs_) {
     //	            tprintf("leg %d(%s): stanceMode: %lf, swingMode: %lf. Weight:%lf\n", i, leg->getName(), leg->getStancePhase(),leg->getSwingPhase(), legWeights[i]);
-    const Position footPositionCSw = leg->getWorldToFootPositionInWorldFrame();
+    const Position positionWorldToFootInWorldFrame = leg->getWorldToFootPositionInWorldFrame();
 
     if (sumWeights != 0) {
-      comTarget += Position(footPositionCSw.toImplementation()*legWeights[iLeg]/sumWeights);
+      comTarget += Position(positionWorldToFootInWorldFrame.toImplementation()*legWeights[iLeg]/sumWeights);
     }
-    defaultTarget_ += Position(footPositionCSw.toImplementation()*0.25);
+    positionWorldToMiddleOfStanceFeetInWorldFrame_ += Position(positionWorldToFootInWorldFrame.toImplementation()*0.25);
     iLeg++;
   }
 
   desiredWorldToFootPositionInWorldFrame_ = comTarget+Position(headingOffset_, lateralOffset_, 0.0);
-  errorVector_ =  comTarget+Position(headingOffset_, lateralOffset_, 0.0) - defaultTarget_;
+  errorVector_ =  comTarget+Position(headingOffset_, lateralOffset_, 0.0) - positionWorldToMiddleOfStanceFeetInWorldFrame_;
 
 }
 
@@ -174,11 +174,11 @@ bool CoMOverSupportPolygonControl::setToInterpolated(const CoMOverSupportPolygon
 	return true;
 }
 
-Position CoMOverSupportPolygonControl::getDefaultTarget() {
-  return defaultTarget_;
+const Position& CoMOverSupportPolygonControl::getDefaultTarget() const {
+  return positionWorldToMiddleOfStanceFeetInWorldFrame_;
 }
 
-Position CoMOverSupportPolygonControl::getDesiredWorldToCoMPositionInWorldFrame() {
+const Position& CoMOverSupportPolygonControl::getDesiredWorldToCoMPositionInWorldFrame() const {
   return desiredWorldToFootPositionInWorldFrame_;
 }
 

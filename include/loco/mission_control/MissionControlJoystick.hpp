@@ -20,7 +20,7 @@ class MissionControlJoystick: public MissionControlBase {
   virtual ~MissionControlJoystick();
 
   virtual bool initialize(double dt);
-  virtual void advance(double dt);
+  virtual bool advance(double dt);
   const Twist& getDesiredBaseTwistInHeadingFrame() const;
   const Position& getDesiredPositionMiddleOfFeetToBaseInWorldFrame() const;
   const RotationQuaternion& getDesiredOrientationHeadingToBase() const;

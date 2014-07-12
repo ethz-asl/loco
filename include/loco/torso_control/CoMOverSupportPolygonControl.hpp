@@ -37,9 +37,9 @@ public:
 	 * @param legs	references to the legs
 	 * @return error vector expressed in world frame
 	 */
-	Position getPositionErrorVectorInWorldFrame();
+	const Position& getPositionErrorVectorInWorldFrame() const;
 
-	Position getDesiredWorldToCoMPositionInWorldFrame();
+	const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
 
 	/*! Loads the parameters from the XML object
 	 * @param hParameterSet		handle
@@ -63,7 +63,7 @@ public:
 	 */
 	bool setToInterpolated(const CoMOverSupportPolygonControl& supportPolygon1, const CoMOverSupportPolygonControl& supportPolygon2, double t);
 
-  Position getDefaultTarget();
+  const Position& getDefaultTarget() const;
 
   void advance(double dt);
 protected:
@@ -83,7 +83,7 @@ protected:
 
     Position errorVector_;
 //    //! target position for logging
-    Position defaultTarget_;
+    Position positionWorldToMiddleOfStanceFeetInWorldFrame_;
     Position desiredWorldToFootPositionInWorldFrame_;
 
 

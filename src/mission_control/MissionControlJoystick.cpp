@@ -36,7 +36,7 @@ bool MissionControlJoystick::initialize(double dt) {
   return true;
 }
 
-void MissionControlJoystick::advance(double dt) {
+bool MissionControlJoystick::advance(double dt) {
   robotUtils::Joystick* joyStick = robotModel_->sensors().getJoystick();
   const double maxHeadingVel = maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().x();
   filteredVelocities_[0].update(joyStick->getSagittal());
@@ -70,16 +70,24 @@ void MissionControlJoystick::advance(double dt) {
   boundToRange(&desiredPositionMiddleOfFeetToBaseInWorldFrame_.z(), minimalPositionMiddleOfFeetToBaseInWorldFrame_.z(), maximalPositionMiddleOfFeetToBaseInWorldFrame_.z());
 
   /* -------- Orientation -------- */
+//  EulerAnglesZyx desEulerAnglesZyx;
+//  desEulerAnglesZyx.setRoll(interpolateJoystickAxis(joyStick->getRoll(), minimalOrientationHeadingToBase_.roll(), maximalOrientationHeadingToBase_.roll()));
+//  desEulerAnglesZyx.setRoll(boundToRange(desEulerAnglesZyx.roll(), minimalOrientationHeadingToBase_.roll(), maximalOrientationHeadingToBase_.roll()));
+//  desEulerAnglesZyx.setPitch(interpolateJoystickAxis(joyStick->getPitch(), minimalOrientationHeadingToBase_.pitch(), maximalOrientationHeadingToBase_.pitch()));
+//  desEulerAnglesZyx.setRoll(boundToRange(desEulerAnglesZyx.pitch(), minimalOrientationHeadingToBase_.pitch(), maximalOrientationHeadingToBase_.pitch()));
+//  desEulerAnglesZyx.setYaw(interpolateJoystickAxis(joyStick->getYaw(), minimalOrientationHeadingToBase_.yaw(), maximalOrientationHeadingToBase_.yaw()));
+//  desEulerAnglesZyx.setYaw(boundToRange(desEulerAnglesZyx.yaw(), minimalOrientationHeadingToBase_.yaw(), maximalOrientationHeadingToBase_.yaw()));
+//  desiredOrientationHeadingToBase_(desEulerAnglesZyx);
+
   EulerAnglesZyx desEulerAnglesZyx;
-  desEulerAnglesZyx.setRoll(interpolateJoystickAxis(joyStick->getRoll(), minimalOrientationHeadingToBase_.roll(), maximalOrientationHeadingToBase_.roll()));
+  desEulerAnglesZyx.setRoll(interpolateJoystickAxis(joyStick->getCoronal(), minimalOrientationHeadingToBase_.roll(), maximalOrientationHeadingToBase_.roll()));
   desEulerAnglesZyx.setRoll(boundToRange(desEulerAnglesZyx.roll(), minimalOrientationHeadingToBase_.roll(), maximalOrientationHeadingToBase_.roll()));
-  desEulerAnglesZyx.setPitch(interpolateJoystickAxis(joyStick->getPitch(), minimalOrientationHeadingToBase_.pitch(), maximalOrientationHeadingToBase_.pitch()));
+  desEulerAnglesZyx.setPitch(interpolateJoystickAxis(joyStick->getSagittal(), minimalOrientationHeadingToBase_.pitch(), maximalOrientationHeadingToBase_.pitch()));
   desEulerAnglesZyx.setRoll(boundToRange(desEulerAnglesZyx.pitch(), minimalOrientationHeadingToBase_.pitch(), maximalOrientationHeadingToBase_.pitch()));
   desEulerAnglesZyx.setYaw(interpolateJoystickAxis(joyStick->getYaw(), minimalOrientationHeadingToBase_.yaw(), maximalOrientationHeadingToBase_.yaw()));
   desEulerAnglesZyx.setYaw(boundToRange(desEulerAnglesZyx.yaw(), minimalOrientationHeadingToBase_.yaw(), maximalOrientationHeadingToBase_.yaw()));
   desiredOrientationHeadingToBase_(desEulerAnglesZyx);
-
-
+  return true;
 }
 
 double MissionControlJoystick::interpolateJoystickAxis(double value, double minValue, double maxValue) {

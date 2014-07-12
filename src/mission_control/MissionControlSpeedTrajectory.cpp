@@ -33,11 +33,13 @@ bool MissionControlSpeedTrajectory::initialize(double dt) {
   time_ = 0.0;
   return true;
 }
-void MissionControlSpeedTrajectory::advance(double dt) {
+bool MissionControlSpeedTrajectory::advance(double dt) {
 
   currentBaseTwistInHeadingFrame_.getTranslationalVelocity() = linearVelocityTrajectory_.evaluate_linear(time_);
   currentBaseTwistInHeadingFrame_.getRotationalVelocity() = localAngularVelocityTrajectory_.evaluate_linear(time_);
   time_ += dt;
+
+  return true;
 
 }
 bool MissionControlSpeedTrajectory::loadParameters(const TiXmlHandle& handle) {
