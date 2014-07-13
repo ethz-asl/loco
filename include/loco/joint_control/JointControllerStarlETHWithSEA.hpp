@@ -177,7 +177,7 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
   double trackJointPosition(int index, double dt);
 
  private:
-//  GaussianKernelJumpPropagator trajectoryFollower_;
+  GaussianKernelJumpPropagator trajectoryFollower_;
 };
 
 } /* namespace loco */

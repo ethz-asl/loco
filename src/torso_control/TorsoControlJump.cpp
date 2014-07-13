@@ -12,7 +12,7 @@ namespace loco {
 TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
                                    loco::TerrainModelBase* terrain)
     : TorsoControlBase(),
-      trajectoryFollower_(),
+//      trajectoryFollower_(),
       legs_(legs),
       torso_(torso),
       terrain_(terrain),
@@ -25,8 +25,8 @@ TorsoControlJump::~TorsoControlJump() {
 }
 
 bool TorsoControlJump::initialize(double dt) {
-  if (!trajectoryFollower_.initialize(dt))
-    return false;
+//  if (!trajectoryFollower_.initialize(dt))
+//    return false;
 
   //  output_.open("./output.txt");
   const Position foreHipPosition = legs_->getLeg(0)
@@ -55,13 +55,13 @@ void TorsoControlJump::advance(double dt) {
 
   terrain_->getHeight(groundHeightInWorldFrame);
 
-  double desiredTorsoHeightAboveGroundInWorldFrame =
-      trajectoryFollower_.predict(0);
+//  double desiredTorsoHeightAboveGroundInWorldFrame =
+//      trajectoryFollower_.predict(0);
 
-  Position desiredTorsoPositionInWorldFrame(
-      desiredLateralAndHeadingPositionInWorldFrame.x(),
-      desiredLateralAndHeadingPositionInWorldFrame.y(),
-      desiredTorsoHeightAboveGroundInWorldFrame + groundHeightInWorldFrame.z());
+//  Position desiredTorsoPositionInWorldFrame(
+//      desiredLateralAndHeadingPositionInWorldFrame.x(),
+//      desiredLateralAndHeadingPositionInWorldFrame.y(),
+//      desiredTorsoHeightAboveGroundInWorldFrame + groundHeightInWorldFrame.z());
 
   //std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
 
@@ -72,8 +72,8 @@ void TorsoControlJump::advance(double dt) {
 
   /* --- end desired orientation --- */
 
-  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
-      Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
+//  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
+//      Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
   addMeasuresToTrajectory(
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
@@ -170,9 +170,9 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   if (!comControl_.loadParameters(hJump)) {
     return false;
   }
-  if (!trajectoryFollower_.loadTrajectory(hJump)) {
-    return false;
-  }
+//  if (!trajectoryFollower_.loadTrajectory(hJump)) {
+//    return false;
+//  }
 //  std::cout << desiredTrajectory_.getInfoString() << std::endl;
 
   return true;
