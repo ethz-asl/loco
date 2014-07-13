@@ -31,6 +31,7 @@
 #include "loco/joint_control/JointControllerBase.hpp"
 #include <kindr/phys_quant/PhysicalQuantitiesEigen.hpp>
 #include <loco/common/TypeDefsStarlETH.hpp>
+#include "GaussianKernelJumpPropagator.hpp"
 #include "RobotModel.hpp"
 
 #define MAX_POWER 180 //[W]
@@ -144,7 +145,7 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
   JointTorques desJointTorques_;
 
   JointPositions measuredJointPositions_;
-   JointVelocities measuredJointVelocities_;
+  JointVelocities measuredJointVelocities_;
   JointPositions desJointPositions_;
   JointVelocities desJointVelocities_;
 
@@ -174,6 +175,9 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
   double trackMotorVelocity(int index, double dt);
   double calculateTorqueFromSprings(int index, double dt);
   double trackJointPosition(int index, double dt);
+
+ private:
+//  GaussianKernelJumpPropagator trajectoryFollower_;
 };
 
 } /* namespace loco */

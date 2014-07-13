@@ -56,7 +56,7 @@ void TorsoControlJump::advance(double dt) {
   terrain_->getHeight(groundHeightInWorldFrame);
 
   double desiredTorsoHeightAboveGroundInWorldFrame =
-      trajectoryFollower_.predict();
+      trajectoryFollower_.predict(0);
 
   Position desiredTorsoPositionInWorldFrame(
       desiredLateralAndHeadingPositionInWorldFrame.x(),

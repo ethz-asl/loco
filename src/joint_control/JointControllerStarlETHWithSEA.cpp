@@ -33,7 +33,9 @@ namespace loco {
 
 JointControllerStarlETHWithSEA::JointControllerStarlETHWithSEA(
     robotModel::RobotModel* robotModel)
-    : robotModel_(robotModel),
+    :
+//        trajectoryFollower_(),
+      robotModel_(robotModel),
       isClampingTorques_(false),
       isClampingPositions_(false),
       isClampingVelocities_(false) {
@@ -264,6 +266,10 @@ void JointControllerStarlETHWithSEA::setIsClampingVelocities(bool isClamping) {
 
 bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
+//  if (!trajectoryFollower_.initialize(dt)) {
+//    return false;
+//  }
+
   desJointModesPrevious_ = robotModel_->act().getMode();
   desPositionsInVelocityControl_ = robotModel_->q().getQj();  //robotModel_->act().getPos();
   desJointTorques_.setZero();
@@ -462,7 +468,7 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
           * (desJointVelocities_(i) - measJointVelocities(i));
 
     } else if (desJointModes(i) == robotModel::AM_Velocity) {
-
+//      desJointVelocities_(i) = _.predict();
       if (isClampingVelocities_) {
         if (desJointVelocities_(i) > jointMaxVelocities_(i)) {
           desJointVelocities_(i) = jointMaxVelocities_(i);
@@ -490,7 +496,7 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
     jointTorquesToSet_(i) = trackJointTorque(i, dt);
 
 //    output_ << desJointTorques_(0) << " " << jointTorquesToSet_(0) << " "
-           output_ << desJointTorques_(1) << " " << jointTorquesToSet_(1) << std::endl;
+    output_ << desJointTorques_(1) << " " << jointTorquesToSet_(1) << std::endl;
 //            << desJointTorques_(2) << " " << jointTorquesToSet_(2) << std::endl;
 
 //    std::cout << "joint mode " << i << " :" << (int) desJointModes(i) << " pos: " << desJointPositions(i) << " vel:"  << desJointVelocities(i) << " tau: " << jointTorques_(i) << std::endl;
@@ -649,6 +655,20 @@ bool JointControllerStarlETHWithSEA::loadParameters(const TiXmlHandle& handle) {
     printf("Could not find JointController:StarlETH\n");
     return false;
   }
+
+//  pElem =
+//      handle.FirstChild("JointController").FirstChild("Velocities").Element();
+//  if (!pElem) {
+//    printf("Could not find JointController::Velocities\n");
+//    return false;
+//  }
+
+//  TiXmlHandle hTrajectory(
+//      handle.FirstChild("JointController").FirstChild("Velocities"));
+//  if (!trajectoryFollower_.loadTrajectory(hTrajectory)) {
+//    return false;
+//  }
+
   TiXmlHandle hJointController(
       handle.FirstChild("JointController").FirstChild("StarlETH"));
 
