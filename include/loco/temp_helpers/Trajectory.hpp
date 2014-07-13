@@ -67,6 +67,13 @@ public:
 		lastIndex = 0;
 		copy( other );
 	}
+	GenericTrajectory<T>& operator =( const GenericTrajectory<T>& other ){
+    lastIndex = 0;
+    copy( other );
+    return *this;
+  }
+
+
 	virtual ~GenericTrajectory(void){
 		clear();
 	}
@@ -288,6 +295,20 @@ public:
 			values.push_back( other.values[i] );
 		}
 	}
+
+  void copy( const GenericTrajectory<T>& other ) {
+
+    tValues.clear();
+    values.clear();
+    int size = other.getKnotCount();
+
+    tValues.reserve(size);
+    values.reserve(size);
+    for( int i=0; i < size; ++i ) {
+      tValues.push_back( other.tValues[i] );
+      values.push_back( other.values[i] );
+    }
+  }
 
 };
 
