@@ -367,7 +367,7 @@ double JointControllerStarlETHWithSEA::trackMotorVelocity(int index,
           ABSOLUTE_MAX_VELOCITY :
           MAX_POWER / std::abs(jointTorquesToSet_(index));
 
-//   Clamp velocity according to power limit.
+  // Clamp velocity according to power limit.
   if (desMotorVelocities_(index) > maxVelocity) {
     desMotorVelocities_(index) = maxVelocity;
   } else if (desMotorVelocities_(index) < -maxVelocity) {
@@ -489,9 +489,9 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
     }
     jointTorquesToSet_(i) = trackJointTorque(i, dt);
 
-    output_ << desJointTorques_(0) << " " << jointTorquesToSet_(0) << " "
-            << desJointTorques_(1) << " " << jointTorquesToSet_(1) << " "
-            << desJointTorques_(2) << " " << jointTorquesToSet_(2) << std::endl;
+//    output_ << desJointTorques_(0) << " " << jointTorquesToSet_(0) << " "
+           output_ << desJointTorques_(1) << " " << jointTorquesToSet_(1) << std::endl;
+//            << desJointTorques_(2) << " " << jointTorquesToSet_(2) << std::endl;
 
 //    std::cout << "joint mode " << i << " :" << (int) desJointModes(i) << " pos: " << desJointPositions(i) << " vel:"  << desJointVelocities(i) << " tau: " << jointTorques_(i) << std::endl;
     if (isClampingTorques_) {

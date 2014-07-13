@@ -19,7 +19,7 @@
 
 #include "loco/common/TerrainModelBase.hpp"
 
-#include "GaussianKernel.hpp"
+#include "GaussianKernelJumpPropagator.hpp"
 #include <stdio.h>
 #include <Eigen/Core>
 
@@ -37,7 +37,6 @@ class TorsoControlJump : public TorsoControlBase {
   TorsoControlJump(LegGroup* legs, TorsoBase* torso,
                    loco::TerrainModelBase* terrain);
   virtual ~TorsoControlJump();
-
   virtual bool initialize(double dt);
   virtual void advance(double dt);
 
@@ -47,22 +46,17 @@ class TorsoControlJump : public TorsoControlBase {
                                        const Vector& vB);
   CoMOverSupportPolygonControl* getCoMControl();
   virtual bool loadParameters(const TiXmlHandle& handle);
-
   void addMeasuresToTrajectory(double baseHeight);
   std::vector<double> getMeasuredTrajectory();
   std::vector<bool> getMeasuredContactFlags(Leg leg);
-  double getMaxDuration();
-  double getProgress();
 
  private:
   LegGroup* legs_;
   TorsoBase* torso_;
   loco::TerrainModelBase* terrain_;
   CoMOverSupportPolygonControl comControl_;
-  dmp::GaussianKernel desiredTrajectory_;
+  GaussianKernelJumpPropagator trajectoryFollower_;
 
-  double currentTime_;
-  double maxDuration_;
   double headingDistanceFromForeToHindInBaseFrame_;
   std::ofstream output_;
 
@@ -71,15 +65,6 @@ class TorsoControlJump : public TorsoControlBase {
   std::vector<bool> rightFrontContactFlagTrajectory_;
   std::vector<bool> leftHindContactFlagTrajectory_;
   std::vector<bool> rightHindContactFlagTrajectory_;
-  Eigen::VectorXd *thetas_;
-
-  virtual bool loadTrajectory(const TiXmlHandle &hJump);
-  virtual bool loadGaussianKernel(const TiXmlHandle &hTrajectory);
-  virtual bool loadMovement(const TiXmlHandle &hTrajectory);
-  virtual bool loadThetas(const TiXmlHandle &hThetas);
-
-  void resetTime();
-  void incrementTime(double dt);
 };
 
 }

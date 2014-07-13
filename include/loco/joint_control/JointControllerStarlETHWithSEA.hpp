@@ -126,6 +126,7 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
  protected:
   std::ofstream output_;
 //  std::ofstream output2_;
+
   robotModel::RobotModel* robotModel_;
   bool isClampingTorques_;
   bool isClampingPositions_;
