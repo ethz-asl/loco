@@ -27,13 +27,15 @@ FootPlacementStrategyJump::~FootPlacementStrategyJump() {
 
 }
 
-// TODO: See if we need to introduce parameters to calculate landing positions for legs. For now hardcoded, so no parameters needed yet.
 bool FootPlacementStrategyJump::loadParameters(const TiXmlHandle& handle) {
 
   return true;
 }
 
 bool FootPlacementStrategyJump::initialize(double dt) {
+  LegBase* leftForeleg = legs_->getLeftForeLeg();
+
+  leftForeInitJointPositions_ = leftForeleg->getMeasuredJointPositions();
   return true;
 }
 
@@ -51,29 +53,19 @@ void FootPlacementStrategyJump::advance(double dt) {
   LegBase* leftHindleg = legs_->getLeftHindLeg();
   LegBase* rightHindleg = legs_->getRightHindLeg();
 
-//  if ((torso_->getMeasuredState()).getBaseLinearVelocityInBaseFrame().z()
-//      > 0.5) {
-    if (leftForeleg->isInSwingMode() && !leftForeleg->isGrounded()) {
-      leftForeleg->setDesiredJointPositions(
-          leftForeleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
-              leftForeLandingPosition));
+
+    if (leftForeleg->getStateLiftOff()->isNow()) {
+      leftForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
     }
-    if (rightForeleg->isInSwingMode() && !rightForeleg->isGrounded()) {
-      rightForeleg->setDesiredJointPositions(
-          rightForeleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
-              rightForeLandingPosition));
+    if (rightForeleg->getStateLiftOff()->isNow()) {
+      rightForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
     }
-    if (leftHindleg->isInSwingMode() && !leftHindleg->isGrounded()) {
-      leftHindleg->setDesiredJointPositions(
-          leftHindleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
-              leftHindLandingPosition));
+    if (leftHindleg->getStateLiftOff()->isNow()) {
+      leftHindleg->setDesiredJointPositions(-leftForeInitJointPositions_);
     }
-    if (rightHindleg->isInSwingMode() && !rightHindleg->isGrounded()) {
-      rightHindleg->setDesiredJointPositions(
-          rightHindleg->getJointPositionsFromBaseToFootPositionInBaseFrame(
-              rightHindLandingPosition));
+    if (rightHindleg->getStateLiftOff()->isNow()) {
+      rightHindleg->setDesiredJointPositions(-leftForeInitJointPositions_);
     }
-//  }
 }
 
 }  // namespace loco
