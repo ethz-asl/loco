@@ -32,6 +32,14 @@ enum Leg {
   HIND_LEFT,
 };
 
+enum State {
+  INIT = 0,
+  LIFTOFF,
+  APEX,
+  TOUCHDOWN,
+  NUMBER_OF_STATES,
+};
+
 class TorsoControlJump : public TorsoControlBase {
  public:
   TorsoControlJump(LegGroup* legs, TorsoBase* torso,
@@ -56,7 +64,9 @@ class TorsoControlJump : public TorsoControlBase {
   loco::TerrainModelBase* terrain_;
   CoMOverSupportPolygonControl comControl_;
   GaussianKernelJumpPropagator trajectoryFollower_;
+  State state_;
 
+  void updateState();
   double headingDistanceFromForeToHindInBaseFrame_;
   std::ofstream output_;
 

@@ -33,8 +33,7 @@ namespace loco {
 
 JointControllerStarlETHWithSEA::JointControllerStarlETHWithSEA(
     robotModel::RobotModel* robotModel)
-    : trajectoryFollower_(),
-      robotModel_(robotModel),
+    : robotModel_(robotModel),
       isClampingTorques_(false),
       isClampingPositions_(false),
       isClampingVelocities_(false) {
@@ -263,11 +262,6 @@ void JointControllerStarlETHWithSEA::setIsClampingVelocities(bool isClamping) {
 }
 
 bool JointControllerStarlETHWithSEA::initialize(double dt) {
-
-  if (!trajectoryFollower_.initialize(dt)) {
-    return false;
-  }
-
   desJointModesPrevious_ = robotModel_->act().getMode();
   desPositionsInVelocityControl_ = robotModel_->q().getQj();  //robotModel_->act().getPos();
   desJointTorques_.setZero();
@@ -467,20 +461,6 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
 
     } else if (desJointModes(i) == robotModel::AM_Velocity) {
 
-      switch (i % 3) {
-        case JointTypes::HAA:
-          desJointVelocities_(i) = trajectoryFollower_.predict(JointTypes::HAA);
-          break;
-        case JointTypes::HFE:
-          desJointVelocities_(i) = trajectoryFollower_.predict(JointTypes::HFE);
-          break;
-        case JointTypes::KFE:
-          desJointVelocities_(i) = trajectoryFollower_.predict(JointTypes::KFE);
-          break;
-      }
-
-      desJointVelocities_(i) = i > 5 ? -desJointVelocities_(i) : desJointVelocities_(i);
-
       if (isClampingVelocities_) {
         if (desJointVelocities_(i) > jointMaxVelocities_(i)) {
           desJointVelocities_(i) = jointMaxVelocities_(i);
@@ -508,7 +488,7 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
     jointTorquesToSet_(i) = trackJointTorque(i, dt);
 
 //    output_ << desJointTorques_(0) << " " << jointTorquesToSet_(0) << " "
-    output_ << desJointTorques_(2) << " " << jointTorquesToSet_(2) << std::endl;
+//    output_ << desJointTorques_(2) << " " << jointTorquesToSet_(2) << std::endl;
 //            << desJointTorques_(2) << " " << jointTorquesToSet_(2) << std::endl;
 
 //    std::cout << "joint mode " << i << " :" << (int) desJointModes(i) << " pos: " << desJointPositions(i) << " vel:"  << desJointVelocities(i) << " tau: " << jointTorques_(i) << std::endl;
@@ -665,19 +645,6 @@ bool JointControllerStarlETHWithSEA::loadParameters(const TiXmlHandle& handle) {
   pElem = handle.FirstChild("JointController").FirstChild("StarlETH").Element();
   if (!pElem) {
     printf("Could not find JointController:StarlETH\n");
-    return false;
-  }
-
-  pElem =
-      handle.FirstChild("JointController").FirstChild("Velocities").Element();
-  if (!pElem) {
-    printf("Could not find JointController::Velocities\n");
-    return false;
-  }
-
-  TiXmlHandle hTrajectory(
-      handle.FirstChild("JointController").FirstChild("Velocities"));
-  if (!trajectoryFollower_.loadTrajectory(hTrajectory)) {
     return false;
   }
 

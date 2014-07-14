@@ -64,6 +64,7 @@ class FootPlacementStrategyJump : public FootPlacementStrategyBase {
    */
 //  virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
 
+  LegBase::JointPositions leftForeInitJointPositions_;
 	double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 	double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 

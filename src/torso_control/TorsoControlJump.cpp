@@ -12,7 +12,7 @@ namespace loco {
 TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
                                    loco::TerrainModelBase* terrain)
     : TorsoControlBase(),
-//      trajectoryFollower_(),
+      trajectoryFollower_(),
       legs_(legs),
       torso_(torso),
       terrain_(terrain),
@@ -25,8 +25,8 @@ TorsoControlJump::~TorsoControlJump() {
 }
 
 bool TorsoControlJump::initialize(double dt) {
-//  if (!trajectoryFollower_.initialize(dt))
-//    return false;
+  if (!trajectoryFollower_.initialize(dt))
+    return false;
 
   //  output_.open("./output.txt");
   const Position foreHipPosition = legs_->getLeg(0)
@@ -35,6 +35,8 @@ bool TorsoControlJump::initialize(double dt) {
       ->getWorldToHipPositionInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()
       - hindHipPosition.x();
+
+  state_ = State::INIT;
 
   return true;
 }
@@ -55,13 +57,19 @@ void TorsoControlJump::advance(double dt) {
 
   terrain_->getHeight(groundHeightInWorldFrame);
 
-//  double desiredTorsoHeightAboveGroundInWorldFrame =
-//      trajectoryFollower_.predict(0);
+  double desiredTorsoHeightAboveGroundInWorldFrame;
+  updateState();
 
-//  Position desiredTorsoPositionInWorldFrame(
-//      desiredLateralAndHeadingPositionInWorldFrame.x(),
-//      desiredLateralAndHeadingPositionInWorldFrame.y(),
-//      desiredTorsoHeightAboveGroundInWorldFrame + groundHeightInWorldFrame.z());
+  if (state_ == LIFTOFF || state_ == State::INIT) {
+    desiredTorsoHeightAboveGroundInWorldFrame = trajectoryFollower_.predict(0);
+  } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
+    desiredTorsoHeightAboveGroundInWorldFrame = 0.42;
+  }
+
+  Position desiredTorsoPositionInWorldFrame(
+      desiredLateralAndHeadingPositionInWorldFrame.x(),
+      desiredLateralAndHeadingPositionInWorldFrame.y(),
+      desiredTorsoHeightAboveGroundInWorldFrame + groundHeightInWorldFrame.z());
 
   //std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
 
@@ -72,8 +80,8 @@ void TorsoControlJump::advance(double dt) {
 
   /* --- end desired orientation --- */
 
-//  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
-//      Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
+  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
+      Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
   addMeasuresToTrajectory(
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
@@ -81,6 +89,36 @@ void TorsoControlJump::advance(double dt) {
 //  output_ << currentTime_ << " "
 //          << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
 //          << std::endl;
+}
+
+/**
+ * Keeps track of current state of jump.
+ * Jump occurs in the following phases:
+ * INIT -> LIFTOFF -> APEX -> TOUCHDOWN
+ */
+void TorsoControlJump::updateState() {
+  if (legs_->getLeftForeLeg()->getStateLiftOff()->isNow()
+      && legs_->getRightForeLeg()->getStateLiftOff()->isNow()
+      && legs_->getLeftHindLeg()->getStateLiftOff()->isNow()
+      && legs_->getRightHindLeg()->getStateLiftOff()->isNow()
+      && state_ == State::INIT) {
+
+    state_ = State::LIFTOFF;
+
+  } else if (!legs_->getLeftForeLeg()->isGrounded()
+      && !legs_->getLeftHindLeg()->isGrounded()
+      && !legs_->getRightHindLeg()->isGrounded()
+      && !legs_->getRightForeLeg()->isGrounded() && state_ == State::LIFTOFF) {
+
+    state_ = State::APEX;
+
+  } else if (legs_->getLeftForeLeg()->isGrounded()
+      && legs_->getRightForeLeg()->isGrounded()
+      && legs_->getLeftHindLeg()->isGrounded()
+      && legs_->getRightForeLeg()->isGrounded() && state_ == State::APEX) {
+
+    state_ = State::TOUCHDOWN;
+  }
 }
 
 void TorsoControlJump::addMeasuresToTrajectory(double baseHeight) {
@@ -170,9 +208,9 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   if (!comControl_.loadParameters(hJump)) {
     return false;
   }
-//  if (!trajectoryFollower_.loadTrajectory(hJump)) {
-//    return false;
-//  }
+  if (!trajectoryFollower_.loadTrajectory(hJump)) {
+    return false;
+  }
 //  std::cout << desiredTrajectory_.getInfoString() << std::endl;
 
   return true;
