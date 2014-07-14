@@ -14,7 +14,8 @@
 #include "loco/contact_detection/ContactDetectorBase.hpp"
 #include "loco/terrain_perception/TerrainPerceptionBase.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
-#include "loco/torso_control/TorsoControlBase.hpp"
+#include "loco/motor_velocity_controller/MotorVelocityController.hpp"
+#include "loco/torso_control/TorsoControlJump.hpp"
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorJump.hpp"
@@ -32,7 +33,7 @@ class LocomotionControllerJump: public LocomotionControllerBase {
                                   TerrainPerceptionBase* terrainPerception,
                                   ContactDetectorBase* contactDetector,
                                   LimbCoordinatorBase* limbCoordinator,
-                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
+                                  FootPlacementStrategyBase* footPlacementStrategy, MotorVelocityController* motorVelocityController, TorsoControlBase* baseController,
                                   VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
                                   ParameterSet* parameterSet);
   virtual ~LocomotionControllerJump();
@@ -62,9 +63,11 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   LimbCoordinatorBase* getLimbCoordinator();
   TerrainPerceptionBase* getTerrainPerception();
  protected:
+  GaussianKernelJumpPropagator trajectoryFollower_;
   bool isInitialized_;
   LegGroup* legs_;
   TorsoBase* torso_;
+  MotorVelocityController* motorVelocityController_;
   LimbCoordinatorBase* limbCoordinator_;
   TerrainPerceptionBase* terrainPerception_;
   ContactDetectorBase* contactDetector_;

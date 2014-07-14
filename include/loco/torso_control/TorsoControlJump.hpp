@@ -54,6 +54,9 @@ class TorsoControlJump : public TorsoControlBase {
                                        const Vector& vB);
   CoMOverSupportPolygonControl* getCoMControl();
   virtual bool loadParameters(const TiXmlHandle& handle);
+
+  void setInTorsoPositionMode (bool isInTorsoPositionMode);
+  void setTrajectoryFollower(GaussianKernelJumpPropagator* trajectoryFollower);
   void addMeasuresToTrajectory(double baseHeight);
   std::vector<double> getMeasuredTrajectory();
   std::vector<bool> getMeasuredContactFlags(Leg leg);
@@ -65,6 +68,7 @@ class TorsoControlJump : public TorsoControlBase {
   CoMOverSupportPolygonControl comControl_;
   GaussianKernelJumpPropagator trajectoryFollower_;
   State state_;
+  bool inTorsoPositionMode_;
 
   void updateState();
   double headingDistanceFromForeToHindInBaseFrame_;

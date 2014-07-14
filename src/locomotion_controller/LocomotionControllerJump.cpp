@@ -10,26 +10,28 @@
 #include "RobotModel.hpp"
 namespace loco {
 
-LocomotionControllerJump::LocomotionControllerJump(LegGroup* legs, TorsoBase* torso,
-                                                   TerrainPerceptionBase* terrainPerception,
-                                                   ContactDetectorBase* contactDetector,
-                                                   LimbCoordinatorBase* limbCoordinator,
-                                                   FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
-                                                   VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
-                                                   ParameterSet* parameterSet) :
-        LocomotionControllerBase(),
-        isInitialized_(false),
-        legs_(legs),
-        torso_(torso),
-        terrainPerception_(terrainPerception),
-        contactDetector_(contactDetector),
-        limbCoordinator_(limbCoordinator),
-        footPlacementStrategy_(footPlacementStrategy),
-        torsoController_(baseController),
-        virtualModelController_(virtualModelController),
-        contactForceDistribution_(contactForceDistribution),
-        parameterSet_(parameterSet)
-{
+LocomotionControllerJump::LocomotionControllerJump(
+    LegGroup* legs, TorsoBase* torso, TerrainPerceptionBase* terrainPerception,
+    ContactDetectorBase* contactDetector, LimbCoordinatorBase* limbCoordinator,
+    FootPlacementStrategyBase* footPlacementStrategy,
+    MotorVelocityController* motorVelocityController,
+    TorsoControlBase* baseController,
+    VirtualModelController* virtualModelController,
+    ContactForceDistributionBase* contactForceDistribution,
+    ParameterSet* parameterSet)
+    : LocomotionControllerBase(),
+      isInitialized_(false),
+      legs_(legs),
+      torso_(torso),
+      terrainPerception_(terrainPerception),
+      contactDetector_(contactDetector),
+      limbCoordinator_(limbCoordinator),
+      footPlacementStrategy_(footPlacementStrategy),
+      motorVelocityController_(motorVelocityController),
+      torsoController_(baseController),
+      virtualModelController_(virtualModelController),
+      contactForceDistribution_(contactForceDistribution),
+      parameterSet_(parameterSet) {
 
 }
 
@@ -37,12 +39,11 @@ LocomotionControllerJump::~LocomotionControllerJump() {
 
 }
 
-bool LocomotionControllerJump::initialize(double dt)
-{
+bool LocomotionControllerJump::initialize(double dt) {
   isInitialized_ = false;
 
   for (auto leg : *legs_) {
-    if(!leg->initialize(dt)) {
+    if (!leg->initialize(dt)) {
       return false;
     }
   }
@@ -50,7 +51,8 @@ bool LocomotionControllerJump::initialize(double dt)
     return false;
   }
 
-  TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
+  TiXmlHandle hLoco(
+      parameterSet_->getHandle().FirstChild("LocomotionController"));
 
   if (!terrainPerception_->initialize(dt)) {
     return false;
@@ -69,11 +71,35 @@ bool LocomotionControllerJump::initialize(double dt)
     return false;
   }
 
+  if (!trajectoryFollower_.loadTrajectory(hLoco)) {
+    return false;
+  }
+
+  if (!trajectoryFollower_.initialize(dt)) {
+    return false;
+  }
+
   if (!torsoController_->loadParameters(hLoco)) {
     return false;
   }
   if (!torsoController_->initialize(dt)) {
     return false;
+  }
+
+  if (!motorVelocityController_->loadParameters(hLoco)) {
+    return false;
+  }
+
+  if (!motorVelocityController_->initialize(dt)) {
+    return false;
+  }
+
+  if (!trajectoryFollower_.inVelocityMode()) {
+    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(true);
+    dynamic_cast<TorsoControlJump*>(torsoController_)->setTrajectoryFollower(&trajectoryFollower_);
+  } else {
+    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(false);
+    dynamic_cast<TorsoControlJump*>(motorVelocityController_)->setTrajectoryFollower(&trajectoryFollower_);
   }
 
   if (!contactForceDistribution_->loadParameters(hLoco)) {
@@ -113,8 +139,10 @@ bool LocomotionControllerJump::advance(double dt) {
     const double swingPhase = leg->getSwingPhase();
     if (leg->wasInStanceMode() && leg->isInSwingMode()) {
       // possible lift-off
-      leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
-      leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+      leg->getStateLiftOff()->setFootPositionInWorldFrame(
+          leg->getWorldToFootPositionInWorldFrame());  // or base2foot?
+      leg->getStateLiftOff()->setHipPositionInWorldFrame(
+          leg->getWorldToHipPositionInWorldFrame());
       leg->getStateLiftOff()->setIsNow(true);
     } else {
       leg->getStateLiftOff()->setIsNow(false);
@@ -129,8 +157,11 @@ bool LocomotionControllerJump::advance(double dt) {
 
   }
   footPlacementStrategy_->advance(dt);
+
+  motorVelocityController_->advance(dt);
   torsoController_->advance(dt);
-  if(!virtualModelController_->compute()) {
+
+  if (!virtualModelController_->compute()) {
     return false;
   }
 
@@ -139,7 +170,11 @@ bool LocomotionControllerJump::advance(double dt) {
   int iLeg = 0;
   for (auto leg : *legs_) {
     if (leg->isAndShouldBeGrounded()) {
-      desiredJointControlModes.setConstant(robotModel::AM_Torque);
+      if (!trajectoryFollower_.inVelocityMode()) {
+        desiredJointControlModes.setConstant(robotModel::AM_Torque);
+      } else {
+        desiredJointControlModes.setConstant(robotModel::AM_Velocity);
+      }
     } else {
       desiredJointControlModes.setConstant(robotModel::AM_Position);
     }
@@ -164,7 +199,6 @@ FootPlacementStrategyBase* LocomotionControllerJump::getFootPlacementStrategy() 
 TorsoControlBase* LocomotionControllerJump::getTorsoController() {
   return torsoController_;
 }
-
 
 VirtualModelController* LocomotionControllerJump::getVirtualModelController() {
   return virtualModelController_;

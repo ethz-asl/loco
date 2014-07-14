@@ -25,9 +25,6 @@ TorsoControlJump::~TorsoControlJump() {
 }
 
 bool TorsoControlJump::initialize(double dt) {
-  if (!trajectoryFollower_.initialize(dt))
-    return false;
-
   //  output_.open("./output.txt");
   const Position foreHipPosition = legs_->getLeg(0)
       ->getWorldToHipPositionInBaseFrame();
@@ -36,9 +33,29 @@ bool TorsoControlJump::initialize(double dt) {
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()
       - hindHipPosition.x();
 
-  state_ = State::INIT;
+  // Make sure the robot is on the ground and did not jump before
+  if (legs_->getLeftForeLeg()->isGrounded()
+      && legs_->getRightForeLeg()->isGrounded()
+      && legs_->getLeftHindLeg()->isGrounded()
+      && legs_->getRightForeLeg()->isGrounded() && state_ != State::APEX) {
+    state_ = State::INIT;
+  }
 
   return true;
+}
+
+/**
+ * Sets GaussianKernelJumpPropagator to follow.
+ */
+void TorsoControlJump::setTrajectoryFollower(GaussianKernelJumpPropagator *trajectoryFollower) {
+  trajectoryFollower_ = *trajectoryFollower;
+}
+
+/**
+ * Enables body jump goal tracking if set.
+ */
+void TorsoControlJump::setInTorsoPositionMode (bool isInTorsoPositionMode) {
+  inTorsoPositionMode_ = isInTorsoPositionMode;
 }
 
 void TorsoControlJump::advance(double dt) {
@@ -60,28 +77,32 @@ void TorsoControlJump::advance(double dt) {
   double desiredTorsoHeightAboveGroundInWorldFrame;
   updateState();
 
-  if (state_ == LIFTOFF || state_ == State::INIT) {
-    desiredTorsoHeightAboveGroundInWorldFrame = trajectoryFollower_.predict(0);
-  } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
-    desiredTorsoHeightAboveGroundInWorldFrame = 0.42;
+  if (inTorsoPositionMode_) {
+    if (state_ == LIFTOFF || state_ == State::INIT) {
+      desiredTorsoHeightAboveGroundInWorldFrame = trajectoryFollower_.predict(
+          0);
+
+    } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
+
+      desiredTorsoHeightAboveGroundInWorldFrame = 0.42;
+    }
+
+    Position desiredTorsoPositionInWorldFrame(
+        desiredLateralAndHeadingPositionInWorldFrame.x(),
+        desiredLateralAndHeadingPositionInWorldFrame.y(),
+        desiredTorsoHeightAboveGroundInWorldFrame
+            + groundHeightInWorldFrame.z());
+
+    //std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
+
+    /* --- desired orientation --- */
+    // Just keep torso parallel to ground for now
+    RotationQuaternion desOrientationWorldToBase = RotationQuaternion();
+
+    /* --- end desired orientation --- */
+    torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
+        Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
   }
-
-  Position desiredTorsoPositionInWorldFrame(
-      desiredLateralAndHeadingPositionInWorldFrame.x(),
-      desiredLateralAndHeadingPositionInWorldFrame.y(),
-      desiredTorsoHeightAboveGroundInWorldFrame + groundHeightInWorldFrame.z());
-
-  //std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
-
-  /* --- desired orientation --- */
-
-  // Just keep torso parallel to ground for now
-  RotationQuaternion desOrientationWorldToBase = RotationQuaternion();
-
-  /* --- end desired orientation --- */
-
-  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
-      Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
   addMeasuresToTrajectory(
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
@@ -208,12 +229,10 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   if (!comControl_.loadParameters(hJump)) {
     return false;
   }
-  if (!trajectoryFollower_.loadTrajectory(hJump)) {
-    return false;
-  }
+
 //  std::cout << desiredTrajectory_.getInfoString() << std::endl;
 
-  return true;
+return true;
 }
 
 } /* namespace loco */

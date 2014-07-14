@@ -56,6 +56,9 @@ add_subdirectory(src/limb_coordinator)
 # Add torso control
 add_subdirectory(src/torso_control)
 
+# Add motor velocity control
+add_subdirectory(src/motor_velocity_controller)
+
 # Add mission control
 add_subdirectory(src/mission_control)
 
