@@ -22,6 +22,7 @@
 #include "GaussianKernelJumpPropagator.hpp"
 #include <stdio.h>
 #include <Eigen/Core>
+#include <memory>
 
 namespace loco {
 
@@ -56,7 +57,7 @@ class TorsoControlJump : public TorsoControlBase {
   virtual bool loadParameters(const TiXmlHandle& handle);
 
   void setInTorsoPositionMode (bool isInTorsoPositionMode);
-  void setTrajectoryFollower(GaussianKernelJumpPropagator* trajectoryFollower);
+  void setTrajectoryFollower(GaussianKernelJumpPropagator trajectoryFollower);
   void addMeasuresToTrajectory(double baseHeight);
   std::vector<double> getMeasuredTrajectory();
   std::vector<bool> getMeasuredContactFlags(Leg leg);

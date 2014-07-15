@@ -29,10 +29,11 @@ class MotorVelocityController : public MotorVelocityControllerBase {
   virtual bool loadParameters(const TiXmlHandle& handle);
 
   void setInVelocityMode (bool isInVelocityMode);
-  void setTrajectoryFollower(GaussianKernelJumpPropagator* trajectoryFollower);
+  void setTrajectoryFollower(GaussianKernelJumpPropagator trajectoryFollower);
 
  private:
   bool inVelocityMode_;
+  LegBase::JointPositions leftForeInitJointPositions_;
   LegGroup* legs_;
   robotModel::RobotModel *robotModel_;
   GaussianKernelJumpPropagator trajectoryFollower_;

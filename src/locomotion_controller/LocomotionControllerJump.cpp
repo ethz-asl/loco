@@ -95,11 +95,16 @@ bool LocomotionControllerJump::initialize(double dt) {
   }
 
   if (!trajectoryFollower_.inVelocityMode()) {
-    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(true);
-    dynamic_cast<TorsoControlJump*>(torsoController_)->setTrajectoryFollower(&trajectoryFollower_);
+    motorVelocityController_->setInVelocityMode(false);
+    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(
+        true);
+    dynamic_cast<TorsoControlJump*>(torsoController_)->setTrajectoryFollower(
+        trajectoryFollower_);
   } else {
-    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(false);
-    dynamic_cast<TorsoControlJump*>(motorVelocityController_)->setTrajectoryFollower(&trajectoryFollower_);
+    motorVelocityController_->setInVelocityMode(true);
+    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(
+        false);
+    motorVelocityController_->setTrajectoryFollower(trajectoryFollower_);
   }
 
   if (!contactForceDistribution_->loadParameters(hLoco)) {
@@ -156,10 +161,12 @@ bool LocomotionControllerJump::advance(double dt) {
     }
 
   }
-  footPlacementStrategy_->advance(dt);
 
   motorVelocityController_->advance(dt);
+
   torsoController_->advance(dt);
+
+  footPlacementStrategy_->advance(dt);
 
   if (!virtualModelController_->compute()) {
     return false;

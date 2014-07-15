@@ -9,8 +9,8 @@
 
 namespace loco {
 
-MotorVelocityController::MotorVelocityController(robotModel::RobotModel *robotModel,
-                                                 LegGroup* legs) {
+MotorVelocityController::MotorVelocityController(
+    robotModel::RobotModel *robotModel, LegGroup* legs) {
   robotModel_ = robotModel;
   legs_ = legs;
 }
@@ -36,6 +36,9 @@ bool MotorVelocityController::initialize(double dt) {
     state_ = State::INIT;
   }
 
+  LegBase* leftForeLeg = legs_->getLeftForeLeg();
+  leftForeInitJointPositions_ = leftForeLeg->getMeasuredJointPositions();
+
   return true;
 }
 
@@ -43,8 +46,8 @@ bool MotorVelocityController::initialize(double dt) {
  * Sets GaussianKernelJumpPropagator to follow.
  */
 void MotorVelocityController::setTrajectoryFollower(
-    GaussianKernelJumpPropagator *trajectoryFollower) {
-  trajectoryFollower_ = *trajectoryFollower;
+    GaussianKernelJumpPropagator trajectoryFollower) {
+  trajectoryFollower_ = trajectoryFollower;
 }
 
 /**
@@ -55,12 +58,12 @@ void MotorVelocityController::setInVelocityMode(bool isInVelocityMode) {
 }
 
 void MotorVelocityController::advance(double dt) {
+  Eigen::Vector3d velocities;
 
   if (inVelocityMode_) {
     // Different joint types with indices 0, 1, 2 respectively (in this order).
     updateState();
 
-    Eigen::Vector3d velocities;
     if (state_ == LIFTOFF || state_ == State::INIT) {
       velocities(0) = trajectoryFollower_.predict(0);
       velocities(1) = trajectoryFollower_.predict(1);
@@ -70,6 +73,16 @@ void MotorVelocityController::advance(double dt) {
       robotModel_->act().setVelOfLeg(velocities, 1);
       robotModel_->act().setVelOfLeg(-velocities, 2);
       robotModel_->act().setVelOfLeg(-velocities, 3);
+    } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
+      robotModel::VectorActM positionMode;
+      positionMode.fill(robotModel::AM_Position);
+
+      robotModel_->act().setPosOfLeg(leftForeInitJointPositions_,0);
+      robotModel_->act().setPosOfLeg(leftForeInitJointPositions_, 1);
+      robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 2);
+      robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 3);
+
+      std::cout << "PositionMode! " << state_ << std::endl;
     }
   }
 }

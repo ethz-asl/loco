@@ -33,21 +33,15 @@ bool FootPlacementStrategyJump::loadParameters(const TiXmlHandle& handle) {
 }
 
 bool FootPlacementStrategyJump::initialize(double dt) {
-  LegBase* leftForeleg = legs_->getLeftForeLeg();
+  LegBase* leftForeLeg = legs_->getLeftForeLeg();
 
-  leftForeInitJointPositions_ = leftForeleg->getMeasuredJointPositions();
+  leftForeInitJointPositions_ = leftForeLeg->getMeasuredJointPositions();
   return true;
 }
 
 void FootPlacementStrategyJump::advance(double dt) {
 
   /* Calculate landing positions for legs after doing a jump */
-  //TODO Actually calculate the positions instead of using hardcoded positions
-  const Position leftForeLandingPosition(0.3, 0.25, -0.42);
-  const Position leftHindLandingPosition(-0.3, 0.25, -0.42);
-  const Position rightForeLandingPosition(0.3, -0.25, -0.42);
-  const Position rightHindLandingPosition(-0.3, -0.25, -0.42);
-
   LegBase* leftForeleg = legs_->getLeftForeLeg();
   LegBase* rightForeleg = legs_->getRightForeLeg();
   LegBase* leftHindleg = legs_->getLeftHindLeg();

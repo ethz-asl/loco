@@ -12,12 +12,12 @@ namespace loco {
 TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
                                    loco::TerrainModelBase* terrain)
     : TorsoControlBase(),
-      trajectoryFollower_(),
       legs_(legs),
       torso_(torso),
       terrain_(terrain),
       comControl_(legs),
-      headingDistanceFromForeToHindInBaseFrame_(0.0) {
+      headingDistanceFromForeToHindInBaseFrame_(0.0)
+      {
 }
 
 TorsoControlJump::~TorsoControlJump() {
@@ -47,8 +47,8 @@ bool TorsoControlJump::initialize(double dt) {
 /**
  * Sets GaussianKernelJumpPropagator to follow.
  */
-void TorsoControlJump::setTrajectoryFollower(GaussianKernelJumpPropagator *trajectoryFollower) {
-  trajectoryFollower_ = *trajectoryFollower;
+void TorsoControlJump::setTrajectoryFollower(GaussianKernelJumpPropagator trajectoryFollower) {
+  trajectoryFollower_ = trajectoryFollower;
 }
 
 /**

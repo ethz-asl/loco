@@ -513,6 +513,7 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
 //
 //  output2_ << "" << std::endl;
 
+//  std::cout << measuredMotorVelocities_(1) << " " << measuredMotorVelocities_(2) << std::endl;
   desJointModesPrevious_ = desJointModes;
 
   return true;
