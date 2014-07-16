@@ -30,37 +30,56 @@ void loco::GaitPatternFlightPhases::setStrideDuration(double strideDuration) {
   this->strideDuration = strideDuration;
 }
 
-double loco::GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg) {
-  double absolutePhase = cyclePhase;
-  //the absolute phase parameter should be in the range [0-1], so make it so just in case...
-  while (absolutePhase < 0) absolutePhase += 1; while (absolutePhase > 1) absolutePhase -= 1;
-
-  return getRelativePhaseFromAbsolutePhaseInRange(absolutePhase, footFallPatterns[iLeg].footLiftOff, footFallPatterns[iLeg].footStrike);
+double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg) {
+  return getSwingPhaseForLeg(iLeg,  cyclePhase);
 }
 
-double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg) {
+double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg, double stridePhase) const {
+  //the absolute phase parameter should be in the range [0-1], so make it so just in case...
+  while (stridePhase < 0) stridePhase += 1; while (stridePhase > 1) stridePhase -= 1;
 
-  const double absolutePhase = cyclePhase;
+  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, footFallPatterns[iLeg].liftOffPhase, footFallPatterns[iLeg].strikePhase);
+}
 
-  double timeUntilFootLiftOff = footFallPatterns[iLeg].getPhaseLeftUntilFootLiftOff(absolutePhase);
-  double timeUntilFootStrike = footFallPatterns[iLeg].getPhaseLeftUntilFootStrike(absolutePhase);
+double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stridePhase) const {
+
+  double timeUntilFootLiftOff = footFallPatterns[iLeg].getPhaseLeftUntilFootLiftOff(stridePhase);
+  double timeUntilFootStrike = footFallPatterns[iLeg].getPhaseLeftUntilFootStrike(stridePhase);
+
+  if (footFallPatterns[iLeg].strikePhase == footFallPatterns[iLeg].liftOffPhase) {
+    return 1.0; // added (Christian)
+  }
 
   //see if we're in swing mode...
-  if (timeUntilFootStrike < timeUntilFootLiftOff)
-    return 0;
+  if (timeUntilFootStrike < timeUntilFootLiftOff) {
+//    return 0.0>;
+    return -1; // changed with new gait pattern from SC
+  }
 
-  double swingPhaseRange = footFallPatterns[iLeg].footStrike - footFallPatterns[iLeg].footLiftOff;
-  double timeSinceFootStrike = 1 - timeUntilFootLiftOff - swingPhaseRange;
+
+  double swingPhaseRange = footFallPatterns[iLeg].strikePhase - footFallPatterns[iLeg].liftOffPhase;
+  double timeSinceFootStrike = 1.0 - timeUntilFootLiftOff - swingPhaseRange;
 
   return timeSinceFootStrike / (timeSinceFootStrike + timeUntilFootLiftOff);
 }
 
-double loco::GaitPatternFlightPhases::getStanceDuration(int iLeg) {
+double GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg) {
+  return getStancePhaseForLeg(iLeg, cyclePhase);
+}
 
 
-  double swingDuration = footFallPatterns[iLeg].footStrike - footFallPatterns[iLeg].footLiftOff;
 
-  return 1-swingDuration;
+
+double GaitPatternFlightPhases::getStanceDuration(int iLeg) {
+  return getStanceDuration(iLeg, strideDuration);
+}
+
+double GaitPatternFlightPhases::getSwingDuration(int iLeg, double strideDuration) const {
+  return strideDuration - getStanceDuration(iLeg, strideDuration);
+}
+
+double GaitPatternFlightPhases::getStanceDuration(int iLeg, double strideDuration) const {
+  return (1.0-(footFallPatterns[iLeg].strikePhase - footFallPatterns[iLeg].liftOffPhase)) * strideDuration;
 }
 
 unsigned long int loco::GaitPatternFlightPhases::getNGaitCycles() {
@@ -79,22 +98,25 @@ bool loco::GaitPatternFlightPhases::isInitialized()
   return isInitialized_;
 }
 
-void loco::GaitPatternFlightPhases::advance(double dt) {
+bool loco::GaitPatternFlightPhases::advance(double dt) {
   if (strideDuration == 0.0) {
     cyclePhase = 0.0;
-    return;
+    return true;
   }
   cyclePhase += dt/strideDuration;
   if (cyclePhase > 1.0) {
     cyclePhase = 0.0;
     numGaitCycles++;
   }
+  return true;
 
 }
 
 bool loco::GaitPatternFlightPhases::shouldBeLegGrounded(int iLeg) {
 //  printf("leg %d: stance phase: %f\n",iLeg, getStancePhaseForLeg(iLeg));
-  return (getStancePhaseForLeg(iLeg)!=0.0);
+//  return (getStancePhaseForLeg(iLeg)!=0.0);
+  return (getStancePhaseForLeg(iLeg) >= 0.0); // changed since returns now -1 for swing mode
+//  return (getStancePhaseForLeg(iLeg) !=0.0 || footFallPatterns[iLeg].liftOffPhase == footFallPatterns[iLeg].strikePhase); // added (Christian)
 }
 
 double loco::GaitPatternFlightPhases::getStridePhase() {
@@ -196,7 +218,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
 }
 
 
-inline double GaitPatternFlightPhases::getRelativePhaseFromAbsolutePhaseInRange(double phase, double start, double end){
+inline double GaitPatternFlightPhases::getRelativePhaseFromAbsolutePhaseInRange(double phase, double start, double end) const {
   if (start < 0){
     end -= start;
     phase -= start;
@@ -209,6 +231,7 @@ inline double GaitPatternFlightPhases::getRelativePhaseFromAbsolutePhaseInRange(
     end -= (end-1);
     if (phase < 0) phase += 1;
   }
+//  printf("start: %lf, end: %lf\n", start, end);
   if (start == end) return -1; // added (Christian)
   double result = (phase - start) / (end - start);
 
@@ -219,10 +242,53 @@ inline double GaitPatternFlightPhases::getRelativePhaseFromAbsolutePhaseInRange(
 }
 
 double GaitPatternFlightPhases::getFootLiftOffPhase(int iLeg) {
-   return footFallPatterns[iLeg].footLiftOff;
+   return footFallPatterns[iLeg].liftOffPhase;
 }
 double GaitPatternFlightPhases::getFootTouchDownPhase(int iLeg) {
-  return footFallPatterns[iLeg].footStrike;
+  return footFallPatterns[iLeg].strikePhase;
+}
+
+
+double GaitPatternFlightPhases::getTimeLeftInStance(int iLeg, double strideDuration, double stridePhase) const {
+  double stancePhase = getStancePhaseForLeg(iLeg, stridePhase);
+  if (stancePhase < 0 || stancePhase > 1) return 0;
+  return getStanceDuration(iLeg, strideDuration) * (1-stancePhase);
+}
+
+double GaitPatternFlightPhases::getTimeLeftInSwing(int iLeg, double strideDuration, double stridePhase) const {
+  double swingPhase = getSwingPhaseForLeg(iLeg, stridePhase);
+  if (swingPhase < 0 || swingPhase > 1) return 0;
+  return getSwingDuration(iLeg, strideDuration) * (1-swingPhase);
+}
+
+double GaitPatternFlightPhases::getTimeSpentInStance(int iLeg, double strideDuration, double stridePhase) const {
+  double stancePhase = getStancePhaseForLeg(iLeg, stridePhase);
+  if (stancePhase < 0 || stancePhase > 1) return 0;
+  return getStanceDuration(iLeg, strideDuration) * stancePhase;
+}
+
+double GaitPatternFlightPhases::getTimeSpentInSwing(int iLeg, double strideDuration, double stridePhase) const {
+  double swingPhase = getSwingPhaseForLeg(iLeg, stridePhase);
+  if (swingPhase < 0 || swingPhase > 1) return 0;
+  return getSwingDuration(iLeg, strideDuration) * swingPhase;
+}
+
+double GaitPatternFlightPhases::getTimeUntilNextStancePhase(int iLeg, double strideDuration, double stridePhase) const {
+  double stancePhase = getStancePhaseForLeg(iLeg, stridePhase);
+  //the limb is already in stance phase, so the time until the next stance phase starts is one whole stridePhase minus the amount of time it's already spent in stance mode
+  if (stancePhase >= 0 && stancePhase <= 1)
+    return strideDuration - getTimeSpentInStance(iLeg, strideDuration, stridePhase);
+  //if the limb is in swing phase, then we have as much time until the swing phase ends
+  return getTimeLeftInSwing(iLeg, strideDuration, stridePhase);
+}
+
+double GaitPatternFlightPhases::getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const {
+  double swingPhase = getSwingPhaseForLeg(iLeg, stridePhase);
+  //the limb is already in swing phase, so the time until the next swing phase starts is one whole stridePhase minus the amount of time it's already spent in swing mode
+  if (swingPhase >= 0 && swingPhase <= 1)
+    return strideDuration - getTimeSpentInSwing(iLeg, strideDuration, stridePhase);
+  //if the limb is in stance phase, then we have as much time until the stance phase ends
+  return getTimeLeftInStance(iLeg, strideDuration, stridePhase);
 }
 
 } /* namespace loco */

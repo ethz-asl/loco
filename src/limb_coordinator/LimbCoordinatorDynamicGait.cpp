@@ -53,10 +53,14 @@ bool LimbCoordinatorDynamicGait::initialize(double dt) {
   if(!gaitPattern_->initialize(dt)) {
     return false;
   }
+
+  if(!advance(0.0)) {
+    return false;
+  }
   return true;
 }
 
-void LimbCoordinatorDynamicGait::advance(double dt) {
+bool LimbCoordinatorDynamicGait::advance(double dt) {
   gaitPattern_->advance(dt);
 //  for (int iLeg=0; iLeg<4; iLeg++) {
   int iLeg =0;
@@ -75,6 +79,7 @@ void LimbCoordinatorDynamicGait::advance(double dt) {
   }
 
   torso_->setStridePhase(gaitPattern_->getStridePhase());
+  return true;
 }
 
 bool LimbCoordinatorDynamicGait::isLegInStanceMode(int iLeg) {

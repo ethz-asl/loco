@@ -79,7 +79,7 @@ public:
 	 *
 	 * @param dt	time step [s]
 	 */
-	virtual void advance(double dt);
+	virtual bool advance(double dt);
 
 	/*! Gets the time in seconds
 	 * @return

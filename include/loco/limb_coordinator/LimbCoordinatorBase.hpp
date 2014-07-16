@@ -37,7 +37,7 @@ class LimbCoordinatorBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual void advance(double dt) = 0;
+  virtual bool advance(double dt) = 0;
 
   virtual void setIsLegGrounded(int iLeg, bool isLegGrounded) = 0;
 

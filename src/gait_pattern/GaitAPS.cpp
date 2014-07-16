@@ -71,7 +71,7 @@ void GaitAPS::setStrideDuration(double strideDuration)
 	printf("WARNING: hindCycleDuration is not adapted!\n");
 }
 
-void GaitAPS::advance(double dt)
+bool GaitAPS::advance(double dt)
 {
 	// update time
 	time_ += dt;
@@ -313,7 +313,7 @@ void GaitAPS::advance(double dt)
 
 	}
 
-
+	return true;
 }
 
 

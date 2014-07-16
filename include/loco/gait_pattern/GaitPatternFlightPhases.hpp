@@ -28,19 +28,44 @@ class GaitPatternFlightPhases: public GaitPatternBase {
      */
     virtual void setStrideDuration(double strideDuration);
 
-    /**
-      returns the relative phase for the leg whose index is passed in. The number
+    /*! @returns the relative phase for the leg whose index is passed in. The number
       returned is always going to be between 0 and 1 (0 meaning it should still be in stance mode,
       1 - it is a stance leg again, anything in between means that it is a swing leg).
       The stridePhase is expected to be between 0 and 1.
     */
     virtual double getSwingPhaseForLeg(int iLeg);
 
+    /*! @returns the relative phase for the leg whose index is passed in. The number
+      returned is always going to be between 0 and 1 (0 meaning it should still be in stance mode,
+      1 - it is a stance leg again, anything in between means that it is a swing leg).
+      The stridePhase is expected to be between 0 and 1.
+    */
+    virtual double getSwingPhaseForLeg(int iLeg, double stridePhase) const;
+
     //! returns the relative stance phase for the leg. If the leg is in swing mode, it returns -1
     virtual double getStancePhaseForLeg(int iLeg);
 
-    //! returns the total length (in unitless phase measurement) of the stance phase
+    /*!  @returns the relative stance phase for the leg. If the limb is in swing mode, it returns -1
+    */
+    virtual double getStancePhaseForLeg(int iLeg, double stridePhase) const;
+
+    //! @returns the total length of the stance phase in seconds
     virtual double getStanceDuration(int iLeg);
+
+    //! @returns the total length of the swing phase in seconds for a a given stride duration
+    virtual double getSwingDuration(int iLeg, double strideDuration) const;
+
+    //! @returns the total length of the stance phase in seconds for a a given stride duration
+    virtual double getStanceDuration(int iLeg, double strideDuration) const;
+
+    virtual double getTimeLeftInStance(int iLeg, double strideDuration, double stridePhase) const;
+    virtual double getTimeLeftInSwing(int iLeg, double strideDuration, double stridePhase) const;
+
+    virtual double getTimeSpentInStance(int iLeg, double strideDuration, double stridePhase) const;
+    virtual double getTimeSpentInSwing(int iLeg, double strideDuration, double stridePhase) const;
+
+    virtual double getTimeUntilNextStancePhase(int iLeg, double strideDuration, double stridePhase) const;
+    virtual double getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const;
 
     /*!  @returns number of gait cycles
      */
@@ -53,7 +78,7 @@ class GaitPatternFlightPhases: public GaitPatternBase {
     /*! Advance in time
      * @param dt  time step [s]
      */
-    virtual void advance(double dt);
+    virtual bool advance(double dt);
 
 
 
@@ -97,7 +122,7 @@ class GaitPatternFlightPhases: public GaitPatternBase {
       It returns 0 if phase is just at the start of the interval, 1 if it's at the end (interpolated
       values in between) and -1 if the phase is not in the range.
     */
-    double getRelativePhaseFromAbsolutePhaseInRange(double phase, double start, double end);
+    double getRelativePhaseFromAbsolutePhaseInRange(double phase, double start, double end) const;
 };
 
 } /* namespace loco */

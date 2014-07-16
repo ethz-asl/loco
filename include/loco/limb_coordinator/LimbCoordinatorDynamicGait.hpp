@@ -42,7 +42,7 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual void advance(double dt);
+  virtual bool advance(double dt);
 
   virtual GaitPatternBase* getGaitPattern();
 
