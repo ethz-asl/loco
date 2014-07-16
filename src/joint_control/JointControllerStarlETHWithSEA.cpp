@@ -241,7 +241,7 @@ const JointTorques& JointControllerStarlETHWithSEA::getMinJointTorques() const {
 
 JointControllerStarlETHWithSEA::~JointControllerStarlETHWithSEA() {
   output_.close();
-//  output2_.close();
+  output2_.close();
 }
 
 void JointControllerStarlETHWithSEA::setDesiredJointPositionsInVelocityControl(
@@ -272,8 +272,8 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
   measuredMotorPositions_ = JointPositions(robotModel_->q().getQj());
 
-  output_.open("debug");
-//  output2_.open("debug2");
+  output_.open("kfe");
+  output2_.open("hfe");
 
   for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i +=
       (int) JointTypes::NUMBER_OF_JOINT_TYPES) {
@@ -439,6 +439,8 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
   robotModel::VectorAct jointTorquesToSet;
   JointPositions jointPositionsToSet;
 
+  static double currentTime = 0;
+
   for (int i = 0; i < desJointModes.size(); i++) {
     measuredJointVelocities_(i) = measJointVelocities(i);
     measuredJointPositions_(i) = measJointPositions(i);
@@ -513,8 +515,12 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
 //
 //  output2_ << "" << std::endl;
 
-//  std::cout << measuredMotorVelocities_(1) << " " << measuredMotorVelocities_(2) << std::endl;
+//  std::cout << "DESIRED TORQUES: " << desJointTorques(2) << " SET TORQUES: " << jointTorquesToSet(2) << std::endl;
+//  output2_ << currentTime << " " << measuredMotorVelocities_(1) << std::endl;
+//  output_ << currentTime << " " << measuredMotorVelocities_(2) << std::endl;
   desJointModesPrevious_ = desJointModes;
+
+  currentTime += dt;
 
   return true;
 }

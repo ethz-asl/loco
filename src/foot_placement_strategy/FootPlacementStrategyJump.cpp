@@ -36,6 +36,7 @@ bool FootPlacementStrategyJump::initialize(double dt) {
   LegBase* leftForeLeg = legs_->getLeftForeLeg();
 
   leftForeInitJointPositions_ = leftForeLeg->getMeasuredJointPositions();
+
   return true;
 }
 

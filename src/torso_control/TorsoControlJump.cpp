@@ -25,7 +25,6 @@ TorsoControlJump::~TorsoControlJump() {
 }
 
 bool TorsoControlJump::initialize(double dt) {
-  //  output_.open("./output.txt");
   const Position foreHipPosition = legs_->getLeg(0)
       ->getWorldToHipPositionInBaseFrame();
   const Position hindHipPosition = legs_->getLeg(2)
@@ -60,7 +59,7 @@ void TorsoControlJump::setInTorsoPositionMode (bool isInTorsoPositionMode) {
 
 void TorsoControlJump::advance(double dt) {
   comControl_.advance(dt);
-
+static double currentTime = 0;
   const RotationQuaternion orientationWorldToHeading =
       torso_->getMeasuredState().getWorldToHeadingOrientation();
 
@@ -107,9 +106,10 @@ void TorsoControlJump::advance(double dt) {
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
   /* Output jump trajectory to file */
-//  output_ << currentTime_ << " "
+//  output_ << currentTime << " "
 //          << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
 //          << std::endl;
+  currentTime += dt;
 }
 
 /**

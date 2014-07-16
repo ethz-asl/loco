@@ -39,6 +39,10 @@ bool MotorVelocityController::initialize(double dt) {
   LegBase* leftForeLeg = legs_->getLeftForeLeg();
   leftForeInitJointPositions_ = leftForeLeg->getMeasuredJointPositions();
 
+//  for (int i = 0; i < leftForeInitJointPositions_.size(); i++) {
+//    std::cout << leftForeInitJointPositions_[i] << std::endl;
+//  }
+
   return true;
 }
 
@@ -74,6 +78,7 @@ void MotorVelocityController::advance(double dt) {
       robotModel_->act().setVelOfLeg(-velocities, 2);
       robotModel_->act().setVelOfLeg(-velocities, 3);
     } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
+//      std::cout << "PositionMode" << std::endl;
       robotModel::VectorActM positionMode;
       positionMode.fill(robotModel::AM_Position);
 
@@ -82,7 +87,7 @@ void MotorVelocityController::advance(double dt) {
       robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 2);
       robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 3);
 
-      std::cout << "PositionMode! " << state_ << std::endl;
+//      std::cout << "PositionMode! " << state_ << std::endl;
     }
   }
 }
@@ -104,7 +109,8 @@ void MotorVelocityController::updateState() {
   } else if (!legs_->getLeftForeLeg()->isGrounded()
       && !legs_->getLeftHindLeg()->isGrounded()
       && !legs_->getRightHindLeg()->isGrounded()
-      && !legs_->getRightForeLeg()->isGrounded() && state_ == State::LIFTOFF) {
+      && !legs_->getRightForeLeg()->isGrounded()
+      && state_ == State::LIFTOFF) {
 
     state_ = State::APEX;
 
