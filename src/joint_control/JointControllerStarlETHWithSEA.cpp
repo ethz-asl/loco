@@ -274,11 +274,11 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
   measuredMotorPositions_ = JointPositions(robotModel_->q().getQj());
 
-  hfe_out_.open("hfe_joint_torque2");
-  kfe_out_.open("kfe_joint_torque2");
+//  hfe_out_.open("hfe_motor_vel_in_torque_mode");
+//  kfe_out_.open("kfe_motor_vel_in_torque_mode");
 
-  hfe_in_.open("hfe_joint");
-  kfe_in_.open("kfe_joint");
+  hfe_in_.open("hfe_motor_vel_in_torque_mode");
+  kfe_in_.open("kfe_motor_vel_in_torque_mode");
 
   for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i +=
       (int) JointTypes::NUMBER_OF_JOINT_TYPES) {
@@ -431,39 +431,7 @@ double JointControllerStarlETHWithSEA::trackJointPosition(int index,
 bool JointControllerStarlETHWithSEA::advance(double dt) {
 
   desJointPositions_ = JointPositions(robotModel_->act().getPos());
-  /* We override the desired velocities ourselves for now */
-//  desJointVelocities_ = JointVelocities(robotModel_->act().getVel());
-
-  double hfed;
-  double kfed;
-
-  /* Read joint velocities to set from file */
-  std::string::size_type sz;
-  std::string hfe;
-  std::string kfe;
-  static int i = 0;
-  if (std::getline(hfe_in_, hfe)) {
-    hfed = std::stod(hfe, &sz);
-  }
-
-  if (std::getline(kfe_in_, kfe)) {
-    kfed = std::stod(kfe, &sz);
-  }
-
-  desJointVelocities_(1) = hfed;
-  desJointVelocities_(4) = hfed;
-  desJointVelocities_(7) = -hfed;
-  desJointVelocities_(10) = -hfed;
-
-  desJointVelocities_(2) = kfed;
-  desJointVelocities_(5) = kfed;
-  desJointVelocities_(8) = -kfed;
-  desJointVelocities_(11) = -kfed;
-
-  for (int i = 0; i < 12; i += 3) {
-    desJointVelocities_(i) = 0;
-  }
-
+  desJointVelocities_ = JointVelocities(robotModel_->act().getVel());
   const robotModel::VectorActM desJointModes = robotModel_->act().getMode();
   const robotModel::VectorAct desJointTorques = robotModel_->act().getTau();
   const robotModel::VectorQj measJointPositions = robotModel_->q().getQj();
@@ -473,8 +441,6 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
   robotModel::VectorQj measMotorVelocities;
   robotModel::VectorAct jointTorquesToSet;
   JointPositions jointPositionsToSet;
-
-  static double currentTime = 0;
 
   for (int i = 0; i < desJointModes.size(); i++) {
     measuredJointVelocities_(i) = measJointVelocities(i);
@@ -504,14 +470,10 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
           desJointVelocities_(i) = jointMinVelocities_(i);
         }
       }
-      if (desJointModes(i) != desJointModesPrevious_(i)) {
-        desPositionsInVelocityControl_(i) = desJointPositions_(i);
-      }
 
-      desJointTorques_(i) = jointVelocityControlProportionalGains_(i)
-          * (desPositionsInVelocityControl_(i) - measJointPositions(i));
-      desJointTorques_(i) += jointVelocityControlDerivativeGains_(i)
-          * (desJointVelocities_(i) - measJointVelocities(i));
+      desMotorVelocities_(i) = desJointVelocities_(i);
+      measuredMotorVelocities_(i) = trackMotorVelocity(i, dt);
+      jointTorquesToSet_(i) = calculateTorqueFromSprings(i, dt);
 
     } else if (desJointModes(i) == robotModel::AM_Torque) {
       // Remember the reference signal so we can get it from outside this class if needed.
@@ -521,7 +483,9 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
     } else {
       throw "Joint control mode is not supported!";
     }
-    jointTorquesToSet_(i) = trackJointTorque(i, dt);
+    if (desJointModes(i) != robotModel::AM_Velocity) {
+      jointTorquesToSet_(i) = trackJointTorque(i, dt);
+    }
 
     if (isClampingTorques_) {
       if (jointTorquesToSet_(i) > jointMaxTorques_(i)) {
@@ -530,30 +494,27 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
         jointTorquesToSet_(i) = jointMinTorques_(i);
       }
     }
+
+    jointTorquesToSet(i) = jointTorquesToSet_(i);
     measMotorPositions(i) = measuredMotorPositions_(i);
     measMotorVelocities(i) = measuredMotorVelocities_(i);
-    jointTorquesToSet(i) = jointTorquesToSet_(i);
   }
 
+//  std::cout << currentTime << std::endl;
   robotModel_->sensors().setMotorPos(measMotorPositions);
   robotModel_->sensors().setMotorVel(measMotorVelocities);
   robotModel_->sensors().setJointTorques(jointTorquesToSet);
 
   /* Output the torques that are set */
-  hfe_out_ << jointTorquesToSet_(1) << std::endl;
-  kfe_out_ << jointTorquesToSet_(2) << std::endl;
-
+//  hfe_out_ << jointTorquesToSet_(1) << std::endl;
+//  kfe_out_ << jointTorquesToSet_(2) << std::endl;
   /* Output the measured joint velocities set */
 //  hfe_out_ << measuredJointVelocities_(1) << std::endl;
 //  kfe_out_ << measuredJointVelocities_(2) << std::endl;
-
   /* Output the measured motor velocities set */
 //  hfe_out_ << measuredMotorVelocities_(1) << std::endl;
 //  kfe_out_ << measuredMotorVelocities_(2) << std::endl;
-
   desJointModesPrevious_ = desJointModes;
-
-  currentTime += dt;
 
   return true;
 }

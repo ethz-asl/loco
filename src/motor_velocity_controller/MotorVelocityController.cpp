@@ -77,18 +77,19 @@ void MotorVelocityController::advance(double dt) {
       robotModel_->act().setVelOfLeg(velocities, 1);
       robotModel_->act().setVelOfLeg(-velocities, 2);
       robotModel_->act().setVelOfLeg(-velocities, 3);
-    } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
-//      std::cout << "PositionMode" << std::endl;
-      robotModel::VectorActM positionMode;
-      positionMode.fill(robotModel::AM_Position);
-
-      robotModel_->act().setPosOfLeg(leftForeInitJointPositions_,0);
-      robotModel_->act().setPosOfLeg(leftForeInitJointPositions_, 1);
-      robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 2);
-      robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 3);
-
-//      std::cout << "PositionMode! " << state_ << std::endl;
     }
+//    else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
+////      std::cout << "PositionMode" << std::endl;
+//      robotModel::VectorActM positionMode;
+//      positionMode.fill(robotModel::AM_Position);
+//
+//      robotModel_->act().setPosOfLeg(leftForeInitJointPositions_,0);
+//      robotModel_->act().setPosOfLeg(leftForeInitJointPositions_, 1);
+//      robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 2);
+//      robotModel_->act().setPosOfLeg(-leftForeInitJointPositions_, 3);
+//
+////      std::cout << "PositionMode! " << state_ << std::endl;
+//    }
   }
 }
 
