@@ -274,11 +274,11 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
   measuredMotorPositions_ = JointPositions(robotModel_->q().getQj());
 
-//  hfe_out_.open("hfe_motor_vel_in_torque_mode");
-//  kfe_out_.open("kfe_motor_vel_in_torque_mode");
+  hfe_out_.open("hfe_motor_vel_in_vel_modeFINAL");
+  kfe_out_.open("kfe_motor_vel_in_vel_modeFINAL");
 
-  hfe_in_.open("hfe_motor_vel_in_torque_mode");
-  kfe_in_.open("kfe_motor_vel_in_torque_mode");
+//  hfe_in_.open("hfe_motor_vel_in_torque_mode");
+//  kfe_in_.open("kfe_motor_vel_in_torque_mode");
 
   for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i +=
       (int) JointTypes::NUMBER_OF_JOINT_TYPES) {
@@ -512,8 +512,8 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
 //  hfe_out_ << measuredJointVelocities_(1) << std::endl;
 //  kfe_out_ << measuredJointVelocities_(2) << std::endl;
   /* Output the measured motor velocities set */
-//  hfe_out_ << measuredMotorVelocities_(1) << std::endl;
-//  kfe_out_ << measuredMotorVelocities_(2) << std::endl;
+  hfe_out_ << measuredMotorVelocities_(1) << std::endl;
+  kfe_out_ << measuredMotorVelocities_(2) << std::endl;
   desJointModesPrevious_ = desJointModes;
 
   return true;
