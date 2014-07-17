@@ -21,7 +21,7 @@ TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
 }
 
 TorsoControlJump::~TorsoControlJump() {
-//  output_.close();
+  output_.close();
 }
 
 bool TorsoControlJump::initialize(double dt) {
@@ -38,6 +38,8 @@ bool TorsoControlJump::initialize(double dt) {
       && legs_->getLeftHindLeg()->isGrounded()
       && legs_->getRightForeLeg()->isGrounded() && state_ != State::APEX) {
     state_ = State::INIT;
+
+    output_.open("output.dat");
   }
 
   return true;
@@ -106,9 +108,9 @@ static double currentTime = 0;
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
   /* Output jump trajectory to file */
-//  output_ << currentTime << " "
-//          << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
-//          << std::endl;
+  output_ << currentTime << " "
+          << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
+          << std::endl;
   currentTime += dt;
 }
 

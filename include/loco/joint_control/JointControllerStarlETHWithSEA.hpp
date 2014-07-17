@@ -33,6 +33,7 @@
 #include <loco/common/TypeDefsStarlETH.hpp>
 #include "GaussianKernelJumpPropagator.hpp"
 #include "RobotModel.hpp"
+#include <string>
 
 #define MAX_POWER 180 //[W]
 #define ABSOLUTE_MAX_VELOCITY 10 //[rad/s]
@@ -125,8 +126,11 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
       std::ostream& out, const JointControllerStarlETHWithSEA& controller);
 
  protected:
-  std::ofstream output_;
-  std::ofstream output2_;
+  std::ofstream hfe_out_;
+  std::ofstream kfe_out_;
+
+  std::ifstream hfe_in_;
+  std::ifstream kfe_in_;
 
   robotModel::RobotModel* robotModel_;
   bool isClampingTorques_;
