@@ -10,9 +10,10 @@
 namespace loco {
 
 MotorVelocityController::MotorVelocityController(
-    robotModel::RobotModel *robotModel, LegGroup* legs) {
+    robotModel::RobotModel *robotModel, LegGroup* legs, TorsoBase* torso) {
   robotModel_ = robotModel;
   legs_ = legs;
+  torso_ = torso;
 }
 
 MotorVelocityController::~MotorVelocityController() {
@@ -91,11 +92,12 @@ void MotorVelocityController::advance(double dt) {
  * INIT -> LIFTOFF -> APEX -> TOUCHDOWN
  */
 void MotorVelocityController::updateState() {
-  if (legs_->getLeftForeLeg()->getStateLiftOff()->isNow()
-      && legs_->getRightForeLeg()->getStateLiftOff()->isNow()
-      && legs_->getLeftHindLeg()->getStateLiftOff()->isNow()
-      && legs_->getRightHindLeg()->getStateLiftOff()->isNow()
-      && state_ == State::INIT) {
+  if (legs_->getLeftForeLeg()->isGrounded()
+       && legs_->getRightForeLeg()->isGrounded()
+       && legs_->getLeftHindLeg()->isGrounded()
+       && legs_->getRightHindLeg()->isGrounded()
+       && torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame().z() >= 1.5
+       && state_ == State::INIT) {
 
     state_ = State::LIFTOFF;
 

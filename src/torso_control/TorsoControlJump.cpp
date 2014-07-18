@@ -120,10 +120,11 @@ static double currentTime = 0;
  * INIT -> LIFTOFF -> APEX -> TOUCHDOWN
  */
 void TorsoControlJump::updateState() {
-  if (legs_->getLeftForeLeg()->getStateLiftOff()->isNow()
-      && legs_->getRightForeLeg()->getStateLiftOff()->isNow()
-      && legs_->getLeftHindLeg()->getStateLiftOff()->isNow()
-      && legs_->getRightHindLeg()->getStateLiftOff()->isNow()
+  if (legs_->getLeftForeLeg()->isGrounded()
+      && legs_->getRightForeLeg()->isGrounded()
+      && legs_->getLeftHindLeg()->isGrounded()
+      && legs_->getRightHindLeg()->isGrounded()
+      && torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().z() >= 1.5
       && state_ == State::INIT) {
 
     state_ = State::LIFTOFF;

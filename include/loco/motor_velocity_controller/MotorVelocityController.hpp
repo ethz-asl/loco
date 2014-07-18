@@ -21,7 +21,7 @@ namespace loco {
 
 class MotorVelocityController : public MotorVelocityControllerBase {
  public:
-  MotorVelocityController(robotModel::RobotModel* robotModel_, LegGroup* legs);
+  MotorVelocityController(robotModel::RobotModel* robotModel_, LegGroup* legs, TorsoBase* torso);
   virtual ~MotorVelocityController();
   virtual bool initialize(double dt);
   virtual void advance(double dt);
@@ -35,6 +35,7 @@ class MotorVelocityController : public MotorVelocityControllerBase {
   bool inVelocityMode_;
   LegBase::JointPositions leftForeInitJointPositions_;
   LegGroup* legs_;
+  TorsoBase* torso_;
   robotModel::RobotModel *robotModel_;
   GaussianKernelJumpPropagator trajectoryFollower_;
   State state_;

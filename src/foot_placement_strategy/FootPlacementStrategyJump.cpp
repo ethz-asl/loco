@@ -48,19 +48,15 @@ void FootPlacementStrategyJump::advance(double dt) {
   LegBase* leftHindleg = legs_->getLeftHindLeg();
   LegBase* rightHindleg = legs_->getRightHindLeg();
 
+  if (!leftForeleg->isGrounded() && !leftHindleg->isGrounded() && !rightHindleg->isGrounded() && !rightForeleg->isGrounded()) {
+    leftForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
 
-    if (leftForeleg->getStateLiftOff()->isNow()) {
-      leftForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
-    }
-    if (rightForeleg->getStateLiftOff()->isNow()) {
-      rightForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
-    }
-    if (leftHindleg->getStateLiftOff()->isNow()) {
-      leftHindleg->setDesiredJointPositions(-leftForeInitJointPositions_);
-    }
-    if (rightHindleg->getStateLiftOff()->isNow()) {
-      rightHindleg->setDesiredJointPositions(-leftForeInitJointPositions_);
-    }
+    rightForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
+
+    leftHindleg->setDesiredJointPositions(-leftForeInitJointPositions_);
+
+    rightHindleg->setDesiredJointPositions(-leftForeInitJointPositions_);
+  }
 }
 
 }  // namespace loco
