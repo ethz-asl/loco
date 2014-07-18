@@ -176,7 +176,7 @@ bool LocomotionControllerJump::advance(double dt) {
   LegBase::JointControlModes desiredJointControlModes;
   int iLeg = 0;
   for (auto leg : *legs_) {
-    if (leg->isAndShouldBeGrounded()) {
+    if (leg->isAndShouldBeGrounded() && !leg->getStateTouchDown()->isNow()) {
       if (!trajectoryFollower_.inVelocityMode()) {
         desiredJointControlModes.setConstant(robotModel::AM_Torque);
       } else {

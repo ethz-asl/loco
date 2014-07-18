@@ -48,7 +48,11 @@ void FootPlacementStrategyJump::advance(double dt) {
   LegBase* leftHindleg = legs_->getLeftHindLeg();
   LegBase* rightHindleg = legs_->getRightHindLeg();
 
-  if (!leftForeleg->isGrounded() && !leftHindleg->isGrounded() && !rightHindleg->isGrounded() && !rightForeleg->isGrounded()) {
+  if (!leftForeleg->isGrounded()
+      && !leftHindleg->isGrounded()
+      && !rightHindleg->isGrounded()
+      && !rightForeleg->isGrounded()) {
+
     leftForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
 
     rightForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
