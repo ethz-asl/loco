@@ -99,6 +99,7 @@ void JointControllerStarlETHWithSEA::setJointPositionLimitsFromDefaultConfigurat
     const Eigen::Vector3d& jointMinPositionsForLegInDefaultConfiguration,
     const Eigen::Vector3d& jointMaxPositionsForLegInDefaultConfiguration,
     const bool isLegInDefaultConfiguration[]) {
+
   //  LF_LEG limits
   jointMinPositions_(0) = jointMinPositionsForLegInDefaultConfiguration(0);
   jointMaxPositions_(0) = jointMaxPositionsForLegInDefaultConfiguration(0);
@@ -133,7 +134,6 @@ void JointControllerStarlETHWithSEA::setJointPositionLimitsFromDefaultConfigurat
             jointMaxPositionsForLegInDefaultConfiguration(2) :
             -jointMinPositionsForLegInDefaultConfiguration(2);
   }
-
 }
 
 void JointControllerStarlETHWithSEA::setJointTorqueLimitsFromDefaultConfiguration(
@@ -175,7 +175,6 @@ void JointControllerStarlETHWithSEA::setJointTorqueLimitsFromDefaultConfiguratio
             jointMaxTorquesForLegInDefaultConfiguration(2) :
             -jointMinTorquesForLegInDefaultConfiguration(2);
   }
-
 }
 
 void JointControllerStarlETHWithSEA::setJointVelocityLimitsFromDefaultConfiguration(
@@ -224,14 +223,12 @@ const JointPositions& JointControllerStarlETHWithSEA::getMaxJointPositions() con
 const JointPositions& JointControllerStarlETHWithSEA::getMinJointPositions() const {
   return jointMinPositions_;
 }
-
 const JointVelocities& JointControllerStarlETHWithSEA::getMaxJointVelocities() const {
   return jointMaxVelocities_;
 }
 const JointVelocities& JointControllerStarlETHWithSEA::getMinJointVelocities() const {
   return jointMinVelocities_;
 }
-
 const JointTorques& JointControllerStarlETHWithSEA::getMaxJointTorques() const {
   return jointMaxTorques_;
 }
@@ -274,8 +271,11 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
   measuredMotorPositions_ = JointPositions(robotModel_->q().getQj());
 
-  hfe_out_.open("hfe_motor_vel_in_vel_modeFINAL");
-  kfe_out_.open("kfe_motor_vel_in_vel_modeFINAL");
+  hfe_out_.open("hfe_joint_torque_in_torque_mode");
+  kfe_out_.open("kfe_joint_torque_in_torque_mode");
+
+  hfe_desout_.open("hfe_joint_destorque_in_torque_mode");
+  kfe_desout_.open("kfe_joint_destorque_in_torque_mode");
 
 //  hfe_in_.open("hfe_motor_vel_in_torque_mode");
 //  kfe_in_.open("kfe_motor_vel_in_torque_mode");
@@ -300,7 +300,7 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
     // Set gains for position control
     motorPositionGains_[JointTypes::HAA + i] = 50.0;
     motorPositionGains_[JointTypes::HFE + i] = 50.0;
-    motorPositionGains_[JointTypes::KFE + i] = 30.0;
+    motorPositionGains_[JointTypes::KFE + i] = 10.0;
 
     jointPositionGains_[JointTypes::HAA + i] = -20;
     jointPositionGains_[JointTypes::HFE + i] = -20;
@@ -442,6 +442,8 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
   robotModel::VectorAct jointTorquesToSet;
   JointPositions jointPositionsToSet;
 
+  static double currentTime = 0;
+
   for (int i = 0; i < desJointModes.size(); i++) {
     measuredJointVelocities_(i) = measJointVelocities(i);
     measuredJointPositions_(i) = measJointPositions(i);
@@ -480,6 +482,9 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
       // Also needed to track joint torque.
       desJointTorques_(i) = desJointTorques(i);
 
+      hfe_desout_ << currentTime << " " << desJointTorques_(1) << std::endl;
+      kfe_desout_ << currentTime << " " << desJointTorques_(2) << std::endl;
+
     } else {
       throw "Joint control mode is not supported!";
     }
@@ -506,15 +511,17 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
   robotModel_->sensors().setJointTorques(jointTorquesToSet);
 
   /* Output the torques that are set */
-//  hfe_out_ << jointTorquesToSet_(1) << std::endl;
-//  kfe_out_ << jointTorquesToSet_(2) << std::endl;
+  hfe_out_ << currentTime << " " << jointTorquesToSet_(1) << std::endl;
+  kfe_out_ << currentTime << " " << jointTorquesToSet_(2) << std::endl;
   /* Output the measured joint velocities set */
 //  hfe_out_ << measuredJointVelocities_(1) << std::endl;
 //  kfe_out_ << measuredJointVelocities_(2) << std::endl;
   /* Output the measured motor velocities set */
-  hfe_out_ << measuredMotorVelocities_(1) << std::endl;
-  kfe_out_ << measuredMotorVelocities_(2) << std::endl;
+//  hfe_out_ << measuredMotorVelocities_(1) << std::endl;
+//  kfe_out_ << measuredMotorVelocities_(2) << std::endl;
   desJointModesPrevious_ = desJointModes;
+
+  currentTime += dt;
 
   return true;
 }

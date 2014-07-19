@@ -128,6 +128,9 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
  protected:
   std::ofstream hfe_out_;
   std::ofstream kfe_out_;
+  std::ofstream hfe_desout_;
+  std::ofstream kfe_desout_;
+
 
   std::ifstream hfe_in_;
   std::ifstream kfe_in_;

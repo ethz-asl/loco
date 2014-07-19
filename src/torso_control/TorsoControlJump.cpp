@@ -36,7 +36,8 @@ bool TorsoControlJump::initialize(double dt) {
   if (legs_->getLeftForeLeg()->isGrounded()
       && legs_->getRightForeLeg()->isGrounded()
       && legs_->getLeftHindLeg()->isGrounded()
-      && legs_->getRightForeLeg()->isGrounded() && state_ != State::APEX) {
+      && legs_->getRightForeLeg()->isGrounded()
+      && state_ != State::APEX) {
     state_ = State::INIT;
 
     output_.open("output.dat");
@@ -120,11 +121,10 @@ static double currentTime = 0;
  * INIT -> LIFTOFF -> APEX -> TOUCHDOWN
  */
 void TorsoControlJump::updateState() {
-  if (legs_->getLeftForeLeg()->isGrounded()
-      && legs_->getRightForeLeg()->isGrounded()
-      && legs_->getLeftHindLeg()->isGrounded()
-      && legs_->getRightHindLeg()->isGrounded()
-      && torso_->getDesiredState().getBaseLinearVelocityInBaseFrame().z() >= 1.5
+  if (legs_->getLeftForeLeg()->getStateLiftOff()->isNow()
+      && legs_->getRightForeLeg()->getStateLiftOff()->isNow()
+      && legs_->getLeftHindLeg()->getStateLiftOff()->isNow()
+      && legs_->getRightHindLeg()->getStateLiftOff()->isNow()
       && state_ == State::INIT) {
 
     state_ = State::LIFTOFF;

@@ -93,11 +93,11 @@ void MotorVelocityController::advance(double dt) {
  */
 void MotorVelocityController::updateState() {
   if (legs_->getLeftForeLeg()->isGrounded()
-       && legs_->getRightForeLeg()->isGrounded()
-       && legs_->getLeftHindLeg()->isGrounded()
-       && legs_->getRightHindLeg()->isGrounded()
-       && torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame().z() >= 1.5
-       && state_ == State::INIT) {
+      && legs_->getRightForeLeg()->isGrounded()
+      && legs_->getLeftHindLeg()->isGrounded()
+      && legs_->getRightHindLeg()->isGrounded()
+      && torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame().z() >= 1.5
+      && state_ == State::INIT) {
 
     state_ = State::LIFTOFF;
 
