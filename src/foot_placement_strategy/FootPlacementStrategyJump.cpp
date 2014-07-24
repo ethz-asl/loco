@@ -41,17 +41,15 @@ bool FootPlacementStrategyJump::initialize(double dt) {
 }
 
 void FootPlacementStrategyJump::advance(double dt) {
-
   /* Calculate landing positions for legs after doing a jump */
   LegBase* leftForeleg = legs_->getLeftForeLeg();
   LegBase* rightForeleg = legs_->getRightForeLeg();
   LegBase* leftHindleg = legs_->getLeftHindLeg();
   LegBase* rightHindleg = legs_->getRightHindLeg();
 
-  if (!leftForeleg->isGrounded()
-      && !leftHindleg->isGrounded()
-      && !rightHindleg->isGrounded()
-      && !rightForeleg->isGrounded()) {
+
+  if (!leftForeleg->isGrounded() && !leftHindleg->isGrounded()
+      && !rightHindleg->isGrounded() && !rightForeleg->isGrounded()) {
 
     leftForeleg->setDesiredJointPositions(leftForeInitJointPositions_);
 

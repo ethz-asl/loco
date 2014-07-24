@@ -80,12 +80,11 @@ static double currentTime = 0;
   updateState();
 
   if (inTorsoPositionMode_) {
-    if (state_ == LIFTOFF || state_ == State::INIT) {
+    if (state_ == State::LIFTOFF || state_ == State::INIT) {
       desiredTorsoHeightAboveGroundInWorldFrame = trajectoryFollower_.predict(
           0);
 
     } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
-
       desiredTorsoHeightAboveGroundInWorldFrame = 0.42;
     }
 
