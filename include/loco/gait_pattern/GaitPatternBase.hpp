@@ -66,6 +66,10 @@ public:
    */
   virtual unsigned long int getNGaitCycles() = 0;
 
+  /*! @returns number of legs that are in stance mode
+   * @param stridePhase   stride phase
+   */
+  virtual int getNumberOfStanceLegs(double stridePhase) = 0;
 
   /*! @returns the time left in stance in seconds.
    * @param iLeg              index of leg

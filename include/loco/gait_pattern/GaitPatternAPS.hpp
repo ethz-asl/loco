@@ -136,6 +136,11 @@ public:
    */
   virtual double getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const;
 
+
+  /*! @returns number of legs that are in stance mode
+   * @param stridePhase   stride phase
+   */
+  virtual int getNumberOfStanceLegs(double stridePhase);
 protected:
   bool isInitialized_;
   double velocity_;

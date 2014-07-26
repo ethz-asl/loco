@@ -67,6 +67,11 @@ class GaitPatternFlightPhases: public GaitPatternBase {
     virtual double getTimeUntilNextStancePhase(int iLeg, double strideDuration, double stridePhase) const;
     virtual double getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const;
 
+    /*! @returns number of legs that are in stance mode
+     * @param stridePhase   stride phase
+     */
+    virtual int getNumberOfStanceLegs(double stridePhase);
+
     /*!  @returns number of gait cycles
      */
     virtual unsigned long int getNGaitCycles();

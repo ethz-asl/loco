@@ -47,7 +47,7 @@ double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stri
   double timeUntilFootStrike = footFallPatterns[iLeg].getPhaseLeftUntilFootStrike(stridePhase);
 
   if (footFallPatterns[iLeg].strikePhase == footFallPatterns[iLeg].liftOffPhase) {
-    return 1.0; // added (Christian)
+    return 0.0; // added (Christian)
   }
 
   //see if we're in swing mode...
@@ -289,6 +289,16 @@ double GaitPatternFlightPhases::getTimeUntilNextSwingPhase(int iLeg, double stri
     return strideDuration - getTimeSpentInSwing(iLeg, strideDuration, stridePhase);
   //if the limb is in stance phase, then we have as much time until the stance phase ends
   return getTimeLeftInStance(iLeg, strideDuration, stridePhase);
+}
+
+int GaitPatternFlightPhases::getNumberOfStanceLegs(double stridePhase) {
+  int nStanceLegs = 0;
+  for (int i=0; i<footFallPatterns.size();i++) {
+    if (getStancePhaseForLeg(i, stridePhase) >= 0.0) {
+      nStanceLegs++;
+    }
+  }
+  return nStanceLegs;
 }
 
 } /* namespace loco */

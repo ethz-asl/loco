@@ -459,4 +459,11 @@ double GaitPatternAPS::getStancePhaseForLeg(int iLeg, double stridePhase) const 
   return 0.0;
 }
 
+
+int GaitPatternAPS::getNumberOfStanceLegs(double stridePhase) {
+  throw std::runtime_error("GaitPatternAPS::getNumberOfStanceLegs not implemented yet!");
+  return 0;
+}
+
+
 } // namespace loco
