@@ -63,6 +63,7 @@ class TorsoControlJump : public TorsoControlBase {
   std::vector<bool> getMeasuredContactFlags(Leg leg);
 
  private:
+  double currentTime = 0;
   LegGroup* legs_;
   TorsoBase* torso_;
   loco::TerrainModelBase* terrain_;

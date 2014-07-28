@@ -237,13 +237,13 @@ const JointTorques& JointControllerStarlETHWithSEA::getMinJointTorques() const {
 }
 
 JointControllerStarlETHWithSEA::~JointControllerStarlETHWithSEA() {
-  haa_out_.close();
+//  haa_out_.close();
   hfe_out_.close();
   kfe_out_.close();
-
-  haa_desout_.close();
-  hfe_desout_.close();
-  kfe_desout_.close();
+//
+//  haa_desout_.close();
+//  hfe_desout_.close();
+//  kfe_desout_.close();
 }
 
 void JointControllerStarlETHWithSEA::setDesiredJointPositionsInVelocityControl(
@@ -274,13 +274,13 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
 
   measuredMotorPositions_ = JointPositions(robotModel_->q().getQj());
 
-  haa_out_.open("haa_joint_torques_in_torque_mode");
+//  haa_out_.open("haa_joint_torques_in_torque_mode");
   hfe_out_.open("hfe_joint_torques_in_torque_mode");
   kfe_out_.open("kfe_joint_torques_in_torque_mode");
-
-  haa_desout_.open("haa_joint_destorques_in_torque_mode");
-  hfe_desout_.open("hfe_joint_destorques_in_torque_mode");
-  kfe_desout_.open("kfe_joint_destorques_in_torque_mode");
+//
+//  haa_desout_.open("haa_joint_destorques_in_torque_mode");
+//  hfe_desout_.open("hfe_joint_destorques_in_torque_mode");
+//  kfe_desout_.open("kfe_joint_destorques_in_torque_mode");
 
   for (int i = 0; i < TOTAL_NUMBER_OF_JOINTS; i +=
       (int) JointTypes::NUMBER_OF_JOINT_TYPES) {
@@ -316,6 +316,10 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
     pGains_[JointTypes::HAA + i] = PGAIN_HAA;
     pGains_[JointTypes::HFE + i] = PGAIN_HFE;
     pGains_[JointTypes::KFE + i] = PGAIN_KFE;
+
+//    std::cout << "JointController: " << std::endl;
+//    std::cout << "MAX: " << jointMaxPositions_ << std::endl;
+//    std::cout << "MIN: " << jointMinPositions_ << std::endl;
   }
 
   return true;
@@ -461,8 +465,8 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
 
         jointTorquesToSet_(i) = trackJointPosition(i, dt);
 
-        hfe_desout_ << currentTime << " " << jointTorquesToSet_(1) << std::endl;
-        kfe_desout_ << currentTime << " " << jointTorquesToSet_(2) << std::endl;
+//        hfe_desout_ << currentTime << " " << jointTorquesToSet_(1) << std::endl;
+//        kfe_desout_ << currentTime << " " << jointTorquesToSet_(2) << std::endl;
 
       } else if (desJointModes(i) == robotModel::AM_Velocity) {
         if (isClampingVelocities_) {
@@ -492,8 +496,8 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
         }
 
 //      haa_desout_ << desJointTorques_(0) << std::endl;
-        hfe_desout_ << currentTime << " " << desJointTorques_(1) << std::endl;
-        kfe_desout_ << currentTime << " " << desJointTorques_(2) << std::endl;
+//        hfe_desout_ << currentTime << " " << desJointTorques_(1) << std::endl;
+//        kfe_desout_ << currentTime << " " << desJointTorques_(2) << std::endl;
 
         jointTorquesToSet_(i) = trackJointTorque(i, dt);
 

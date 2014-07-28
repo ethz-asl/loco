@@ -21,7 +21,7 @@ TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
 }
 
 TorsoControlJump::~TorsoControlJump() {
-  output_.close();
+//  output_.close();
 }
 
 bool TorsoControlJump::initialize(double dt) {
@@ -62,7 +62,6 @@ void TorsoControlJump::setInTorsoPositionMode (bool isInTorsoPositionMode) {
 
 void TorsoControlJump::advance(double dt) {
   comControl_.advance(dt);
-static double currentTime = 0;
   const RotationQuaternion orientationWorldToHeading =
       torso_->getMeasuredState().getWorldToHeadingOrientation();
 
