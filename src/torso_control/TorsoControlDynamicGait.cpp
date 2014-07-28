@@ -45,7 +45,7 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 
 
 
-void TorsoControlDynamicGait::advance(double dt) {
+bool TorsoControlDynamicGait::advance(double dt) {
   comControl_.advance(dt);
 
   const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getWorldToHeadingOrientation();
@@ -121,6 +121,7 @@ void TorsoControlDynamicGait::advance(double dt) {
       leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
     }
   }
+  return true;
 }
 
 

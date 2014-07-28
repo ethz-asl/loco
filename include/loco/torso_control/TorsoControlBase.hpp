@@ -19,7 +19,7 @@ class TorsoControlBase {
   TorsoControlBase();
   virtual ~TorsoControlBase();
   virtual bool initialize(double dt) = 0;
-  virtual void advance(double dt) = 0;
+  virtual bool advance(double dt) = 0;
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 };
 

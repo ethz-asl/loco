@@ -83,4 +83,12 @@ void TorsoStateBase::setHeadingToBaseOrientation(const RotationQuaternion& orien
   orientationHeadingToBase_ = orientation;
 }
 
+std::ostream& operator << (std::ostream& out, const TorsoStateBase& state) {
+  out << "Position (world): " << state.positionWorldToBaseInWorldFrame_ << std::endl;
+  out << "Orientation (Euler Zyx): " << EulerAnglesZyx(state.orientationWorldToBaseInWorldFrame_).getUnique() << std::endl;
+  out << "Linear velocity (base): " << state.linearVelocityBaseInBaseFrame_ << std::endl;
+  out << "Angular velocity (base): " << state.angularVelocityBaseInBaseFrame_ << std::endl;
+  return out;
+}
+
 } /* namespace loco */

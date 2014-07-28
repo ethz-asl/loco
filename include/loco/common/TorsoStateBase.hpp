@@ -39,6 +39,7 @@ class TorsoStateBase {
   const RotationQuaternion&  getHeadingToBaseOrientation() const;
   void setHeadingToBaseOrientation(const RotationQuaternion& orientation);
 
+  friend std::ostream& operator << (std::ostream& out, const TorsoStateBase& state);
  protected:
   Position positionWorldToBaseInWorldFrame_;
   RotationQuaternion orientationWorldToBaseInWorldFrame_;

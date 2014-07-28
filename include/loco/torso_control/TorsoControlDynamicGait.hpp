@@ -29,7 +29,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   virtual ~TorsoControlDynamicGait();
 
   virtual bool initialize(double dt);
-  virtual void advance(double dt);
+  virtual bool advance(double dt);
 
   virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Vector& axis);
   RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Vector& vB);
