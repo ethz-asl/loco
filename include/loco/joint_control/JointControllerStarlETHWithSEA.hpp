@@ -67,6 +67,7 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
   };
 
  public:
+  double currentTime;
   JointControllerStarlETHWithSEA(robotModel::RobotModel* robotModel);
   virtual ~JointControllerStarlETHWithSEA();
 
