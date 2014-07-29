@@ -30,8 +30,11 @@ class MotorVelocityController : public MotorVelocityControllerBase {
 
   void setInVelocityMode (bool isInVelocityMode);
   void setTrajectoryFollower(GaussianKernelJumpPropagator trajectoryFollower);
+  State getState();
 
  private:
+  std::ofstream input_vel;
+  std::ofstream output_vel;
   bool inVelocityMode_;
   LegBase::JointPositions leftForeInitJointPositions_;
   LegGroup* legs_;

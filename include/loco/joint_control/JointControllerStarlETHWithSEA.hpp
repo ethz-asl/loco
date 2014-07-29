@@ -67,7 +67,6 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
   };
 
  public:
-  double currentTime;
   JointControllerStarlETHWithSEA(robotModel::RobotModel* robotModel);
   virtual ~JointControllerStarlETHWithSEA();
 
@@ -121,7 +120,7 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
   const JointTorques& getMaxJointTorques() const;
   const JointTorques& getMinJointTorques() const;
 
-  double clamp(double number, double lower, double upper);
+  double currentTime_;
 
   friend std::ostream& operator <<(
       std::ostream& out, const JointControllerStarlETHWithSEA& controller);
@@ -131,8 +130,8 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
   std::ofstream hfe_out_;
   std::ofstream kfe_out_;
 //  std::ofstream haa_desout_;
-//  std::ofstream hfe_desout_;
-//  std::ofstream kfe_desout_;
+  std::ofstream hfe_desout_;
+  std::ofstream kfe_desout_;
 
   robotModel::RobotModel* robotModel_;
   bool isClampingTorques_;

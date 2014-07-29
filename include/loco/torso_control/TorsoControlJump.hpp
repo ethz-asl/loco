@@ -62,8 +62,10 @@ class TorsoControlJump : public TorsoControlBase {
   std::vector<double> getMeasuredTrajectory();
   std::vector<bool> getMeasuredContactFlags(Leg leg);
 
+  State getState();
+  double currentTime_;
+
  private:
-  double currentTime = 0;
   LegGroup* legs_;
   TorsoBase* torso_;
   loco::TerrainModelBase* terrain_;
@@ -75,6 +77,7 @@ class TorsoControlJump : public TorsoControlBase {
   void updateState();
   double headingDistanceFromForeToHindInBaseFrame_;
   std::ofstream output_;
+  std::ofstream input_;
 
   std::vector<double> measuredHeightTrajectory_;
   std::vector<bool> leftFrontContactFlagTrajectory_;

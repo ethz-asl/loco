@@ -40,11 +40,20 @@ bool MotorVelocityController::initialize(double dt) {
   LegBase* leftForeLeg = legs_->getLeftForeLeg();
   leftForeInitJointPositions_ = leftForeLeg->getMeasuredJointPositions();
 
+  input_vel.open("vel_input_kfe");
+  output_vel.open("vel_input_hfe");
 //  for (int i = 0; i < leftForeInitJointPositions_.size(); i++) {
 //    std::cout << leftForeInitJointPositions_[i] << std::endl;
 //  }
 
   return true;
+}
+
+/**
+ * Returns phase of execution.
+ */
+State MotorVelocityController::getState() {
+  return state_;
 }
 
 /**
@@ -65,6 +74,7 @@ void MotorVelocityController::setInVelocityMode(bool isInVelocityMode) {
 void MotorVelocityController::advance(double dt) {
   Eigen::Vector3d velocities;
 
+  static double currentTime = 0;
   if (inVelocityMode_) {
     // Different joint types with indices 0, 1, 2 respectively (in this order).
     updateState();
@@ -78,12 +88,16 @@ void MotorVelocityController::advance(double dt) {
       robotModel_->act().setVelOfLeg(velocities, 1);
       robotModel_->act().setVelOfLeg(-velocities, 2);
       robotModel_->act().setVelOfLeg(-velocities, 3);
+
+      output_vel << currentTime << " " << velocities(1) << std::endl;
+      input_vel << currentTime << " " << velocities(2) << std::endl;
     } else {
       velocities.fill(0);
       for (int i = 0; i < 4; i++)
         robotModel_->act().setVelOfLeg(velocities, i);
     }
   }
+  currentTime += dt;
 }
 
 /**
