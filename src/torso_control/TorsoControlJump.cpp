@@ -21,8 +21,7 @@ TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
 }
 
 TorsoControlJump::~TorsoControlJump() {
-  output_.close();
-  input_.close();
+//  output_.close();
 }
 
 bool TorsoControlJump::initialize(double dt) {
@@ -37,7 +36,8 @@ bool TorsoControlJump::initialize(double dt) {
   if (legs_->getLeftForeLeg()->isGrounded()
       && legs_->getRightForeLeg()->isGrounded()
       && legs_->getLeftHindLeg()->isGrounded()
-      && legs_->getRightForeLeg()->isGrounded() && state_ != State::APEX) {
+      && legs_->getRightForeLeg()->isGrounded()
+      && state_ != State::APEX) {
     state_ = State::INIT;
 
     output_.open("output.dat");
@@ -57,15 +57,14 @@ State TorsoControlJump::getState() {
 /**
  * Sets GaussianKernelJumpPropagator to follow.
  */
-void TorsoControlJump::setTrajectoryFollower(
-    GaussianKernelJumpPropagator trajectoryFollower) {
+void TorsoControlJump::setTrajectoryFollower(GaussianKernelJumpPropagator trajectoryFollower) {
   trajectoryFollower_ = trajectoryFollower;
 }
 
 /**
  * Enables body jump goal tracking if set.
  */
-void TorsoControlJump::setInTorsoPositionMode(bool isInTorsoPositionMode) {
+void TorsoControlJump::setInTorsoPositionMode (bool isInTorsoPositionMode) {
   inTorsoPositionMode_ = isInTorsoPositionMode;
 }
 
@@ -118,10 +117,10 @@ void TorsoControlJump::advance(double dt) {
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
   /* Output jump trajectory to file */
-  output_ << currentTime_ << " "
-      << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
-      << std::endl;
-  currentTime_ += dt;
+  output_ << currentTime << " "
+          << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
+          << std::endl;
+  currentTime += dt;
 }
 
 /**
@@ -244,7 +243,7 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
 
 //  std::cout << desiredTrajectory_.getInfoString() << std::endl;
 
-  return true;
+return true;
 }
 
 } /* namespace loco */
