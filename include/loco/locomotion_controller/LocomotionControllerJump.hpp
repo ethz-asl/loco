@@ -62,8 +62,10 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   ContactForceDistributionBase* getContactForceDistribution();
   LimbCoordinatorBase* getLimbCoordinator();
   TerrainPerceptionBase* getTerrainPerception();
+  bool hasJumped();
+
  protected:
-  GaussianKernelJumpPropagator trajectoryFollower_;
+  State state_;  GaussianKernelJumpPropagator trajectoryFollower_;
   bool isInitialized_;
   LegGroup* legs_;
   TorsoBase* torso_;

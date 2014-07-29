@@ -61,6 +61,7 @@ class TorsoControlJump : public TorsoControlBase {
   void addMeasuresToTrajectory(double baseHeight);
   std::vector<double> getMeasuredTrajectory();
   std::vector<bool> getMeasuredContactFlags(Leg leg);
+  State getState();
 
  private:
   double currentTime = 0;

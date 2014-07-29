@@ -119,6 +119,15 @@ bool LocomotionControllerJump::initialize(double dt) {
   return isInitialized_;
 }
 
+bool LocomotionControllerJump::hasJumped() {
+  if (trajectoryFollower_.inVelocityMode()) {
+    return (motorVelocityController_->getState() == State::APEX || motorVelocityController_->getState() == State::TOUCHDOWN);
+  } else {
+    return (static_cast<TorsoControlJump*>(torsoController_)->getState() == State::APEX || static_cast<TorsoControlJump*>(torsoController_)->getState() == State::TOUCHDOWN);
+  }
+    return false;
+}
+
 bool LocomotionControllerJump::advance(double dt) {
   if (!isInitialized_) {
     return false;
@@ -176,7 +185,7 @@ bool LocomotionControllerJump::advance(double dt) {
   LegBase::JointControlModes desiredJointControlModes;
   int iLeg = 0;
   for (auto leg : *legs_) {
-    if (leg->isAndShouldBeGrounded()) {
+    if (leg->isAndShouldBeGrounded() && !hasJumped()) {
       if (!trajectoryFollower_.inVelocityMode()) {
         desiredJointControlModes.setConstant(robotModel::AM_Torque);
       } else {

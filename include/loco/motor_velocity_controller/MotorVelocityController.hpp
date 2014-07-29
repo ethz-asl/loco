@@ -30,7 +30,7 @@ class MotorVelocityController : public MotorVelocityControllerBase {
 
   void setInVelocityMode (bool isInVelocityMode);
   void setTrajectoryFollower(GaussianKernelJumpPropagator trajectoryFollower);
-
+  State getState();
  private:
   bool inVelocityMode_;
   LegBase::JointPositions leftForeInitJointPositions_;

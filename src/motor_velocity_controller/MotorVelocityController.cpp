@@ -78,14 +78,14 @@ void MotorVelocityController::advance(double dt) {
       robotModel_->act().setVelOfLeg(velocities, 1);
       robotModel_->act().setVelOfLeg(-velocities, 2);
       robotModel_->act().setVelOfLeg(-velocities, 3);
-    } else {
-      velocities.fill(0);
-      for (int i = 0; i < 4; i++)
-        robotModel_->act().setVelOfLeg(velocities, i);
     }
   }
 }
 
+State MotorVelocityController::getState() {
+
+  return state_;
+}
 /**
  * Keeps track of current state of jump.
  * Jump occurs in the following phases:

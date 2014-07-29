@@ -83,8 +83,6 @@ void TorsoControlJump::advance(double dt) {
       desiredTorsoHeightAboveGroundInWorldFrame = trajectoryFollower_.predict(
           0);
 
-    } else if (state_ == State::APEX || state_ == State::TOUCHDOWN) {
-      desiredTorsoHeightAboveGroundInWorldFrame = 0.42;
     }
 
     Position desiredTorsoPositionInWorldFrame(
@@ -111,6 +109,13 @@ void TorsoControlJump::advance(double dt) {
           << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
           << std::endl;
   currentTime += dt;
+}
+
+/**
+ * Returns the executation state of the movement.
+ */
+State TorsoControlJump::getState() {
+  return state_;
 }
 
 /**
