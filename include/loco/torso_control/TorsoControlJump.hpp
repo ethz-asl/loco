@@ -63,7 +63,6 @@ class TorsoControlJump : public TorsoControlBase {
   std::vector<bool> getMeasuredContactFlags(Leg leg);
   State getState();
 
-  State getState();
   double currentTime_;
 
  private:

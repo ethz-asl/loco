@@ -117,10 +117,10 @@ void TorsoControlJump::advance(double dt) {
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
   /* Output jump trajectory to file */
-  output_ << currentTime << " "
+  output_ << currentTime_ << " "
           << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
           << std::endl;
-  currentTime += dt;
+  currentTime_ += dt;
 }
 
 /**
