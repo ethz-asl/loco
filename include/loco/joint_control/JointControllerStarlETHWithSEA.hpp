@@ -34,6 +34,7 @@
 #include "GaussianKernelJumpPropagator.hpp"
 #include "RobotModel.hpp"
 #include <string>
+#include <math.h>
 
 #define MAX_POWER 180 //[W]
 #define ABSOLUTE_MAX_VELOCITY 10 //[rad/s]

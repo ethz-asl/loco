@@ -449,65 +449,66 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
   robotModel::VectorAct jointTorquesToSet;
 
 //  if (currentTime_ < 1) {
-    for (int i = 0; i < desJointModes.size(); i++) {
-      measuredJointVelocities_(i) = measJointVelocities(i);
-      measuredJointPositions_(i) = measJointPositions(i);
+  for (int i = 0; i < desJointModes.size(); i++) {
+    measuredJointVelocities_(i) = measJointVelocities(i);
+    measuredJointPositions_(i) = measJointPositions(i);
 
-      if (desJointModes(i) == robotModel::AM_Position) {
-        if (isClampingPositions_) {
-          if (desJointPositions_(i) > jointMaxPositions_(i)) {
-            desJointPositions_(i) = jointMaxPositions_(i);
-          } else if (desJointPositions_(i) < jointMinPositions_(i)) {
-            desJointPositions_(i) = jointMinPositions_(i);
-          }
+    if (desJointModes(i) == robotModel::AM_Position) {
+      if (isClampingPositions_) {
+        if (desJointPositions_(i) > jointMaxPositions_(i)) {
+          desJointPositions_(i) = jointMaxPositions_(i);
+        } else if (desJointPositions_(i) < jointMinPositions_(i)) {
+          desJointPositions_(i) = jointMinPositions_(i);
         }
+      }
 
-        jointTorquesToSet_(i) = trackJointPosition(i, dt);
+      jointTorquesToSet_(i) = trackJointPosition(i, dt);
 
-      } else if (desJointModes(i) == robotModel::AM_Velocity) {
-        if (isClampingVelocities_) {
-          if (desJointVelocities_(i) > jointMaxVelocities_(i)) {
-            desJointVelocities_(i) = jointMaxVelocities_(i);
-          } else if (desJointVelocities_(i) < jointMinVelocities_(i)) {
-            desJointVelocities_(i) = jointMinVelocities_(i);
-          }
+    } else if (desJointModes(i) == robotModel::AM_Velocity) {
+      if (isClampingVelocities_) {
+        if (desJointVelocities_(i) > jointMaxVelocities_(i)) {
+          desJointVelocities_(i) = jointMaxVelocities_(i);
+        } else if (desJointVelocities_(i) < jointMinVelocities_(i)) {
+          desJointVelocities_(i) = jointMinVelocities_(i);
         }
+      }
 
-        desMotorVelocities_(i) = desJointVelocities_(i);
-        measuredMotorVelocities_(i) = trackMotorVelocity(i, dt);
-        jointTorquesToSet_(i) = calculateTorqueFromSprings(i, dt);
+      desMotorVelocities_(i) = desJointVelocities_(i);
+      measuredMotorVelocities_(i) = trackMotorVelocity(i, dt);
+      jointTorquesToSet_(i) = calculateTorqueFromSprings(i, dt);
 
-//        hfe_out_ << currentTime_ << " " << measuredMotorVelocities_(1) << std::endl;
-//        kfe_out_ << currentTime_ << " " << measuredMotorVelocities_(2) << std::endl;
+        hfe_out_ << currentTime_ << " " << jointTorquesToSet_(1) << std::endl;
+        kfe_out_ << currentTime_ << " " << jointTorquesToSet_(2) << std::endl;
 
-      } else if (desJointModes(i) == robotModel::AM_Torque) {
-        // Remember the reference signal so we can get it from outside this class if needed.
-        // Also needed to track joint torque.
+    } else if (desJointModes(i) == robotModel::AM_Torque) {
+      // Remember the reference signal so we can get it from outside this class if needed.
+      // Also needed to track joint torque.
 
-        desJointTorques_(i) = desJointTorques(i);
+      desJointTorques_(i) = desJointTorques(i);
 
-        if (isClampingTorques_) {
-          if (desJointTorques_(i) > jointMaxTorques_(i)) {
-            desJointTorques_(i) = jointMaxTorques_(i);
-          } else if (desJointTorques_(i) < jointMinTorques_(i)) {
-            desJointTorques_(i) = jointMinTorques_(i);
-          }
+      if (isClampingTorques_) {
+        if (desJointTorques_(i) > jointMaxTorques_(i)) {
+          desJointTorques_(i) = jointMaxTorques_(i);
+        } else if (desJointTorques_(i) < jointMinTorques_(i)) {
+          desJointTorques_(i) = jointMinTorques_(i);
         }
+      }
 
 //      haa_desout_ << desJointTorques_(0) << std::endl;
 //        hfe_desout_ << currentTime_ << " " << desJointTorques_(1) << std::endl;
 //        kfe_desout_ << currentTime_ << " " << desJointTorques_(2) << std::endl;
 
-        jointTorquesToSet_(i) = trackJointTorque(i, dt);
+      jointTorquesToSet_(i) = trackJointTorque(i, dt);
 
-      } else {
-        throw "Joint control mode is not supported!";
-      }
-
-      jointTorquesToSet(i) = jointTorquesToSet_(i);
-      measMotorPositions(i) = measuredMotorPositions_(i);
-      measMotorVelocities(i) = measuredMotorVelocities_(i);
+    } else {
+      throw "Joint control mode is not supported!";
     }
+
+//      std::cout << "Horizontal force " << robotModel_->sensors().getContactForceCSw(0)[0] << std::endl;
+    jointTorquesToSet(i) = jointTorquesToSet_(i);
+    measMotorPositions(i) = measuredMotorPositions_(i);
+    measMotorVelocities(i) = measuredMotorVelocities_(i);
+  }
 //  }
 
 //  hfe_desout_ << currentTime_ << " " << desJointTorques_(1) << std::endl;
@@ -537,8 +538,8 @@ bool JointControllerStarlETHWithSEA::advance(double dt) {
 
   /* Output the torques that are set */
 //  haa_out_ << currentTime_ << " " << jointTorquesToSet_(0) << std::endl;
-  hfe_out_ << currentTime_ << " " << jointTorquesToSet_(1) << std::endl;
-  kfe_out_ << currentTime_ << " " << jointTorquesToSet_(2) << std::endl;
+//  hfe_out_ << currentTime_ << " " << jointTorquesToSet_(1) << std::endl;
+//  kfe_out_ << currentTime_ << " " << jointTorquesToSet_(2) << std::endl;
   /* Output the measured joint positions set */
 //  haa_out_ << currentTime_ << " " << measuredJointPositions_(0)  << std::endl;
 //  hfe_out_ << currentTime_ << " " << measuredJointPositions_(1) << std::endl;

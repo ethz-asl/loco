@@ -80,7 +80,7 @@ void MotorVelocityController::advance(double dt) {
     // Different joint types with indices 0, 1, 2 respectively (in this order).
     updateState();
 
-    if (state_ == LIFTOFF || state_ == State::INIT) {
+    if (trajectoryFollower_.getProgress() < 1) {
        result = trajectoryFollower_.predict();
 
        for (int i = 0; i < velocities.size(); i++) {
@@ -113,6 +113,7 @@ void MotorVelocityController::updateState() {
       && legs_->getRightForeLeg()->isGrounded()
       && legs_->getLeftHindLeg()->isGrounded()
       && legs_->getRightHindLeg()->isGrounded()
+//      && torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame().z() > 1.5
       && state_ == State::INIT) {
 
     state_ = State::LIFTOFF;
