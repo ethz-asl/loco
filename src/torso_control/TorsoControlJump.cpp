@@ -88,8 +88,9 @@ void TorsoControlJump::advance(double dt) {
 
   if (inTorsoPositionMode_) {
     if (state_ == State::LIFTOFF || state_ == State::INIT) {
-      desiredTorsoHeightAboveGroundInWorldFrame = trajectoryFollower_.predict(
-          0);
+      Eigen::VectorXd result = trajectoryFollower_.predict();
+
+      desiredTorsoHeightAboveGroundInWorldFrame = result(0);
 
       input_ << currentTime_ << " " << desiredTorsoHeightAboveGroundInWorldFrame
              << std::endl;

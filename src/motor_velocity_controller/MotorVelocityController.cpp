@@ -73,6 +73,7 @@ void MotorVelocityController::setInVelocityMode(bool isInVelocityMode) {
 
 void MotorVelocityController::advance(double dt) {
   Eigen::Vector3d velocities;
+  Eigen::VectorXd result;
 
   static double currentTime = 0;
   if (inVelocityMode_) {
@@ -80,9 +81,11 @@ void MotorVelocityController::advance(double dt) {
     updateState();
 
     if (state_ == LIFTOFF || state_ == State::INIT) {
-      velocities(0) = trajectoryFollower_.predict(0);
-      velocities(1) = trajectoryFollower_.predict(1);
-      velocities(2) = trajectoryFollower_.predict(2);
+       result = trajectoryFollower_.predict();
+
+       for (int i = 0; i < velocities.size(); i++) {
+         velocities(i) = result(i);
+       }
 
       robotModel_->act().setVelOfLeg(velocities, 0);
       robotModel_->act().setVelOfLeg(velocities, 1);
