@@ -38,7 +38,7 @@
 
 #define MAX_POWER 180 //[W]
 #define ABSOLUTE_MAX_VELOCITY 10 //[rad/s]
-#define ABSOLUTE_MAX_TORQUE 20 //[Nm]
+#define ABSOLUTE_MAX_TORQUE 30 //[Nm]
 
 #define PGAIN_HAA 1.25
 #define PGAIN_HFE 1.25
@@ -128,11 +128,24 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
 
  protected:
 //  std::ofstream haa_out_;
-  std::ofstream hfe_out_;
-  std::ofstream kfe_out_;
+
+  std::ofstream hfe_joint_destorque__;
+  std::ofstream kfe_joint_destorque_;
+
+  std::ofstream hfe_joint_torque__;
+  std::ofstream kfe_joint_torque_;
 //  std::ofstream haa_desout_;
-  std::ofstream hfe_desout_;
-  std::ofstream kfe_desout_;
+  std::ofstream hfe_motor_vel_;
+  std::ofstream kfe_motor_vel_;
+
+  std::ofstream hfe_joint_vel_;
+  std::ofstream kfe_joint_vel_;
+
+  std::ofstream hfe_joint_pos_;
+  std::ofstream kfe_joint_pos_;
+
+  std::ofstream hfe_motor_pos_;
+  std::ofstream kfe_motor_pos_;
 
   robotModel::RobotModel* robotModel_;
   bool isClampingTorques_;
