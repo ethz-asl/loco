@@ -33,6 +33,26 @@ class ContactForceDistribution : public ContactForceDistributionBase
  public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+  struct LegInfo
+  {
+    bool isPartOfForceDistribution_;
+    bool isLoadConstraintActive_;
+    int indexInStanceLegList_;
+    int startIndexInVectorX_;
+    Force desiredContactForce_;
+    //! for logging
+    Vector firstDirectionOfFrictionPyramidInWorldFrame_;
+    //! for logging
+    Vector secondDirectionOfFrictionPyramidInWorldFrame_;
+    //! for logging
+    Vector normalDirectionOfFrictionPyramidInWorldFrame_;
+    //! Assumed friction coefficient (mu).
+    double frictionCoefficient_;
+
+  };
+
+ public:
+
   /*!
    * Constructor.
    */
@@ -74,10 +94,19 @@ class ContactForceDistribution : public ContactForceDistributionBase
    */
    bool getNetForceAndTorqueOnBase(Force& netForce, Torque& netTorque);
 
+   double getGroundForceWeight() const;
+   double getMinimalNormalGroundForce() const;
+   double getVirtualForceWeight(int index) const;
+
    const Vector& getFirstDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
    const Vector& getSecondDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
    const Vector& getNormalDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
    double getFrictionCoefficient(LegBase* leg) const;
+
+
+   const LegInfo& getLegInfo(LegBase* leg) const;
+
+   virtual bool setToInterpolated(const ContactForceDistributionBase& contactForceDistribution1, const ContactForceDistributionBase& contactForceDistribution2, double t);
 
  private:
   //! Number of legs in stance phase
@@ -91,8 +120,6 @@ class ContactForceDistribution : public ContactForceDistributionBase
   double groundForceWeight_;
   //! Minimal normal ground force (F_min^n, in N).
   double minimalNormalGroundForce_;
-  //! Assumed friction coefficient (mu).
-  double frictionCoefficient_;
 
   //! Stacked contact forces (in base frame)
   Eigen::VectorXd x_;
@@ -113,21 +140,7 @@ class ContactForceDistribution : public ContactForceDistributionBase
   //! Vector of force equality constraint
   Eigen::VectorXd c_;
 
-  struct LegInfo
-  {
-    bool isPartOfForceDistribution_;
-    bool isLoadConstraintActive_;
-    int indexInStanceLegList_;
-    int startIndexInVectorX_;
-    Force desiredContactForce_;
-    //! for logging
-    Vector firstDirectionOfFrictionPyramidInWorldFrame_;
-    //! for logging
-    Vector secondDirectionOfFrictionPyramidInWorldFrame_;
-    //! for logging
-    Vector normalDirectionOfFrictionPyramidInWorldFrame_;
-    double frictionCoefficient_;
-  };
+
 
   std::map<LegBase*, LegInfo> legInfos_;
 

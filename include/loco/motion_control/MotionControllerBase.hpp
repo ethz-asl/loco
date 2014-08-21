@@ -54,6 +54,14 @@ class MotionControllerBase
    */
   virtual bool compute() = 0;
 
+  /*! Sets the parameters to the interpolated ones between motionController1 and controller2.
+   * @param motionController1     If the interpolation parameter is 0, then the parameter set is equal to the one of motionController1.
+   * @param motionController2     If the interpolation parameter is 1, then the parameter set is equal to the one of motionController2.
+   * @param t                     interpolation parameter in [0, 1]
+   * @return                      true if successful
+   */
+  virtual bool setToInterpolated(const MotionControllerBase& motionController1, const MotionControllerBase& motionController2, double t);
+
  protected:
   std::shared_ptr<LegGroup> legs_;
   std::shared_ptr<TorsoBase> torso_;

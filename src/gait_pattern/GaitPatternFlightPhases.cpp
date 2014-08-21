@@ -6,6 +6,9 @@
  */
 
 #include "loco/gait_pattern/GaitPatternFlightPhases.hpp"
+#include "loco/temp_helpers/math.hpp"
+
+#include <stdexcept>
 
 namespace loco {
 
@@ -299,6 +302,26 @@ int GaitPatternFlightPhases::getNumberOfStanceLegs(double stridePhase) {
     }
   }
   return nStanceLegs;
+}
+
+
+bool GaitPatternFlightPhases::setToInterpolated(const GaitPatternBase& gaitPattern1, const GaitPatternBase& gaitPattern2, double t) {
+  const GaitPatternFlightPhases& gait1 = static_cast<const GaitPatternFlightPhases&>(gaitPattern1);
+  const GaitPatternFlightPhases& gait2 = static_cast<const GaitPatternFlightPhases&>(gaitPattern2);
+
+  boundToRange(&t, 0, 1);
+  //assume an exact correspondance here (i.e. each foot has the same number of foot fall patterns during a stride).
+  //we'll also assume that the order the leg foot pattern is specified is the same...
+  strideDuration = linearlyInterpolate(gait1.strideDuration, gait2.strideDuration, 0, 1, t);
+
+  footFallPatterns.clear();
+  if (gait1.footFallPatterns.size() != gait2.footFallPatterns.size())
+    throw std::runtime_error("Don't know how to interpolated between incompatible foot fall patterns");
+  for (uint i=0;i<gait1.footFallPatterns.size();i++){
+    footFallPatterns.push_back(FootFallPattern(linearlyInterpolate(gait1.footFallPatterns[i].liftOffPhase, gait2.footFallPatterns[i].liftOffPhase, 0, 1, t),
+                                               linearlyInterpolate(gait1.footFallPatterns[i].strikePhase, gait2.footFallPatterns[i].strikePhase, 0, 1, t)));
+  }
+  return true;
 }
 
 } /* namespace loco */

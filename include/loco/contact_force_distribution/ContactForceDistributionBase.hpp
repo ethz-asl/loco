@@ -65,6 +65,16 @@ class ContactForceDistributionBase
    */
    virtual bool getNetForceAndTorqueOnBase(Force& netForce, Torque& netTorque) = 0;
 
+   /*! Computes an interpolated version of the two force distributions passed in as parameters.
+    *  if t is 0, the current setting is set to contactForceDistribution1, 1 -> contactForceDistribution2, and values in between
+    *  correspond to interpolated parameter set.
+    * @param contactForceDistribution1
+    * @param contactForceDistribution2
+    * @param t interpolation parameter
+    * @returns true if successful
+    */
+   virtual bool setToInterpolated(const ContactForceDistributionBase& contactForceDistribution1, const ContactForceDistributionBase& contactForceDistribution2, double t);
+
  protected:
   constexpr static int nLegs_ = 4; // TODO move to robotModel
   constexpr static int nTranslationalDofPerFoot_ = 3; // TODO move to robotModel
@@ -100,6 +110,7 @@ class ContactForceDistributionBase
    * @return true if successful, false if it is not logging.
    */
   virtual bool updateLoggerData() = 0;
+
 };
 
 } /* namespace loco */
