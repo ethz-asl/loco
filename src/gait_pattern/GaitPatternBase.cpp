@@ -23,4 +23,12 @@ bool GaitPatternBase::setToInterpolated(const GaitPatternBase& gaitPattern1, con
   return false;
 }
 
+const std::string& GaitPatternBase::getName() const {
+  return name_;
+}
+void GaitPatternBase::setName(const std::string& name) {
+  name_ = name;
+}
+
+
 } // end namespace loco

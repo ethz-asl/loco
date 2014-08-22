@@ -63,7 +63,13 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   void setDesiredBaseTwistInHeadingFrame(const Twist& desiredBaseTwistInHeadingFrame);
 
   LocomotionControllerDynamicGait* getLocomotionControllerDynamicGait();
+  const LocomotionControllerDynamicGait& getLocomotionControllerDynamicGait() const;
   ParameterSet* getParameterSet();
+
+  const std::string& getGaitName() const;
+  void setGaitName(const std::string& name);
+
+  bool setToInterpolated(const LocomotionControllerDynamicGaitDefault& controller1,  const LocomotionControllerDynamicGaitDefault& controller2, double t);
  private:
   robotModel::RobotModel* robotModel_;
   std::shared_ptr<ParameterSet> parameterSet_;

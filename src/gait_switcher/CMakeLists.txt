@@ -17,7 +17,8 @@ PARENT_SCOPE)
 ###############
 set(LOCO_SRCS ${LOCO_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/GaitSwitcherBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GaitSwitcherDynamicGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GaitSwitcherDynamicGaitDefault.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GaitTransition.cpp
 PARENT_SCOPE)
 
 #################

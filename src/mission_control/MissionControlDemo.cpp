@@ -9,7 +9,10 @@
 
 namespace loco {
 
-MissionControlDemo::MissionControlDemo(robotModel::RobotModel* robotModel):MissionControlJoystick(robotModel) {
+MissionControlDemo::MissionControlDemo(robotModel::RobotModel* robotModel,   GaitSwitcherDynamicGaitDefault* gaitSwitcher):
+    MissionControlJoystick(robotModel),
+    gaitSwitcher_(gaitSwitcher)
+{
 
 }
 
@@ -28,6 +31,13 @@ bool MissionControlDemo::advance(double dt) {
   if(!MissionControlJoystick::advance(dt)) {
     return false;
   }
+
+  robotUtils::Joystick* joyStick = robotModel_->sensors().getJoystick();
+
+  if (joyStick->getButtonOneClick(1)) {
+    gaitSwitcher_->transitToGait("WalkingTrot");
+  }
+
   return true;
 }
 
