@@ -129,5 +129,13 @@ bool LocomotionControllerDynamicGaitDefault::setToInterpolated(const LocomotionC
   return true;
 }
 
+double LocomotionControllerDynamicGaitDefault::getStrideDuration() const {
+  return limbCoordinator_->getGaitPattern()->getStrideDuration();
+}
+
+double LocomotionControllerDynamicGaitDefault::getStridePhase() const {
+  return torso_->getStridePhase();
+}
+
 
 } /* namespace loco */

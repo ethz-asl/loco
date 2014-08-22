@@ -108,55 +108,56 @@ bool GaitSwitcherDynamicGaitDefault::updateTransition(double simulatedTime) {
     return true;
   }
 
-  GaitPatternAPS* currentGaitPattern = ((GaitPatternAPS*)starlETHCon->getCurrentLocomotionSettings()->getGaitPattern());
 
   if (initTransit_) {
-    /* intialize the transition */
-      printf("Started transition!\n");
-
-      /* compute start time of transition */
-      startTimeOfTransition_ = currentGaitPattern->getLastAPS()->startTime_+currentGaitPattern->getLastAPS()->foreCycleDuration_;
-      /* make sure that the interpolation parameter of the last APS is zero */
-      currentGaitPattern->getLastAPS()->interpolate_ = 0.0;
-
-      /* compute end time of transition */
-      double endTimeOfTransition = startTimeOfTransition_;
-//        printf("start time: %lf cycle duration %lf\n", startTime,cycleDuration);
-      GaitPatternAPS::APSIterator it;
-      for (it=currentGaitTransition->listAPS_.begin(); it!=currentGaitTransition->listAPS_.end(); it++) {
-//          printf("nextStartTime: %lf\n", endTimeOfTransition);
-//        it->startTime_ = endTimeOfTransition;
-//        for (int iLeg=0; iLeg<4; iLeg++) {
-//          it->timeFootLiftOff_[iLeg] = it->getTimeStanceEnd(iLeg);
-//          it->timeFootTouchDown_[iLeg] = it->getTimeStanceStart(iLeg);
-//        }
-        endTimeOfTransition += it->foreCycleDuration_;
-        ((GaitPatternAPS*)starlETHCon->getCurrentLocomotionSettings()->getGaitPattern())->addAPS(*it);
+      /* intialize the transition */
+      if (currentGaitTransition->timeInterval <= 0) {
+        /* immediately transit */
+        if (currentGaitTransition->stridePhaseTrigger < 0 || currentGaitTransition->stridePhaseTrigger > 1 || (fabs(locomotionController_->getStridePhase()-currentGaitTransition->stridePhaseTrigger) < time_step_/locomotionController_->getStrideDuration())) {
+          interpolateParameters(1);
+          printf("Finished transition!\n");
+          initTransit_ = false;
+          isTransiting_ = false;
+        }
+        return true;
+  //      printf("waiting for phase: %f\n",starlETHCon->getCurrentLocomotionSettings()->stridePhase);
+      } else {
+        /* transit over time interval */
+        if (currentGaitTransition->stridePhaseTrigger < 0 || currentGaitTransition->stridePhaseTrigger > 1 || (fabs(locomotionController_->getStridePhase()-currentGaitTransition->stridePhaseTrigger) < time_step_/locomotionController_->getStrideDuration() )) {
+          /* transition is now triggered by stride phase */
+          printf("Started transition!\n");
+          time_ = 0.0;
+          initTransit_ = false;
+        }
+  //      printf("waiting for phase: %f\n",starlETHCon->getCurrentLocomotionSettings()->stridePhase);
+        return true;
       }
-//      ((GaitPatternAPS*)starlETHCon->getCurrentLocomotionSettings()->getGaitPattern())->printTDandLO();
-      endTimeOfTransition_ = endTimeOfTransition+it->foreCycleDuration_;
-//        currentGaitPattern->print();
-      initTransit_ = false;
-  }
+
+    }
 
 
-  /* check if transition has finished */
-  const double time = ((GaitPatternAPS*)starlETHCon->getCurrentLocomotionSettings()->getGaitPattern())->getTime();
-  if (time > endTimeOfTransition_) {
-    /* finished the transition */
-    printf("Finished transition!\n");
-//    printf("Friction Coeff: %lf\n", starlETHCon->getCurrentLocomotionSettings()->distributeForces.fDFrictionCoefficient);
-    isTransiting_ = false;
-    ((GaitPatternAPS*)starlETHCon->getCurrentLocomotionSettings()->getGaitPattern())->resetInterpolation();
-    return true;
-  }
+
+    if (time_ > currentGaitTransition->timeInterval) {
+      /* finished the transition */
+      printf("Finished transition!\n");
+      isTransiting_ = false;
+      return true;
+    }
+
 
   /* interpolate between the parameter sets */
 //  const double t = (currentGaitPattern->getNextAPS()->interpolate_-currentGaitPattern->getCurrentAPS()->interpolate_)*currentGaitPattern->getCurrentAPS()->phase_+currentGaitPattern->getCurrentAPS()->interpolate_;
   double t = interpolationParameter_;
-  boundToRange(&t, 0, 1);
-  locomotionController_->setToInterpolated(*currentGaitTransition->startLocomotionSettings, *currentGaitTransition->endLocomotionSettings, t);
+  interpolateParameters(interpolationParameter_);
   return true;
+}
+
+void GaitSwitcherDynamicGaitDefault::interpolateParameters(double t) {
+  boundToRange(&t, 0, 1);
+  std::cout << "start gait: " << currentGaitTransition->startLocomotionSettings->getGaitName() << std::endl;
+  std::cout << "end gait: " << currentGaitTransition->endLocomotionSettings->getGaitName() << std::endl;
+  locomotionController_->setToInterpolated(*currentGaitTransition->startLocomotionSettings, *currentGaitTransition->endLocomotionSettings, t);
+
 }
 
 
@@ -326,17 +327,19 @@ bool GaitSwitcherDynamicGaitDefault::loadParameterSet(int parameterSetIdx)
             gaitTransition->startLocomotionSettings =  &locomotionControllers_.back();
             gaitTransition->startLocomotionSettings->setGaitName(gaitTransition->startName);
             if(!gaitTransition->startLocomotionSettings->initialize(time_step_)) {
+              printf("Error: Could not initialize controller for gait %s\n", gaitTransition->startName.c_str());
               return false;
             }
-          } else {
-            // gait has already been loaded
-            for (unsigned int i=0; i<locomotionControllers_.size();i++){
-              if(locomotionControllers_[i].getGaitName() == gaitTransition->startName) {
-                gaitTransition->startLocomotionSettings = &locomotionControllers_[i];
-                break;
-              }
-            }
           }
+//          else {
+//            // gait has already been loaded
+//            for (unsigned int i=0; i<locomotionControllers_.size();i++){
+//              if(locomotionControllers_[i].getGaitName() == gaitTransition->startName) {
+//                gaitTransition->startLocomotionSettings = &locomotionControllers_[i];
+//                break;
+//              }
+//            }
+//          }
 
           // check end gait
           child->QueryStringAttribute("end", &gaitTransition->endName);
@@ -344,22 +347,24 @@ bool GaitSwitcherDynamicGaitDefault::loadParameterSet(int parameterSetIdx)
             // gait hasn't been been loaded yet
             std::string myParameterFilePath = pathToParameterFiles_ +"/" + gaitTransition->endName + parameterFileSuffix + ".xml";
             locomotionControllers_.push_back(new LocomotionControllerDynamicGaitDefault(myParameterFilePath, robotModel_, terrain_, time_step_));
-            gaitTransition->startLocomotionSettings = &locomotionControllers_.back();
-            gaitTransition->startLocomotionSettings->setGaitName(gaitTransition->endName);
+            gaitTransition->endLocomotionSettings = &locomotionControllers_.back();
+            gaitTransition->endLocomotionSettings->setGaitName(gaitTransition->endName);
 
-            if(!gaitTransition->startLocomotionSettings->initialize(time_step_)) {
+            if(!gaitTransition->endLocomotionSettings->initialize(time_step_)) {
+              printf("Error: Could not initialize controller for gait %s\n", gaitTransition->endName.c_str());
               return false;
             }
 
-          } else {
-            // gait has already been loaded
-              for (unsigned int i=0; i<locomotionControllers_.size();i++){
-                if(locomotionControllers_[i].getGaitName() == gaitTransition->endName) {
-                  gaitTransition->startLocomotionSettings = &locomotionControllers_[i];
-                  break;
-                }
-              }
           }
+//          else {
+//            // gait has already been loaded
+//              for (unsigned int i=0; i<locomotionControllers_.size();i++){
+//                if(locomotionControllers_[i].getGaitName() == gaitTransition->endName) {
+//                  gaitTransition->startLocomotionSettings = &locomotionControllers_[i];
+//                  break;
+//                }
+//              }
+//          }
 
           /* check speed triggers */
           double value = 0.0;
@@ -369,7 +374,12 @@ bool GaitSwitcherDynamicGaitDefault::loadParameterSet(int parameterSetIdx)
           value = -1.0;
           child->QueryDoubleAttribute("largerSpeedTrigger", &value);
           gaitTransition->largerSpeedTrigger = value;
-
+          value = 0.0;
+          child->QueryDoubleAttribute("phaseTrigger", &value);
+          gaitTransition->stridePhaseTrigger = value;
+          value = 0.0;
+          child->QueryDoubleAttribute("transitTime", &value);
+          gaitTransition->timeInterval = value;
 
           /* load all APS */
 //          TiXmlElement* pElem = child->ToElement();
@@ -520,6 +530,7 @@ bool GaitSwitcherDynamicGaitDefault::loadParameterSet(int parameterSetIdx)
 
           // add transition to the list
           gaitTransitions_.push_back(gaitTransition);
+          printf("added gait transition\n");
 
         }
 //        printf("Loaded parameter sets:\n");
@@ -545,12 +556,16 @@ bool GaitSwitcherDynamicGaitDefault::loadParameterSet(int parameterSetIdx)
       }
       /* we are done */
 //      starlETHCon->getgetCurrentLocomotionSettings()()->initStridePhase();
-
+      for (int i=0; i<locomotionControllers_.size(); i++) {
+        std::cout << "gait: " << locomotionControllers_[i].getGaitName() << std::endl;
+      }
       return true;
     }
 
     counter++;
   }
+
+
 
 
 

@@ -15,7 +15,8 @@ endLocomotionSettings(0),
 timeInterval(-1),
 //stridePhaseTrigger(-1),
 smallerSpeedTrigger(-1),
-largerSpeedTrigger(-1)
+largerSpeedTrigger(-1),
+stridePhaseTrigger(0.0)
 {
 
 

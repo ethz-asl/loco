@@ -26,6 +26,7 @@ public:
 //	double stridePhaseTrigger;
 	double smallerSpeedTrigger;
 	double largerSpeedTrigger;
+	double stridePhaseTrigger;
 	std::string startName;
 	std::string endName;
 

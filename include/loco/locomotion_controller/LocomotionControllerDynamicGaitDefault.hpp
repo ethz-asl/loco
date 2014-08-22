@@ -69,6 +69,8 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   const std::string& getGaitName() const;
   void setGaitName(const std::string& name);
 
+  double getStrideDuration() const;
+  double getStridePhase() const;
   bool setToInterpolated(const LocomotionControllerDynamicGaitDefault& controller1,  const LocomotionControllerDynamicGaitDefault& controller2, double t);
  private:
   robotModel::RobotModel* robotModel_;
