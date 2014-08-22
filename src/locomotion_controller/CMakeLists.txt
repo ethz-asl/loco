@@ -22,6 +22,7 @@ PARENT_SCOPE)
 set(LOCO_SRCS ${LOCO_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerDynamicGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerDynamicGaitDefault.cpp
 PARENT_SCOPE)
 
 #################

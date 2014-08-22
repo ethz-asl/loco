@@ -34,6 +34,23 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
 
 }
 
+LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() :
+    LocomotionControllerBase(),
+  isInitialized_(false),
+  legs_(nullptr),
+  torso_(nullptr),
+  terrainPerception_(nullptr),
+  contactDetector_(nullptr),
+  limbCoordinator_(nullptr),
+  footPlacementStrategy_(nullptr),
+  torsoController_(nullptr),
+  virtualModelController_(nullptr),
+  contactForceDistribution_(nullptr),
+  parameterSet_(nullptr)
+{
+
+}
+
 LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
 
 }
