@@ -323,7 +323,39 @@ double FootPlacementStrategyInvertedPendulum::getHeightOfTerrainInWorldFrame(con
   return position.z();
 }
 
+bool FootPlacementStrategyInvertedPendulum::setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t) {
+  const FootPlacementStrategyInvertedPendulum& footPlacement1 = static_cast<const FootPlacementStrategyInvertedPendulum&>(footPlacementStrategy1);
+  const FootPlacementStrategyInvertedPendulum& footPlacement2 = static_cast<const FootPlacementStrategyInvertedPendulum&>(footPlacementStrategy2);
+  this->stepFeedbackScale_ = linearlyInterpolate(footPlacement1.stepFeedbackScale_, footPlacement2.stepFeedbackScale_, 0.0, 1.0, t);
+  if (!interpolateHeightTrajectory(this->swingFootHeightTrajectory_, footPlacement1.swingFootHeightTrajectory_, footPlacement2.swingFootHeightTrajectory_, t)) {
+    return false;
+  }
+  return true;
+}
 
+bool FootPlacementStrategyInvertedPendulum::interpolateHeightTrajectory(rbf::BoundedRBF1D& interpolatedTrajectory, const rbf::BoundedRBF1D& trajectory1, const rbf::BoundedRBF1D& trajectory2, double t) {
+
+  const int nKnots = std::max<int>(trajectory1.getKnotCount(), trajectory2.getKnotCount());
+  const double tMax1 = trajectory1.getKnotPosition(trajectory1.getKnotCount()-1);
+  const double tMax2 = trajectory2.getKnotPosition(trajectory2.getKnotCount()-1);
+  const double tMin1 = trajectory1.getKnotPosition(0);
+  const double tMin2 = trajectory2.getKnotPosition(0);
+  double tMax = std::max<double>(tMax1, tMax2);
+  double tMin = std::min<double>(tMin1, tMin2);
+
+  double dt = (tMax-tMin)/(nKnots-1);
+  std::vector<double> tValues, xValues;
+  for (int i=0; i<nKnots;i++){
+    const double time = tMin + i*dt;
+    double v = linearlyInterpolate(trajectory1.evaluate(time), trajectory2.evaluate(time), 0.0, 1.0, t);
+    tValues.push_back(time);
+    xValues.push_back(v);
+//    printf("(%f,%f / %f, %f) ", time,v, legProps1->swingFootHeightTrajectory.evaluate(time), legProps2->swingFootHeightTrajectory.evaluate(time));
+  }
+
+  interpolatedTrajectory.setRBFData(tValues, xValues);
+  return true;
+}
 
 
 } // namespace loco

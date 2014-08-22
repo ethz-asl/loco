@@ -56,10 +56,17 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   virtual LegGroup* getLegs();
 
   FootPlacementStrategyBase* getFootPlacementStrategy();
+  const FootPlacementStrategyBase& getFootPlacementStrategy() const;
   VirtualModelController* getVirtualModelController();
   ContactForceDistributionBase* getContactForceDistribution();
   LimbCoordinatorBase* getLimbCoordinator();
+  const LimbCoordinatorBase& getLimbCoordinator() const;
+  const TorsoControlBase& getTorsoController() const;
+  const VirtualModelController& getVirtualModelController() const;
   TerrainPerceptionBase* getTerrainPerception();
+
+  bool setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t);
+
  protected:
   bool isInitialized_;
   LegGroup* legs_;

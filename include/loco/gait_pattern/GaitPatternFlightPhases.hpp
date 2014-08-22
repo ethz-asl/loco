@@ -106,18 +106,18 @@ class GaitPatternFlightPhases: public GaitPatternBase {
  private:
     bool isInitialized_;
 
-    double cyclePhase;
+    double cyclePhase_;
 
     //! this is how long it should take from the time one particular foot leaves the ground, until it leaves the ground again next in seconds.
-    double strideDuration;
+    double strideDuration_;
 
     //! the gait should start at this stride phase in [0,1]
-    double initCyclePhase;
+    double initCyclePhase_;
 
     //! number of gait cycles since start
-    unsigned long int numGaitCycles;
+    unsigned long int numGaitCycles_;
 
-    std::vector<FootFallPattern> footFallPatterns;
+    std::vector<FootFallPattern> footFallPatterns_;
 
  protected:
     /*!
