@@ -6,11 +6,12 @@
  */
 
 #include "loco/mission_control/MissionControlDemo.hpp"
+#include "loco/mission_control/MissionControlSpeedFilter.hpp"
 
 namespace loco {
 
 MissionControlDemo::MissionControlDemo(robotModel::RobotModel* robotModel,   GaitSwitcherDynamicGaitDefault* gaitSwitcher):
-    MissionControlJoystick(robotModel),
+    robotModel_(robotModel),
     gaitSwitcher_(gaitSwitcher)
 {
 
@@ -21,18 +22,49 @@ MissionControlDemo::~MissionControlDemo() {
 }
 
 bool MissionControlDemo::initialize(double dt) {
-  if(!MissionControlJoystick::initialize(dt)) {
-    return false;
-  }
+
   return true;
 }
 
 bool MissionControlDemo::advance(double dt) {
-  if(!MissionControlJoystick::advance(dt)) {
-    return false;
-  }
+
 
   robotUtils::Joystick* joyStick = robotModel_->sensors().getJoystick();
+
+
+  MissionControlSpeedFilter& missionController = gaitSwitcher_->getLocomotionController()->getMissionController();
+  Twist desiredBaseTwistInHeadingFrame;
+
+  if (gaitSwitcher_->getLocomotionController()->getGaitName() == "Stand") {
+    Position desiredPositionMiddleOfFeetToBaseInWorldFrame;
+    desiredPositionMiddleOfFeetToBaseInWorldFrame.z() = interpolateJoystickAxis(joyStick->getVertical(), missionController.getMinimalPositionOffsetInWorldFrame().z(), missionController.getMaximalPositionOffsetInWorldFrame().z());
+    missionController.setUnfilteredDesiredPositionMiddleOfFeetToBaseInWorldFrame(desiredPositionMiddleOfFeetToBaseInWorldFrame);
+
+    RotationQuaternion orientationOffset(EulerAnglesZyx(0.0, M_PI/4, 0.0));
+
+
+    EulerAnglesZyx desEulerAnglesZyx;
+    desEulerAnglesZyx.setRoll(interpolateJoystickAxis(joyStick->getCoronal(), missionController.getMinimalDesiredOrientationOffset().getUnique().roll(), missionController.getMaximalDesiredOrientationOffset().getUnique().roll()));
+    desEulerAnglesZyx.setPitch(interpolateJoystickAxis(joyStick->getSagittal(), missionController.getMinimalDesiredOrientationOffset().getUnique().pitch(), missionController.getMaximalDesiredOrientationOffset().getUnique().pitch()));
+    desEulerAnglesZyx.setYaw(interpolateJoystickAxis(joyStick->getYaw(), missionController.getMinimalDesiredOrientationOffset().getUnique().yaw(), missionController.getMaximalDesiredOrientationOffset().getUnique().yaw()));
+    orientationOffset(desEulerAnglesZyx.getUnique());
+    missionController.setUnfilteredDesiredOrientationOffset(orientationOffset);
+
+
+    desiredBaseTwistInHeadingFrame.setZero();
+  } else {
+
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().x() = joyStick->getSagittal();
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = joyStick->getCoronal();
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().z() = 0.0;
+    desiredBaseTwistInHeadingFrame.getRotationalVelocity().z() = joyStick->getYaw();
+
+    missionController.setUnfilteredDesiredOrientationOffset(RotationQuaternion());
+    missionController.setUnfilteredDesiredPositionMiddleOfFeetToBaseInWorldFrame(Position());
+
+  }
+
+  gaitSwitcher_->getLocomotionController()->setDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
 
   if (joyStick->getButtonOneClick(1)) {
     gaitSwitcher_->transitToGait("Stand");
@@ -52,4 +84,16 @@ bool MissionControlDemo::advance(double dt) {
   return true;
 }
 
+
+bool MissionControlDemo::loadParameters(const TiXmlHandle& handle) {
+  return true;
+}
+
+const Twist& MissionControlDemo::getDesiredBaseTwistInHeadingFrame() const {
+  return gaitSwitcher_->getLocomotionController()->getDesiredBaseTwistInHeadingFrame();
+}
+
+double MissionControlDemo::interpolateJoystickAxis(double value, double minValue, double maxValue) {
+  return 0.5*(maxValue-minValue)*(value+1.0) + minValue;
+}
 } /* namespace loco */

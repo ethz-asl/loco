@@ -12,6 +12,7 @@
 #include "loco/gait_switcher/GaitSwitcherBase.hpp"
 #include "loco/gait_switcher/GaitTransition.hpp"
 #include "loco/locomotion_controller/LocomotionControllerDynamicGaitDefault.hpp"
+
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 
@@ -29,6 +30,7 @@ class GaitSwitcherDynamicGaitDefault: public GaitSwitcherBase {
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
 
+  void setIsRealRobot(bool isRealRobot);
 
   void setPathToConfigFile(const std::string& pathToConfigFile);
   void setPathToParameterFiles(const std::string& pathToParameterFiles);
@@ -49,6 +51,7 @@ class GaitSwitcherDynamicGaitDefault: public GaitSwitcherBase {
   bool interpolateParameters(double t);
 
   LocomotionControllerDynamicGaitDefault* getLocomotionController();
+
  private:
   bool getLocomotionControllerByName(const std::string& name, LocomotionControllerDynamicGaitDefault* loco);
   bool updateTransition(double simulatedTime);

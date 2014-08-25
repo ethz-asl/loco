@@ -11,6 +11,7 @@
 #include "loco/common/LegLinkGroup.hpp"
 
 #include "loco/contact_detection/ContactDetectorConstantDuringStance.hpp"
+#include "loco/mission_control/MissionControlSpeedFilter.hpp"
 
 namespace loco {
 
@@ -56,10 +57,10 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
     torsoController_.reset(new loco::TorsoControlDynamicGait (legs_.get(), torso_.get(), terrainModel_.get()));
     contactForceDistribution_.reset(new loco::ContactForceDistribution(torso_, legs_, terrainModel_));
     virtualModelController_.reset(new loco::VirtualModelController(legs_, torso_, contactForceDistribution_));
-    locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
-//    locomotionController1_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
-//    locomotionController2_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 
+    missionController_.reset(new loco::MissionControlSpeedFilter);
+
+    locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 
 
 }
@@ -69,8 +70,15 @@ LocomotionControllerDynamicGaitDefault::~LocomotionControllerDynamicGaitDefault(
 }
 
 bool LocomotionControllerDynamicGaitDefault::initialize(double dt) {
-//  virtualModelController_->loadParameters(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
+  if (!missionController_->loadParameters(parameterSet_->getHandle())) {
+    std::cout << "Could not parameters for mission controller: " << std::endl;
+    return false;
+  }
+
+  if (!missionController_->initialize(dt)) {
+    return false;
+  }
 
   if (!locomotionController_->initialize(dt)) {
     return false;
@@ -79,6 +87,15 @@ bool LocomotionControllerDynamicGaitDefault::initialize(double dt) {
 }
 
 bool LocomotionControllerDynamicGaitDefault::advance(double dt) {
+
+  if (!missionController_->advance(dt)) {
+    return false;
+  }
+  torso_->setDesiredBaseTwistInHeadingFrame(missionController_->getDesiredBaseTwistInHeadingFrame());
+  torsoController_->setDesiredPositionOffetInWorldFrame(missionController_->getDesiredPositionOffsetInWorldFrame());
+  torsoController_->setDesiredOrientationOffset(missionController_->getDesiredOrientationOffset());
+
+
   if (!locomotionController_->advance(dt)) {
     return false;
   }
@@ -98,6 +115,7 @@ bool LocomotionControllerDynamicGaitDefault::advance(double dt) {
   return true;
 }
 
+
 LocomotionControllerDynamicGait* LocomotionControllerDynamicGaitDefault::getLocomotionControllerDynamicGait() {
   return locomotionController_.get();
 }
@@ -113,7 +131,7 @@ ParameterSet* LocomotionControllerDynamicGaitDefault::getParameterSet() {
   return parameterSet_.get();
 }
 void LocomotionControllerDynamicGaitDefault::setDesiredBaseTwistInHeadingFrame(const Twist& desiredBaseTwistInHeadingFrame) {
-  torso_->setDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
+  missionController_->setUnfilteredDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
 }
 
 const std::string& LocomotionControllerDynamicGaitDefault::getGaitName() const {
@@ -124,6 +142,12 @@ void LocomotionControllerDynamicGaitDefault::setGaitName(const std::string& name
 }
 
 bool LocomotionControllerDynamicGaitDefault::setToInterpolated(const LocomotionControllerDynamicGaitDefault& controller1,  const LocomotionControllerDynamicGaitDefault& controller2, double t) {
+  if(!missionController_->setToInterpolated(controller1.getMissionController(),
+                                            controller2.getMissionController(),
+                                            t)) {
+    return false;
+  }
+
   if(!locomotionController_->setToInterpolated(controller1.getLocomotionControllerDynamicGait(),
                                                controller2.getLocomotionControllerDynamicGait(),
                                                t)) {
@@ -153,6 +177,18 @@ LegGroup* LocomotionControllerDynamicGaitDefault::getLegs() {
 
 ContactForceDistributionBase* LocomotionControllerDynamicGaitDefault::getContactForceDistribution() {
   return contactForceDistribution_.get();
+}
+
+const MissionControlSpeedFilter& LocomotionControllerDynamicGaitDefault::getMissionController() const {
+  return *missionController_.get();
+}
+
+MissionControlSpeedFilter& LocomotionControllerDynamicGaitDefault::getMissionController() {
+  return *missionController_.get();
+}
+
+const Twist& LocomotionControllerDynamicGaitDefault::getDesiredBaseTwistInHeadingFrame() const {
+  return missionController_->getDesiredBaseTwistInHeadingFrame();
 }
 
 } /* namespace loco */

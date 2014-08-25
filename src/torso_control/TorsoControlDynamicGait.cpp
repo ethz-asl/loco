@@ -63,6 +63,8 @@ bool TorsoControlDynamicGait::advance(double dt) {
   Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
   terrain_->getHeight(groundHeightInWorldFrame);
   Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+  desiredTorsoPositionInWorldFrame += desiredPositionOffetInWorldFrame_;
+
 //  Position desiredTorsoPositionInWorldFrame(0.0, desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
 
   /* --- desired orientation --- */
@@ -101,6 +103,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
 
 
   RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBase*orientationHeadingToDesiredHeading*orientationWorldToHeading;
+  desOrientationWorldToBase = desOrientationWorldToBase*desiredOrientationOffset_;
 
   /* --- end desired orientation --- */
 
@@ -134,7 +137,6 @@ double TorsoControlDynamicGait::getDesiredTorsoForeHeightAboveGroundInWorldFrame
 double TorsoControlDynamicGait::getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const {
   return desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
 }
-
 
 
 inline double safeACOS(double val){
@@ -418,6 +420,13 @@ bool TorsoControlDynamicGait::loadHeightTrajectory(const TiXmlHandle &hTrajector
 
 
   return true;
+}
+void TorsoControlDynamicGait::setDesiredPositionOffetInWorldFrame(const Position& positionTargetOffsetInWorldFrame) {
+  desiredPositionOffetInWorldFrame_ = positionTargetOffsetInWorldFrame;
+}
+
+void TorsoControlDynamicGait::setDesiredOrientationOffset(const RotationQuaternion& orientationOffset) {
+  desiredOrientationOffset_ = orientationOffset;
 }
 
 } /* namespace loco */

@@ -69,6 +69,10 @@ bool GaitSwitcherDynamicGaitDefault::advance(double dt) {
 }
 
 
+void GaitSwitcherDynamicGaitDefault::setIsRealRobot(bool isRealRobot) {
+  isRealRobot_ = isRealRobot;
+}
+
 
 bool GaitSwitcherDynamicGaitDefault::updateTransition(double simulatedTime) {
   if (isAutoTransitionOn_ && !isTransiting_) {

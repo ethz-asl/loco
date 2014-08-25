@@ -25,6 +25,7 @@ PARENT_SCOPE)
 set(LOCO_SRCS ${LOCO_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlJoystick.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlSpeedFilter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlSpeedTrajectory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlDemo.cpp
 PARENT_SCOPE)

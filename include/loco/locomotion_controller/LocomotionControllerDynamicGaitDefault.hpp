@@ -24,6 +24,8 @@
 #include "loco/contact_detection/ContactDetectorBase.hpp"
 
 #include "loco/mission_control/MissionControlBase.hpp"
+#include "loco/mission_control/MissionControlSpeedFilter.hpp"
+
 #include "loco/tools/TuningWithSliderboardLocoDynamicGait.hpp"
 
 
@@ -64,6 +66,8 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
 
   LocomotionControllerDynamicGait* getLocomotionControllerDynamicGait();
   const LocomotionControllerDynamicGait& getLocomotionControllerDynamicGait() const;
+  const MissionControlSpeedFilter& getMissionController() const;
+  MissionControlSpeedFilter& getMissionController();
   ParameterSet* getParameterSet();
 
   const std::string& getGaitName() const;
@@ -76,6 +80,7 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   TorsoBase* getTorso();
   LegGroup* getLegs();
   ContactForceDistributionBase* getContactForceDistribution();
+  const Twist& getDesiredBaseTwistInHeadingFrame() const;
  private:
   robotModel::RobotModel* robotModel_;
   std::shared_ptr<ParameterSet> parameterSet_;
@@ -95,6 +100,7 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   std::shared_ptr<ContactForceDistribution> contactForceDistribution_;
   std::shared_ptr<VirtualModelController> virtualModelController_;
   std::shared_ptr<ContactDetectorBase> contactDetector_;
+  std::shared_ptr<MissionControlSpeedFilter> missionController_;
   std::shared_ptr<LocomotionControllerDynamicGait> locomotionController_;
 };
 
