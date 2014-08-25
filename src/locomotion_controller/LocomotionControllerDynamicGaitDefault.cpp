@@ -99,13 +99,17 @@ bool LocomotionControllerDynamicGaitDefault::advance(double dt) {
   if (!locomotionController_->advance(dt)) {
     return false;
   }
+//  std::cout << "Torso: \n";
+//  std::cout << *torso_ << std::endl;
 
+
+//  std::cout << "Actuation: \n";
   /* copy desired commands from locomotion controller to robot model */
-  robotModel::VectorActMLeg legMode;
   int iLeg = 0;
   for (auto leg : *legs_) {
     robotModel_->act().setPosOfLeg(leg->getDesiredJointPositions() ,iLeg);
     robotModel_->act().setTauOfLeg(leg->getDesiredJointTorques() ,iLeg);
+//    std::cout << "Torques: " << leg->getDesiredJointTorques() << std::endl;
     robotModel::VectorActMLeg modes = leg->getDesiredJointControlModes().matrix();
     robotModel_->act().setModeOfLeg(modes,iLeg);
 //    std::cout << *leg << std::endl;
