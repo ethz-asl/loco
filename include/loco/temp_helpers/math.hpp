@@ -11,6 +11,8 @@
 #include <cmath>
 #include <Eigen/Core>
 
+#include "loco/common/TypeDefs.hpp"
+
 namespace loco {
 
 inline void boundToRange(double* v, double min, double max){
@@ -49,6 +51,10 @@ inline double linearlyInterpolate(double v1, double v2, double t1, double t2, do
 }
 
 inline Eigen::Vector3d linearlyInterpolate(const Eigen::Vector3d& v1, const Eigen::Vector3d& v2, double t1, double t2, double t) {
+  return (t-t1)/(t2-t1) * v2 + (t2-t)/(t2-t1) * v1;
+}
+
+inline Position linearlyInterpolate(const Position& v1, const Position& v2, double t1, double t2, double t) {
   return (t-t1)/(t2-t1) * v2 + (t2-t)/(t2-t1) * v1;
 }
 

@@ -46,7 +46,9 @@ class GaitSwitcherDynamicGaitDefault: public GaitSwitcherBase {
   bool transitToGait(const std::string& name);
   bool loadParameterSet(int parameterSetIdx);
 
-  void interpolateParameters(double t);
+  bool interpolateParameters(double t);
+
+  LocomotionControllerDynamicGaitDefault* getLocomotionController();
  private:
   bool getLocomotionControllerByName(const std::string& name, LocomotionControllerDynamicGaitDefault* loco);
   bool updateTransition(double simulatedTime);

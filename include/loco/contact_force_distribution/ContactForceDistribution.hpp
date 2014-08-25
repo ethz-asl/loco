@@ -102,12 +102,14 @@ class ContactForceDistribution : public ContactForceDistributionBase
    const Vector& getSecondDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
    const Vector& getNormalDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const;
    double getFrictionCoefficient(LegBase* leg) const;
-
+   double getFrictionCoefficient(const LegBase* leg) const;
+   double getFrictionCoefficient(int index) const;
 
    const LegInfo& getLegInfo(LegBase* leg) const;
 
    virtual bool setToInterpolated(const ContactForceDistributionBase& contactForceDistribution1, const ContactForceDistributionBase& contactForceDistribution2, double t);
 
+   const LegGroup* getLegs() const;
  private:
   //! Number of legs in stance phase
   int nLegsInForceDistribution_;
@@ -141,9 +143,9 @@ class ContactForceDistribution : public ContactForceDistributionBase
   Eigen::VectorXd c_;
 
 
-
+public:
   std::map<LegBase*, LegInfo> legInfos_;
-
+private:
 
 
   /*!

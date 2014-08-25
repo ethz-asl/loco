@@ -17,8 +17,9 @@ namespace loco {
 LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(const std::string& parameterFile,
                                                                                robotModel::RobotModel* robotModel,
                                                                                robotTerrain::TerrainBase* terrain,
-                                                                               double dt): robotModel_(robotModel)
+                                                                               double dt): LocomotionControllerBase(), robotModel_(robotModel)
 {
+
 
     parameterSet_.reset(new loco::ParameterSet());
     if (!parameterSet_->loadXmlDocument(parameterFile)) {
@@ -59,7 +60,6 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
 //    locomotionController1_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 //    locomotionController2_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
 
-    virtualModelController_->loadParameters(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
 
 }
@@ -69,6 +69,9 @@ LocomotionControllerDynamicGaitDefault::~LocomotionControllerDynamicGaitDefault(
 }
 
 bool LocomotionControllerDynamicGaitDefault::initialize(double dt) {
+//  virtualModelController_->loadParameters(parameterSet_->getHandle().FirstChild("LocomotionController"));
+
+
   if (!locomotionController_->initialize(dt)) {
     return false;
   }
@@ -137,5 +140,19 @@ double LocomotionControllerDynamicGaitDefault::getStridePhase() const {
   return torso_->getStridePhase();
 }
 
+GaitPatternFlightPhases* LocomotionControllerDynamicGaitDefault::getGaitPattern() {
+  return gaitPatternFlightPhases_.get();
+}
+
+TorsoBase* LocomotionControllerDynamicGaitDefault::getTorso() {
+  return torso_.get();
+}
+LegGroup* LocomotionControllerDynamicGaitDefault::getLegs() {
+  return legs_.get();
+}
+
+ContactForceDistributionBase* LocomotionControllerDynamicGaitDefault::getContactForceDistribution() {
+  return contactForceDistribution_.get();
+}
 
 } /* namespace loco */

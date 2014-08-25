@@ -440,31 +440,47 @@ double ContactForceDistribution::getVirtualForceWeight(int index) const {
 }
 
 const Vector& ContactForceDistribution::getFirstDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
-  return legInfos_.find(leg)->second.firstDirectionOfFrictionPyramidInWorldFrame_;
+  return legInfos_.at(leg).firstDirectionOfFrictionPyramidInWorldFrame_;
 }
 const Vector& ContactForceDistribution::getSecondDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
-  return legInfos_.find(leg)->second.secondDirectionOfFrictionPyramidInWorldFrame_;
+  return legInfos_.at(leg).secondDirectionOfFrictionPyramidInWorldFrame_;
 }
 const Vector& ContactForceDistribution::getNormalDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
-  return legInfos_.find(leg)->second.normalDirectionOfFrictionPyramidInWorldFrame_;
+  return legInfos_.at(leg).normalDirectionOfFrictionPyramidInWorldFrame_;
 }
 
 double ContactForceDistribution::getFrictionCoefficient(LegBase* leg) const {
-  return legInfos_.find(leg)->second.frictionCoefficient_;
+  return legInfos_.at(leg).frictionCoefficient_;
 }
 
+double ContactForceDistribution::getFrictionCoefficient(const LegBase* leg) const {
+  return legInfos_.at(const_cast<LegBase*>(leg)).frictionCoefficient_;
+}
+
+double ContactForceDistribution::getFrictionCoefficient(int index) const {
+  const LegBase* leg = legs_->getLeg(index);
+  return legInfos_.at(const_cast<LegBase*>(leg)).frictionCoefficient_;
+}
+
+
 const ContactForceDistribution::LegInfo& ContactForceDistribution::getLegInfo(LegBase* leg) const {
-  return legInfos_.find(leg)->second;
+  return legInfos_.at(leg);
 }
 
 bool ContactForceDistribution::setToInterpolated(const ContactForceDistributionBase& contactForceDistribution1, const ContactForceDistributionBase& contactForceDistribution2, double t) {
   const ContactForceDistribution& distribution1 = static_cast<const ContactForceDistribution&>(contactForceDistribution1);
   const ContactForceDistribution& distribution2 = static_cast<const ContactForceDistribution&>(contactForceDistribution2);
 
-  for (auto& legInfo : this->legInfos_) {
-    const LegInfo& legInfo1 = distribution1.getLegInfo(legInfo.first);
-    const LegInfo& legInfo2 = distribution2.getLegInfo(legInfo.first);
-    legInfo.second.frictionCoefficient_ = linearlyInterpolate(legInfo1.frictionCoefficient_, legInfo2.frictionCoefficient_, 0.0, 1.0, t);
+  if(!distribution1.checkIfParametersLoaded()) {
+    return false;
+  }
+  if(!distribution2.checkIfParametersLoaded()) {
+    return false;
+  }
+
+
+  for (auto leg : *legs_) {
+    legInfos_.at(leg).frictionCoefficient_ = linearlyInterpolate(distribution1.getFrictionCoefficient(leg->getId()) , distribution2.getFrictionCoefficient(leg->getId()), 0.0, 1.0, t);
   }
 
   this->groundForceWeight_ = linearlyInterpolate(distribution1.getGroundForceWeight(), distribution2.getGroundForceWeight(), 0.0, 1.0, t);
@@ -568,6 +584,10 @@ bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
 
   isParametersLoaded_ = true;
   return true;
+}
+
+const LegGroup* ContactForceDistribution::getLegs() const {
+  return legs_.get();
 }
 
 } /* namespace loco */

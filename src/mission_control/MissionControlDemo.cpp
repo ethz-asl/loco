@@ -35,9 +35,20 @@ bool MissionControlDemo::advance(double dt) {
   robotUtils::Joystick* joyStick = robotModel_->sensors().getJoystick();
 
   if (joyStick->getButtonOneClick(1)) {
+    gaitSwitcher_->transitToGait("Stand");
+  }
+
+  if (joyStick->getButtonOneClick(2)) {
+    gaitSwitcher_->transitToGait("StaticLateralWalk");
+  }
+
+  if (joyStick->getButtonOneClick(3)) {
     gaitSwitcher_->transitToGait("WalkingTrot");
   }
 
+  if (joyStick->getButtonOneClick(4)) {
+    gaitSwitcher_->transitToGait("Pronk");
+  }
   return true;
 }
 

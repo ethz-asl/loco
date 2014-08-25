@@ -72,6 +72,10 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   double getStrideDuration() const;
   double getStridePhase() const;
   bool setToInterpolated(const LocomotionControllerDynamicGaitDefault& controller1,  const LocomotionControllerDynamicGaitDefault& controller2, double t);
+  GaitPatternFlightPhases* getGaitPattern();
+  TorsoBase* getTorso();
+  LegGroup* getLegs();
+  ContactForceDistributionBase* getContactForceDistribution();
  private:
   robotModel::RobotModel* robotModel_;
   std::shared_ptr<ParameterSet> parameterSet_;

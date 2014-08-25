@@ -323,12 +323,28 @@ double FootPlacementStrategyInvertedPendulum::getHeightOfTerrainInWorldFrame(con
   return position.z();
 }
 
+const LegGroup& FootPlacementStrategyInvertedPendulum::getLegs() const {
+  return *legs_;
+}
+
 bool FootPlacementStrategyInvertedPendulum::setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t) {
   const FootPlacementStrategyInvertedPendulum& footPlacement1 = static_cast<const FootPlacementStrategyInvertedPendulum&>(footPlacementStrategy1);
   const FootPlacementStrategyInvertedPendulum& footPlacement2 = static_cast<const FootPlacementStrategyInvertedPendulum&>(footPlacementStrategy2);
   this->stepFeedbackScale_ = linearlyInterpolate(footPlacement1.stepFeedbackScale_, footPlacement2.stepFeedbackScale_, 0.0, 1.0, t);
   if (!interpolateHeightTrajectory(this->swingFootHeightTrajectory_, footPlacement1.swingFootHeightTrajectory_, footPlacement2.swingFootHeightTrajectory_, t)) {
     return false;
+  }
+
+
+  int iLeg = 0;
+  for (auto leg : *legs_) {
+    leg->getProperties().setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(linearlyInterpolate(
+      footPlacement1.getLegs().getLeg(iLeg)->getProperties().getDesiredDefaultSteppingPositionHipToFootInHeadingFrame(),
+      footPlacement2.getLegs().getLeg(iLeg)->getProperties().getDesiredDefaultSteppingPositionHipToFootInHeadingFrame(),
+      0.0,
+      1.0,
+      t));
+    iLeg++;
   }
   return true;
 }
