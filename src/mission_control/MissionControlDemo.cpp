@@ -75,7 +75,16 @@ bool MissionControlDemo::advance(double dt) {
       printf("Decreased stride duration t=%f!\n", strideDuration);
     }
 
-  }else {
+
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().x() = joyStick->getSagittal();
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = joyStick->getCoronal();
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().z() = 0.0;
+    desiredBaseTwistInHeadingFrame.getRotationalVelocity().z() = joyStick->getYaw();
+
+    missionController.setUnfilteredDesiredOrientationOffset(RotationQuaternion());
+    missionController.setUnfilteredDesiredPositionMiddleOfFeetToBaseInWorldFrame(Position());
+
+  } else if (gaitSwitcher_->getLocomotionController()->getGaitName() == "LateralStaticWalk") {
 
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().x() = joyStick->getSagittal();
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = joyStick->getCoronal();
@@ -103,6 +112,11 @@ bool MissionControlDemo::advance(double dt) {
 
   if (joyStick->getButtonOneClick(4)) {
     isExternallyVelocityControlled_ = !isExternallyVelocityControlled_;
+    if (isExternallyVelocityControlled_) {
+      printf("Velocity is controlled from extern.\n");
+    } else {
+      printf("Velocity is controlled by joystick.\n");
+    }
   }
 
   if (isExternallyVelocityControlled_) {
