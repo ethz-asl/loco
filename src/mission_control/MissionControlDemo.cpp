@@ -28,6 +28,9 @@ bool MissionControlDemo::initialize(double dt) {
 
 bool MissionControlDemo::advance(double dt) {
 
+  const double minStrideDuration_ = 0.6;
+  const double maxStrideDuration_ = 0.9;
+  const double stepStrideDuration_ = 0.05;
 
   robotUtils::Joystick* joyStick = robotModel_->sensors().getJoystick();
 
@@ -52,7 +55,26 @@ bool MissionControlDemo::advance(double dt) {
 
 
     desiredBaseTwistInHeadingFrame.setZero();
-  } else {
+  } else if (gaitSwitcher_->getLocomotionController()->getGaitName() == "WalkingTrot") {
+
+
+    // xbox cross down
+    if (joyStick->getButtonOneClick(15)) { // 15
+      double strideDuration = gaitSwitcher_->getLocomotionController()->getGaitPattern()->getStrideDuration() + stepStrideDuration_;
+      strideDuration = boundToRange(strideDuration, minStrideDuration_,  maxStrideDuration_);
+      gaitSwitcher_->getLocomotionController()->getGaitPattern()->setStrideDuration(strideDuration);
+      printf("Increased stride duration t=%f!\n", strideDuration);
+    }
+
+    // xbox cross upo
+    if (joyStick->getButtonOneClick(14)) { // 14
+      double strideDuration = gaitSwitcher_->getLocomotionController()->getGaitPattern()->getStrideDuration() - stepStrideDuration_;
+      strideDuration = boundToRange(strideDuration, minStrideDuration_,  maxStrideDuration_);
+      gaitSwitcher_->getLocomotionController()->getGaitPattern()->setStrideDuration(strideDuration);
+      printf("Decreased stride duration t=%f!\n", strideDuration);
+    }
+
+  }else {
 
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().x() = joyStick->getSagittal();
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = joyStick->getCoronal();
@@ -81,6 +103,10 @@ bool MissionControlDemo::advance(double dt) {
   if (joyStick->getButtonOneClick(4)) {
     gaitSwitcher_->transitToGait("Pronk");
   }
+
+
+
+
   return true;
 }
 
