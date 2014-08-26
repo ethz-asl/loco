@@ -28,6 +28,7 @@ class MissionControlDemo : public MissionControlBase {
  private:
   robotModel::RobotModel* robotModel_;
   GaitSwitcherDynamicGaitDefault* gaitSwitcher_;
+  bool isExternallyVelocityControlled_;
 };
 
 } /* namespace loco */

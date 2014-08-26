@@ -12,7 +12,8 @@ namespace loco {
 
 MissionControlDemo::MissionControlDemo(robotModel::RobotModel* robotModel,   GaitSwitcherDynamicGaitDefault* gaitSwitcher):
     robotModel_(robotModel),
-    gaitSwitcher_(gaitSwitcher)
+    gaitSwitcher_(gaitSwitcher),
+    isExternallyVelocityControlled_(false)
 {
 
 }
@@ -22,7 +23,7 @@ MissionControlDemo::~MissionControlDemo() {
 }
 
 bool MissionControlDemo::initialize(double dt) {
-
+  isExternallyVelocityControlled_ = false;
   return true;
 }
 
@@ -86,7 +87,7 @@ bool MissionControlDemo::advance(double dt) {
 
   }
 
-  gaitSwitcher_->getLocomotionController()->setDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
+
 
   if (joyStick->getButtonOneClick(1)) {
     gaitSwitcher_->transitToGait("Stand");
@@ -101,11 +102,16 @@ bool MissionControlDemo::advance(double dt) {
   }
 
   if (joyStick->getButtonOneClick(4)) {
-    gaitSwitcher_->transitToGait("Pronk");
+    isExternallyVelocityControlled_ = !isExternallyVelocityControlled_;
   }
 
+  if (isExternallyVelocityControlled_) {
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().x() = robotModel_->sensors().getDesRobotVelocity()->getDesSagittalVelocity();
+    desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = robotModel_->sensors().getDesRobotVelocity()->getDesCoronalVelocity();
+    desiredBaseTwistInHeadingFrame.getRotationalVelocity().z() = robotModel_->sensors().getDesRobotVelocity()->getDesTurningRate();
+  }
 
-
+  gaitSwitcher_->getLocomotionController()->setDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
 
   return true;
 }
