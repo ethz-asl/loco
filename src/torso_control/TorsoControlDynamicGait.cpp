@@ -102,8 +102,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
 
 
 
-  RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBase*orientationHeadingToDesiredHeading*orientationWorldToHeading;
-  desOrientationWorldToBase = desOrientationWorldToBase*desiredOrientationOffset_;
+  RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBase*desiredOrientationOffset_*orientationHeadingToDesiredHeading*orientationWorldToHeading;
 
   /* --- end desired orientation --- */
 

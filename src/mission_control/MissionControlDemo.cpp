@@ -42,7 +42,7 @@ bool MissionControlDemo::advance(double dt) {
 
     RotationQuaternion orientationOffset(EulerAnglesZyx(0.0, M_PI/4, 0.0));
 
-
+    printf("sag: %lf \t cor: %lf  \t yaw: %lf\n", joyStick->getSagittal(), joyStick->getCoronal(), joyStick->getYaw());
     EulerAnglesZyx desEulerAnglesZyx;
     desEulerAnglesZyx.setRoll(interpolateJoystickAxis(joyStick->getCoronal(), missionController.getMinimalDesiredOrientationOffset().getUnique().roll(), missionController.getMaximalDesiredOrientationOffset().getUnique().roll()));
     desEulerAnglesZyx.setPitch(interpolateJoystickAxis(joyStick->getSagittal(), missionController.getMinimalDesiredOrientationOffset().getUnique().pitch(), missionController.getMaximalDesiredOrientationOffset().getUnique().pitch()));
