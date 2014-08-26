@@ -163,9 +163,7 @@ bool LocomotionControllerJump::advance(double dt) {
   }
 
   motorVelocityController_->advance(dt);
-
   torsoController_->advance(dt);
-
   footPlacementStrategy_->advance(dt);
 
   if (!virtualModelController_->compute()) {
@@ -184,7 +182,6 @@ bool LocomotionControllerJump::advance(double dt) {
       }
     } else {
       desiredJointControlModes.setConstant(robotModel::AM_Position);
-//      desiredJointControlModes.setConstant(robotModel::AM_Velocity);
     }
     leg->setDesiredJointControlModes(desiredJointControlModes);
     iLeg++;
@@ -193,13 +190,20 @@ bool LocomotionControllerJump::advance(double dt) {
   return true;
 }
 
+/**
+ * Evaluates whether the robot has jumped or not.
+ */
 bool LocomotionControllerJump::hasJumped() {
   if (trajectoryFollower_.inVelocityMode()) {
-    return (motorVelocityController_->getState() == State::APEX || motorVelocityController_->getState() == State::TOUCHDOWN);
+    return (motorVelocityController_->getState() == State::APEX
+        || motorVelocityController_->getState() == State::TOUCHDOWN);
   } else {
-    return (static_cast<TorsoControlJump*>(torsoController_)->getState() == State::APEX || static_cast<TorsoControlJump*>(torsoController_)->getState() == State::TOUCHDOWN);
+    return (static_cast<TorsoControlJump*>(torsoController_)->getState()
+        == State::APEX
+        || static_cast<TorsoControlJump*>(torsoController_)->getState()
+            == State::TOUCHDOWN);
   }
-    return false;
+  return false;
 }
 
 TorsoBase* LocomotionControllerJump::getTorso() {

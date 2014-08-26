@@ -16,12 +16,10 @@ TorsoControlJump::TorsoControlJump(LegGroup* legs, TorsoBase* torso,
       torso_(torso),
       terrain_(terrain),
       comControl_(legs),
-      headingDistanceFromForeToHindInBaseFrame_(0.0),
-      currentTime_(0.0) {
+      headingDistanceFromForeToHindInBaseFrame_(0.0) {
 }
 
 TorsoControlJump::~TorsoControlJump() {
-  output_.close();
 }
 
 bool TorsoControlJump::initialize(double dt) {
@@ -39,8 +37,6 @@ bool TorsoControlJump::initialize(double dt) {
       && legs_->getRightForeLeg()->isGrounded() && state_ != State::APEX) {
     state_ = State::INIT;
 
-    output_.open("output.dat");
-    input_.open("input.dat");
   }
 
   return true;
@@ -92,8 +88,6 @@ void TorsoControlJump::advance(double dt) {
 
       desiredTorsoHeightAboveGroundInWorldFrame = result(0);
 
-      input_ << currentTime_ << " " << desiredTorsoHeightAboveGroundInWorldFrame
-             << std::endl;
     } else {
       desiredTorsoHeightAboveGroundInWorldFrame = 0.42;
     }
@@ -103,8 +97,6 @@ void TorsoControlJump::advance(double dt) {
         desiredLateralAndHeadingPositionInWorldFrame.y(),
         desiredTorsoHeightAboveGroundInWorldFrame
             + groundHeightInWorldFrame.z());
-
-    //std::cout << desiredTorsoHeightAboveGroundInWorldFrame << std::endl;
 
     /* --- desired orientation --- */
     // Just keep torso parallel to ground for now
@@ -117,11 +109,6 @@ void TorsoControlJump::advance(double dt) {
   addMeasuresToTrajectory(
       torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
 
-  /* Output jump trajectory to file */
-  output_ << currentTime_ << " "
-      << torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z()
-      << std::endl;
-  currentTime_ += dt;
 }
 
 /**
@@ -241,8 +228,6 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   if (!comControl_.loadParameters(hJump)) {
     return false;
   }
-
-//  std::cout << desiredTrajectory_.getInfoString() << std::endl;
 
   return true;
 }

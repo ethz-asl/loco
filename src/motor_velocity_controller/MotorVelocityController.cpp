@@ -40,12 +40,6 @@ bool MotorVelocityController::initialize(double dt) {
   LegBase* leftForeLeg = legs_->getLeftForeLeg();
   leftForeInitJointPositions_ = leftForeLeg->getMeasuredJointPositions();
 
-  input_vel.open("vel_input_kfe");
-  output_vel.open("vel_input_hfe");
-//  for (int i = 0; i < leftForeInitJointPositions_.size(); i++) {
-//    std::cout << leftForeInitJointPositions_[i] << std::endl;
-//  }
-
   return true;
 }
 
@@ -81,19 +75,17 @@ void MotorVelocityController::advance(double dt) {
     updateState();
 
     if (trajectoryFollower_.getProgress() < 1) {
-       result = trajectoryFollower_.predict();
+      result = trajectoryFollower_.predict();
 
-       for (int i = 0; i < velocities.size(); i++) {
-         velocities(i) = result(i);
-       }
+      for (int i = 0; i < velocities.size(); i++) {
+        velocities(i) = result(i);
+      }
 
       robotModel_->act().setVelOfLeg(velocities, 0);
       robotModel_->act().setVelOfLeg(velocities, 1);
       robotModel_->act().setVelOfLeg(-velocities, 2);
       robotModel_->act().setVelOfLeg(-velocities, 3);
 
-      output_vel << currentTime << " " << velocities(1) << std::endl;
-      input_vel << currentTime << " " << velocities(2) << std::endl;
     } else {
       velocities.fill(0);
       for (int i = 0; i < 4; i++)

@@ -127,26 +127,6 @@ class JointControllerStarlETHWithSEA : JointControllerBase {
       std::ostream& out, const JointControllerStarlETHWithSEA& controller);
 
  protected:
-//  std::ofstream haa_out_;
-
-  std::ofstream hfe_joint_destorque__;
-  std::ofstream kfe_joint_destorque_;
-
-  std::ofstream hfe_joint_torque__;
-  std::ofstream kfe_joint_torque_;
-//  std::ofstream haa_desout_;
-  std::ofstream hfe_motor_vel_;
-  std::ofstream kfe_motor_vel_;
-
-  std::ofstream hfe_joint_vel_;
-  std::ofstream kfe_joint_vel_;
-
-  std::ofstream hfe_joint_pos_;
-  std::ofstream kfe_joint_pos_;
-
-  std::ofstream hfe_motor_pos_;
-  std::ofstream kfe_motor_pos_;
-
   robotModel::RobotModel* robotModel_;
   bool isClampingTorques_;
   bool isClampingPositions_;

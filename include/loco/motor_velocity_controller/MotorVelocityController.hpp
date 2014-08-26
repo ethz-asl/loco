@@ -33,8 +33,6 @@ class MotorVelocityController : public MotorVelocityControllerBase {
   State getState();
 
  private:
-  std::ofstream input_vel;
-  std::ofstream output_vel;
   bool inVelocityMode_;
   LegBase::JointPositions leftForeInitJointPositions_;
   LegGroup* legs_;
