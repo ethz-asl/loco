@@ -99,8 +99,8 @@ bool LocomotionControllerDynamicGaitDefault::advance(double dt) {
   if (!locomotionController_->advance(dt)) {
     return false;
   }
-  std::cout << "Torso: \n";
-  std::cout << *torso_ << std::endl;
+//  std::cout << "Torso: \n";
+//  std::cout << *torso_ << std::endl;
 
 
 //  std::cout << "Actuation: \n";
