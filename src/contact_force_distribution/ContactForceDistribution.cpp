@@ -16,6 +16,9 @@
 #include "QuadraticProblemFormulation.hpp"
 #include "robotUtils/loggers/Logger.hpp"
 
+#include "loco/temp_helpers/math.hpp"
+
+
 using namespace std;
 using namespace Eigen;
 //using namespace sm;
@@ -25,7 +28,9 @@ namespace loco {
 ContactForceDistribution::ContactForceDistribution(std::shared_ptr<TorsoBase> torso, std::shared_ptr<LegGroup> legs, std::shared_ptr<loco::TerrainModelBase> terrain)
     : ContactForceDistributionBase(torso, legs, terrain)
 {
-  for(auto leg : *legs_) { legInfos_[leg] = LegInfo(); }
+  for(auto leg : *legs_) {
+    legInfos_[leg] = LegInfo();
+  }
 }
 
 ContactForceDistribution::~ContactForceDistribution()
@@ -242,9 +247,6 @@ bool ContactForceDistribution::addFrictionConstraints()
       // logging
       legInfo.second.firstDirectionOfFrictionPyramidInWorldFrame_ = loco::Vector(orientationWorldToBase.inverseRotate(firstTangential));
 
-      // logging
-      legInfo.second.frictionCoefficient_ = frictionCoefficient_;
-
       // The second tangential is perpendicular to the normal and the first tangential.
       Vector3d secondTangential = normalDirection.cross(firstTangential).normalized();
 
@@ -253,16 +255,16 @@ bool ContactForceDistribution::addFrictionConstraints()
 
       // First tangential, positive
       D_rows.block(0, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) =
-          frictionCoefficient_ * normalDirection.transpose() + firstTangential.transpose();
+          legInfo.second.frictionCoefficient_ * normalDirection.transpose() + firstTangential.transpose();
       // First tangential, negative
       D_rows.block(1, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) =
-          frictionCoefficient_ * normalDirection.transpose() - firstTangential.transpose();
+          legInfo.second.frictionCoefficient_ * normalDirection.transpose() - firstTangential.transpose();
       // Second tangential, positive
       D_rows.block(2, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) =
-          frictionCoefficient_ * normalDirection.transpose() + secondTangential.transpose();
+          legInfo.second.frictionCoefficient_ * normalDirection.transpose() + secondTangential.transpose();
       // Second tangential, negative
       D_rows.block(3, legInfo.second.startIndexInVectorX_, 1, nTranslationalDofPerFoot_) =
-          frictionCoefficient_ * normalDirection.transpose() - secondTangential.transpose();
+          legInfo.second.frictionCoefficient_ * normalDirection.transpose() - secondTangential.transpose();
 
       D_.middleRows(rowIndex, nDirections) = D_rows.sparseView();
       d_.segment(rowIndex, nDirections) =  VectorXd::Constant(nDirections, 0.0);
@@ -426,19 +428,70 @@ bool ContactForceDistribution::updateLoggerData()
   return true;
 }
 
+double ContactForceDistribution::getGroundForceWeight() const {
+  return groundForceWeight_;
+}
+
+double ContactForceDistribution::getMinimalNormalGroundForce() const {
+  return minimalNormalGroundForce_;
+}
+double ContactForceDistribution::getVirtualForceWeight(int index) const {
+  return virtualForceWeights_(index);
+}
+
 const Vector& ContactForceDistribution::getFirstDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
-  return legInfos_.find(leg)->second.firstDirectionOfFrictionPyramidInWorldFrame_;
+  return legInfos_.at(leg).firstDirectionOfFrictionPyramidInWorldFrame_;
 }
 const Vector& ContactForceDistribution::getSecondDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
-  return legInfos_.find(leg)->second.secondDirectionOfFrictionPyramidInWorldFrame_;
+  return legInfos_.at(leg).secondDirectionOfFrictionPyramidInWorldFrame_;
 }
 const Vector& ContactForceDistribution::getNormalDirectionOfFrictionPyramidInWorldFrame(LegBase* leg) const {
-  return legInfos_.find(leg)->second.normalDirectionOfFrictionPyramidInWorldFrame_;
+  return legInfos_.at(leg).normalDirectionOfFrictionPyramidInWorldFrame_;
 }
 
 double ContactForceDistribution::getFrictionCoefficient(LegBase* leg) const {
-  return legInfos_.find(leg)->second.frictionCoefficient_;
+  return legInfos_.at(leg).frictionCoefficient_;
 }
+
+double ContactForceDistribution::getFrictionCoefficient(const LegBase* leg) const {
+  return legInfos_.at(const_cast<LegBase*>(leg)).frictionCoefficient_;
+}
+
+double ContactForceDistribution::getFrictionCoefficient(int index) const {
+  const LegBase* leg = legs_->getLeg(index);
+  return legInfos_.at(const_cast<LegBase*>(leg)).frictionCoefficient_;
+}
+
+
+const ContactForceDistribution::LegInfo& ContactForceDistribution::getLegInfo(LegBase* leg) const {
+  return legInfos_.at(leg);
+}
+
+bool ContactForceDistribution::setToInterpolated(const ContactForceDistributionBase& contactForceDistribution1, const ContactForceDistributionBase& contactForceDistribution2, double t) {
+  const ContactForceDistribution& distribution1 = static_cast<const ContactForceDistribution&>(contactForceDistribution1);
+  const ContactForceDistribution& distribution2 = static_cast<const ContactForceDistribution&>(contactForceDistribution2);
+
+  if(!distribution1.checkIfParametersLoaded()) {
+    return false;
+  }
+  if(!distribution2.checkIfParametersLoaded()) {
+    return false;
+  }
+
+
+  for (auto leg : *legs_) {
+    legInfos_.at(leg).frictionCoefficient_ = linearlyInterpolate(distribution1.getFrictionCoefficient(leg->getId()) , distribution2.getFrictionCoefficient(leg->getId()), 0.0, 1.0, t);
+  }
+
+  this->groundForceWeight_ = linearlyInterpolate(distribution1.getGroundForceWeight(), distribution2.getGroundForceWeight(), 0.0, 1.0, t);
+  this->minimalNormalGroundForce_ = linearlyInterpolate(distribution1.getMinimalNormalGroundForce(), distribution2.getMinimalNormalGroundForce(), 0.0, 1.0, t);
+
+  for (int i=0; i<(int)this->virtualForceWeights_.size(); i++) {
+    this->virtualForceWeights_(i) = linearlyInterpolate(distribution1.getVirtualForceWeight(i), distribution2.getVirtualForceWeight(i), 0.0, 1.0, t);
+  }
+  return true;
+}
+
 
 bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
 {
@@ -514,17 +567,27 @@ bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
     printf("Could not find ContactForceDistribution:Constraints\n");
     return false;
   }
-  if (element->QueryDoubleAttribute("frictionCoefficient", &frictionCoefficient_)!=TIXML_SUCCESS) {
+  double frictionCoefficient = 0.8;
+  if (element->QueryDoubleAttribute("frictionCoefficient", &frictionCoefficient)!=TIXML_SUCCESS) {
     printf("Could not find ContactForceDistribution:Constraints:frictionCoefficient!\n");
     return false;
+  }
+  for (auto& legInfo : legInfos_) {
+    legInfo.second.frictionCoefficient_ = frictionCoefficient;
   }
   if (element->QueryDoubleAttribute("minimalNormalForce", &minimalNormalGroundForce_)!=TIXML_SUCCESS) {
     printf("Could not find ContactForceDistribution:Constraints:minimalNormalForce!\n");
     return false;
   }
 
+
+
   isParametersLoaded_ = true;
   return true;
+}
+
+const LegGroup* ContactForceDistribution::getLegs() const {
+  return legs_.get();
 }
 
 } /* namespace loco */

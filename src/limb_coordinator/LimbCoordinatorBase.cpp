@@ -19,4 +19,8 @@ LimbCoordinatorBase::~LimbCoordinatorBase() {
 
 }
 
+bool LimbCoordinatorBase::setToInterpolated(const LimbCoordinatorBase& limbCoordinator1, const LimbCoordinatorBase& limbCoordinator2, double t) {
+  return false;
+}
+
 } /* namespace loco */

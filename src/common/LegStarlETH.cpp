@@ -156,6 +156,10 @@ LegPropertiesBase& LegStarlETH::getProperties()
   return properties_;
 }
 
+const LegPropertiesBase& LegStarlETH::getProperties() const
+{
+  return properties_;
+}
 
 const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const
 {

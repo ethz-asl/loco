@@ -96,21 +96,28 @@ class GaitPatternFlightPhases: public GaitPatternBase {
 
     double getFootLiftOffPhase(int iLeg);
     double getFootTouchDownPhase(int iLeg);
+
+    /*!
+      computed an interpolated version of the two gaits passed in as parameters.
+      if t is 0, the current gait is set to gait1, 1 -> gait 2, and values in between
+      correspond to interpolated gaits.
+    */
+    virtual bool setToInterpolated(const GaitPatternBase& gaitPattern1, const GaitPatternBase& gaitPattern2, double t);
  private:
     bool isInitialized_;
 
-    double cyclePhase;
+    double cyclePhase_;
 
     //! this is how long it should take from the time one particular foot leaves the ground, until it leaves the ground again next in seconds.
-    double strideDuration;
+    double strideDuration_;
 
     //! the gait should start at this stride phase in [0,1]
-    double initCyclePhase;
+    double initCyclePhase_;
 
     //! number of gait cycles since start
-    unsigned long int numGaitCycles;
+    unsigned long int numGaitCycles_;
 
-    std::vector<FootFallPattern> footFallPatterns;
+    std::vector<FootFallPattern> footFallPatterns_;
 
  protected:
     /*!

@@ -10,6 +10,8 @@
 #include "robotUtils/loggers/Logger.hpp"
 #include "kindr/rotations/eigen/EulerAnglesZyx.hpp"
 
+#include "loco/temp_helpers/math.hpp"
+
 using namespace std;
 using namespace Eigen;
 
@@ -395,6 +397,38 @@ void VirtualModelController::setGravityCompensationForcePercentage(double percen
 
 double VirtualModelController::getGravityCompensationForcePercentage() const {
   return gravityCompensationForcePercentage_;
+}
+
+const ContactForceDistributionBase& VirtualModelController::getContactForceDistribution() const {
+  return *contactForceDistribution_.get();
+}
+
+bool VirtualModelController::setToInterpolated(const MotionControllerBase& motionController1, const MotionControllerBase& motionController2, double t) {
+  const VirtualModelController& controller1 = static_cast<const VirtualModelController& >(motionController1);
+  const VirtualModelController& controller2 = static_cast<const VirtualModelController& >(motionController2);
+
+
+  if (!controller1.checkIfParametersLoaded()) {
+    return false;
+  }
+
+  if (!controller2.checkIfParametersLoaded()) {
+    return false;
+  }
+
+  this->proportionalGainTranslation_ = linearlyInterpolate(controller1.getProportionalGainTranslation(),  controller2.getProportionalGainTranslation(), 0.0, 1.0, t);
+  this->derivativeGainTranslation_ = linearlyInterpolate(controller1.getDerivativeGainTranslation(),  controller2.getDerivativeGainTranslation(), 0.0, 1.0, t);
+  this->feedforwardGainTranslation_ = linearlyInterpolate(controller1.getFeedforwardGainTranslation(),  controller2.getFeedforwardGainTranslation(), 0.0, 1.0, t);
+
+  this->proportionalGainRotation_ = linearlyInterpolate(controller1.getProportionalGainRotation(),  controller2.getProportionalGainRotation(), 0.0, 1.0, t);
+  this->derivativeGainRotation_ = linearlyInterpolate(controller1.getDerivativeGainRotation(),  controller2.getDerivativeGainRotation(), 0.0, 1.0, t);
+  this->feedforwardGainRotation_ = linearlyInterpolate(controller1.getFeedforwardGainRotation(),  controller2.getFeedforwardGainRotation(), 0.0, 1.0, t);
+
+
+  if (!contactForceDistribution_->setToInterpolated(controller1.getContactForceDistribution(), controller2.getContactForceDistribution(),t)) {
+    return false;
+  }
+  return true;
 }
 
 } /* namespace loco */

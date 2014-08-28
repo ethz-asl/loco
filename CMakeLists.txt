@@ -44,6 +44,7 @@ add_subdirectory(src/visualizer)
 add_subdirectory(src/tools)
 add_subdirectory(src/joint_control)
 add_subdirectory(src/contact_detection)
+add_subdirectory(src/gait_switcher)
 add_subdirectory(src/locomotion_controller)
 
 

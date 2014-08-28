@@ -6,6 +6,8 @@
  */
 
 #include "loco/torso_control/TorsoControlDynamicGait.hpp"
+#include "loco/temp_helpers/math.hpp"
+
 #include <exception>
 namespace loco {
 
@@ -61,6 +63,8 @@ bool TorsoControlDynamicGait::advance(double dt) {
   Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
   terrain_->getHeight(groundHeightInWorldFrame);
   Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+  desiredTorsoPositionInWorldFrame += desiredPositionOffetInWorldFrame_;
+
 //  Position desiredTorsoPositionInWorldFrame(0.0, desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
 
   /* --- desired orientation --- */
@@ -98,7 +102,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
 
 
 
-  RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBase*orientationHeadingToDesiredHeading*orientationWorldToHeading;
+  RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBase*desiredOrientationOffset_*orientationHeadingToDesiredHeading*orientationWorldToHeading;
 
   /* --- end desired orientation --- */
 
@@ -124,6 +128,14 @@ bool TorsoControlDynamicGait::advance(double dt) {
   return true;
 }
 
+
+double TorsoControlDynamicGait::getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const {
+  return desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
+}
+
+double TorsoControlDynamicGait::getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const {
+  return desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
+}
 
 
 inline double safeACOS(double val){
@@ -174,6 +186,9 @@ RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuatern
 CoMOverSupportPolygonControl* TorsoControlDynamicGait::getCoMControl() {
   return &comControl_;
 }
+const CoMOverSupportPolygonControl& TorsoControlDynamicGait::getCoMControl() const {
+  return comControl_;
+}
 
 bool TorsoControlDynamicGait::loadParameters(const TiXmlHandle& handle) {
   TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
@@ -186,6 +201,57 @@ bool TorsoControlDynamicGait::loadParameters(const TiXmlHandle& handle) {
 
   return true;
 }
+
+bool TorsoControlDynamicGait::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
+  const TorsoControlDynamicGait& controller1 = static_cast<const TorsoControlDynamicGait&>(torsoController1);
+  const TorsoControlDynamicGait& controller2 = static_cast<const TorsoControlDynamicGait&>(torsoController2);
+  this->comControl_.setToInterpolated(controller1.getCoMControl(), controller2.getCoMControl(), t);
+  desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
+                                                                             controller2.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
+                                                                             0.0,
+                                                                             1.0,
+                                                                             t);
+  desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
+                                                                             controller2.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
+                                                                             0.0,
+                                                                             1.0,
+                                                                             t);
+
+
+  if(!interpolateHeightTrajectory(desiredTorsoForeHeightAboveGroundInWorldFrame_, controller1.desiredTorsoForeHeightAboveGroundInWorldFrame_, controller2.desiredTorsoForeHeightAboveGroundInWorldFrame_, t)) {
+    return false;
+  }
+  if(!interpolateHeightTrajectory(desiredTorsoHindHeightAboveGroundInWorldFrame_, controller1.desiredTorsoHindHeightAboveGroundInWorldFrame_, controller2.desiredTorsoHindHeightAboveGroundInWorldFrame_, t)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool TorsoControlDynamicGait::interpolateHeightTrajectory(rbf::PeriodicRBF1DC1& interpolatedTrajectory, const rbf::PeriodicRBF1DC1& trajectory1, const rbf::PeriodicRBF1DC1& trajectory2, double t) {
+
+  const int nKnots = std::max<int>(trajectory1.getKnotCount(), trajectory2.getKnotCount());
+  const double tMax1 = trajectory1.getKnotPosition(trajectory1.getKnotCount()-1);
+  const double tMax2 = trajectory2.getKnotPosition(trajectory2.getKnotCount()-1);
+  const double tMin1 = trajectory1.getKnotPosition(0);
+  const double tMin2 = trajectory2.getKnotPosition(0);
+  double tMax = std::max<double>(tMax1, tMax2);
+  double tMin = std::min<double>(tMin1, tMin2);
+
+  double dt = (tMax-tMin)/(nKnots-1);
+  std::vector<double> tValues, xValues;
+  for (int i=0; i<nKnots;i++){
+    const double time = tMin + i*dt;
+    double v = linearlyInterpolate(trajectory1.evaluate(time), trajectory2.evaluate(time), 0.0, 1.0, t);
+    tValues.push_back(time);
+    xValues.push_back(v);
+//    printf("(%f,%f / %f, %f) ", time,v, legProps1->swingFootHeightTrajectory.evaluate(time), legProps2->swingFootHeightTrajectory.evaluate(time));
+  }
+
+  interpolatedTrajectory.setRBFData(tValues, xValues);
+  return true;
+}
+
 
 
 
@@ -353,6 +419,13 @@ bool TorsoControlDynamicGait::loadHeightTrajectory(const TiXmlHandle &hTrajector
 
 
   return true;
+}
+void TorsoControlDynamicGait::setDesiredPositionOffetInWorldFrame(const Position& positionTargetOffsetInWorldFrame) {
+  desiredPositionOffetInWorldFrame_ = positionTargetOffsetInWorldFrame;
+}
+
+void TorsoControlDynamicGait::setDesiredOrientationOffset(const RotationQuaternion& orientationOffset) {
+  desiredOrientationOffset_ = orientationOffset;
 }
 
 } /* namespace loco */

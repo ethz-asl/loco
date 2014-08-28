@@ -34,6 +34,23 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
 
 }
 
+LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() :
+    LocomotionControllerBase(),
+  isInitialized_(false),
+  legs_(nullptr),
+  torso_(nullptr),
+  terrainPerception_(nullptr),
+  contactDetector_(nullptr),
+  limbCoordinator_(nullptr),
+  footPlacementStrategy_(nullptr),
+  torsoController_(nullptr),
+  virtualModelController_(nullptr),
+  contactForceDistribution_(nullptr),
+  parameterSet_(nullptr)
+{
+
+}
+
 LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
 
 }
@@ -189,6 +206,10 @@ FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStra
   return footPlacementStrategy_;
 }
 
+const FootPlacementStrategyBase& LocomotionControllerDynamicGait::getFootPlacementStrategy() const {
+  return *footPlacementStrategy_;
+}
+
 VirtualModelController* LocomotionControllerDynamicGait::getVirtualModelController() {
   return virtualModelController_;
 }
@@ -200,12 +221,43 @@ LimbCoordinatorBase*  LocomotionControllerDynamicGait::getLimbCoordinator() {
   return limbCoordinator_;
 }
 
+const LimbCoordinatorBase& LocomotionControllerDynamicGait::getLimbCoordinator() const {
+  return *limbCoordinator_;
+}
+
+const TorsoControlBase& LocomotionControllerDynamicGait::getTorsoController() const {
+  return *torsoController_;
+}
+
+const VirtualModelController& LocomotionControllerDynamicGait::getVirtualModelController() const {
+  return *virtualModelController_;
+}
+
 TerrainPerceptionBase* LocomotionControllerDynamicGait::getTerrainPerception() {
   return terrainPerception_;
 }
 
 bool LocomotionControllerDynamicGait::isInitialized() const {
   return isInitialized_;
+}
+
+bool LocomotionControllerDynamicGait::setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t) {
+  if (!limbCoordinator_->setToInterpolated(controller1.getLimbCoordinator(), controller2.getLimbCoordinator() ,t)) {
+    return false;
+  }
+  if (!torsoController_->setToInterpolated(controller1.getTorsoController(), controller2.getTorsoController() ,t)) {
+    return false;
+  }
+
+  if (!footPlacementStrategy_->setToInterpolated(controller1.getFootPlacementStrategy(), controller2.getFootPlacementStrategy() ,t)) {
+     return false;
+   }
+
+  if (!virtualModelController_->setToInterpolated(controller1.getVirtualModelController(), controller2.getVirtualModelController(), t)) {
+    return false;
+  }
+
+  return true;
 }
 
 } /* namespace loco */

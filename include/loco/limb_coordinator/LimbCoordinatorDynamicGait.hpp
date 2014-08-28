@@ -45,8 +45,20 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   virtual bool advance(double dt);
 
   virtual GaitPatternBase* getGaitPattern();
+  const GaitPatternBase& getGaitPattern() const;
 
   virtual bool loadParameters(const TiXmlHandle& handle);
+
+
+  /*! Computes an interpolated version of the two controllers passed in as parameters.
+   *  If t is 0, the current setting is set to limbCoordinator1, 1 -> limbCoordinator2, and values in between
+   *  correspond to interpolated parameter set.
+   * @param limbCoordinator1
+   * @param limbCoordinator2
+   * @param t interpolation parameter
+   * @returns true if successful
+   */
+  virtual bool setToInterpolated(const LimbCoordinatorBase& limbCoordinator1, const LimbCoordinatorBase& limbCoordinator2, double t);
 
  private:
   LegGroup* legs_;

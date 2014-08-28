@@ -18,4 +18,8 @@ MissionControlBase::~MissionControlBase() {
 
 }
 
+bool MissionControlBase::setToInterpolated(const MissionControlBase& missionController1, const MissionControlBase& missionController2, double t) {
+  return false;
+}
+
 } /* namespace loco */

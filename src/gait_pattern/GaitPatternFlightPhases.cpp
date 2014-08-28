@@ -6,6 +6,9 @@
  */
 
 #include "loco/gait_pattern/GaitPatternFlightPhases.hpp"
+#include "loco/temp_helpers/math.hpp"
+
+#include <stdexcept>
 
 namespace loco {
 
@@ -23,30 +26,30 @@ GaitPatternFlightPhases::~GaitPatternFlightPhases() {
 
 
 double loco::GaitPatternFlightPhases::getStrideDuration() {
-  return strideDuration;
+  return strideDuration_;
 }
 
 void loco::GaitPatternFlightPhases::setStrideDuration(double strideDuration) {
-  this->strideDuration = strideDuration;
+  this->strideDuration_ = strideDuration;
 }
 
 double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg) {
-  return getSwingPhaseForLeg(iLeg,  cyclePhase);
+  return getSwingPhaseForLeg(iLeg,  cyclePhase_);
 }
 
 double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg, double stridePhase) const {
   //the absolute phase parameter should be in the range [0-1], so make it so just in case...
   while (stridePhase < 0) stridePhase += 1; while (stridePhase > 1) stridePhase -= 1;
 
-  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, footFallPatterns[iLeg].liftOffPhase, footFallPatterns[iLeg].strikePhase);
+  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, footFallPatterns_[iLeg].liftOffPhase, footFallPatterns_[iLeg].strikePhase);
 }
 
 double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stridePhase) const {
 
-  double timeUntilFootLiftOff = footFallPatterns[iLeg].getPhaseLeftUntilFootLiftOff(stridePhase);
-  double timeUntilFootStrike = footFallPatterns[iLeg].getPhaseLeftUntilFootStrike(stridePhase);
+  double timeUntilFootLiftOff = footFallPatterns_[iLeg].getPhaseLeftUntilFootLiftOff(stridePhase);
+  double timeUntilFootStrike = footFallPatterns_[iLeg].getPhaseLeftUntilFootStrike(stridePhase);
 
-  if (footFallPatterns[iLeg].strikePhase == footFallPatterns[iLeg].liftOffPhase) {
+  if (footFallPatterns_[iLeg].strikePhase == footFallPatterns_[iLeg].liftOffPhase) {
     return 0.0; // added (Christian)
   }
 
@@ -57,21 +60,21 @@ double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stri
   }
 
 
-  double swingPhaseRange = footFallPatterns[iLeg].strikePhase - footFallPatterns[iLeg].liftOffPhase;
+  double swingPhaseRange = footFallPatterns_[iLeg].strikePhase - footFallPatterns_[iLeg].liftOffPhase;
   double timeSinceFootStrike = 1.0 - timeUntilFootLiftOff - swingPhaseRange;
 
   return timeSinceFootStrike / (timeSinceFootStrike + timeUntilFootLiftOff);
 }
 
 double GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg) {
-  return getStancePhaseForLeg(iLeg, cyclePhase);
+  return getStancePhaseForLeg(iLeg, cyclePhase_);
 }
 
 
 
 
 double GaitPatternFlightPhases::getStanceDuration(int iLeg) {
-  return getStanceDuration(iLeg, strideDuration);
+  return getStanceDuration(iLeg, strideDuration_);
 }
 
 double GaitPatternFlightPhases::getSwingDuration(int iLeg, double strideDuration) const {
@@ -79,16 +82,16 @@ double GaitPatternFlightPhases::getSwingDuration(int iLeg, double strideDuration
 }
 
 double GaitPatternFlightPhases::getStanceDuration(int iLeg, double strideDuration) const {
-  return (1.0-(footFallPatterns[iLeg].strikePhase - footFallPatterns[iLeg].liftOffPhase)) * strideDuration;
+  return (1.0-(footFallPatterns_[iLeg].strikePhase - footFallPatterns_[iLeg].liftOffPhase)) * strideDuration;
 }
 
 unsigned long int loco::GaitPatternFlightPhases::getNGaitCycles() {
-  return numGaitCycles;
+  return numGaitCycles_;
 }
 
 bool loco::GaitPatternFlightPhases::initialize(double dt) {
-  numGaitCycles = 0;
-  cyclePhase = initCyclePhase;
+  numGaitCycles_ = 0;
+  cyclePhase_ = initCyclePhase_;
   isInitialized_ = true;
   return true;
 }
@@ -99,14 +102,14 @@ bool loco::GaitPatternFlightPhases::isInitialized()
 }
 
 bool loco::GaitPatternFlightPhases::advance(double dt) {
-  if (strideDuration == 0.0) {
-    cyclePhase = 0.0;
+  if (strideDuration_ == 0.0) {
+    cyclePhase_ = 0.0;
     return true;
   }
-  cyclePhase += dt/strideDuration;
-  if (cyclePhase > 1.0) {
-    cyclePhase = 0.0;
-    numGaitCycles++;
+  cyclePhase_ += dt/strideDuration_;
+  if (cyclePhase_ > 1.0) {
+    cyclePhase_ = 0.0;
+    numGaitCycles_++;
   }
   return true;
 
@@ -120,7 +123,7 @@ bool loco::GaitPatternFlightPhases::shouldBeLegGrounded(int iLeg) {
 }
 
 double loco::GaitPatternFlightPhases::getStridePhase() {
-  return cyclePhase;
+  return cyclePhase_;
 }
 
 bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
@@ -134,12 +137,12 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find FlightPhases\n");
       return false;
     }
-    if (pElem->QueryDoubleAttribute("cycleDuration", &this->strideDuration)!=TIXML_SUCCESS) {
+    if (pElem->QueryDoubleAttribute("cycleDuration", &this->strideDuration_)!=TIXML_SUCCESS) {
       printf("Could not find FlightPhases:cycleDuration\n");
       return false;
     }
 
-    if (pElem->QueryDoubleAttribute("initCyclePhase", &this->initCyclePhase)!=TIXML_SUCCESS) {
+    if (pElem->QueryDoubleAttribute("initCyclePhase", &this->initCyclePhase_)!=TIXML_SUCCESS) {
       printf("Could not find FlightPhases:initCyclePhase\n");
       return false;
     }
@@ -147,7 +150,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
     /* foot fall pattern */
 
 
-    this->footFallPatterns.clear();
+    this->footFallPatterns_.clear();
 
     pElem = hFootFallPattern.FirstChild("LF").Element();
     if(!pElem) {
@@ -164,7 +167,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find LF:touchDown\n");
       return false;
     }
-    footFallPatterns.push_back(FootFallPattern(liftOff, touchDown));
+    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
 
 
     pElem = hFootFallPattern.FirstChild("RF").Element();
@@ -181,7 +184,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find GaitPattern:FootFallPattern:RF:touchDown\n");
       return false;
     }
-    footFallPatterns.push_back(FootFallPattern(liftOff, touchDown));
+    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
 
     pElem = hFootFallPattern.FirstChild("LH").Element();
     if(!pElem) {
@@ -196,7 +199,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find LH:touchDown\n");
       return false;
     }
-    footFallPatterns.push_back(FootFallPattern(liftOff, touchDown));
+    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
 
     pElem = hFootFallPattern.FirstChild("RH").Element();
     if(!pElem) {
@@ -211,9 +214,9 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find RH:touchDown\n");
       return false;
     }
-    footFallPatterns.push_back(FootFallPattern(liftOff, touchDown));
+    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
 
-    numGaitCycles = 0;
+    numGaitCycles_ = 0;
     return true;
 }
 
@@ -242,10 +245,10 @@ inline double GaitPatternFlightPhases::getRelativePhaseFromAbsolutePhaseInRange(
 }
 
 double GaitPatternFlightPhases::getFootLiftOffPhase(int iLeg) {
-   return footFallPatterns[iLeg].liftOffPhase;
+   return footFallPatterns_[iLeg].liftOffPhase;
 }
 double GaitPatternFlightPhases::getFootTouchDownPhase(int iLeg) {
-  return footFallPatterns[iLeg].strikePhase;
+  return footFallPatterns_[iLeg].strikePhase;
 }
 
 
@@ -293,12 +296,32 @@ double GaitPatternFlightPhases::getTimeUntilNextSwingPhase(int iLeg, double stri
 
 int GaitPatternFlightPhases::getNumberOfStanceLegs(double stridePhase) {
   int nStanceLegs = 0;
-  for (int i=0; i<footFallPatterns.size();i++) {
+  for (int i=0; i<footFallPatterns_.size();i++) {
     if (getStancePhaseForLeg(i, stridePhase) >= 0.0) {
       nStanceLegs++;
     }
   }
   return nStanceLegs;
+}
+
+
+bool GaitPatternFlightPhases::setToInterpolated(const GaitPatternBase& gaitPattern1, const GaitPatternBase& gaitPattern2, double t) {
+  const GaitPatternFlightPhases& gait1 = static_cast<const GaitPatternFlightPhases&>(gaitPattern1);
+  const GaitPatternFlightPhases& gait2 = static_cast<const GaitPatternFlightPhases&>(gaitPattern2);
+
+  boundToRange(&t, 0, 1);
+  //assume an exact correspondance here (i.e. each foot has the same number of foot fall patterns during a stride).
+  //we'll also assume that the order the leg foot pattern is specified is the same...
+  strideDuration_ = linearlyInterpolate(gait1.strideDuration_, gait2.strideDuration_, 0, 1, t);
+
+  footFallPatterns_.clear();
+  if (gait1.footFallPatterns_.size() != gait2.footFallPatterns_.size())
+    throw std::runtime_error("Don't know how to interpolated between incompatible foot fall patterns");
+  for (uint i=0;i<gait1.footFallPatterns_.size();i++){
+    footFallPatterns_.push_back(FootFallPattern(linearlyInterpolate(gait1.footFallPatterns_[i].liftOffPhase, gait2.footFallPatterns_[i].liftOffPhase, 0, 1, t),
+                                               linearlyInterpolate(gait1.footFallPatterns_[i].strikePhase, gait2.footFallPatterns_[i].strikePhase, 0, 1, t)));
+  }
+  return true;
 }
 
 } /* namespace loco */

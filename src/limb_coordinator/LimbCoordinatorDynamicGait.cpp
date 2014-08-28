@@ -95,14 +95,26 @@ bool LimbCoordinatorDynamicGait::isLegInSwingMode(int iLeg) {
   return (swingPhase >= 0 && swingPhase <= 1);
 }
 
-GaitPatternBase* LimbCoordinatorDynamicGait::getGaitPattern()
-{
+GaitPatternBase* LimbCoordinatorDynamicGait::getGaitPattern() {
   return gaitPattern_;
+}
+
+const GaitPatternBase& LimbCoordinatorDynamicGait::getGaitPattern() const {
+  return *gaitPattern_;
 }
 
 bool LimbCoordinatorDynamicGait::loadParameters(const TiXmlHandle& handle)
 {
   if (!gaitPattern_->loadParameters(TiXmlHandle(handle.FirstChild("LimbCoordination")))) {
+    return false;
+  }
+  return true;
+}
+
+bool LimbCoordinatorDynamicGait::setToInterpolated(const LimbCoordinatorBase& limbCoordinator1, const LimbCoordinatorBase& limbCoordinator2, double t) {
+  const LimbCoordinatorDynamicGait& coordinator1 = static_cast<const LimbCoordinatorDynamicGait&>(limbCoordinator1);
+  const LimbCoordinatorDynamicGait& coordinator2 = static_cast<const LimbCoordinatorDynamicGait&>(limbCoordinator2);
+  if (!gaitPattern_->setToInterpolated(coordinator1.getGaitPattern(), coordinator2.getGaitPattern(), t)) {
     return false;
   }
   return true;
