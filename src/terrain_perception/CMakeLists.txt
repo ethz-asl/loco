@@ -16,6 +16,7 @@ PARENT_SCOPE)
 set(LOCO_SRCS ${LOCO_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionHorizontalPlane.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionFreePlane.cpp
 PARENT_SCOPE)
 
 #################
