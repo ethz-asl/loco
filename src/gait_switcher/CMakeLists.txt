@@ -3,6 +3,8 @@ cmake_minimum_required (VERSION 2.8)
 
 project(locomotion_control)
 
+
+
 ################
 ### INCLUDES ###
 ################
@@ -14,12 +16,9 @@ PARENT_SCOPE)
 ### SOURCES ###
 ###############
 set(LOCO_SRCS ${LOCO_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/APS.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GaitAPS.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternAPS.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/GaitPatternFlightPhases.cpp
-
+	${CMAKE_CURRENT_SOURCE_DIR}/GaitSwitcherBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GaitSwitcherDynamicGaitDefault.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/GaitTransition.cpp
 PARENT_SCOPE)
 
 #################
@@ -29,5 +28,3 @@ set(LOCO_LIBS ${LOCO_LIBS}
 
 PARENT_SCOPE)
 
-
-set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")

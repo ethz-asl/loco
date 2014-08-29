@@ -139,6 +139,7 @@ class LegBase {
   virtual bool advance(double dt) = 0;
 
   virtual LegPropertiesBase& getProperties() = 0;
+  virtual const LegPropertiesBase& getProperties() const = 0;
 //  virtual LegPropertiesBase* getProperties() = 0;
   virtual int getId() const = 0;
 

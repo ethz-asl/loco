@@ -45,13 +45,22 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
 public:
  Position positionWorldToFootHoldInWorldFrame_[4];
  Position positionWorldToFootHoldInvertedPendulumInWorldFrame_[4];
-	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
-	virtual ~FootPlacementStrategyInvertedPendulum();
+  FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
+  virtual ~FootPlacementStrategyInvertedPendulum();
 
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual bool initialize(double dt);
   virtual void advance(double dt);
-
+  /*! Computes an interpolated version of the two controllers passed in as parameters.
+  *  If t is 0, the current setting is set to footPlacementStrategy1, 1 -> footPlacementStrategy2, and values in between
+  *  correspond to interpolated parameter set.
+  * @param footPlacementStrategy1
+  * @param footPlacementStrategy2
+  * @param t interpolation parameter
+  * @returns true if successful
+  */
+  virtual bool setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t);
+  const LegGroup& getLegs() const;
 public:
   //! Reference to the legs
   LegGroup* legs_;
@@ -102,6 +111,8 @@ protected:
 	 * @return true if successful
 	 */
   bool loadHeightTrajectory(const TiXmlHandle &hTrajectory);
+
+  bool interpolateHeightTrajectory(rbf::BoundedRBF1D& interpolatedTrajectory, const rbf::BoundedRBF1D& trajectory1, const rbf::BoundedRBF1D& trajectory2, double t);
 };
 
 } // namespace loco

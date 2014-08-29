@@ -15,13 +15,9 @@ namespace loco {
 
 class GaitPatternBase {
 public:
-  GaitPatternBase() {
+  GaitPatternBase();
 
-  }
-
-  virtual ~GaitPatternBase() {
-
-  }
+  virtual ~GaitPatternBase();
 
   /*! @returns the stride duration in seconds
    */
@@ -129,8 +125,18 @@ public:
 
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 
+  const std::string& getName() const;
+  void setName( const std::string& name);
 
+  /*!
+    computed an interpolated version of the two gaits passed in as parameters.
+    if t is 0, the current gait is set to gait1, 1 -> gait 2, and values in between
+    correspond to interpolated gaits.
+  */
+  virtual bool setToInterpolated(const GaitPatternBase& gaitPattern1, const GaitPatternBase& gaitPattern2, double t);
 
+protected:
+  std::string name_;
 };
 
 } // namespace loco

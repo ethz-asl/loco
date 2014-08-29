@@ -56,7 +56,7 @@ class LegStarlETH : public loco::LegBase {
   virtual bool advance(double dt);
 
   virtual LegPropertiesBase& getProperties();
-
+  virtual const LegPropertiesBase& getProperties() const;
 
   //! Index of the leg (only for debugging)
   virtual int getId() const;

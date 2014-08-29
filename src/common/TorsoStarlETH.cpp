@@ -105,6 +105,7 @@ bool TorsoStarlETH::advance(double dt)
 
 
 std::ostream& operator << (std::ostream& out, const TorsoStarlETH& torso) {
+  out << "Orientation base to world (z-y-x): " << EulerAnglesZyx(torso.getDesiredState().getWorldToBaseOrientationInWorldFrame()).getUnique() << std::endl;
   out << "Desired speed: " << torso.getDesiredState().getBaseTwistInBaseFrame();
   return out;
 }

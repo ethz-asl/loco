@@ -20,7 +20,7 @@ namespace loco {
 
 //! Base class for foot placement algorithms
 /*! Derive this class to implement different control algorithms
- * @ingroup robotTask
+ * @ingroup loco
  */
 class FootPlacementStrategyBase {
 public:
@@ -37,6 +37,16 @@ public:
   virtual bool initialize(double dt) = 0;
 
 	virtual void advance(double dt) = 0;
+
+  /*! Computes an interpolated version of the two controllers passed in as parameters.
+   *  If t is 0, the current setting is set to footPlacementStrategy1, 1 -> footPlacementStrategy2, and values in between
+   *  correspond to interpolated parameter set.
+   * @param footPlacementStrategy1
+   * @param footPlacementStrategy2
+   * @param t interpolation parameter
+   * @returns true if successful
+   */
+	virtual bool setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t);
 };
 
 } // namespace loco

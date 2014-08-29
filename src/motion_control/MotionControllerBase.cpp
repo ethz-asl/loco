@@ -32,4 +32,8 @@ bool MotionControllerBase::checkIfParametersLoaded() const
   return false;
 }
 
+bool MotionControllerBase::setToInterpolated(const MotionControllerBase& motionController1, const MotionControllerBase& motionController2, double t) {
+  return true;
+}
+
 } /* namespace loco */

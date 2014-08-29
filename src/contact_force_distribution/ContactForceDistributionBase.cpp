@@ -42,4 +42,8 @@ bool ContactForceDistributionBase::checkIfForceDistributionComputed() const
   return false;
 }
 
+bool ContactForceDistributionBase::setToInterpolated(const ContactForceDistributionBase& contactForceDistribution1, const ContactForceDistributionBase& contactForceDistribution2, double t) {
+  return false;
+}
+
 } /* namespace loco */

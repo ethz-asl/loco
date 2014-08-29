@@ -21,4 +21,9 @@ FootPlacementStrategyBase::~FootPlacementStrategyBase()
 
 }
 
+bool FootPlacementStrategyBase::setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t) {
+  return false;
+}
+
+
 } // namespace loco
