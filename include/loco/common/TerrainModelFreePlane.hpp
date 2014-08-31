@@ -39,7 +39,7 @@ namespace loco {
       virtual bool getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const;
 
       // Set plane properties
-      void setNormalAndPosition(loco::Vector normal, loco::Position position);
+      void setNormalAndConstantTerm(loco::Vector normal, double constantTerm);
 
       /* getheightatposition */
       /* getnormal */
@@ -52,6 +52,7 @@ namespace loco {
       // Plane properties
       loco::Vector normalInWorldFrame_;
       loco::Position normalPositionInWorldFrame_;
+      double planeEquationConstantTerm_;
 
   }; // class
 

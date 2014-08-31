@@ -10,11 +10,13 @@
 namespace loco {
 
 
-  TerrainPerceptionFreePlane::TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torsoStarleth):
+  TerrainPerceptionFreePlane::TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torso, loco::EstimatePlaneInFrame estimatePlaneInFrame):
     TerrainPerceptionBase(),
     terrainModel_(terrainModel),
     legs_(legs),
-    torsoStarleth_(torsoStarleth)
+    torso_(torso),
+    estimatePlaneInFrame_(estimatePlaneInFrame),
+    numberOfLegs_(4)
   {
 
   } // constructor
@@ -30,10 +32,19 @@ namespace loco {
 
     // initialize foot positions
     for (auto leg: *legs_) {
-      //lastFootPositionsInBaseFrame[legID] = leg->getBaseToFootPositionInBaseFrame();
-      lastFootPositionsInBaseFrame[legID] = leg->getWorldToFootPositionInWorldFrame();
+
+      switch (estimatePlaneInFrame_) {
+        case(EstimatePlaneInFrame::World): {
+          mostRecentPositionOfFoot_[legID] = leg->getWorldToFootPositionInWorldFrame();
+        } break;
+
+        case(EstimatePlaneInFrame::Base): {
+          mostRecentPositionOfFoot_[legID] = leg->getBaseToFootPositionInBaseFrame();
+        } break;
+      } //switch
+
       legID++;
-    }
+    } // for
 
     return true;
 
@@ -49,15 +60,25 @@ namespace loco {
 
     for (auto leg: *legs_) {
       if ( leg->getStateTouchDown()->isNow() ) {
-        //lastFootPositionsInBaseFrame[legID] = leg->getBaseToFootPositionInBaseFrame();
-        lastFootPositionsInBaseFrame[legID] = leg->getWorldToFootPositionInWorldFrame();
+
         gotNewTouchDown = true;
+
+        switch (estimatePlaneInFrame_) {
+          case(EstimatePlaneInFrame::World): {
+            mostRecentPositionOfFoot_[legID] = leg->getWorldToFootPositionInWorldFrame();
+          } break;
+
+          case(EstimatePlaneInFrame::Base): {
+            mostRecentPositionOfFoot_[legID] = leg->getBaseToFootPositionInBaseFrame();
+          } break;
+        } //switch
+
       }
       legID++;
     }
 
     if (gotNewTouchDown) {
-      estimatePlane();
+      updatePlaneEstimation();
     }
 
     return true;
@@ -65,66 +86,44 @@ namespace loco {
   } // advance
 
 
-  void TerrainPerceptionFreePlane::estimatePlane() {
-    // estimate the plane which best fits the most recent contact points of each foot in base frame
-    // using least squares (pseudo inversion of the regressor matrix H)
-    //
-    // parameters       -> [a b d]^T
-    // plane equation   -> z = d-ax-by
-    // normal to plane  -> n = [a b 1]^T
+  void TerrainPerceptionFreePlane::updatePlaneEstimation() {
+    /* estimate the plane which best fits the most recent contact points of each foot in world frame
+     * using least squares (pseudo inversion of the regressor matrix H)
+     *
+     * parameters       -> [a b d]^T
+     * plane equation   -> z = d-ax-by
+     * normal to plane  -> n = [a b 1]^T
+     *
+     * */
 
-    Eigen::Matrix<double,4,3> H;
-    Eigen::Vector4d y, pi;
+    Eigen::Matrix<double,4,3> linearRegressor;
+    Eigen::Vector4d measuredFootHeights, parameters;
     loco::Vector normal;
-    loco::Position position;
-    double a, b, d;
 
-    H.setZero();
-    y.setZero();
-    pi.setZero();
+    linearRegressor.setZero();
+    measuredFootHeights.setZero();
+    parameters.setZero();
     normal.setZero();
-    position.setZero();
-    a = 0;
-    b = 0;
-    d = 0;
 
-    //H.block<3,1>(0,0) = lastFootPositionsInBaseFrame[0];
+    linearRegressor << -mostRecentPositionOfFoot_[0].x(), -mostRecentPositionOfFoot_[0].y(), 1,
+                       -mostRecentPositionOfFoot_[1].x(), -mostRecentPositionOfFoot_[1].y(), 1,
+                       -mostRecentPositionOfFoot_[2].x(), -mostRecentPositionOfFoot_[2].y(), 1,
+                       -mostRecentPositionOfFoot_[3].x(), -mostRecentPositionOfFoot_[3].y(), 1;
+    measuredFootHeights << mostRecentPositionOfFoot_[0].z(),
+                           mostRecentPositionOfFoot_[1].z(),
+                           mostRecentPositionOfFoot_[2].z(),
+                           mostRecentPositionOfFoot_[3].z();
 
-    H << lastFootPositionsInBaseFrame[0].x(), lastFootPositionsInBaseFrame[0].y(), 1,
-         lastFootPositionsInBaseFrame[1].x(), lastFootPositionsInBaseFrame[1].y(), 1,
-         lastFootPositionsInBaseFrame[2].x(), lastFootPositionsInBaseFrame[2].y(), 1,
-         lastFootPositionsInBaseFrame[3].x(), lastFootPositionsInBaseFrame[3].y(), 1;
-    y << lastFootPositionsInBaseFrame[0].z(),
-         lastFootPositionsInBaseFrame[1].z(),
-         lastFootPositionsInBaseFrame[2].z(),
-         lastFootPositionsInBaseFrame[3].z();
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd(linearRegressor, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    parameters = svd.solve(measuredFootHeights);
 
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(H, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    pi = svd.solve(y);
+    normal << parameters(0), parameters(1), 1.0;
+    normal.normalize(); /* from the assumption that the normal has always unit z-component,
+                         * its norm will always be greater than zero
+                         */
 
-    normal << -pi(0), -pi(1), 1.0;
-    normal.normalize();
+    terrainModel_->setNormalAndConstantTerm(normal, (double)parameters(2));
 
-    position << pi(2)/normal.norm() *normal(0),
-                pi(2)/normal.norm() *normal(1),
-                pi(2)/normal.norm() *normal(2);
-
-    RotationQuaternion worldToBaseRotationInWorldFrame;
-    worldToBaseRotationInWorldFrame = torsoStarleth_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-
-    //normal = worldToBaseRotationInWorldFrame.inverseRotate(normal);
-    //position = worldToBaseRotationInWorldFrame.inverseRotate(position);
-
-    /*
-    RotationQuaternion rot;
-    normal = rot.inverseRotate(normal);
-    RotationMatrix mat(rot);
-    mat.matrix()
-    */
-
-    // update the terrain model
-    terrainModel_->setNormalAndPosition(normal, position);
-
-  } // estimate plane
+  } // update plane estimation
 
 } /* namespace loco */

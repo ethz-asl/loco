@@ -9,12 +9,12 @@
 
 namespace loco {
 
-
   TerrainModelFreePlane::TerrainModelFreePlane() :
       TerrainModelBase(),
       normalPositionInWorldFrame_(loco::Vector::Zero()),
       normalInWorldFrame_(loco::Vector::UnitZ()),
-      frictionCoefficientBetweenTerrainAndFoot_(0.8)
+      frictionCoefficientBetweenTerrainAndFoot_(0.8),
+      planeEquationConstantTerm_(0.0)
   {
 
   } // constructor
@@ -30,14 +30,15 @@ namespace loco {
     normalInWorldFrame_ = loco::Vector::UnitZ();
     normalPositionInWorldFrame_.setZero();
     frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
+    planeEquationConstantTerm_ = 0.0;
     return true;
   } // initialize
 
 
-  void TerrainModelFreePlane::setNormalAndPosition(loco::Vector normal, loco::Position position) {
-    normalPositionInWorldFrame_ = position;
+  void TerrainModelFreePlane::setNormalAndConstantTerm(loco::Vector normal, double constantTerm) {
     normalInWorldFrame_ = normal;
-  } // set normal and position
+    planeEquationConstantTerm_ = constantTerm;
+  } // set normal and constant term
 
 
   bool TerrainModelFreePlane::getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const {
@@ -47,32 +48,27 @@ namespace loco {
 
 
   bool TerrainModelFreePlane::getHeight(loco::Position& positionWorldToLocationInWorldFrame) const {
-    double d = normalInWorldFrame_.dot(normalPositionInWorldFrame_);
-    positionWorldToLocationInWorldFrame.z() = d - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
-                                                - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
+    positionWorldToLocationInWorldFrame.z() = planeEquationConstantTerm_
+                                              - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
+                                              - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
     return true;
-  }
+  } // get height (position)
 
 
   bool TerrainModelFreePlane::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
-    double d = normalInWorldFrame_.dot(normalPositionInWorldFrame_);
-    heightInWorldFrame = d - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
-                           - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
+    heightInWorldFrame = planeEquationConstantTerm_
+                         - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
+                         - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
     return true;
-  }
+  } // get height (position, &height)
 
 
   bool TerrainModelFreePlane::getAttitude(double &alpha, double &beta) {
-    double x = normalInWorldFrame_.x();
-    double y = normalInWorldFrame_.y();
-    double z = normalInWorldFrame_.z();
-
-    alpha = atan2(z, x);
-    beta  = atan2(z, y);
-
-    //EulerAngle rot;
-    //rot.setFromVectors()
-
+    /*
+    loco::EulerAnglesZyx rot;
+    rot.setFromVectors(loco::Vector::UnitX(), normalInWorldFrame_);
+    rot.setFromVectors(loco::Vector::UnitZ(), normalInWorldFrame_);
+    */
     return true;
   } // get attitude
 

@@ -14,21 +14,25 @@
 #include "loco/common/TorsoStarlETH.hpp"
 
 namespace loco {
+
+  enum EstimatePlaneInFrame {World, Base};
+
   class TerrainPerceptionFreePlane: public TerrainPerceptionBase {
    public:
-    TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torsoStarleth);
+    TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torso, loco::EstimatePlaneInFrame estimateFrame = loco::EstimatePlaneInFrame::World);
     virtual ~TerrainPerceptionFreePlane();
-
     virtual bool initialize(double dt);
     virtual bool advance(double dt);
 
    protected:
      TerrainModelFreePlane* terrainModel_;
      LegGroup* legs_;
-     TorsoStarlETH* torsoStarleth_;
-     loco::Position lastFootPositionsInBaseFrame[4];
+     TorsoStarlETH* torso_;
+     loco::Position mostRecentPositionOfFoot_[4];
+     loco::EstimatePlaneInFrame estimatePlaneInFrame_;
+     int numberOfLegs_;
 
-     void estimatePlane();
+     void updatePlaneEstimation();
 
 
   }; // class
