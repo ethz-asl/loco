@@ -41,6 +41,12 @@ namespace loco {
   } // set normal and constant term
 
 
+  void TerrainModelFreePlane::setNormalandPosition(loco::Vector normal, loco::Position position) {
+    normalInWorldFrame_ = normal;
+    normalPositionInWorldFrame_ = position;
+  }
+
+
   bool TerrainModelFreePlane::getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const {
     normalInWorldFrame = normalInWorldFrame_;
     return true;
@@ -48,17 +54,26 @@ namespace loco {
 
 
   bool TerrainModelFreePlane::getHeight(loco::Position& positionWorldToLocationInWorldFrame) const {
+    /*
     positionWorldToLocationInWorldFrame.z() = planeEquationConstantTerm_
                                               - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
                                               - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
+                                              */
+    positionWorldToLocationInWorldFrame.z() = normalPositionInWorldFrame_.z()
+      + normalInWorldFrame_.x()*( normalPositionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
+      + normalInWorldFrame_.y()*( normalPositionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     return true;
   } // get height (position)
 
 
   bool TerrainModelFreePlane::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
-    heightInWorldFrame = planeEquationConstantTerm_
+    /*heightInWorldFrame = planeEquationConstantTerm_
                          - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
                          - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
+                         */
+    heightInWorldFrame = normalPositionInWorldFrame_.z()
+          + normalInWorldFrame_.x()*( normalPositionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
+          + normalInWorldFrame_.y()*( normalPositionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     return true;
   } // get height (position, &height)
 

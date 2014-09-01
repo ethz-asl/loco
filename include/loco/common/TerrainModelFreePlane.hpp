@@ -60,6 +60,8 @@ namespace loco {
        */
       void setNormalAndConstantTerm(loco::Vector normal, double constantTerm);
 
+      void setNormalandPosition(loco::Vector normal, loco::Position position);
+
    protected:
 
       double frictionCoefficientBetweenTerrainAndFoot_;

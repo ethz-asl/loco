@@ -50,6 +50,8 @@ namespace loco {
       legID++;
     } // for
 
+    updatePlaneEstimation();
+
     return true;
 
   } // initialize
@@ -63,7 +65,8 @@ namespace loco {
     bool gotNewTouchDown = false;
 
     for (auto leg: *legs_) {
-      if ( leg->getStateTouchDown()->isNow() ) {
+      //if ( leg->getStateTouchDown()->isNow() ) {
+      if ( leg->isGrounded()) {
 
         gotNewTouchDown = true;
 
@@ -77,7 +80,7 @@ namespace loco {
           } break;
         } //switch
 
-      }
+      } // if touchdown
       legID++;
     }
 
@@ -100,10 +103,12 @@ namespace loco {
      *
      * */
 
+    //Eigen::Matrix<double,4,3> linearRegressor;
     Eigen::MatrixXd linearRegressor(4,3);
     Eigen::Vector4d measuredFootHeights;
     Eigen::Vector3d parameters;
     loco::Vector normal;
+    loco::Position position;
 
     linearRegressor.setZero();
     measuredFootHeights.setZero();
@@ -123,32 +128,26 @@ namespace loco {
     parameters = linearRegressor*measuredFootHeights;
     normal << parameters(0), parameters(1), 1.0;
 
+    // find a point on the plane. From z = d-ax-by, it is easy to find p = [0 0 d]
+    position << 0.0, 0.0, parameters(2);
+
     /* from the assumption that the normal has always unit z-component,
      * its norm will always be greater than zero
      */
     normal = normal.normalize();
-    parameters(2) /= normal.norm();
 
-    /*
     if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
-      loco::Vector nearestPointToOrigin;
-      //nearestPointToOrigin = nearestPointToOrigin/normal.norm()*(double)parameters(2); // in base frame
-      double scale = parameters(2)/normal.norm();
-      nearestPointToOrigin = scale*normal;
-
       RotationQuaternion rot;
       rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-
-      normal = rot.rotate(normal);
-
-      nearestPointToOrigin = (loco::Vector)torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
-                             + (loco::Vector)rot.rotate(nearestPointToOrigin);
-
-      parameters(2) = normal.dot(nearestPointToOrigin)*normal.norm();
+      normal = rot.inverseRotate(normal);
+      rot.inverseRotate(position);
+      position = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
+          + (loco::Position)position;
     }
-    */
 
-    terrainModel_->setNormalAndConstantTerm(normal, (double)parameters(2));
+    terrainModel_->setNormalandPosition(normal, position);
+
+    //terrainModel_->setNormalAndConstantTerm(normal, (double)parameters(2));
 
   } // update plane estimation
 

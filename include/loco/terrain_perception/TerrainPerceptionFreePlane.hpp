@@ -19,7 +19,7 @@ namespace loco {
 
   class TerrainPerceptionFreePlane: public TerrainPerceptionBase {
    public:
-    TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torso, loco::EstimatePlaneInFrame estimateFrame = loco::EstimatePlaneInFrame::World);
+    TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torso, loco::EstimatePlaneInFrame estimateFrame = loco::EstimatePlaneInFrame::Base);
     virtual ~TerrainPerceptionFreePlane();
 
     /*! Initialize foot measurements.
