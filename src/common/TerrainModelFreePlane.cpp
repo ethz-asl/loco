@@ -35,6 +35,9 @@ namespace loco {
   void TerrainModelFreePlane::setNormalandPositionInWorldFrame(loco::Vector& normal, loco::Position& position) {
     normalInWorldFrame_ = normal;
     positionInWorldFrame_ = position;
+
+    std::cout << "normal and pos property: " << normalInWorldFrame_ << "\t" << positionInWorldFrame_ << std::endl;
+
   }
 
 
@@ -48,6 +51,9 @@ namespace loco {
     positionWorldToLocationInWorldFrame.z() = positionInWorldFrame_.z()
                                               + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
                                               + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
+
+    std::cout << "height in model: " << positionWorldToLocationInWorldFrame.z() << std::endl;
+    std::cout << "height world frame in model: " << positionInWorldFrame_.z() << std::endl;
     return true;
   } // get height (position)
 

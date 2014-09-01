@@ -154,6 +154,8 @@ namespace loco {
           + (loco::Position)position;
     }
 
+    std::cout << "normal: " << normal << " position: " << position << std::endl;
+
     terrainModel_->setNormalandPositionInWorldFrame(normal, position);
 
   } // update plane estimation
