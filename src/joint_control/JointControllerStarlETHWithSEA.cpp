@@ -310,17 +310,16 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
  */
 double JointControllerStarlETHWithSEA::lowPass(int index, double cutOff,
                                                double dt) {
-  double a0, b0;
 
-  a0 = dt / (1 / cutOff + dt);
-  b0 = (1 / cutOff) / (1 / cutOff + dt);
 
+  const double a0 = dt / (1.0 / cutOff + dt);
+  const double b0 = (1.0 / cutOff) / (1.0 / cutOff + dt);
   return desMotorVelocities_(index) * b0 + measuredMotorVelocities_(index) * a0;
 }
 
 /**
  * Calculates torque according to actuation model with springs.
- * Calculation is done by taking the spring deflections in position ands velocity and multiply them with spring stiffnesses and dampings.
+ * Calculation is done by taking the spring deflections in position and velocity and multiply them with spring stiffnesses and dampings.
  * @param
  */
 double JointControllerStarlETHWithSEA::calculateTorqueFromSprings(int index,
@@ -369,6 +368,7 @@ double JointControllerStarlETHWithSEA::trackMotorVelocity(int index,
     desMotorVelocities_(index) = jointMinVelocities_(index);
   }
 
+  // Integrate with Euler forward motor velocities to obtain motor positions.
   measuredMotorPositions_(index) += desMotorVelocities_(index) * dt;
 
   return desMotorVelocities_(index);
@@ -380,14 +380,16 @@ double JointControllerStarlETHWithSEA::trackMotorVelocity(int index,
  * @param dt: time step
  */
 double JointControllerStarlETHWithSEA::trackJointTorque(int index, double dt) {
-  double torqueToSet;
 
+  // Apply P-controller to track desired joint torque.
   desMotorVelocities_(index) = (desJointTorques_(index)
       - jointTorquesToSet_(index)) * pGains_(index);
 
+  // Compute motor dynamics.
   measuredMotorVelocities_(index) = trackMotorVelocity(index, dt);
 
-  torqueToSet = calculateTorqueFromSprings(index, dt);
+  // Get applied torque from spring dynamics.
+  const double torqueToSet = calculateTorqueFromSprings(index, dt);
 
   return torqueToSet;
 }
@@ -399,27 +401,32 @@ double JointControllerStarlETHWithSEA::trackJointTorque(int index, double dt) {
  */
 double JointControllerStarlETHWithSEA::trackJointPosition(int index,
                                                           double dt) {
-  double torqueToSet;
 
+  // Apply a LQR-controller to track desired joint position.
   desMotorVelocities_(index) = (desJointPositions_(index)
       - measuredMotorPositions_(index)) * motorPositionGains_(index)
       + (desJointPositions_(index) - measuredJointPositions_(index))
           * jointPositionGains_(index)
       + (-measuredJointVelocities_(index)) * jointVelocityGains_(index);
 
+  // Compute motor dynamics.
   measuredMotorVelocities_(index) = trackMotorVelocity(index, dt);
 
-  torqueToSet = calculateTorqueFromSprings(index, dt);
+  // Get applied torque from spring dynamics.
+  const double torqueToSet = calculateTorqueFromSprings(index, dt);
 
   return torqueToSet;
 }
 
 bool JointControllerStarlETHWithSEA::advance(double dt) {
 
+  // Read desired joint control mode, positions,  elocities and torques from robot model.
   desJointPositions_ = JointPositions(robotModel_->act().getPos());
   desJointVelocities_ = JointVelocities(robotModel_->act().getVel());
   const robotModel::VectorActM desJointModes = robotModel_->act().getMode();
   const robotModel::VectorAct desJointTorques = robotModel_->act().getTau();
+
+
   const robotModel::VectorQj measJointPositions = robotModel_->q().getQj();
   const robotModel::VectorQj measJointVelocities = robotModel_->q().getdQj();
 
