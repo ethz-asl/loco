@@ -19,6 +19,10 @@ namespace loco {
     numberOfLegs_(4)
   {
 
+    for (int k=0; k<numberOfLegs_; k++) {
+      mostRecentPositionOfFoot_[k].setZero();
+    }
+
   } // constructor
 
 
@@ -96,8 +100,9 @@ namespace loco {
      *
      * */
 
-    Eigen::Matrix<double,4,3> linearRegressor;
-    Eigen::Vector4d measuredFootHeights, parameters;
+    Eigen::MatrixXd linearRegressor(4,3);
+    Eigen::Vector4d measuredFootHeights;
+    Eigen::Vector3d parameters;
     loco::Vector normal;
 
     linearRegressor.setZero();
@@ -114,28 +119,32 @@ namespace loco {
                            mostRecentPositionOfFoot_[2].z(),
                            mostRecentPositionOfFoot_[3].z();
 
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(linearRegressor, Eigen::ComputeThinU | Eigen::ComputeThinV);
-    parameters = svd.solve(measuredFootHeights);
-
+    kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
+    parameters = linearRegressor*measuredFootHeights;
     normal << parameters(0), parameters(1), 1.0;
-    normal.normalize(); /* from the assumption that the normal has always unit z-component,
-                         * its norm will always be greater than zero
-                         */
+
+    /* from the assumption that the normal has always unit z-component,
+     * its norm will always be greater than zero
+     */
+    normal = normal.normalize();
+    parameters(2) /= normal.norm();
 
     /*
     if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
-      loco::Position nearestPointToOrigin(normal);
-      nearestPointToOrigin = nearestPointToOrigin/normal.norm()*(double)parameters(2); // in base frame
+      loco::Vector nearestPointToOrigin;
+      //nearestPointToOrigin = nearestPointToOrigin/normal.norm()*(double)parameters(2); // in base frame
+      double scale = parameters(2)/normal.norm();
+      nearestPointToOrigin = scale*normal;
 
       RotationQuaternion rot;
       rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
 
-      normal = rot.inverseRotate(normal);
+      normal = rot.rotate(normal);
 
-      nearestPointToOrigin = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
-                             + rot.inverseRotate(nearestPointToOrigin);
+      nearestPointToOrigin = (loco::Vector)torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
+                             + (loco::Vector)rot.rotate(nearestPointToOrigin);
 
-      parameters(2) = normal.dot(nearestPointToOrigin);
+      parameters(2) = normal.dot(nearestPointToOrigin)*normal.norm();
     }
     */
 
