@@ -5,8 +5,8 @@
  *      Author: C. Dario Bellicoso
  */
 
-#ifndef TERRAINPERCEPTIONFREEPLANE_HPP_
-#define TERRAINPERCEPTIONFREEPLANE_HPP_
+#ifndef LOCO_TERRAINPERCEPTIONFREEPLANE_HPP_
+#define LOCO_TERRAINPERCEPTIONFREEPLANE_HPP_
 
 #include "loco/terrain_perception/TerrainPerceptionBase.hpp"
 #include "loco/common/TerrainModelFreePlane.hpp"
@@ -15,19 +15,24 @@
 
 namespace loco {
 
-  enum EstimatePlaneInFrame {World, Base};
-
   class TerrainPerceptionFreePlane: public TerrainPerceptionBase {
+
    public:
-    TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torso, loco::EstimatePlaneInFrame estimateFrame = loco::EstimatePlaneInFrame::Base);
+    enum EstimatePlaneInFrame {World, Base};
+
+    TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel,
+                               LegGroup* legs,
+                               TorsoStarlETH* torso,
+                               TerrainPerceptionFreePlane::EstimatePlaneInFrame estimateFrame = TerrainPerceptionFreePlane::EstimatePlaneInFrame::World);
     virtual ~TerrainPerceptionFreePlane();
 
-    /*! Initialize foot measurements.
+    /*! Initialize saved foot measurements.
      * @param dt  time step [s]
      */
     virtual bool initialize(double dt);
 
-    /*! Advance in time.
+    /*! Advance in time. Update saved foot measurements with the latest foot positions
+     * if foots are grounded.
      * @param dt  time step [s]
      */
     virtual bool advance(double dt);
@@ -36,17 +41,16 @@ namespace loco {
      TerrainModelFreePlane* terrainModel_;
      LegGroup* legs_;
      TorsoStarlETH* torso_;
-     loco::Position mostRecentPositionOfFoot_[4];
-     loco::EstimatePlaneInFrame estimatePlaneInFrame_;
+     std::vector<loco::Position> mostRecentPositionOfFoot_;
+     TerrainPerceptionFreePlane::EstimatePlaneInFrame estimatePlaneInFrame_;
      int numberOfLegs_;
 
      /*! Estimate the free plane parameters and update the terrain model.
       */
      void updatePlaneEstimation();
 
-
   }; // class
 } /* namespace loco */
 
 
-#endif /* TERRAINPERCEPTIONFREEPLANE_HPP_ */
+#endif /* LOCO_TERRAINPERCEPTIONFREEPLANE_HPP_ */

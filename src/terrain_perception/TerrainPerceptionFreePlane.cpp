@@ -10,13 +10,17 @@
 namespace loco {
 
 
-  TerrainPerceptionFreePlane::TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torso, loco::EstimatePlaneInFrame estimatePlaneInFrame):
+  TerrainPerceptionFreePlane::TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel,
+                                                         LegGroup* legs,
+                                                         TorsoStarlETH* torso,
+                                                         TerrainPerceptionFreePlane::EstimatePlaneInFrame estimatePlaneInFrame):
     TerrainPerceptionBase(),
     terrainModel_(terrainModel),
     legs_(legs),
     torso_(torso),
     estimatePlaneInFrame_(estimatePlaneInFrame),
-    numberOfLegs_(4)
+    numberOfLegs_(legs_->size()),
+    mostRecentPositionOfFoot_(legs_->size())
   {
 
     for (int k=0; k<numberOfLegs_; k++) {
@@ -45,6 +49,10 @@ namespace loco {
         case(EstimatePlaneInFrame::Base): {
           mostRecentPositionOfFoot_[legID] = leg->getBaseToFootPositionInBaseFrame();
         } break;
+
+        default: {
+          error: throw std::out_of_range("Index out of range ...");
+        }
       } //switch
 
       legID++;
@@ -58,9 +66,6 @@ namespace loco {
 
 
   bool TerrainPerceptionFreePlane::advance(double dt) {
-
-    // update each foot position in base frame if they are grounded and were in swing mode.
-    // the update will be done only on first contact of each stance phase.
     int legID = 0;
     bool gotNewTouchDown = false;
 
@@ -78,6 +83,10 @@ namespace loco {
           case(EstimatePlaneInFrame::Base): {
             mostRecentPositionOfFoot_[legID] = leg->getBaseToFootPositionInBaseFrame();
           } break;
+
+          default: {
+            error: throw std::out_of_range("Index out of range ...");
+          }
         } //switch
 
       } // if touchdown
@@ -126,7 +135,6 @@ namespace loco {
 
     kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
     parameters = linearRegressor*measuredFootHeights;
-    normal << parameters(0), parameters(1), 1.0;
 
     // find a point on the plane. From z = d-ax-by, it is easy to find p = [0 0 d]
     position << 0.0, 0.0, parameters(2);
@@ -134,6 +142,7 @@ namespace loco {
     /* from the assumption that the normal has always unit z-component,
      * its norm will always be greater than zero
      */
+    normal << parameters(0), parameters(1), 1.0;
     normal = normal.normalize();
 
     if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
@@ -145,9 +154,7 @@ namespace loco {
           + (loco::Position)position;
     }
 
-    terrainModel_->setNormalandPosition(normal, position);
-
-    //terrainModel_->setNormalAndConstantTerm(normal, (double)parameters(2));
+    terrainModel_->setNormalandPositionInWorldFrame(normal, position);
 
   } // update plane estimation
 

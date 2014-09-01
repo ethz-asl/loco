@@ -11,10 +11,9 @@ namespace loco {
 
   TerrainModelFreePlane::TerrainModelFreePlane() :
       TerrainModelBase(),
-      normalPositionInWorldFrame_(loco::Vector::Zero()),
+      positionInWorldFrame_(loco::Vector::Zero()),
       normalInWorldFrame_(loco::Vector::UnitZ()),
-      frictionCoefficientBetweenTerrainAndFoot_(0.8),
-      planeEquationConstantTerm_(0.0)
+      frictionCoefficientBetweenTerrainAndFoot_(0.8)
   {
 
   } // constructor
@@ -28,22 +27,14 @@ namespace loco {
   bool TerrainModelFreePlane::initialize(double dt) {
     // Initialize the plane as coincident with the ground
     normalInWorldFrame_ = loco::Vector::UnitZ();
-    normalPositionInWorldFrame_.setZero();
+    positionInWorldFrame_.setZero();
     frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
-    planeEquationConstantTerm_ = 0.0;
     return true;
   } // initialize
 
-
-  void TerrainModelFreePlane::setNormalAndConstantTerm(loco::Vector normal, double constantTerm) {
+  void TerrainModelFreePlane::setNormalandPositionInWorldFrame(loco::Vector& normal, loco::Position& position) {
     normalInWorldFrame_ = normal;
-    planeEquationConstantTerm_ = constantTerm;
-  } // set normal and constant term
-
-
-  void TerrainModelFreePlane::setNormalandPosition(loco::Vector normal, loco::Position position) {
-    normalInWorldFrame_ = normal;
-    normalPositionInWorldFrame_ = position;
+    positionInWorldFrame_ = position;
   }
 
 
@@ -54,38 +45,19 @@ namespace loco {
 
 
   bool TerrainModelFreePlane::getHeight(loco::Position& positionWorldToLocationInWorldFrame) const {
-    /*
-    positionWorldToLocationInWorldFrame.z() = planeEquationConstantTerm_
-                                              - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
-                                              - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
-                                              */
-    positionWorldToLocationInWorldFrame.z() = normalPositionInWorldFrame_.z()
-      + normalInWorldFrame_.x()*( normalPositionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
-      + normalInWorldFrame_.y()*( normalPositionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
+    positionWorldToLocationInWorldFrame.z() = positionInWorldFrame_.z()
+                                              + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
+                                              + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     return true;
   } // get height (position)
 
 
   bool TerrainModelFreePlane::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
-    /*heightInWorldFrame = planeEquationConstantTerm_
-                         - normalInWorldFrame_.x()*positionWorldToLocationInWorldFrame.x()
-                         - normalInWorldFrame_.y()*positionWorldToLocationInWorldFrame.y();
-                         */
-    heightInWorldFrame = normalPositionInWorldFrame_.z()
-          + normalInWorldFrame_.x()*( normalPositionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
-          + normalInWorldFrame_.y()*( normalPositionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
+    heightInWorldFrame = positionInWorldFrame_.z()
+                         + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
+                         + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     return true;
   } // get height (position, &height)
-
-
-/*
-  bool TerrainModelFreePlane::getAttitude(double &alpha, double &beta) {
-    loco::EulerAnglesZyx rot;
-    rot.setFromVectors(loco::Vector::UnitX(), normalInWorldFrame_);
-    rot.setFromVectors(loco::Vector::UnitZ(), normalInWorldFrame_);
-    return true;
-  } // get attitude
-*/
 
 
   bool TerrainModelFreePlane::getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const {

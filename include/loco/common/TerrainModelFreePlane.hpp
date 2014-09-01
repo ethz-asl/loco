@@ -5,8 +5,8 @@
  *      Author: C. Dario Bellicoso
  */
 
-#ifndef TERRAINMODELFREEPLANE_HPP_
-#define TERRAINMODELFREEPLANE_HPP_
+#ifndef LOCO_TERRAINMODELFREEPLANE_HPP_
+#define LOCO_TERRAINMODELFREEPLANE_HPP_
 
 #include "loco/common/TerrainModelBase.hpp"
 
@@ -15,7 +15,6 @@ namespace loco {
   class TerrainModelFreePlane: public TerrainModelBase {
 
    public:
-
       TerrainModelFreePlane();
       virtual ~TerrainModelFreePlane();
 
@@ -55,25 +54,21 @@ namespace loco {
       virtual bool getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const;
 
       /*! Set free plane parameters.
-       * @param normal Normal to plane in world frame
-       * @param constantTerm Constant term of (d) plane equation (z = d-ax-by)
+       * @param normal Normal vector to plane in world frame
+       * @param position Point on plane in world frame
        */
-      void setNormalAndConstantTerm(loco::Vector normal, double constantTerm);
-
-      void setNormalandPosition(loco::Vector normal, loco::Position position);
+      void setNormalandPositionInWorldFrame(loco::Vector& normal, loco::Position& position);
 
    protected:
-
       double frictionCoefficientBetweenTerrainAndFoot_;
 
       // Plane properties
       loco::Vector normalInWorldFrame_;
-      loco::Position normalPositionInWorldFrame_;
-      double planeEquationConstantTerm_;
+      loco::Position positionInWorldFrame_;
 
   }; // class
 
 } /* namespace loco */
 
 
-#endif /* TERRAINMODELFREEPLANE_HPP_ */
+#endif /* LOCO_TERRAINMODELFREEPLANE_HPP_ */
