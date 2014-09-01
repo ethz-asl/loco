@@ -63,14 +63,14 @@ namespace loco {
   } // get height (position, &height)
 
 
+/*
   bool TerrainModelFreePlane::getAttitude(double &alpha, double &beta) {
-    /*
     loco::EulerAnglesZyx rot;
     rot.setFromVectors(loco::Vector::UnitX(), normalInWorldFrame_);
     rot.setFromVectors(loco::Vector::UnitZ(), normalInWorldFrame_);
-    */
     return true;
   } // get attitude
+*/
 
 
   bool TerrainModelFreePlane::getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const {

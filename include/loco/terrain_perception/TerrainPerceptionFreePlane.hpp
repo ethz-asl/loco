@@ -21,7 +21,15 @@ namespace loco {
    public:
     TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel, LegGroup* legs, TorsoStarlETH* torso, loco::EstimatePlaneInFrame estimateFrame = loco::EstimatePlaneInFrame::World);
     virtual ~TerrainPerceptionFreePlane();
+
+    /*! Initialize foot measurements.
+     * @param dt  time step [s]
+     */
     virtual bool initialize(double dt);
+
+    /*! Advance in time.
+     * @param dt  time step [s]
+     */
     virtual bool advance(double dt);
 
    protected:
@@ -32,6 +40,8 @@ namespace loco {
      loco::EstimatePlaneInFrame estimatePlaneInFrame_;
      int numberOfLegs_;
 
+     /*! Estimate the free plane parameters and update the terrain model.
+      */
      void updatePlaneEstimation();
 
 

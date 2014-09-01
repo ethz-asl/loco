@@ -30,20 +30,35 @@ namespace loco {
        * @param[out] normalInWorldFrame the surface normal (in the world frame)
        * @return true if successful, false otherwise
        */
-      //virtual bool getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const = 0;
-      bool getAttitude(double &alpha, double &beta);
-
-      virtual bool getHeight(loco::Position& positionWorldToLocationInWorldFrame) const;
-      virtual bool getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const;
       virtual bool getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const;
+
+      /*! Gets the height of the terrain at the coordinate (positionWorldToLocationInWorldFrame(), positionWorldToLocationInWorldFrame())
+       * (in world frame) and sets the position.z() as the height (in world frame).
+       * @param[in/out] positionWorldToLocationInWorldFrame   position from origin of world frame to the requested location expressed in world frame
+       * @return true if successful, false otherwise
+       */
+      virtual bool getHeight(loco::Position& positionWorldToLocationInWorldFrame) const;
+
+      /*! Gets the height of the terrain at the coordinate (positionWorldToLocationInWorldFrame(), positionWorldToLocationInWorldFrame())
+       * (in world frame) and sets heightInWorldFrame as the height (in world frame).
+       * @param[in] positionWorldToLocationInWorldFrame   position from origin of world frame to the requested location expressed in world frame
+       * @param[out] heightInWorldFrame   height in world frame evaluated at position positionWorldToLocationInWorldFrame
+       * @return true if successful, false otherwise
+       */
+      virtual bool getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const;
+
+      /*! Return friction coefficient for a foot at a certain position.
+       * @param[in] positionWorldToLocationInWorldFrame position from origin of world frame to the requested location expressed in world frame
+       * @param[out] frictionCoefficient friction coefficient evaluated at the given position
+       * @return true if successful, false otherwise
+       */
       virtual bool getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const;
 
-      // Set plane properties
+      /*! Set free plane parameters.
+       * @param normal Normal to plane in world frame
+       * @param constantTerm Constant term of (d) plane equation (z = d-ax-by)
+       */
       void setNormalAndConstantTerm(loco::Vector normal, double constantTerm);
-
-      /* getheightatposition */
-      /* getnormal */
-      /* get rollpitch */
 
    protected:
 

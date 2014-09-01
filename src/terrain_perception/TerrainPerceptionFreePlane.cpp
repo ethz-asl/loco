@@ -122,6 +122,23 @@ namespace loco {
                          * its norm will always be greater than zero
                          */
 
+    /*
+    if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
+      loco::Position nearestPointToOrigin(normal);
+      nearestPointToOrigin = nearestPointToOrigin/normal.norm()*(double)parameters(2); // in base frame
+
+      RotationQuaternion rot;
+      rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+
+      normal = rot.inverseRotate(normal);
+
+      nearestPointToOrigin = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
+                             + rot.inverseRotate(nearestPointToOrigin);
+
+      parameters(2) = normal.dot(nearestPointToOrigin);
+    }
+    */
+
     terrainModel_->setNormalAndConstantTerm(normal, (double)parameters(2));
 
   } // update plane estimation
