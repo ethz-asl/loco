@@ -272,18 +272,15 @@ bool JointControllerStarlETHWithSEA::initialize(double dt) {
       (int) JointTypes::NUMBER_OF_JOINT_TYPES) {
 
     springStiffnesses_[JointTypes::HAA + i] = robotModel_->params()
-        .springStiffnesses_.haa;
+        .jointHAA_.springStiffness_;
     springStiffnesses_[JointTypes::HFE + i] = robotModel_->params()
-        .springStiffnesses_.hfe;
+        .jointHFE_.springStiffness_;
     springStiffnesses_[JointTypes::KFE + i] = robotModel_->params()
-        .springStiffnesses_.kfe;
+        .jointKFE_.springStiffness_;
 
-    springDampings_[JointTypes::HAA + i] = robotModel_->params().springDampings_
-        .haa;
-    springDampings_[JointTypes::HFE + i] = robotModel_->params().springDampings_
-        .hfe;
-    springDampings_[JointTypes::KFE + i] = robotModel_->params().springDampings_
-        .kfe;
+    springDampings_[JointTypes::HAA + i] = robotModel_->params().jointHAA_.springDamping_;
+    springDampings_[JointTypes::HFE + i] = robotModel_->params().jointHFE_.springDamping_;
+    springDampings_[JointTypes::KFE + i] = robotModel_->params().jointKFE_.springDamping_;
 
     // Set gains for position control
     motorPositionGains_[JointTypes::HAA + i] = 30.0;
