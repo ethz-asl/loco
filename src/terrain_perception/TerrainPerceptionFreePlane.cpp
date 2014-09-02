@@ -20,11 +20,15 @@ namespace loco {
     torso_(torso),
     estimatePlaneInFrame_(estimatePlaneInFrame),
     numberOfLegs_(legs_->size()),
-    mostRecentPositionOfFoot_(legs_->size())
+    mostRecentPositionOfFoot_(legs_->size()),
+    lastWorldToBasePositionInWorldFrameForFoot_(legs_->size()),
+    lastWorldToBaseOrientationForFoot_(4)
   {
 
     for (int k=0; k<numberOfLegs_; k++) {
       mostRecentPositionOfFoot_[k].setZero();
+      lastWorldToBasePositionInWorldFrameForFoot_[k] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+      lastWorldToBaseOrientationForFoot_[k] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
     }
 
   } // constructor
@@ -37,6 +41,8 @@ namespace loco {
 
   bool TerrainPerceptionFreePlane::initialize(double dt) {
     int legID = 0;
+    loco::Position footPosition;
+    footPosition.setZero();
 
     // initialize foot positions
     for (auto leg: *legs_) {
@@ -48,6 +54,8 @@ namespace loco {
 
         case(EstimatePlaneInFrame::Base): {
           mostRecentPositionOfFoot_[legID] = leg->getBaseToFootPositionInBaseFrame();
+          lastWorldToBasePositionInWorldFrameForFoot_[legID] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+          lastWorldToBaseOrientationForFoot_[legID] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
         } break;
 
         default: {
@@ -58,7 +66,7 @@ namespace loco {
       legID++;
     } // for
 
-    updatePlaneEstimation();
+    //updatePlaneEstimation();
 
     return true;
 
@@ -68,11 +76,12 @@ namespace loco {
   bool TerrainPerceptionFreePlane::advance(double dt) {
     int legID = 0;
     bool gotNewTouchDown = false;
+    loco::Position footPosition;
+    footPosition.setZero();
 
     for (auto leg: *legs_) {
-      //if ( leg->getStateTouchDown()->isNow() ) {
-      if ( leg->isGrounded()) {
 
+      if ( leg->isGrounded() ) {
         gotNewTouchDown = true;
 
         switch (estimatePlaneInFrame_) {
@@ -82,6 +91,8 @@ namespace loco {
 
           case(EstimatePlaneInFrame::Base): {
             mostRecentPositionOfFoot_[legID] = leg->getBaseToFootPositionInBaseFrame();
+            lastWorldToBasePositionInWorldFrameForFoot_[legID] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+            lastWorldToBaseOrientationForFoot_[legID] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
           } break;
 
           default: {
@@ -102,6 +113,32 @@ namespace loco {
   } // advance
 
 
+  void TerrainPerceptionFreePlane::rotatePassiveFromBaseToWorldFrame(loco::Position& position) {
+    RotationQuaternion rot;
+    rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+    position = rot.inverseRotate(position);
+  }
+
+
+  void TerrainPerceptionFreePlane::homogeneousTransformFromBaseToWorldFrame(loco::Position& position) {
+    RotationQuaternion rot;
+    loco::Position positionRotated;
+    rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+
+    positionRotated = rot.inverseRotate(position);
+    position = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
+              + positionRotated;
+  }
+
+
+  void TerrainPerceptionFreePlane::homogeneousTransformFromBaseToWorldFrame(loco::Position& position, int footID) {
+      loco::Position positionRotated;
+      positionRotated = lastWorldToBaseOrientationForFoot_[footID].inverseRotate(position);
+      position = lastWorldToBasePositionInWorldFrameForFoot_[footID]
+                 + positionRotated;
+  }
+
+
   void TerrainPerceptionFreePlane::updatePlaneEstimation() {
     /* estimate the plane which best fits the most recent contact points of each foot in world frame
      * using least squares (pseudo inversion of the regressor matrix H)
@@ -112,7 +149,6 @@ namespace loco {
      *
      * */
 
-    //Eigen::Matrix<double,4,3> linearRegressor;
     Eigen::MatrixXd linearRegressor(4,3);
     Eigen::Vector4d measuredFootHeights;
     Eigen::Vector3d parameters;
@@ -136,7 +172,9 @@ namespace loco {
     kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
     parameters = linearRegressor*measuredFootHeights;
 
-    // find a point on the plane. From z = d-ax-by, it is easy to find p = [0 0 d]
+    /* find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
+     * is on the plane
+     */
     position << 0.0, 0.0, parameters(2);
 
     /* from the assumption that the normal has always unit z-component,
@@ -146,18 +184,31 @@ namespace loco {
     normal = normal.normalize();
 
     if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
-      RotationQuaternion rot;
-      rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-      normal = rot.inverseRotate(normal);
-      rot.inverseRotate(position);
-      position = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
-          + (loco::Position)position;
+      rotatePassiveFromBaseToWorldFrame((loco::Position&)normal);
+      homogeneousTransformFromBaseToWorldFrame(position);
     }
-
-    std::cout << "normal: " << normal << " position: " << position << std::endl;
 
     terrainModel_->setNormalandPositionInWorldFrame(normal, position);
 
   } // update plane estimation
+
+
+  void TerrainPerceptionFreePlane::getMostRecentPositionOfFootInWorldFrame(loco::Position& footPositionInWorldFrame, int footID) {
+    if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
+      /*
+      loco::Position footPosition = mostRecentPositionOfFoot_[footID];
+      homogeneousTransformFromBaseToWorldFrame(footPosition);
+      footPositionInWorldFrame = footPosition;
+      */
+
+      loco::Position footPosition = mostRecentPositionOfFoot_[footID];
+      homogeneousTransformFromBaseToWorldFrame(footPosition, footID);
+      footPositionInWorldFrame = footPosition;
+    }
+    else {
+      footPositionInWorldFrame = mostRecentPositionOfFoot_[footID];
+    }
+  } // get foot position
+
 
 } /* namespace loco */
