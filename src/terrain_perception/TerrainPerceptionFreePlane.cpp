@@ -22,7 +22,7 @@ namespace loco {
     numberOfLegs_(legs_->size()),
     mostRecentPositionOfFoot_(legs_->size()),
     lastWorldToBasePositionInWorldFrameForFoot_(legs_->size()),
-    lastWorldToBaseOrientationForFoot_(4)
+    lastWorldToBaseOrientationForFoot_(legs_->size())
   {
 
     for (int k=0; k<numberOfLegs_; k++) {
