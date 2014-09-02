@@ -63,8 +63,8 @@ namespace loco {
       double frictionCoefficientBetweenTerrainAndFoot_;
 
       // Plane properties
-      loco::Vector normalInWorldFrame_;
-      loco::Position positionInWorldFrame_;
+      loco::Vector normalInWorldFrame_;       // normal to the plane
+      loco::Position positionInWorldFrame_;   // position of a point on the plane
 
   }; // class
 

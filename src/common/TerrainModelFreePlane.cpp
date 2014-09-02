@@ -32,13 +32,15 @@ namespace loco {
     return true;
   } // initialize
 
+
   void TerrainModelFreePlane::setNormalandPositionInWorldFrame(loco::Vector& normal, loco::Position& position) {
     normalInWorldFrame_ = normal;
     positionInWorldFrame_ = position;
-  }
+  } // set normal and posiition
 
 
   bool TerrainModelFreePlane::getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const {
+    // for a plane, the normal is constant (independent from the position at which it is evaluated)
     normalInWorldFrame = normalInWorldFrame_;
     return true;
   } // get normal
