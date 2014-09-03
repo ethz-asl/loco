@@ -53,8 +53,8 @@ namespace loco {
 
     for (auto leg: *legs_) {
 
-      if ( leg->isGrounded() ) {
-      //if ( leg->getStateTouchDown()->isNow() ) {
+      //if ( leg->isGrounded() ) {
+      if ( leg->getStateTouchDown()->isNow() ) {
         gotNewTouchDown = true;
 
         switch (estimatePlaneInFrame_) {
@@ -132,9 +132,10 @@ namespace loco {
     parameters.setZero();
     normal.setZero();
 
-    std::vector<loco::Position> mostRecenPositionOfFootInWorldFrame(legs_->size());
-
     if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
+
+      std::vector<loco::Position> mostRecenPositionOfFootInWorldFrame(legs_->size());
+
       for (int k=0; k<legs_->size(); k++) {
         mostRecenPositionOfFootInWorldFrame[k] = mostRecentPositionOfFoot_[k];
         homogeneousTransformFromBaseToWorldFrame(mostRecenPositionOfFootInWorldFrame[k],k);
@@ -164,19 +165,19 @@ namespace loco {
     /* Check if the measurements are linearly dependent */
     Eigen::FullPivLU<Eigen::MatrixXd> piv_regressor(linearRegressor);
     if (piv_regressor.rank() < parameters.size() ) {
-      std::cout << "*******WARNING: rank-deficient regressor*******" << std::endl;
+      std::cout << "*******WARNING: rank-deficient regressor. Skipping update.*******" << std::endl;
     }
     else {
       /* solve least squares problem */
       kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
       parameters = linearRegressor*measuredFootHeights;
 
-      /* find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
+      /* Find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
        * is on the plane
        */
       position << 0.0, 0.0, parameters(2);
 
-      /* from the assumption that the normal has always unit z-component,
+      /* From the assumption that the normal has always unit z-component,
        * its norm will always be greater than zero
        */
       normal << parameters(0), parameters(1), 1.0;
@@ -189,7 +190,7 @@ namespace loco {
       }
       */
 
-      /* update free plane */
+      /* Update free plane model */
       terrainModel_->setNormalandPositionInWorldFrame(normal, position);
 
     }
