@@ -121,7 +121,6 @@ namespace loco {
      * normal to plane  -> n = [a b 1]^T
      *
      * */
-
     Eigen::MatrixXd linearRegressor(4,3);
     Eigen::Vector4d measuredFootHeights;
     Eigen::Vector3d parameters;
@@ -133,14 +132,34 @@ namespace loco {
     parameters.setZero();
     normal.setZero();
 
-    linearRegressor << -mostRecentPositionOfFoot_[0].x(), -mostRecentPositionOfFoot_[0].y(), 1,
-                       -mostRecentPositionOfFoot_[1].x(), -mostRecentPositionOfFoot_[1].y(), 1,
-                       -mostRecentPositionOfFoot_[2].x(), -mostRecentPositionOfFoot_[2].y(), 1,
-                       -mostRecentPositionOfFoot_[3].x(), -mostRecentPositionOfFoot_[3].y(), 1;
-    measuredFootHeights << mostRecentPositionOfFoot_[0].z(),
-                           mostRecentPositionOfFoot_[1].z(),
-                           mostRecentPositionOfFoot_[2].z(),
-                           mostRecentPositionOfFoot_[3].z();
+    std::vector<loco::Position> mostRecenPositionOfFootInWorldFrame(legs_->size());
+
+    if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
+      for (int k=0; k<legs_->size(); k++) {
+        mostRecenPositionOfFootInWorldFrame[k] = mostRecentPositionOfFoot_[k];
+        homogeneousTransformFromBaseToWorldFrame(mostRecenPositionOfFootInWorldFrame[k],k);
+      }
+
+      linearRegressor << -mostRecenPositionOfFootInWorldFrame[0].x(), -mostRecenPositionOfFootInWorldFrame[0].y(), 1,
+                         -mostRecenPositionOfFootInWorldFrame[1].x(), -mostRecenPositionOfFootInWorldFrame[1].y(), 1,
+                         -mostRecenPositionOfFootInWorldFrame[2].x(), -mostRecenPositionOfFootInWorldFrame[2].y(), 1,
+                         -mostRecenPositionOfFootInWorldFrame[3].x(), -mostRecenPositionOfFootInWorldFrame[3].y(), 1;
+      measuredFootHeights << mostRecenPositionOfFootInWorldFrame[0].z(),
+                             mostRecenPositionOfFootInWorldFrame[1].z(),
+                             mostRecenPositionOfFootInWorldFrame[2].z(),
+                             mostRecenPositionOfFootInWorldFrame[3].z();
+
+    }
+    else {
+      linearRegressor << -mostRecentPositionOfFoot_[0].x(), -mostRecentPositionOfFoot_[0].y(), 1,
+                         -mostRecentPositionOfFoot_[1].x(), -mostRecentPositionOfFoot_[1].y(), 1,
+                         -mostRecentPositionOfFoot_[2].x(), -mostRecentPositionOfFoot_[2].y(), 1,
+                         -mostRecentPositionOfFoot_[3].x(), -mostRecentPositionOfFoot_[3].y(), 1;
+      measuredFootHeights << mostRecentPositionOfFoot_[0].z(),
+                             mostRecentPositionOfFoot_[1].z(),
+                             mostRecentPositionOfFoot_[2].z(),
+                             mostRecentPositionOfFoot_[3].z();
+    }
 
     /* Check if the measurements are linearly dependent */
     Eigen::FullPivLU<Eigen::MatrixXd> piv_regressor(linearRegressor);
@@ -148,8 +167,8 @@ namespace loco {
       std::cout << "*******WARNING: rank-deficient regressor*******" << std::endl;
     }
     else {
+      /* solve least squares problem */
       kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
-
       parameters = linearRegressor*measuredFootHeights;
 
       /* find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
@@ -163,10 +182,12 @@ namespace loco {
       normal << parameters(0), parameters(1), 1.0;
       normal = normal.normalize();
 
+      /*
       if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
         rotatePassiveFromBaseToWorldFrame((loco::Position&)normal);
         homogeneousTransformFromBaseToWorldFrame(position);
       }
+      */
 
       /* update free plane */
       terrainModel_->setNormalandPositionInWorldFrame(normal, position);
