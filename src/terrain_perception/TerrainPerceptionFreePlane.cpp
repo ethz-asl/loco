@@ -25,6 +25,12 @@ namespace loco {
     lastWorldToBaseOrientationForFoot_(legs_->size())
   {
 
+    for (int k=0; k<numberOfLegs_; k++) {
+      mostRecentPositionOfFoot_[k].setZero();
+      lastWorldToBasePositionInWorldFrameForFoot_[k] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+      lastWorldToBaseOrientationForFoot_[k] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+    }
+
   } // constructor
 
 
@@ -136,28 +142,37 @@ namespace loco {
                            mostRecentPositionOfFoot_[2].z(),
                            mostRecentPositionOfFoot_[3].z();
 
-    kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
-    parameters = linearRegressor*measuredFootHeights;
+    /* Check if the measurements are linearly dependent */
+    Eigen::FullPivLU<Eigen::MatrixXd> piv_regressor(linearRegressor);
+    if (piv_regressor.rank() < parameters.size() ) {
+      std::cout << "*******WARNING: rank-deficient regressor*******" << std::endl;
+    }
+    else {
+      kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
 
-    /* find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
-     * is on the plane
-     */
-    //position << 0.0, 0.0, parameters(2);
-    position << -parameters(0), -parameters(1), parameters(2);
+      parameters = linearRegressor*measuredFootHeights;
 
-    /* from the assumption that the normal has always unit z-component,
-     * its norm will always be greater than zero
-     */
-    normal << parameters(0), parameters(1), 1.0;
-    normal = normal.normalize();
+      /* find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
+       * is on the plane
+       */
+      position << 0.0, 0.0, parameters(2);
 
-    if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
-      rotatePassiveFromBaseToWorldFrame((loco::Position&)normal);
-      homogeneousTransformFromBaseToWorldFrame(position);
+      /* from the assumption that the normal has always unit z-component,
+       * its norm will always be greater than zero
+       */
+      normal << parameters(0), parameters(1), 1.0;
+      normal = normal.normalize();
+
+      if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
+        rotatePassiveFromBaseToWorldFrame((loco::Position&)normal);
+        homogeneousTransformFromBaseToWorldFrame(position);
+      }
+
+      /* update free plane */
+      terrainModel_->setNormalandPositionInWorldFrame(normal, position);
+
     }
 
-    /* update free plane */
-    terrainModel_->setNormalandPositionInWorldFrame(normal, position);
 
   } // update plane estimation
 
