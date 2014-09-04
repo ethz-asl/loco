@@ -121,7 +121,15 @@ public:
 
   virtual bool shouldBeLegGrounded(int iLeg) = 0;
 
-  virtual double getStridePhase() = 0;
+  /*! @returns stride (cycle) phase, which is between [0, 1].
+   */
+  virtual double getStridePhase() const = 0;
+
+  /*! Sets the stride (cycle phase), which is between [0, 1].
+   * @param stridePhase cycle phase
+   */
+  virtual void setStridePhase(double stridePhase) = 0;
+
 
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
 

@@ -122,9 +122,14 @@ bool loco::GaitPatternFlightPhases::shouldBeLegGrounded(int iLeg) {
 //  return (getStancePhaseForLeg(iLeg) !=0.0 || footFallPatterns[iLeg].liftOffPhase == footFallPatterns[iLeg].strikePhase); // added (Christian)
 }
 
-double loco::GaitPatternFlightPhases::getStridePhase() {
+double GaitPatternFlightPhases::getStridePhase() const {
   return cyclePhase_;
 }
+
+void GaitPatternFlightPhases::setStridePhase(double stridePhase) {
+  cyclePhase_ =  stridePhase;
+}
+
 
 bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
   double value, liftOff, touchDown;
