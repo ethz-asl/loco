@@ -30,7 +30,6 @@ endif()
 endif(BUILD_TEST)
 
 
-
 add_subdirectory(src/common)
 add_subdirectory(src/contact_force_distribution)
 add_subdirectory(src/motion_control)
@@ -45,8 +44,7 @@ add_subdirectory(src/tools)
 add_subdirectory(src/contact_detection)
 add_subdirectory(src/gait_switcher)
 add_subdirectory(src/locomotion_controller)
-
-
+add_subdirectory(src/event_detection)
 
 
 set(LOCO_INCL ${LOCO_INCL}
