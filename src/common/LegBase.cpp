@@ -153,11 +153,16 @@ void LegBase::setDesiredLoadFactor(double loadFactor)
 LegStateTouchDown* LegBase::getStateTouchDown()       { return &stateTouchDown_; }
 LegStateTouchDown* LegBase::getStateTouchDownEarly()  { return &stateTouchDownEarly_; }
 LegStateTouchDown* LegBase::getStateTouchDownLate()   { return &stateTouchDownLate_; }
-
+const LegStateTouchDown& LegBase::getStateTouchDown()       const { return stateTouchDown_; }
+const LegStateTouchDown& LegBase::getStateTouchDownEarly()  const { return stateTouchDownEarly_; }
+const LegStateTouchDown& LegBase::getStateTouchDownLate()   const { return stateTouchDownLate_; }
 
 LegStateLiftOff* LegBase::getStateLiftOff()       { return &stateLiftOff_; }
 LegStateLiftOff* LegBase::getStateLiftOffEarly()  { return &stateLiftOffEarly_; }
 LegStateLiftOff* LegBase::getStateLiftOffLate()   { return &stateLiftOffLate_; }
+const LegStateLiftOff& LegBase::getStateLiftOff()       const { return stateLiftOff_; }
+const LegStateLiftOff& LegBase::getStateLiftOffEarly()  const { return stateLiftOffEarly_; }
+const LegStateLiftOff& LegBase::getStateLiftOffLate()   const { return stateLiftOffLate_; }
 
 
 void LegBase::setDesiredJointPositions(const JointPositions& jointPositions)
@@ -230,6 +235,12 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
 
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;
+
+  out << "did touchdown: " << ( leg.getStateTouchDown().isNow() ? "yes" : "no" ) << std::endl;
+  out << "       early?: " << ( leg.getStateTouchDownEarly().isNow() ? "yes" : "no" ) << std::endl;
+  out << "        late?: " << ( leg.getStateTouchDownLate().isNow() ? "yes" : "no" ) << std::endl;
+
+  out << "did liftoff: " << ( leg.getStateLiftOff().isNow() ? "yes" : "no" ) << std::endl;
 
   return out;
 }
