@@ -153,6 +153,11 @@ void LegBase::setDesiredLoadFactor(double loadFactor)
 LegStateTouchDown* LegBase::getStateTouchDown() {
   return &stateTouchDown_;
 }
+
+const LegStateTouchDown& LegBase::getStateTouchDown() const {
+  return stateTouchDown_;
+}
+
 LegStateLiftOff* LegBase::getStateLiftOff() {
   return &stateLiftOff_;
 }
@@ -227,6 +232,8 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
 
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;
+
+  out << "did touchdown: " << (leg.getStateTouchDown().isNow() ? "yes" : "no") << std::endl;
 
   return out;
 }

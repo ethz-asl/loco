@@ -100,6 +100,7 @@ class LegBase {
 
 
   LegStateTouchDown* getStateTouchDown();
+  const LegStateTouchDown& getStateTouchDown() const;
   LegStateLiftOff* getStateLiftOff();
 
   virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;

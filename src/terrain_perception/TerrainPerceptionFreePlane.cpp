@@ -7,6 +7,9 @@
 
 #include "loco/terrain_perception/TerrainPerceptionFreePlane.hpp"
 
+/* convenience variable to turn debug on/off in this class */
+const bool TERRAINPERCEPTION_DEBUG = true;
+
 namespace loco {
 
 
@@ -57,8 +60,10 @@ namespace loco {
       //if ( leg->isGrounded() ) {
       if ( leg->getStateTouchDown()->isNow() ) {
 
-        std::cout << "updating on leg: " << legID << std::endl;
-        std::cout << "leg n.: " << legID << " state:\n" << *leg << std::endl;
+        if (TERRAINPERCEPTION_DEBUG) {
+          std::cout << "updating on leg: " << legID << std::endl;
+          std::cout << "leg n.: " << legID << " state:\n" << *leg << std::endl;
+        }
 
         gotNewTouchDown = true;
         gotFirstTouchDownOfFoot_[legID] = true;

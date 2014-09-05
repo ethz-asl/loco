@@ -163,9 +163,11 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
       leg->getStateLiftOff()->setIsNow(false);
     }
 
-    if (leg->wasInSwingMode() && leg->isInStanceMode()) {
+    //if (leg->wasInSwingMode() && leg->isInStanceMode()) {
+    if (leg->wasInSwingMode() && leg->isGrounded()) {
       // possible touch-down
       leg->getStateTouchDown()->setIsNow(true);
+      //leg->getStateTouchDownEarly()->setIsNow(true);
     } else {
       leg->getStateTouchDown()->setIsNow(false);
     }
