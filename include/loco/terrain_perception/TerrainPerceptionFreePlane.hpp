@@ -32,7 +32,7 @@ namespace loco {
     virtual bool initialize(double dt);
 
     /*! Advance in time. Update saved foot measurements with the latest foot positions
-     * if foots are grounded.
+     * if foots are grounded. Also check if a given foot was grounded at least once.
      * @param dt  time step [s]
      */
     virtual bool advance(double dt);
@@ -59,7 +59,6 @@ namespace loco {
      * @param[in] footID Integer ID of the foot
      */
     void getMostRecentPositionOfFootInWorldFrame(loco::Position& footPositionInWorldFrame, int footID);
-
 
    protected:
      TerrainModelFreePlane* terrainModel_;

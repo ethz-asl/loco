@@ -48,13 +48,18 @@ namespace loco {
 
 
   bool TerrainPerceptionFreePlane::advance(double dt) {
-    int legID = 0;
     bool gotNewTouchDown = false;
-    bool legsGroundedAtLeastOnce = true;
+    bool allLegsGroundedAtLeastOnce = true;
 
+    int legID = 0;
     for (auto leg: *legs_) {
 
+      //if ( leg->isGrounded() ) {
       if ( leg->getStateTouchDown()->isNow() ) {
+
+        std::cout << "updating on leg: " << legID << std::endl;
+        std::cout << "leg n.: " << legID << " state:\n" << *leg << std::endl;
+
         gotNewTouchDown = true;
         gotFirstTouchDownOfFoot_[legID] = true;
 
@@ -72,17 +77,15 @@ namespace loco {
           default: {
             error: throw std::out_of_range("Index out of range ...");
           }
-        } //switch
+        } // switch
 
       } // if touchdown
 
-      legsGroundedAtLeastOnce *= gotFirstTouchDownOfFoot_[legID];
+      allLegsGroundedAtLeastOnce *= gotFirstTouchDownOfFoot_[legID];
       legID++;
+    } // for
 
-    }
-
-    if (gotNewTouchDown && legsGroundedAtLeastOnce) {
-      std::cout << "***Estimating plane: legs grounded at least once" << std::endl;
+    if (gotNewTouchDown && allLegsGroundedAtLeastOnce) {
       updatePlaneEstimation();
     }
 
@@ -138,7 +141,6 @@ namespace loco {
     normal.setZero();
 
     if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
-
       std::vector<loco::Position> mostRecenPositionOfFootInWorldFrame(legs_->size());
 
       for (int k=0; k<legs_->size(); k++) {
@@ -154,7 +156,6 @@ namespace loco {
                              mostRecenPositionOfFootInWorldFrame[1].z(),
                              mostRecenPositionOfFootInWorldFrame[2].z(),
                              mostRecenPositionOfFootInWorldFrame[3].z();
-
     }
     else {
       linearRegressor << -mostRecentPositionOfFoot_[0].x(), -mostRecentPositionOfFoot_[0].y(), 1,
@@ -197,9 +198,7 @@ namespace loco {
 
       /* Update free plane model */
       terrainModel_->setNormalandPositionInWorldFrame(normal, position);
-
     }
-
 
   } // update plane estimation
 
