@@ -17,8 +17,8 @@ namespace loco {
     EventDetectorBase();
     virtual ~EventDetectorBase();
 
-    virtual bool initialize(double dt);
-    virtual bool advance(double dt, loco::LegGroup& legs);
+    virtual bool initialize(double dt) = 0;
+    virtual bool advance(double dt, loco::LegGroup& legs) = 0;
 
    protected:
   };

@@ -19,6 +19,8 @@
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
 
+#include "loco/event_detection/EventDetector.hpp"
+
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/ParameterSet.hpp"
@@ -84,6 +86,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   VirtualModelController* virtualModelController_;
   ContactForceDistributionBase* contactForceDistribution_;
   ParameterSet* parameterSet_;
+  EventDetectorBase* eventDetector_;
 };
 
 } /* namespace loco */
