@@ -150,12 +150,15 @@ void LegBase::setDesiredLoadFactor(double loadFactor)
 }
 
 
-LegStateTouchDown* LegBase::getStateTouchDown() {
-  return &stateTouchDown_;
-}
-LegStateLiftOff* LegBase::getStateLiftOff() {
-  return &stateLiftOff_;
-}
+LegStateTouchDown* LegBase::getStateTouchDown()       { return &stateTouchDown_; }
+LegStateTouchDown* LegBase::getStateTouchDownEarly()  { return &stateTouchDownEarly_; }
+LegStateTouchDown* LegBase::getStateTouchDownLate()   { return &stateTouchDownLate_; }
+
+
+LegStateLiftOff* LegBase::getStateLiftOff()       { return &stateLiftOff_; }
+LegStateLiftOff* LegBase::getStateLiftOffEarly()  { return &stateLiftOffEarly_; }
+LegStateLiftOff* LegBase::getStateLiftOffLate()   { return &stateLiftOffLate_; }
+
 
 void LegBase::setDesiredJointPositions(const JointPositions& jointPositions)
 {

@@ -97,10 +97,12 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
-
-
   LegStateTouchDown* getStateTouchDown();
+  LegStateTouchDown* getStateTouchDownEarly();
+  LegStateTouchDown* getStateTouchDownLate();
   LegStateLiftOff* getStateLiftOff();
+  LegStateLiftOff* getStateLiftOffEarly();
+  LegStateLiftOff* getStateLiftOffLate();
 
   virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;
   virtual const Position& getWorldToHipPositionInWorldFrame() const  = 0;
@@ -167,7 +169,12 @@ class LegBase {
   double loadFactor_;
 
   LegStateTouchDown stateTouchDown_;
+  LegStateTouchDown stateTouchDownEarly_;
+  LegStateTouchDown stateTouchDownLate_;
+
   LegStateLiftOff stateLiftOff_;
+  LegStateLiftOff stateLiftOffEarly_;
+  LegStateLiftOff stateLiftOffLate_;
 
   JointControlModes desiredJointControlModes_;
   JointPositions desiredJointPositions_;
