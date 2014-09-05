@@ -108,23 +108,14 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	//this is relative to the hip location, hence the divide by 2.0
 	double feedForwardStepLength = netCOMDisplacementPerStride / 2.0;
 
-//	Position rFootHoldOffset_CSw_feedforward = orientationWorldToBaseInWorldFrame.inverseRotate(Position(feedForwardStepLength, 0.0, 0.0));
   Position feedForwardPositionHipToFootHoldInWorldFrame = orientationWorldToHeading.inverseRotate(Position(feedForwardStepLength, 0.0, 0.0));
 
-//  std::cout << "footholdoffset CSw: " << rFootHoldOffset_CSw_default<< std::endl;
-//	std::cout << "feedforward: " << feedForwardPositionHipToFootHoldInWorldFrame << std::endl;
-//  std::cout <<  "pendulum: " << rFootHoldOffset_CSw_invertedPendulum << std::endl;
 
 	Position rFootHoldOffset_CSw_final = defaultPositionHipToFootHoldInWorldFrame + feedForwardPositionHipToFootHoldInWorldFrame + stepFeedbackScale_*invertedPendulumPositionHipToFootHoldInWorldFrame;
-//	Position rFootHoldOffset_CSw_final = rFootHoldOffset_CSw_feedforward + stepFeedbackScale_*rFootHoldOffset_CSw_invertedPendulum;
-//	std::cout << leg->getId() << ": footOffsetFinalCSw: " << rFootHoldOffset_CSw_final << std::endl;
 	rFootHoldOffset_CSw_final.z() = 0.0;
+
 	const Position positionHipToFootInWorldFrameAtLiftOff = leg->getStateLiftOff()->getFootPositionInWorldFrame()-leg->getStateLiftOff()->getHipPositionInWorldFrame();
 	Position rFootOffset_CSw = getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(std::min(swingPhase + tinyTimeStep, 1.0),  positionHipToFootInWorldFrameAtLiftOff, rFootHoldOffset_CSw_final, leg);
-//  std::cout << leg->getId() << ": footOffsetCurrentCSw: " << rFootHoldOffset_CSw_final << std::endl;
-//  Position rFoot_CSw = rRef_CSw + rFootHoldOffset_CSw_default + (Position(vRef_CSw)*tinyTimeStep + rFootOffset_CSw);
-
-//  std::cout << "interpolated: " << rFootOffset_CSw << std::endl;
 
   Position rFoot_CSw = rRef_CSw + (Position(vRef_CSw)*tinyTimeStep + rFootOffset_CSw);
   positionWorldToFootHoldInWorldFrame_[leg->getId()] = rRef_CSw + (Position(vRef_CSw)*tinyTimeStep + rFootHoldOffset_CSw_final);
@@ -132,7 +123,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
   positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()] =  rRef_CSw + Position(vRef_CSw)*tinyTimeStep + defaultPositionHipToFootHoldInWorldFrame;
   positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()].z() = getHeightOfTerrainInWorldFrame(positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()]);
-//std::cout << "foot pos: " << positionWorldToFootHoldInWorldFrame_[leg->getId()] << std::endl;
+
   // to avoid slippage, do not move the foot in the horizontal plane when the leg is still grounded
 	if (leg->isGrounded()) {
 	  rFoot_CSw = leg->getWorldToFootPositionInWorldFrame();
@@ -373,5 +364,8 @@ bool FootPlacementStrategyInvertedPendulum::interpolateHeightTrajectory(rbf::Bou
   return true;
 }
 
+const Position& FootPlacementStrategyInvertedPendulum::getPositionWorldToDesiredFootHoldInWorldFrame(LegBase* leg) const {
+  return positionWorldToFootHoldInWorldFrame_[leg->getId()];
+}
 
 } // namespace loco

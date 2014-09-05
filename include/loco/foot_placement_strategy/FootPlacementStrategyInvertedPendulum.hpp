@@ -61,6 +61,8 @@ public:
   */
   virtual bool setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t);
   const LegGroup& getLegs() const;
+
+  const Position& getPositionWorldToDesiredFootHoldInWorldFrame(LegBase* leg) const;
 public:
   //! Reference to the legs
   LegGroup* legs_;
