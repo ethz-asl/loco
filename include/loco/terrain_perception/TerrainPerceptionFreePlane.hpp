@@ -68,6 +68,7 @@ namespace loco {
      std::vector<loco::Position> mostRecentPositionOfFoot_;
      std::vector<loco::Position> lastWorldToBasePositionInWorldFrameForFoot_;
      std::vector<RotationQuaternion> lastWorldToBaseOrientationForFoot_;
+     std::vector<bool> gotFirstTouchDownOfFoot_;
      TerrainPerceptionFreePlane::EstimatePlaneInFrame estimatePlaneInFrame_;
      int numberOfLegs_;
 

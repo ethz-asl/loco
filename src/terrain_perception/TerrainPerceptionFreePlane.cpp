@@ -22,21 +22,21 @@ namespace loco {
     numberOfLegs_(legs_->size()),
     mostRecentPositionOfFoot_(legs_->size()),
     lastWorldToBasePositionInWorldFrameForFoot_(legs_->size()),
-    lastWorldToBaseOrientationForFoot_(legs_->size())
+    lastWorldToBaseOrientationForFoot_(legs_->size()),
+    gotFirstTouchDownOfFoot_(legs_->size())
   {
-
     for (int k=0; k<numberOfLegs_; k++) {
       mostRecentPositionOfFoot_[k].setZero();
       lastWorldToBasePositionInWorldFrameForFoot_[k] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
       lastWorldToBaseOrientationForFoot_[k] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+      gotFirstTouchDownOfFoot_[k] = false;
     }
-
   } // constructor
 
 
   TerrainPerceptionFreePlane::~TerrainPerceptionFreePlane() {
 
-  } // desctuctor
+  } // destructor
 
 
   bool TerrainPerceptionFreePlane::initialize(double dt) {
@@ -50,12 +50,13 @@ namespace loco {
   bool TerrainPerceptionFreePlane::advance(double dt) {
     int legID = 0;
     bool gotNewTouchDown = false;
+    bool legsGroundedAtLeastOnce = true;
 
     for (auto leg: *legs_) {
 
-      //if ( leg->isGrounded() ) {
       if ( leg->getStateTouchDown()->isNow() ) {
         gotNewTouchDown = true;
+        gotFirstTouchDownOfFoot_[legID] = true;
 
         switch (estimatePlaneInFrame_) {
           case(EstimatePlaneInFrame::World): {
@@ -74,10 +75,14 @@ namespace loco {
         } //switch
 
       } // if touchdown
+
+      legsGroundedAtLeastOnce *= gotFirstTouchDownOfFoot_[legID];
       legID++;
+
     }
 
-    if (gotNewTouchDown) {
+    if (gotNewTouchDown && legsGroundedAtLeastOnce) {
+      std::cout << "***Estimating plane: legs grounded at least once" << std::endl;
       updatePlaneEstimation();
     }
 
