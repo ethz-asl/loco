@@ -57,7 +57,9 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
   void drawHistoryOfFootPositions(loco::LegGroup* legs);
   void drawHistoryOfDesiredFootPositions(loco::LegGroup* legs);
   void drawHistoryOfBasePosition(loco::TorsoBase* torso);
-  void drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt = 0.1, double lineWidth = 0.5);
+  void drawTrajectoryCatMullRomPosition(TrajectoryPosition &trajectory, double dt = 0.1, double lineWidth = 0.5);
+  void drawTrajectoryLinearPosition(TrajectoryPosition &trajectory, double dt = 0.1, double lineWidth = 0.5);
+  void drawTrajectoryLinearPositionKnots(TrajectoryPosition &trajectory, double lineWidth = 0.5);
 
   virtual void drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrategyInvertedPendulum* strategy);
 
