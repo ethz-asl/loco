@@ -8,7 +8,7 @@
 
 #include "loco/event_detection/EventDetector.hpp"
 
-#define EVENT_DEBUG 1
+#define EVENT_DEBUG 0
 
 namespace loco {
 
