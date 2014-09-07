@@ -8,10 +8,13 @@
 
 #include "loco/event_detection/EventDetector.hpp"
 
+#define EVENT_DEBUG 1
+
 namespace loco {
 
-  EventDetector::EventDetector() {
-    std::cout << "*************constructing" << std::endl;
+  EventDetector::EventDetector(): toleratedDelay_(0.1)
+  {
+
   } // constructor
 
 
@@ -28,8 +31,12 @@ namespace loco {
   bool EventDetector::advance(double dt, loco::LegGroup& legs) {
     int iLeg = 0;
     for (auto leg : legs) {
-      const double swingPhase = leg->getSwingPhase();
+      const double swingPhase  = leg->getSwingPhase();
+      const double stancePhase = leg->getStancePhase();
+
+      #if EVENT_DEBUG
       std::cout << *leg << std::endl;
+      #endif
 
   //    if (leg->isInStanceMode() != leg->wasInStanceMode()) {
   //      std::cout << leg->getName() << " -----------------------------------------------------------------\n";
@@ -59,11 +66,33 @@ namespace loco {
       }
       */
 
-      if (leg->wasInSwingMode() && leg->isGrounded()) {
-        // possible touch-down
-        leg->getStateTouchDown()->setIsNow(true);
-        //leg->getStateTouchDownEarly()->setIsNow(true);
-        } else {
+      //if (leg->wasInSwingMode() && leg->isGrounded()) {
+      if ( !leg->wasGrounded() && leg->isGrounded() ) {
+        leg->getStateTouchDown()->setIsNow(false);
+
+        // A touchdown was detected, now check if it is earlier or later than expected
+        if ( leg->isInSwingMode() && (swingPhase < (1-toleratedDelay_)) ) {
+          #if EVENT_DEBUG
+          std::cout << "[eventDetector] EARLY touchdown on leg: " << iLeg << std::endl;
+          #endif
+          leg->getStateTouchDownEarly()->setIsNow(true);
+          leg->getStateTouchDownLate()->setIsNow(false);
+        }
+        else if ( leg->isInStanceMode() && (stancePhase > toleratedDelay_) ) {
+          #if EVENT_DEBUG
+          std::cout << "[eventDetector] LATE touchdown on leg: " << iLeg << std::endl;
+          #endif
+          leg->getStateTouchDownEarly()->setIsNow(false);
+          leg->getStateTouchDownLate()->setIsNow(true);
+        }
+        else {
+          #if EVENT_DEBUG
+          std::cout << "[eventDetector] TOLERATED touchdown on leg: " << iLeg << std::endl;
+          #endif
+        }
+
+      } // if touchdown
+      else {
         leg->getStateTouchDown()->setIsNow(false);
       }
 

@@ -22,6 +22,7 @@ namespace loco {
     virtual bool advance(double dt, loco::LegGroup& legs);
 
    protected:
+    double toleratedDelay_;
 
   };
 

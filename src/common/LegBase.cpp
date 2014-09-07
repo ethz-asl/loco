@@ -21,6 +21,7 @@ LegBase::LegBase() :
     isInSwingMode_(true),
     wasInSwingMode_(true),
     isGrounded_(false),
+    wasGrounded_(false),
     shouldBeGrounded_(false),
     loadFactor_(1.0)
 {
@@ -39,6 +40,7 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     isInSwingMode_(true),
     wasInSwingMode_(true),
     isGrounded_(false),
+    wasGrounded_(false),
     shouldBeGrounded_(false),
     loadFactor_(1.0)
 {
@@ -86,6 +88,11 @@ bool LegBase::wasInSwingMode() const {
 bool LegBase::isGrounded() const {
   return isGrounded_;
 }
+
+bool LegBase::wasGrounded() const {
+  return wasGrounded_;
+}
+
 bool LegBase::shouldBeGrounded() const {
   return shouldBeGrounded_;
 }
@@ -136,7 +143,11 @@ void LegBase::setWasInSwingMode(bool wasInSwingMode) {
 
 
 void LegBase::setIsGrounded(bool isGrounded) {
-  isGrounded_ = isGrounded;
+  isGrounded_ = isGrounded;     // update grounded state
+}
+
+void LegBase::setWasGrounded(bool wasGrounded) {
+  wasGrounded_ = wasGrounded;
 }
 
 void LegBase::setShouldBeGrounded(bool shouldBeGrounded) {
@@ -235,6 +246,7 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
 
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;
+  out << "was grounded: " << (leg.wasGrounded() ? "yes" : "no") << std::endl;
 
   out << "did touchdown: " << ( leg.getStateTouchDown().isNow() ? "yes" : "no" ) << std::endl;
   out << "       early?: " << ( leg.getStateTouchDownEarly().isNow() ? "yes" : "no" ) << std::endl;

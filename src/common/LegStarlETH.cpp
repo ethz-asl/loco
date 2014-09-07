@@ -101,6 +101,8 @@ bool LegStarlETH::advance(double dt)
 {
   properties_.advance(dt);
   
+  this->setWasGrounded(this->isGrounded());
+
   if (robotModel_->contacts().getCA()(iLeg_) == 1) {
     this->setIsGrounded(true);
   } else {

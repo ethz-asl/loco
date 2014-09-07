@@ -67,6 +67,7 @@ class LegBase {
   virtual bool wasInSwingMode() const;
 
   virtual bool isGrounded() const;
+  virtual bool wasGrounded() const;
   virtual bool shouldBeGrounded() const;
   virtual bool isAndShouldBeGrounded() const;
 
@@ -86,6 +87,7 @@ class LegBase {
   virtual void setWasInSwingMode(bool wasInSwingMode);
 
   virtual void setIsGrounded(bool isGrounded);
+  virtual void setWasGrounded(bool wasGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
 
   /*!
@@ -171,6 +173,7 @@ class LegBase {
   bool isInSwingMode_;
   bool wasInSwingMode_;
   bool isGrounded_;
+  bool wasGrounded_;
   bool shouldBeGrounded_;
 
   double loadFactor_;
