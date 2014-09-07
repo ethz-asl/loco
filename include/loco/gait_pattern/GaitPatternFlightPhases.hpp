@@ -110,6 +110,12 @@ class GaitPatternFlightPhases: public GaitPatternBase {
       correspond to interpolated gaits.
     */
     virtual bool setToInterpolated(const GaitPatternBase& gaitPattern1, const GaitPatternBase& gaitPattern2, double t);
+
+    void clear();
+
+    int getNumberOfLegs() const;
+
+    void addFootFallPattern(int legId, double liftOffPhase, double strikePhase);
  private:
     bool isInitialized_;
 
@@ -124,7 +130,7 @@ class GaitPatternFlightPhases: public GaitPatternBase {
     //! number of gait cycles since start
     unsigned long int numGaitCycles_;
 
-    std::vector<FootFallPattern> footFallPatterns_;
+    std::vector<FootFallPattern> stepPatterns_;
 
  protected:
     /*!
@@ -142,6 +148,9 @@ class GaitPatternFlightPhases: public GaitPatternBase {
       values in between) and -1 if the phase is not in the range.
     */
     double getRelativePhaseFromAbsolutePhaseInRange(double phase, double start, double end) const;
+
+
+    int getStepPatternIndexForLeg(int legId) const;
 };
 
 } /* namespace loco */
