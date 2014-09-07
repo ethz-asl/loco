@@ -18,8 +18,11 @@ namespace loco {
 
 class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
  public:
-  LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern);
+  LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern, bool isUpdatingStridePhase=true);
   virtual ~LimbCoordinatorDynamicGait();
+
+  void setIsUpdatingStridePhase(bool isUpdatingStridePhase);
+  bool isUpdatingStridePhase() const;
 
   virtual bool isLegGrounded(int iLeg);
   virtual bool shouldBeLegGrounded(int iLeg);
@@ -60,7 +63,12 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
    */
   virtual bool setToInterpolated(const LimbCoordinatorBase& limbCoordinator1, const LimbCoordinatorBase& limbCoordinator2, double t);
 
+  /*! Overrides stride phase from gait pattern.
+   * @param stridePhase cycle phase in [0, 1]
+   */
+  void setStridePhase(double stridePhase);
  private:
+  bool isUpdatingStridePhase_;
   LegGroup* legs_;
   TorsoBase* torso_;
   GaitPatternBase* gaitPattern_;

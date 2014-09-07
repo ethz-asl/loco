@@ -404,29 +404,98 @@ void VisualizerSC::drawGaitPatternFlightPhases(loco::GaitPatternFlightPhases* ga
   }
 }
 
-void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt, double lineWidth) {
+void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &trajectory, double dt, double lineWidth) {
 
 
-  if (c.getKnotCount() == 0)
+  const int knotCount = trajectory.getKnotCount();
+
+  if (knotCount == 0) {
     return;
+  }
+
   glLineWidth(lineWidth);
+   GLfloat prevLineWidth;
+   glGetFloatv(GL_LINE_WIDTH, &prevLineWidth);
 
   glBegin(GL_LINES);
-    double trajLength = c.getKnotPosition(c.getKnotCount()-1);
-    Position pt = c.evaluate_catmull_rom(0.0);
+    double trajLength = trajectory.getKnotPosition(trajectory.getKnotCount()-1);
+    Position pt = trajectory.evaluate_catmull_rom(0.0);
     for (double t=dt; t<trajLength-dt/2; t+=dt)
     {
-      Position nextPt = c.evaluate_catmull_rom(t);
+      Position nextPt = trajectory.evaluate_catmull_rom(t);
       glVertex3d(pt.x(), pt.y(), pt.z());
       glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
       pt = nextPt;
     }
-    Position nextPt = c.evaluate_catmull_rom(trajLength);
+    Position nextPt = trajectory.evaluate_catmull_rom(trajLength);
     glVertex3d(pt.x(), pt.y(), pt.z());
     glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
   glEnd();
 
-  glLineWidth(1);
+  glLineWidth(prevLineWidth);
+
+}
+
+
+
+void VisualizerSC::drawTrajectoryLinearPosition(TrajectoryPosition &trajectory, double dt, double lineWidth) {
+
+  const int knotCount = trajectory.getKnotCount();
+
+  if (knotCount == 0) {
+    return;
+  }
+
+  glLineWidth(lineWidth);
+  GLfloat prevLineWidth;
+  glGetFloatv(GL_LINE_WIDTH, &prevLineWidth);
+
+  glBegin(GL_LINES);
+    double trajLength = trajectory.getKnotPosition(knotCount-1);
+    Position pt = trajectory.evaluate_linear(0.0);
+    for (double t=dt; t<trajLength-dt/2; t+=dt)
+    {
+      Position nextPt = trajectory.evaluate_linear(t);
+      glVertex3d(pt.x(), pt.y(), pt.z());
+      glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+      pt = nextPt;
+    }
+    Position nextPt = trajectory.evaluate_linear(trajLength);
+    glVertex3d(pt.x(), pt.y(), pt.z());
+    glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+  glEnd();
+
+  glLineWidth(prevLineWidth);
+
+}
+
+void VisualizerSC::drawTrajectoryLinearPositionKnots(TrajectoryPosition &trajectory, double lineWidth) {
+
+  const int knotCount = trajectory.getKnotCount();
+
+  if (knotCount == 0) {
+    return;
+  }
+
+  glLineWidth(lineWidth);
+  GLfloat prevLineWidth;
+  glGetFloatv(GL_LINE_WIDTH, &prevLineWidth);
+
+  glBegin(GL_LINES);
+    Position pt = trajectory.getKnotValue(0);
+    for (int i=0; i<knotCount; i++)
+    {
+      Position nextPt = trajectory.getKnotValue(i);
+      glVertex3d(pt.x(), pt.y(), pt.z());
+      glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+      pt = nextPt;
+    }
+    Position nextPt = trajectory.getKnotValue(knotCount-1);
+    glVertex3d(pt.x(), pt.y(), pt.z());
+    glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+  glEnd();
+
+  glLineWidth(prevLineWidth);
 
 }
 

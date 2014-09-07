@@ -395,11 +395,15 @@ bool GaitPatternAPS::advance(double dt) {
 }
 
 bool GaitPatternAPS::shouldBeLegGrounded(int iLeg) {
-  GaitAPS::shouldBeGrounded(iLeg);
+  return GaitAPS::shouldBeGrounded(iLeg);
 }
 
-double GaitPatternAPS::getStridePhase() {
-  GaitAPS::getStridePhase();
+double GaitPatternAPS::getStridePhase() const {
+  return GaitAPS::getStridePhase();
+}
+
+void GaitPatternAPS::setStridePhase(double stridePhase) {
+  GaitAPS::setStridePhase(stridePhase);
 }
 
 bool GaitPatternAPS::isInitialized() {

@@ -91,7 +91,14 @@ public:
 
   virtual bool shouldBeLegGrounded(int iLeg);
 
-  virtual double getStridePhase();
+  /*! @returns stride (cycle) phase, which is between [0, 1].
+   */
+  virtual double getStridePhase() const;
+
+  /*! Sets the stride (cycle phase), which is between [0, 1].
+   * @param stridePhase cycle phase
+   */
+  virtual void setStridePhase(double stridePhase);
 
 
   /*! @returns the time left in stance in seconds.

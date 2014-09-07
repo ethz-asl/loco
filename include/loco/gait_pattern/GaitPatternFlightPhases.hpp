@@ -89,7 +89,14 @@ class GaitPatternFlightPhases: public GaitPatternBase {
 
     virtual bool shouldBeLegGrounded(int iLeg);
 
-    virtual double getStridePhase();
+    /*! @returns stride (cycle) phase, which is between [0, 1].
+     */
+    virtual double getStridePhase() const;
+
+    /*! Sets the stride (cycle phase), which is between [0, 1].
+     * @param stridePhase cycle phase
+     */
+    virtual void setStridePhase(double stridePhase);
 
     virtual bool loadParameters(const TiXmlHandle& handle);
 
