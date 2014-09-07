@@ -20,6 +20,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
                                                                  ParameterSet* parameterSet) :
     LocomotionControllerBase(),
     isInitialized_(false),
+    runtime_(0.0),
     legs_(legs),
     torso_(torso),
     terrainPerception_(terrainPerception),
@@ -111,7 +112,7 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
     return false;
   }
 
-
+  runtime_ = 0.0;
   isInitialized_ = true;
   return isInitialized_;
 }
@@ -192,6 +193,7 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
     iLeg++;
   }
 
+  runtime_ += dt;
   return true;
 }
 
@@ -239,6 +241,11 @@ TerrainPerceptionBase* LocomotionControllerDynamicGait::getTerrainPerception() {
 
 bool LocomotionControllerDynamicGait::isInitialized() const {
   return isInitialized_;
+}
+
+
+double LocomotionControllerDynamicGait::getRuntime() const {
+  return runtime_;
 }
 
 bool LocomotionControllerDynamicGait::setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t) {

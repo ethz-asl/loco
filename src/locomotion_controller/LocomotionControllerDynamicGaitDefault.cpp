@@ -195,4 +195,8 @@ const Twist& LocomotionControllerDynamicGaitDefault::getDesiredBaseTwistInHeadin
   return missionController_->getDesiredBaseTwistInHeadingFrame();
 }
 
+double LocomotionControllerDynamicGaitDefault::getRuntime() const {
+  return locomotionController_->getRuntime();
+}
+
 } /* namespace loco */
