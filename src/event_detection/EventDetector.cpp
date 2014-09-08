@@ -8,18 +8,15 @@
 
 #include "loco/event_detection/EventDetector.hpp"
 
-#define EVENT_DEBUG                         0
-#define DEFAULT_EVENT_DELAY_TOLERANCE       0.1
-#define MINIMUM_DISTANCE_FOR_SLIP_DETECTION 0.01  // m
-#define MINIMUM_SPEED_FOR_SLIP_DETECTION    0.01  // m/s
-#define TIME_DELAY_FOR_SLIP_DEBUG_PRINTOUT  0.5   // s
+#define EVENT_DEBUG   0
 
 namespace loco {
 
   EventDetector::EventDetector():
       EventDetectorBase(),
-      toleratedDelay_(DEFAULT_EVENT_DELAY_TOLERANCE),
-      timeSinceLastPrintout_(4)
+      toleratedDelay_(0.1),
+      minimumDistanceForSlipDetection_(0.01),
+      minimumSpeedForSlipDetection_(0.01)
   {
 
   } // constructor
@@ -31,10 +28,12 @@ namespace loco {
 
 
   bool EventDetector::initialize(double dt) {
+    toleratedDelay_ = 0.1;
+    minimumDistanceForSlipDetection_ = 0.01;
+    minimumSpeedForSlipDetection_ = 0.01;
     return true;
   } // initialize
 
-  int counter[4] = {0,0,0,0};
 
   bool EventDetector::advance(double dt, loco::LegGroup& legs) {
     int iLeg = 0;
@@ -42,10 +41,6 @@ namespace loco {
     for (auto leg : legs) {
       const double swingPhase  = leg->getSwingPhase();
       const double stancePhase = leg->getStancePhase();
-
-      #if EVENT_DEBUG
-      //std::cout << *leg << std::endl;
-      #endif
 
       /*********************
        * Liftoff detection *
@@ -132,31 +127,22 @@ namespace loco {
         loco::Position distanceFromTouchdown = leg->getWorldToFootPositionInWorldFrame()
                                                - leg->getStateTouchDown()->getFootPositionInWorldFrame();
 
-        if ( (distanceFromTouchdown.norm() > MINIMUM_DISTANCE_FOR_SLIP_DETECTION) ) {
+        if ( (distanceFromTouchdown.norm() > minimumDistanceForSlipDetection_) ) {
           leg->setIsSlipping(true);
 
           #if EVENT_DEBUG
-          if ( timeSinceLastPrintout_[iLeg] == 0.0 ) {
-            std::cout << "[eventDetector] leg "       << iLeg << " is slipping!" << std::endl;
-            std::cout << "speed: "                    << footVelocityInWorldFrame.norm() << std::endl;
-            std::cout << "distance from touchdown: "  << distanceFromTouchdown.norm() << std::endl;
-          }
-
-          timeSinceLastPrintout_[iLeg] += dt;
-
-          if ( (timeSinceLastPrintout_[iLeg] > TIME_DELAY_FOR_SLIP_DEBUG_PRINTOUT) ) {
-            timeSinceLastPrintout_[iLeg] = 0.0;
-          }
+          std::cout << "[eventDetector] leg "       << iLeg << " is slipping!" << std::endl;
+          std::cout << "speed: "                    << footVelocityInWorldFrame.norm() << std::endl;
+          std::cout << "distance from touchdown: "  << distanceFromTouchdown.norm() << std::endl;
           #endif
 
         } // if slipping
-        else {
-          /* Slipping state should be reset if the foot has not traveled for MINIMUM_DISTANCE_FOR_SLIP_DETECTION
-           * or if, after slipping for some time, its speed drops below MINIMUM_SPEED_FOR_SLIP_DETECTION
-           */
-          if ( (footVelocityInWorldFrame.norm() < MINIMUM_SPEED_FOR_SLIP_DETECTION) ) {
-            leg->setIsSlipping(false);
-          }
+
+        /* Slipping state should be reset if the foot has not traveled for MINIMUM_DISTANCE_FOR_SLIP_DETECTION
+         * or if, after slipping for some time, its speed drops below MINIMUM_SPEED_FOR_SLIP_DETECTION
+         */
+        if ( (footVelocityInWorldFrame.norm() < minimumSpeedForSlipDetection_) ) {
+          leg->setIsSlipping(false);
         }
       } // if grounded
       else {
@@ -170,20 +156,11 @@ namespace loco {
        * End slip detection *
        **********************/
 
-      if (leg->isSlipping()) {
-        counter[iLeg]++;
-        std::cout << "leg: " << iLeg << " isSlipping. counter: " << counter[iLeg] << std::endl;
-      }
-      else {
-        counter[iLeg] = 0;
-      }
-
       iLeg++;
     } // for auto leg
 
     return true;
 
   } // advance
-
 
 } /* namespace loco */

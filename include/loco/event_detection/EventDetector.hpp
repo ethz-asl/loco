@@ -23,8 +23,8 @@ namespace loco {
 
    protected:
     double toleratedDelay_;
-    std::vector<double> timeSinceLastPrintout_;
-
+    double minimumDistanceForSlipDetection_;
+    double minimumSpeedForSlipDetection_;
   };
 
 } /* namespace loco */
