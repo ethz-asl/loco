@@ -318,7 +318,7 @@ double GaitPatternFlightPhases::getTimeUntilNextStancePhase(int iLeg, double str
 
 double GaitPatternFlightPhases::getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const {
   double swingPhase = getSwingPhaseForLeg(iLeg, stridePhase);
-  printf("Swing phase: %lf\n", swingPhase);
+//  printf("Swing phase: %lf\n", swingPhase);
   //the limb is already in swing phase, so the time until the next swing phase starts is one whole stridePhase minus the amount of time it's already spent in swing mode
   if (swingPhase >= 0 && swingPhase <= 1)
     return strideDuration - getTimeSpentInSwing(iLeg, strideDuration, stridePhase);
