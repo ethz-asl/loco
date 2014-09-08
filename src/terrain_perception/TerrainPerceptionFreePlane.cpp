@@ -7,11 +7,12 @@
 
 #include "loco/terrain_perception/TerrainPerceptionFreePlane.hpp"
 
-/* convenience variable to turn debug on/off in this class */
-const bool TERRAINPERCEPTION_DEBUG = true;
+
+#define TERRAINPERCEPTION_DEBUG   0 /* change to 1 to print to std::cout the
+                                     * leg status during measurement
+                                     */
 
 namespace loco {
-
 
   TerrainPerceptionFreePlane::TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel,
                                                          LegGroup* legs,
@@ -57,13 +58,12 @@ namespace loco {
     int legID = 0;
     for (auto leg: *legs_) {
 
-      //if ( leg->isGrounded() ) {
       if ( leg->getStateTouchDown()->isNow() ) {
 
-        if (TERRAINPERCEPTION_DEBUG) {
-          std::cout << "updating on leg: " << legID << std::endl;
-          std::cout << "leg n.: " << legID << " state:\n" << *leg << std::endl;
-        }
+        #if TERRAINPERCEPTION_DEBUG
+        std::cout << "updating on leg: " << legID << std::endl;
+        std::cout << "leg n.: " << legID << " state:\n" << *leg << std::endl;
+        #endif
 
         gotNewTouchDown = true;
         gotFirstTouchDownOfFoot_[legID] = true;
@@ -90,9 +90,7 @@ namespace loco {
       legID++;
     } // for
 
-    if (gotNewTouchDown && allLegsGroundedAtLeastOnce) {
-      updatePlaneEstimation();
-    }
+    if (gotNewTouchDown && allLegsGroundedAtLeastOnce) { updatePlaneEstimation(); }
 
     return true;
 
