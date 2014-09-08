@@ -23,6 +23,7 @@ namespace loco {
 
    protected:
     double toleratedDelay_;
+    double timeSinceLastPrintout_;
 
   };
 
