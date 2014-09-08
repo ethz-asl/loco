@@ -70,6 +70,7 @@ class LegBase {
   virtual bool wasGrounded() const;
   virtual bool shouldBeGrounded() const;
   virtual bool isAndShouldBeGrounded() const;
+  virtual bool isSlipping() const;
 
   virtual double getDesiredLoadFactor() const;
 
@@ -89,6 +90,7 @@ class LegBase {
   virtual void setIsGrounded(bool isGrounded);
   virtual void setWasGrounded(bool wasGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
+  virtual void setIsSlipping(bool isSlipping);
 
   /*!
    * Change how much a leg should be loaded.
@@ -175,6 +177,7 @@ class LegBase {
   bool isGrounded_;
   bool wasGrounded_;
   bool shouldBeGrounded_;
+  bool isSlipping_;
 
   double loadFactor_;
 
