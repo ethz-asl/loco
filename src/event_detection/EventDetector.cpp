@@ -18,7 +18,7 @@ namespace loco {
   EventDetector::EventDetector():
       EventDetectorBase(),
       toleratedDelay_(DEFAULT_EVENT_DELAY_TOLERANCE),
-      timeSinceLastPrintout_(0.0)
+      timeSinceLastPrintout_(4)
   {
 
   } // constructor
@@ -133,25 +133,27 @@ namespace loco {
           leg->setIsSlipping(true);
 
           #if EVENT_DEBUG
-          if ( timeSinceLastPrintout_ == 0.0 ) {
+          if ( timeSinceLastPrintout_[iLeg] == 0.0 ) {
             std::cout << "[eventDetector] leg "       << iLeg << " is slipping!" << std::endl;
             std::cout << "speed: "                    << footVelocityInWorldFrame.norm() << std::endl;
             std::cout << "distance from touchdown: "  << distanceFromTouchdown.norm() << std::endl;
           }
 
-          timeSinceLastPrintout_ += dt;
+          timeSinceLastPrintout_[iLeg] += dt;
 
-          if ( (timeSinceLastPrintout_ > TIME_DELAY_FOR_SLIP_DEBUG_PRINTOUT) ) {
-            timeSinceLastPrintout_ = 0.0;
+          if ( (timeSinceLastPrintout_[iLeg] > TIME_DELAY_FOR_SLIP_DEBUG_PRINTOUT) ) {
+            timeSinceLastPrintout_[iLeg] = 0.0;
           }
           #endif
 
         } // if slipping
-        else {
-          // foot cannot be slipping if in air
-          leg->setIsSlipping(false);
-        }
-
+      }
+      else {
+        // foot cannot be slipping if not grounded
+        leg->setIsSlipping(false);
+        #if EVENT_DEBUG
+        timeSinceLastPrintout_[iLeg] = 0.0;
+        #endif
       }
       /**********************
        * End slip detection *
