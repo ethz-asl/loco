@@ -23,7 +23,7 @@ namespace loco {
 
    protected:
     double toleratedDelay_;
-    double timeSinceLastPrintout_;
+    std::vector<double> timeSinceLastPrintout_;
 
   };
 
