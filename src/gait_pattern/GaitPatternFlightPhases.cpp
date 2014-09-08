@@ -47,16 +47,21 @@ double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg, double stridePhase
   if (pIndex == -1)
     return -1;
 
-  double timeUntilFootLiftOff = stepPatterns_[pIndex].getPhaseLeftUntilLiftOff(stridePhase);
-  double timeUntilFootStrike = stepPatterns_[pIndex].getPhaseLeftUntilStrike(stridePhase);
+//  double timeUntilFootLiftOff = stepPatterns_[pIndex].getPhaseLeftUntilLiftOff(stridePhase);
+//  double timeUntilFootStrike = stepPatterns_[pIndex].getPhaseLeftUntilStrike(stridePhase);
+//
+//  //see if we're not in swing mode...
+//   if (timeUntilFootStrike > timeUntilFootLiftOff)
+//     return -1;
+//
+//   double swingPhaseRange = stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase;
+//
+//   return 1 - timeUntilFootStrike / swingPhaseRange;
 
-  //see if we're not in swing mode...
-   if (timeUntilFootStrike > timeUntilFootLiftOff)
-     return -1;
+  //the absolute phase parameter should be in the range [0-1], so make it so just in case...
 
-   double swingPhaseRange = stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase;
-
-   return 1 - timeUntilFootStrike / swingPhaseRange;
+  while (stridePhase < 0) stridePhase += 1; while (stridePhase > 1) stridePhase -= 1;
+  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, stepPatterns_[pIndex].liftOffPhase, stepPatterns_[pIndex].strikePhase);
 }
 
 double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stridePhase) const {
@@ -76,7 +81,7 @@ double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stri
   }
 
 
-  double swingPhaseRange = stepPatterns_[iLeg].strikePhase - stepPatterns_[iLeg].liftOffPhase;
+  double swingPhaseRange = stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase;
   double timeSinceFootStrike = 1.0 - timeUntilFootLiftOff - swingPhaseRange;
 
   return timeSinceFootStrike / (timeSinceFootStrike + timeUntilFootLiftOff);
@@ -313,6 +318,7 @@ double GaitPatternFlightPhases::getTimeUntilNextStancePhase(int iLeg, double str
 
 double GaitPatternFlightPhases::getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const {
   double swingPhase = getSwingPhaseForLeg(iLeg, stridePhase);
+  printf("Swing phase: %lf\n", swingPhase);
   //the limb is already in swing phase, so the time until the next swing phase starts is one whole stridePhase minus the amount of time it's already spent in swing mode
   if (swingPhase >= 0 && swingPhase <= 1)
     return strideDuration - getTimeSpentInSwing(iLeg, strideDuration, stridePhase);
