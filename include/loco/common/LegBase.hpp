@@ -67,6 +67,7 @@ class LegBase {
   virtual bool wasInSwingMode() const;
 
   virtual bool isGrounded() const;
+  virtual bool wasGrounded() const;
   virtual bool shouldBeGrounded() const;
   virtual bool isAndShouldBeGrounded() const;
 
@@ -86,6 +87,7 @@ class LegBase {
   virtual void setWasInSwingMode(bool wasInSwingMode);
 
   virtual void setIsGrounded(bool isGrounded);
+  virtual void setWasGrounded(bool wasGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
 
   /*!
@@ -97,11 +99,19 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
-
-
   LegStateTouchDown* getStateTouchDown();
+  LegStateTouchDown* getStateTouchDownEarly();
+  LegStateTouchDown* getStateTouchDownLate();
   const LegStateTouchDown& getStateTouchDown() const;
+  const LegStateTouchDown& getStateTouchDownEarly() const;
+  const LegStateTouchDown& getStateTouchDownLate() const;
+
   LegStateLiftOff* getStateLiftOff();
+  LegStateLiftOff* getStateLiftOffEarly();
+  LegStateLiftOff* getStateLiftOffLate();
+  const LegStateLiftOff& getStateLiftOff() const;
+  const LegStateLiftOff& getStateLiftOffEarly() const;
+  const LegStateLiftOff& getStateLiftOffLate() const;
 
   virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;
   virtual const Position& getWorldToHipPositionInWorldFrame() const  = 0;
@@ -163,12 +173,18 @@ class LegBase {
   bool isInSwingMode_;
   bool wasInSwingMode_;
   bool isGrounded_;
+  bool wasGrounded_;
   bool shouldBeGrounded_;
 
   double loadFactor_;
 
   LegStateTouchDown stateTouchDown_;
+  LegStateTouchDown stateTouchDownEarly_;
+  LegStateTouchDown stateTouchDownLate_;
+
   LegStateLiftOff stateLiftOff_;
+  LegStateLiftOff stateLiftOffEarly_;
+  LegStateLiftOff stateLiftOffLate_;
 
   JointControlModes desiredJointControlModes_;
   JointPositions desiredJointPositions_;
