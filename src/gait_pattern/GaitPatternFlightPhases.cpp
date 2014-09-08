@@ -406,5 +406,15 @@ int GaitPatternFlightPhases::getStepPatternIndexForLeg(int legId) const {
   return -1;
 }
 
+std::ostream& operator << (std::ostream& out, const GaitPatternFlightPhases& gaitPattern) {
+  for (uint i=0;i<gaitPattern.stepPatterns_.size();i++) {
+    out << "Leg " << gaitPattern.stepPatterns_[i].legId_;
+    out << "\tlift-off: " <<  gaitPattern.stepPatterns_[i].liftOffPhase;
+    out << "\ttouch-down: " << gaitPattern.stepPatterns_[i].strikePhase;
+    out << std::endl;
+  }
+  return out;
+}
+
 
 } /* namespace loco */

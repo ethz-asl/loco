@@ -116,6 +116,8 @@ class GaitPatternFlightPhases: public GaitPatternBase {
     int getNumberOfLegs() const;
 
     void addFootFallPattern(int legId, double liftOffPhase, double strikePhase);
+
+    friend std::ostream& operator << (std::ostream& out, const GaitPatternFlightPhases& gaitPattern);
  private:
     bool isInitialized_;
 
