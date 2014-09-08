@@ -13,7 +13,8 @@
 
 namespace loco {
 
-  EventDetector::EventDetector(): toleratedDelay_(DEFAULT_EVENT_DELAY_TOLERANCE)
+  EventDetector::EventDetector():
+      toleratedDelay_(DEFAULT_EVENT_DELAY_TOLERANCE)
   {
 
   } // constructor
@@ -71,6 +72,9 @@ namespace loco {
         // reset liftoff state
         leg->getStateLiftOff()->setIsNow(false);
       }
+      /*************************
+       * End liftoff detection *
+       *************************/
 
       /***********************
        * Touchdown detection *
@@ -103,6 +107,24 @@ namespace loco {
         // reset touchdown state
         leg->getStateTouchDown()->setIsNow(false);
       }
+      /***************************
+       * End touchdown detection *
+       ***************************/
+
+      /******************
+       * Slip detection *
+       ******************/
+      loco::LinearVelocity footVelocityInWorldFrame = leg->getFootLinearVelocityInWorldFrame();
+      const double minSlipVelocity = 0.5; // m/s?
+      if ( leg->isGrounded() ) {
+        if ( footVelocityInWorldFrame.norm() >= minSlipVelocity ) {
+          std::cout << "[eventDetector] leg " << iLeg << " is slipping!" << std::endl;
+          std::cout << "speed: " << footVelocityInWorldFrame.norm() << std::endl;
+        }
+      }
+      /**********************
+       * End slip detection *
+       **********************/
 
       iLeg++;
     } // for auto leg
