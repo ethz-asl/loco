@@ -15,6 +15,7 @@
 namespace loco {
 
   EventDetector::EventDetector():
+      EventDetectorBase(),
       toleratedDelay_(DEFAULT_EVENT_DELAY_TOLERANCE)
   {
 
@@ -68,7 +69,7 @@ namespace loco {
           std::cout << "[eventDetector] TOLERATED liftoff on leg: " << iLeg << std::endl;
           #endif
         }
-      }
+      } // if liftoff
       else {
         // reset liftoff state
         leg->getStateLiftOff()->setIsNow(false);
@@ -132,7 +133,7 @@ namespace loco {
           std::cout << "speed: " << footVelocityInWorldFrame.norm() << std::endl;
           std::cout << "distance from touchdown: " << distanceFromTouchdown.norm() << std::endl;
           #endif
-        }
+        } // if slipping
         else {
           leg->setIsSlipping(false);
         }
