@@ -119,8 +119,12 @@ namespace loco {
       loco::LinearVelocity footVelocityInWorldFrame = leg->getFootLinearVelocityInWorldFrame();
 
       if ( leg->isGrounded() ) {
+        /* Check if the distance between the current foot position and the touchdown foot position
+         * in world frame if greater than a default minimum.
+         */
         loco::Position distanceFromTouchdown = leg->getWorldToFootPositionInWorldFrame()
                                                - leg->getStateTouchDown()->getFootPositionInWorldFrame();
+
         if (distanceFromTouchdown.norm() > MINIMUM_DISTANCE_FOR_SLIP_DETECTION) {
           leg->setIsSlipping(true);
           #if EVENT_DEBUG
