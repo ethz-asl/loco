@@ -8,11 +8,12 @@
 
 #include "loco/event_detection/EventDetector.hpp"
 
-#define EVENT_DEBUG 0
+#define EVENT_DEBUG                     0
+#define DEFAULT_EVENT_DELAY_TOLERANCE   0.1
 
 namespace loco {
 
-  EventDetector::EventDetector(): toleratedDelay_(0.1)
+  EventDetector::EventDetector(): toleratedDelay_(DEFAULT_EVENT_DELAY_TOLERANCE)
   {
 
   } // constructor
