@@ -28,10 +28,10 @@ namespace loco {
   bool LegStateBase::isNow() const { return isNow_; }
 
   void LegStateBase::setLastStateWasEarly(bool wasEarly) { lastStateWasEarly_ = wasEarly; }
-  bool LegStateBase::lastStateWasEarly() { return lastStateWasEarly_; }
+  bool LegStateBase::lastStateWasEarly() const { return lastStateWasEarly_; }
 
   void LegStateBase::setLastStateWasLate(bool wasLate) { lastStateWasLate_ = wasLate; }
-  bool LegStateBase::lastStateWasLate() { return lastStateWasLate_; }
+  bool LegStateBase::lastStateWasLate() const { return lastStateWasLate_; }
 
 
 } /* namespace loco */

@@ -20,10 +20,10 @@ class LegStateBase {
   bool isNow() const;
   void setIsNow(bool isNow);
 
-  bool lastStateWasEarly();
+  bool lastStateWasEarly() const;
   void setLastStateWasEarly(bool wasEarly);
 
-  bool lastStateWasLate();
+  bool lastStateWasLate() const;
   void setLastStateWasLate(bool wasLate);
 
  protected:

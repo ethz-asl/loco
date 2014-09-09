@@ -56,9 +56,6 @@ namespace loco {
           #endif
           leg->getStateLiftOff()->setLastStateWasEarly(true);
           leg->getStateLiftOff()->setLastStateWasLate(false);
-
-          //leg->getStateLiftOffEarly()->setIsNow(true);
-          //leg->getStateLiftOffLate()->setIsNow(false);
         }
         else if ( leg->isInSwingMode() && (swingPhase > toleratedDelay_) ) {
           #if EVENT_DEBUG
@@ -66,9 +63,6 @@ namespace loco {
           #endif
           leg->getStateLiftOff()->setLastStateWasEarly(false);
           leg->getStateLiftOff()->setLastStateWasLate(true);
-
-          //leg->getStateLiftOffEarly()->setIsNow(false);
-          //leg->getStateLiftOffLate()->setIsNow(true);
         }
         else {
           #if EVENT_DEBUG
