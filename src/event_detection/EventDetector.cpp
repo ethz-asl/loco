@@ -68,6 +68,8 @@ namespace loco {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] TOLERATED liftoff on leg: " << iLeg << std::endl;
           #endif
+          leg->getStateLiftOff()->setLastStateWasEarly(false);
+          leg->getStateLiftOff()->setLastStateWasLate(false);
         }
       } // if liftoff
       else {
@@ -91,9 +93,6 @@ namespace loco {
           #endif
           leg->getStateTouchDown()->setLastStateWasEarly(true);
           leg->getStateTouchDown()->setLastStateWasLate(false);
-
-          //leg->getStateTouchDownEarly()->setIsNow(true);
-          //leg->getStateTouchDownLate()->setIsNow(false);
         }
         else if ( leg->isInStanceMode() && (stancePhase > toleratedDelay_) ) {
           #if EVENT_DEBUG
@@ -101,15 +100,16 @@ namespace loco {
           #endif
           leg->getStateTouchDown()->setLastStateWasEarly(false);
           leg->getStateTouchDown()->setLastStateWasLate(true);
-
-          //leg->getStateTouchDownEarly()->setIsNow(false);
-          //leg->getStateTouchDownLate()->setIsNow(true);
         }
         else {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] TOLERATED touchdown on leg: " << iLeg << std::endl;
           #endif
+          leg->getStateTouchDown()->setLastStateWasEarly(false);
+          leg->getStateTouchDown()->setLastStateWasLate(false);
         }
+
+        std::cout << *leg << std::endl;
 
       } // if touchdown
       else {
