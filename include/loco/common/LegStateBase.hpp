@@ -26,10 +26,14 @@ class LegStateBase {
   bool lastStateWasLate() const;
   void setLastStateWasLate(bool wasLate);
 
+  double contactChangedAtTime() const;
+  void setContactChangedAtTime(double time);
+
  protected:
   bool isNow_;
   bool lastStateWasEarly_;
   bool lastStateWasLate_;
+  double contactChangedAtTime_;
 };
 
 } /* namespace loco */

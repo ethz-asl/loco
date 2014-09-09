@@ -16,7 +16,8 @@ namespace loco {
       EventDetectorBase(),
       toleratedDelay_(0.1),
       minimumDistanceForSlipDetection_(0.01),
-      minimumSpeedForSlipDetection_(0.01)
+      minimumSpeedForSlipDetection_(0.01),
+      timeSinceInit_(0.0)
   {
 
   } // constructor
@@ -31,11 +32,14 @@ namespace loco {
     toleratedDelay_ = 0.1;
     minimumDistanceForSlipDetection_ = 0.01;
     minimumSpeedForSlipDetection_ = 0.01;
+    timeSinceInit_ = 0.0;
+
     return true;
   } // initialize
 
 
   bool EventDetector::advance(double dt, loco::LegGroup& legs) {
+    timeSinceInit_ += dt;
     int iLeg = 0;
 
     for (auto leg : legs) {

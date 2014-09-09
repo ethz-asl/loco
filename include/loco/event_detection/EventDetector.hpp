@@ -25,6 +25,7 @@ namespace loco {
     double toleratedDelay_;
     double minimumDistanceForSlipDetection_;
     double minimumSpeedForSlipDetection_;
+    double timeSinceInit_;
   };
 
 } /* namespace loco */
