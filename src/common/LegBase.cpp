@@ -268,10 +268,10 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
   out << "did touchdown: " << ( leg.getStateTouchDown().isNow() ? "yes" : "no" ) << std::endl;
   out << "       early?: " << ( leg.getStateTouchDown().lastStateWasEarly() ? "yes" : "no" ) << std::endl;
   out << "        late?: " << ( leg.getStateTouchDown().lastStateWasLate() ? "yes" : "no" ) << std::endl;
-  out << "      at time: " << leg.getStateTouchDown().StateChangedAtTime() << std::endl;
+  out << "most recent occurred at time: " << leg.getStateTouchDown().StateChangedAtTime() << std::endl;
 
   out << "did liftoff: " << ( leg.getStateLiftOff().isNow() ? "yes" : "no" ) << std::endl;
-  out << "    at time: " << leg.getStateLiftOff().StateChangedAtTime() << std::endl;
+  out << "most recent occurred at time: " << leg.getStateLiftOff().StateChangedAtTime() << std::endl;
 
   return out;
 }
