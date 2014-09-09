@@ -119,7 +119,7 @@ namespace loco {
        ******************/
       if ( leg->isGrounded() ) {
         /* It is assumed that the foot can slip only if grounded. Check if the distance between
-         * the current foot position and the touchdown foot position in world frame if greater
+         * the current foot position and the touchdown foot position in world frame is greater
          * than a default minimum.
          */
 

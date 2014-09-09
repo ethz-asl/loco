@@ -20,8 +20,16 @@ class LegStateBase {
   bool isNow() const;
   void setIsNow(bool isNow);
 
+  bool lastStateWasEarly();
+  void setLastStateWasEarly(bool wasEarly);
+
+  bool lastStateWasLate();
+  void setLastStateWasLate(bool wasLate);
+
  protected:
   bool isNow_;
+  bool lastStateWasEarly_;
+  bool lastStateWasLate_;
 };
 
 } /* namespace loco */
