@@ -13,7 +13,7 @@ namespace loco {
         isNow_(false),
         lastStateWasEarly_(false),
         lastStateWasLate_(false),
-        contactChangedAtTime_(0.0)
+        stateChangedAtTime_(0.0)
   {
 
 
@@ -34,7 +34,7 @@ namespace loco {
   void LegStateBase::setLastStateWasLate(bool wasLate) { lastStateWasLate_ = wasLate; }
   bool LegStateBase::lastStateWasLate() const { return lastStateWasLate_; }
 
-  void LegStateBase::setContactChangedAtTime(double time) { contactChangedAtTime_ = time; }
-  double LegStateBase::contactChangedAtTime() const { return contactChangedAtTime_; }
+  void LegStateBase::setStateChangedAtTime(double time) { stateChangedAtTime_ = time; }
+  double LegStateBase::StateChangedAtTime() const { return stateChangedAtTime_; }
 
 } /* namespace loco */

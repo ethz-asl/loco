@@ -53,6 +53,7 @@ namespace loco {
         leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
         leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
         leg->getStateLiftOff()->setIsNow(true);
+        leg->getStateLiftOff()->setStateChangedAtTime(timeSinceInit_);
         // A liftoff was detected, now check if it is earlier or later than expected
         if ( leg->isInStanceMode() && (stancePhase < (1-toleratedDelay_)) ) {
           #if EVENT_DEBUG
@@ -90,6 +91,7 @@ namespace loco {
       if ( !leg->wasGrounded() && leg->isGrounded() ) {
         leg->getStateTouchDown()->setIsNow(true);
         leg->getStateTouchDown()->setTouchdownFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
+        leg->getStateTouchDown()->setStateChangedAtTime(timeSinceInit_);
         // A touchdown was detected, now check if it is earlier or later than expected
         if ( leg->isInSwingMode() && (swingPhase < (1-toleratedDelay_)) ) {
           #if EVENT_DEBUG
