@@ -55,7 +55,7 @@ namespace loco {
                                               + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     positionWorldToLocationInWorldFrame.z() /= normalInWorldFrame_.z();
     return true;
-  } // get height (position)
+  } // get height at position, update position
 
 
   bool TerrainModelFreePlane::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
@@ -67,7 +67,7 @@ namespace loco {
                          + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     heightInWorldFrame /= normalInWorldFrame_.z();
     return true;
-  } // get height (position, &height)
+  } // get height at position, return height
 
 
   bool TerrainModelFreePlane::getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const {
