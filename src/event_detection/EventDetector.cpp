@@ -108,9 +108,6 @@ namespace loco {
           leg->getStateTouchDown()->setLastStateWasEarly(false);
           leg->getStateTouchDown()->setLastStateWasLate(false);
         }
-
-        std::cout << *leg << std::endl;
-
       } // if touchdown
       else {
         // reset touchdown state
