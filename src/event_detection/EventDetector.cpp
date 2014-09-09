@@ -54,15 +54,21 @@ namespace loco {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] EARLY liftoff on leg: " << iLeg << std::endl;
           #endif
-          leg->getStateLiftOffEarly()->setIsNow(true);
-          leg->getStateLiftOffLate()->setIsNow(false);
+          leg->getStateLiftOff()->setLastStateWasEarly(true);
+          leg->getStateLiftOff()->setLastStateWasLate(false);
+
+          //leg->getStateLiftOffEarly()->setIsNow(true);
+          //leg->getStateLiftOffLate()->setIsNow(false);
         }
         else if ( leg->isInSwingMode() && (swingPhase > toleratedDelay_) ) {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] LATE liftoff on leg: " << iLeg << std::endl;
           #endif
-          leg->getStateLiftOffEarly()->setIsNow(false);
-          leg->getStateLiftOffLate()->setIsNow(true);
+          leg->getStateLiftOff()->setLastStateWasEarly(false);
+          leg->getStateLiftOff()->setLastStateWasLate(true);
+
+          //leg->getStateLiftOffEarly()->setIsNow(false);
+          //leg->getStateLiftOffLate()->setIsNow(true);
         }
         else {
           #if EVENT_DEBUG
@@ -89,15 +95,21 @@ namespace loco {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] EARLY touchdown on leg: " << iLeg << std::endl;
           #endif
-          leg->getStateTouchDownEarly()->setIsNow(true);
-          leg->getStateTouchDownLate()->setIsNow(false);
+          leg->getStateTouchDown()->setLastStateWasEarly(true);
+          leg->getStateTouchDown()->setLastStateWasLate(false);
+
+          //leg->getStateTouchDownEarly()->setIsNow(true);
+          //leg->getStateTouchDownLate()->setIsNow(false);
         }
         else if ( leg->isInStanceMode() && (stancePhase > toleratedDelay_) ) {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] LATE touchdown on leg: " << iLeg << std::endl;
           #endif
-          leg->getStateTouchDownEarly()->setIsNow(false);
-          leg->getStateTouchDownLate()->setIsNow(true);
+          leg->getStateTouchDown()->setLastStateWasEarly(false);
+          leg->getStateTouchDown()->setLastStateWasLate(true);
+
+          //leg->getStateTouchDownEarly()->setIsNow(false);
+          //leg->getStateTouchDownLate()->setIsNow(true);
         }
         else {
           #if EVENT_DEBUG
@@ -148,9 +160,6 @@ namespace loco {
       else {
         // foot cannot be slipping if not grounded
         leg->setIsSlipping(false);
-        #if EVENT_DEBUG
-        timeSinceLastPrintout_[iLeg] = 0.0;
-        #endif
       }
       /**********************
        * End slip detection *
