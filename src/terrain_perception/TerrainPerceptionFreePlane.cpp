@@ -27,11 +27,11 @@ namespace loco {
     lastWorldToBaseOrientationForFoot_(legs_->size()),
     gotFirstTouchDownOfFoot_(legs_->size())
   {
-    for (int k=0; k<numberOfLegs_; k++) {
-      mostRecentPositionOfFoot_[k].setZero();
-      lastWorldToBasePositionInWorldFrameForFoot_[k] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-      lastWorldToBaseOrientationForFoot_[k] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-      gotFirstTouchDownOfFoot_[k] = false;
+    for (auto leg: *legs_) {
+      mostRecentPositionOfFoot_[leg->getId()].setZero();
+      lastWorldToBasePositionInWorldFrameForFoot_[leg->getId()].setZero();
+      lastWorldToBaseOrientationForFoot_[leg->getId()].setIdentity();
+      gotFirstTouchDownOfFoot_[leg->getId()] = false;
     }
   } // constructor
 
@@ -42,9 +42,10 @@ namespace loco {
 
 
   bool TerrainPerceptionFreePlane::initialize(double dt) {
-    if (!advance(dt)) {
-      return false;
-    }
+    for (auto leg: *legs_) {
+      gotFirstTouchDownOfFoot_[leg->getId()] = false;
+      updateLocalMeasuresOfLeg(*leg);
+    } // for
     return true;
   } // initialize
 
@@ -52,40 +53,17 @@ namespace loco {
   bool TerrainPerceptionFreePlane::advance(double dt) {
     bool gotNewTouchDown = false;
     bool allLegsGroundedAtLeastOnce = true;
-
     int legID = 0;
+
     for (auto leg: *legs_) {
-
+      legID = leg->getId();
       if ( leg->getStateTouchDown()->isNow() ) {
-
-        #if TERRAINPERCEPTION_DEBUG
-        std::cout << "updating on leg: " << legID << std::endl;
-        std::cout << "leg n.: " << legID << " state:\n" << *leg << std::endl;
-        #endif
-
         gotNewTouchDown = true;
         gotFirstTouchDownOfFoot_[legID] = true;
-
-        switch (estimatePlaneInFrame_) {
-          case(EstimatePlaneInFrame::World): {
-            mostRecentPositionOfFoot_[legID] = leg->getWorldToFootPositionInWorldFrame();
-          } break;
-
-          case(EstimatePlaneInFrame::Base): {
-            mostRecentPositionOfFoot_[legID] = leg->getBaseToFootPositionInBaseFrame();
-            lastWorldToBasePositionInWorldFrameForFoot_[legID] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-            lastWorldToBaseOrientationForFoot_[legID] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-          } break;
-
-          default: {
-            error: throw std::out_of_range("Index out of range ...");
-          }
-        } // switch
-
+        updateLocalMeasuresOfLeg(*leg);
       } // if touchdown
 
       allLegsGroundedAtLeastOnce *= gotFirstTouchDownOfFoot_[legID];
-      legID++;
     } // for
 
     if (gotNewTouchDown && allLegsGroundedAtLeastOnce) { updatePlaneEstimation(); }
@@ -93,6 +71,32 @@ namespace loco {
     return true;
 
   } // advance
+
+
+  void TerrainPerceptionFreePlane::updateLocalMeasuresOfLeg(loco::LegBase& leg) {
+    int legID = leg.getId();
+
+    #if TERRAINPERCEPTION_DEBUG
+    std::cout << "updating on leg: " << legID << std::endl;
+    std::cout << "leg n.: " << legID << " state:\n" << *leg << std::endl;
+    #endif
+
+    switch (estimatePlaneInFrame_) {
+      case(EstimatePlaneInFrame::World): {
+        mostRecentPositionOfFoot_[legID] = leg.getWorldToFootPositionInWorldFrame();
+      } break;
+
+      case(EstimatePlaneInFrame::Base): {
+        mostRecentPositionOfFoot_[legID] = leg.getBaseToFootPositionInBaseFrame();
+        lastWorldToBasePositionInWorldFrameForFoot_[legID] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+        lastWorldToBaseOrientationForFoot_[legID] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+      } break;
+
+      default: {
+        error: throw std::out_of_range("Index out of range ...");
+      }
+    } // switch
+  } // update local measures
 
 
   void TerrainPerceptionFreePlane::rotatePassiveFromBaseToWorldFrame(loco::Position& position) {

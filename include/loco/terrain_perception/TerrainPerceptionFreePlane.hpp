@@ -23,7 +23,7 @@ namespace loco {
     TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel,
                                LegGroup* legs,
                                TorsoStarlETH* torso,
-                               TerrainPerceptionFreePlane::EstimatePlaneInFrame estimateFrame = TerrainPerceptionFreePlane::EstimatePlaneInFrame::Base);
+                               TerrainPerceptionFreePlane::EstimatePlaneInFrame estimateFrame = TerrainPerceptionFreePlane::EstimatePlaneInFrame::World);
     virtual ~TerrainPerceptionFreePlane();
 
     /*! Initialize saved foot measurements.
@@ -74,6 +74,11 @@ namespace loco {
      /*! Estimate the free plane parameters and update the terrain model.
       */
      void updatePlaneEstimation();
+
+     /*! Update last foot positions and torso pose for a leg.
+      * @param[in,out] leg The leg to measure.
+      */
+     void updateLocalMeasuresOfLeg(loco::LegBase& leg);
 
   }; // class
 } /* namespace loco */
