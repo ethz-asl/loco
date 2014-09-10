@@ -129,9 +129,9 @@ namespace loco {
       if ( leg->isGrounded() ) {
         /* It is assumed that the foot can slip only if grounded. Check if the distance between
          * the current foot position and the touchdown foot position in world frame is greater
-         * than a default minimum.
+         * than a default minimum. Slipping stops when the linear velocity drops in norm under
+         * a default minimum.
          */
-
         loco::LinearVelocity footVelocityInWorldFrame = leg->getFootLinearVelocityInWorldFrame();
         loco::Position distanceFromTouchdown = leg->getWorldToFootPositionInWorldFrame()
                                                - leg->getStateTouchDown()->getFootPositionInWorldFrame();
