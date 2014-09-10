@@ -18,6 +18,7 @@ namespace loco {
   class TerrainPerceptionFreePlane: public TerrainPerceptionBase {
 
    public:
+    /*! Choose whether to estimate the measuring the footsteps in world or in base frame */
     enum EstimatePlaneInFrame {World, Base};
 
     TerrainPerceptionFreePlane(TerrainModelFreePlane* terrainModel,
