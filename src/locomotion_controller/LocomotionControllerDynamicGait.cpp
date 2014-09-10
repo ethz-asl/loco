@@ -20,6 +20,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
                                                                  ParameterSet* parameterSet) :
     LocomotionControllerBase(),
     isInitialized_(false),
+    runtime_(0.0),
     legs_(legs),
     torso_(torso),
     terrainPerception_(terrainPerception),
@@ -66,18 +67,47 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 
   if (!torso_->initialize(dt)) { return false; }
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
-  if (!terrainPerception_->initialize(dt)) { return false; }
-  if (!contactDetector_->initialize(dt)) { return false; }
-  if (!limbCoordinator_->loadParameters(hLoco)) { return false; }
-  if (!limbCoordinator_->initialize(dt)) { return false; }
-  if (!footPlacementStrategy_->loadParameters(hLoco)) { return false; }
-  if (!footPlacementStrategy_->initialize(dt)) { return false; }
-  if (!torsoController_->loadParameters(hLoco)) { return false; }
-  if (!torsoController_->initialize(dt)) { return false; }
-  if (!contactForceDistribution_->loadParameters(hLoco)) { return false; }
-  if (!virtualModelController_->loadParameters(hLoco)) { return false; }
-  if (!eventDetector_->initialize(dt)) { return false; }
 
+  if (!terrainPerception_->initialize(dt)) {
+    return false;
+  }
+
+  if (!contactDetector_->initialize(dt)) {
+    return false;
+  }
+
+  if (!limbCoordinator_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!limbCoordinator_->initialize(dt)) {
+    return false;
+  }
+  if (!footPlacementStrategy_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!footPlacementStrategy_->initialize(dt)) {
+    return false;
+  }
+
+
+  if (!torsoController_->loadParameters(hLoco)) {
+    return false;
+  }
+  if (!torsoController_->initialize(dt)) {
+    return false;
+  }
+
+
+  if (!contactForceDistribution_->loadParameters(hLoco)) {
+    return false;
+  }
+
+  if (!virtualModelController_->loadParameters(hLoco)) {
+    return false;
+  }
+
+  runtime_ = 0.0;
+  
   isInitialized_ = true;
   return isInitialized_;
 }
@@ -126,6 +156,7 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
     iLeg++;
   }
 
+  runtime_ += dt;
   return true;
 }
 
@@ -189,6 +220,11 @@ bool LocomotionControllerDynamicGait::isInitialized() const {
   return isInitialized_;
 }
 
+
+
+double LocomotionControllerDynamicGait::getRuntime() const {
+  return runtime_;
+}
 
 bool LocomotionControllerDynamicGait::setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t) {
   if (!limbCoordinator_->setToInterpolated(controller1.getLimbCoordinator(), controller2.getLimbCoordinator(), t)) {

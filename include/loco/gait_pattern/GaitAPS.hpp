@@ -95,6 +95,7 @@ public:
 	void printTDandLO();
 
 	APS* getCurrentAPS();
+	const APS& getCurrentAPS() const;
 	APS* getNextAPS();
 	APS* getCurrentAPS(int iLeg);
 	APS* getNextAPS(int iLeg);
@@ -118,7 +119,9 @@ public:
 	 */
 	bool shouldBeGrounded(int iLeg);
 
-	double getStridePhase();
+	double getStridePhase() const;
+
+	void setStridePhase(double stridePhase);
 
 protected:
 	//! number of gait cycles since start

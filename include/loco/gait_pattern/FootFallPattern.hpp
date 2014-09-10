@@ -13,22 +13,25 @@ namespace loco {
 
 class FootFallPattern {
 public:
-
+  //! Identifier of the leg this pattern belongs to
+  int legId_;
 	//keep track of the relative phase when the foot lifts off the ground...
 	double liftOffPhase;
 	//and the relative phase when the foot strikes the ground...
 	double strikePhase;
 
-	FootFallPattern(double fLiftOff, double fStrike){
-		liftOffPhase = fLiftOff;
-		strikePhase = fStrike;
+	FootFallPattern(int legId, double fLiftOff, double fStrike) :
+	  legId_(legId),
+	  liftOffPhase(fLiftOff),
+	  strikePhase(fStrike)
+	{
 	}
 
 	/*!
 	 * @param absolutePhase 	current state of the stride phase in [0,1]
 	 * @return phase left until foot lift off (which can happen in next stride)
 	 */
-	double getPhaseLeftUntilFootLiftOff(double absolutePhase) const {
+	double getPhaseLeftUntilLiftOff(double absolutePhase) const {
 		assert(!(absolutePhase < 0 || absolutePhase > 1)); //"no reason why absolute phase should be outside the range [0, 1]");
 		if (liftOffPhase == strikePhase) { // added (Christian)
 			return 1;
@@ -44,7 +47,7 @@ public:
 		return result;
 	}
 
-	double getPhaseLeftUntilFootStrike(double absolutePhase) const {
+	double getPhaseLeftUntilStrike(double absolutePhase) const {
 		assert(!(absolutePhase < 0 || absolutePhase > 1)); //"no reason why absolute phase should be outside the range [0, 1]");
 		if (liftOffPhase == strikePhase) { // added (Christian)
 			return 0;

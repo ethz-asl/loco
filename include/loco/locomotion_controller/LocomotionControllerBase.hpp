@@ -30,9 +30,13 @@ class LocomotionControllerBase {
   virtual bool advance(double dt) = 0;
 
 
+  /*! @returns true if the controller is initialized.
+   */
   virtual bool isInitialized() const = 0;
 
-
+  /*! @returns the run time of the controller in seconds.
+   */
+  virtual double getRuntime() const = 0;
 
  protected:
 

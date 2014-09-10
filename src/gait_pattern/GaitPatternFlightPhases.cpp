@@ -13,7 +13,11 @@
 namespace loco {
 
 GaitPatternFlightPhases::GaitPatternFlightPhases():
-    isInitialized_(false)
+    isInitialized_(false),
+    initCyclePhase_(0.0),
+    cyclePhase_(0.0),
+    numGaitCycles_(0),
+    strideDuration_(0.0)
 {
 
 
@@ -38,18 +42,35 @@ double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg) {
 }
 
 double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg, double stridePhase) const {
-  //the absolute phase parameter should be in the range [0-1], so make it so just in case...
-  while (stridePhase < 0) stridePhase += 1; while (stridePhase > 1) stridePhase -= 1;
+  int pIndex = getStepPatternIndexForLeg(iLeg);
+  //by default all limbs are in stance mode
+  if (pIndex == -1)
+    return -1;
 
-  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, footFallPatterns_[iLeg].liftOffPhase, footFallPatterns_[iLeg].strikePhase);
+//  double timeUntilFootLiftOff = stepPatterns_[pIndex].getPhaseLeftUntilLiftOff(stridePhase);
+//  double timeUntilFootStrike = stepPatterns_[pIndex].getPhaseLeftUntilStrike(stridePhase);
+//
+//  //see if we're not in swing mode...
+//   if (timeUntilFootStrike > timeUntilFootLiftOff)
+//     return -1;
+//
+//   double swingPhaseRange = stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase;
+//
+//   return 1 - timeUntilFootStrike / swingPhaseRange;
+
+  //the absolute phase parameter should be in the range [0-1], so make it so just in case...
+
+  while (stridePhase < 0) stridePhase += 1; while (stridePhase > 1) stridePhase -= 1;
+  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, stepPatterns_[pIndex].liftOffPhase, stepPatterns_[pIndex].strikePhase);
 }
 
 double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stridePhase) const {
+  int pIndex = getStepPatternIndexForLeg(iLeg);
 
-  double timeUntilFootLiftOff = footFallPatterns_[iLeg].getPhaseLeftUntilFootLiftOff(stridePhase);
-  double timeUntilFootStrike = footFallPatterns_[iLeg].getPhaseLeftUntilFootStrike(stridePhase);
+  double timeUntilFootLiftOff = stepPatterns_[pIndex].getPhaseLeftUntilLiftOff(stridePhase);
+  double timeUntilFootStrike = stepPatterns_[pIndex].getPhaseLeftUntilStrike(stridePhase);
 
-  if (footFallPatterns_[iLeg].strikePhase == footFallPatterns_[iLeg].liftOffPhase) {
+  if (stepPatterns_[pIndex].strikePhase == stepPatterns_[pIndex].liftOffPhase) {
     return 0.0; // added (Christian)
   }
 
@@ -60,7 +81,7 @@ double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stri
   }
 
 
-  double swingPhaseRange = footFallPatterns_[iLeg].strikePhase - footFallPatterns_[iLeg].liftOffPhase;
+  double swingPhaseRange = stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase;
   double timeSinceFootStrike = 1.0 - timeUntilFootLiftOff - swingPhaseRange;
 
   return timeSinceFootStrike / (timeSinceFootStrike + timeUntilFootLiftOff);
@@ -82,7 +103,8 @@ double GaitPatternFlightPhases::getSwingDuration(int iLeg, double strideDuration
 }
 
 double GaitPatternFlightPhases::getStanceDuration(int iLeg, double strideDuration) const {
-  return (1.0-(footFallPatterns_[iLeg].strikePhase - footFallPatterns_[iLeg].liftOffPhase)) * strideDuration;
+  int pIndex = getStepPatternIndexForLeg(iLeg);
+  return (1.0-(stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase)) * strideDuration;
 }
 
 unsigned long int loco::GaitPatternFlightPhases::getNGaitCycles() {
@@ -122,9 +144,14 @@ bool loco::GaitPatternFlightPhases::shouldBeLegGrounded(int iLeg) {
 //  return (getStancePhaseForLeg(iLeg) !=0.0 || footFallPatterns[iLeg].liftOffPhase == footFallPatterns[iLeg].strikePhase); // added (Christian)
 }
 
-double loco::GaitPatternFlightPhases::getStridePhase() {
+double GaitPatternFlightPhases::getStridePhase() const {
   return cyclePhase_;
 }
+
+void GaitPatternFlightPhases::setStridePhase(double stridePhase) {
+  cyclePhase_ =  stridePhase;
+}
+
 
 bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
   double value, liftOff, touchDown;
@@ -150,7 +177,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
     /* foot fall pattern */
 
 
-    this->footFallPatterns_.clear();
+    stepPatterns_.clear();
 
     pElem = hFootFallPattern.FirstChild("LF").Element();
     if(!pElem) {
@@ -167,7 +194,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find LF:touchDown\n");
       return false;
     }
-    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
+    stepPatterns_.push_back(FootFallPattern(0, liftOff, touchDown));
 
 
     pElem = hFootFallPattern.FirstChild("RF").Element();
@@ -184,7 +211,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find GaitPattern:FootFallPattern:RF:touchDown\n");
       return false;
     }
-    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
+    stepPatterns_.push_back(FootFallPattern(1, liftOff, touchDown));
 
     pElem = hFootFallPattern.FirstChild("LH").Element();
     if(!pElem) {
@@ -199,7 +226,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find LH:touchDown\n");
       return false;
     }
-    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
+    stepPatterns_.push_back(FootFallPattern(2, liftOff, touchDown));
 
     pElem = hFootFallPattern.FirstChild("RH").Element();
     if(!pElem) {
@@ -214,7 +241,7 @@ bool loco::GaitPatternFlightPhases::loadParameters(const TiXmlHandle& handle) {
       printf("Could not find RH:touchDown\n");
       return false;
     }
-    footFallPatterns_.push_back(FootFallPattern(liftOff, touchDown));
+    stepPatterns_.push_back(FootFallPattern(3, liftOff, touchDown));
 
     numGaitCycles_ = 0;
     return true;
@@ -245,10 +272,14 @@ inline double GaitPatternFlightPhases::getRelativePhaseFromAbsolutePhaseInRange(
 }
 
 double GaitPatternFlightPhases::getFootLiftOffPhase(int iLeg) {
-   return footFallPatterns_[iLeg].liftOffPhase;
+  int pIndex = getStepPatternIndexForLeg(iLeg);
+  assert(pIndex != -1);
+  return stepPatterns_[pIndex].liftOffPhase;
 }
 double GaitPatternFlightPhases::getFootTouchDownPhase(int iLeg) {
-  return footFallPatterns_[iLeg].strikePhase;
+  int pIndex = getStepPatternIndexForLeg(iLeg);
+  assert(pIndex != -1);
+  return stepPatterns_[pIndex].strikePhase;
 }
 
 
@@ -287,6 +318,7 @@ double GaitPatternFlightPhases::getTimeUntilNextStancePhase(int iLeg, double str
 
 double GaitPatternFlightPhases::getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const {
   double swingPhase = getSwingPhaseForLeg(iLeg, stridePhase);
+//  printf("Swing phase: %lf\n", swingPhase);
   //the limb is already in swing phase, so the time until the next swing phase starts is one whole stridePhase minus the amount of time it's already spent in swing mode
   if (swingPhase >= 0 && swingPhase <= 1)
     return strideDuration - getTimeSpentInSwing(iLeg, strideDuration, stridePhase);
@@ -296,7 +328,7 @@ double GaitPatternFlightPhases::getTimeUntilNextSwingPhase(int iLeg, double stri
 
 int GaitPatternFlightPhases::getNumberOfStanceLegs(double stridePhase) {
   int nStanceLegs = 0;
-  for (int i=0; i<footFallPatterns_.size();i++) {
+  for (int i=0; i<stepPatterns_.size();i++) {
     if (getStancePhaseForLeg(i, stridePhase) >= 0.0) {
       nStanceLegs++;
     }
@@ -314,14 +346,81 @@ bool GaitPatternFlightPhases::setToInterpolated(const GaitPatternBase& gaitPatte
   //we'll also assume that the order the leg foot pattern is specified is the same...
   strideDuration_ = linearlyInterpolate(gait1.strideDuration_, gait2.strideDuration_, 0, 1, t);
 
-  footFallPatterns_.clear();
-  if (gait1.footFallPatterns_.size() != gait2.footFallPatterns_.size())
+  stepPatterns_.clear();
+//  if (gait1.stepPatterns_.size() != gait2.stepPatterns_.size())
+//    throw std::runtime_error("Don't know how to interpolated between incompatible foot fall patterns");
+//  for (uint i=0;i<gait1.stepPatterns_.size();i++){
+//    const FootFallPattern& stepPattern1  = gait1.stepPatterns_[i];
+//    int pIndex = getStepPatternIndexForLeg(stepPattern1.legId_);
+//    assert(pIndex != 0);
+//    const FootFallPattern& stepPattern2 = gait2.stepPatterns_[pIndex];
+//    stepPatterns_.push_back(FootFallPattern(stepPattern1.legId_, linearlyInterpolate(stepPattern1.liftOffPhase, stepPattern2.liftOffPhase, 0, 1, t),
+//                                               linearlyInterpolate(stepPattern1.strikePhase, stepPattern2.strikePhase, 0, 1, t)));
+//  }
+//
+  if (gait1.stepPatterns_.size() != gait2.stepPatterns_.size())
     throw std::runtime_error("Don't know how to interpolated between incompatible foot fall patterns");
-  for (uint i=0;i<gait1.footFallPatterns_.size();i++){
-    footFallPatterns_.push_back(FootFallPattern(linearlyInterpolate(gait1.footFallPatterns_[i].liftOffPhase, gait2.footFallPatterns_[i].liftOffPhase, 0, 1, t),
-                                               linearlyInterpolate(gait1.footFallPatterns_[i].strikePhase, gait2.footFallPatterns_[i].strikePhase, 0, 1, t)));
+  for (int i=0;i<(int)gait1.stepPatterns_.size();i++){
+    stepPatterns_.push_back(FootFallPattern(gait1.stepPatterns_[i].legId_,
+        linearlyInterpolate(gait1.stepPatterns_[i].liftOffPhase, gait2.stepPatterns_[i].liftOffPhase, 0, 1, t),
+        linearlyInterpolate(gait1.stepPatterns_[i].strikePhase, gait2.stepPatterns_[i].strikePhase, 0, 1, t)));
   }
   return true;
 }
+
+void GaitPatternFlightPhases::clear() {
+  stepPatterns_.clear();
+}
+
+int GaitPatternFlightPhases::getNumberOfLegs() const {
+  return (int) stepPatterns_.size();
+}
+
+void GaitPatternFlightPhases::addFootFallPattern(int legId, double liftOffPhase, double strikePhase) {
+  //ASSUMPTIONS:
+  //  - the limb was going to be in swing mode at all times in the interval liftOffPhase and strikePhase
+  //  - liftOffPhase happens before strikePhase
+  //  - either times can exceed the 0-1 phase range which just means that the foot should already (still) be
+  //    in swing mode, but at least one needs to be in the correct range (0-1)
+
+  //see if this limb was added before - if not, add a new one...
+  if (liftOffPhase >= strikePhase)
+    throw std::runtime_error("addFootFallPattern: liftOffPhase needs to happen before the foot strike.");
+
+  if (strikePhase - liftOffPhase > 1)
+    throw std::runtime_error("addFootFallPattern: liftOffPhase and strikePhase should not be offset by more than 1.");
+
+  if ((liftOffPhase < 0 || liftOffPhase > 1) && (strikePhase < 0 || strikePhase > 1))
+    throw std::runtime_error("addFootFallPattern: Either liftOffPhase or strikePhase needs to be in the range 0-1.");
+
+
+  int pIndex = getStepPatternIndexForLeg(legId);
+  if (pIndex == -1){
+    stepPatterns_.push_back(FootFallPattern(legId, liftOffPhase, strikePhase));
+  }else{
+    throw std::runtime_error("There is already a footfall pattern for this leg!\n");
+  }
+
+
+}
+
+int GaitPatternFlightPhases::getStepPatternIndexForLeg(int legId) const {
+  for (uint i=0;i<stepPatterns_.size();i++)
+    if (stepPatterns_[i].legId_ == legId)
+      return i;
+
+  return -1;
+}
+
+std::ostream& operator << (std::ostream& out, const GaitPatternFlightPhases& gaitPattern) {
+  for (uint i=0;i<gaitPattern.stepPatterns_.size();i++) {
+    out << "Leg " << gaitPattern.stepPatterns_[i].legId_;
+    out << "\tlift-off: " <<  gaitPattern.stepPatterns_[i].liftOffPhase;
+    out << "\ttouch-down: " << gaitPattern.stepPatterns_[i].strikePhase;
+    out << std::endl;
+  }
+  return out;
+}
+
 
 } /* namespace loco */

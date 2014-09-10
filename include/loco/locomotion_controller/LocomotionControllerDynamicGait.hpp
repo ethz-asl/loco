@@ -74,8 +74,13 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
 
   bool setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t);
 
+  /*! @returns the run time of the controller in seconds.
+   */
+  virtual double getRuntime() const;
  protected:
   bool isInitialized_;
+  //! Run time of the controller in seconds.
+  double runtime_;
   LegGroup* legs_;
   TorsoBase* torso_;
   TerrainPerceptionBase* terrainPerception_;

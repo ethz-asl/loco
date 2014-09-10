@@ -81,6 +81,10 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   LegGroup* getLegs();
   ContactForceDistributionBase* getContactForceDistribution();
   const Twist& getDesiredBaseTwistInHeadingFrame() const;
+
+  /*! @returns the run time of the controller in seconds.
+   */
+  virtual double getRuntime() const;
  private:
   robotModel::RobotModel* robotModel_;
   std::shared_ptr<ParameterSet> parameterSet_;

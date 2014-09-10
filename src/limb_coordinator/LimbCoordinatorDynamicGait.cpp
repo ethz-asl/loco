@@ -10,8 +10,9 @@
 
 namespace loco {
 
-LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern) :
+LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern, bool isUpdatingStridePhase) :
     LimbCoordinatorBase(),
+    isUpdatingStridePhase_(isUpdatingStridePhase),
     legs_(legs),
     torso_(torso),
     gaitPattern_(gaitPattern),
@@ -23,6 +24,13 @@ LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase
 
 LimbCoordinatorDynamicGait::~LimbCoordinatorDynamicGait() {
 
+}
+
+void LimbCoordinatorDynamicGait::setIsUpdatingStridePhase(bool isUpdatingStridePhase) {
+  isUpdatingStridePhase_ = isUpdatingStridePhase;
+}
+bool LimbCoordinatorDynamicGait::isUpdatingStridePhase() const {
+  return isUpdatingStridePhase_;
 }
 
 bool LimbCoordinatorDynamicGait::isLegGrounded(int iLeg) {
@@ -61,7 +69,9 @@ bool LimbCoordinatorDynamicGait::initialize(double dt) {
 }
 
 bool LimbCoordinatorDynamicGait::advance(double dt) {
-  gaitPattern_->advance(dt);
+  if (isUpdatingStridePhase_) {
+    gaitPattern_->advance(dt);
+  }
 //  for (int iLeg=0; iLeg<4; iLeg++) {
   int iLeg =0;
   for (auto leg : *legs_) {
@@ -80,6 +90,10 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 
   torso_->setStridePhase(gaitPattern_->getStridePhase());
   return true;
+}
+
+void LimbCoordinatorDynamicGait::setStridePhase(double stridePhase)  {
+  gaitPattern_->setStridePhase(stridePhase);
 }
 
 bool LimbCoordinatorDynamicGait::isLegInStanceMode(int iLeg) {
