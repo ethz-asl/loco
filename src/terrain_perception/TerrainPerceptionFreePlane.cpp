@@ -8,9 +8,7 @@
 #include "loco/terrain_perception/TerrainPerceptionFreePlane.hpp"
 
 
-#define TERRAINPERCEPTION_DEBUG   0 /* change to 1 to print to std::cout the
-                                     * leg status during measurement
-                                     */
+#define TERRAINPERCEPTION_DEBUG   0 /* change to 1 to print to print each leg's status to std::cout at a touchdown event */
 
 namespace loco {
 
@@ -174,33 +172,31 @@ namespace loco {
     /* Check if the measurements are linearly dependent */
     Eigen::FullPivLU<Eigen::MatrixXd> piv_regressor(linearRegressor);
     if (piv_regressor.rank() < parameters.size() ) {
-      std::cout << "*******WARNING: rank-deficient regressor. Skipping update.*******" << std::endl;
+      std::cout << "*******WARNING: rank-deficient regressor. Skipping terrain update.*******" << std::endl;
     }
     else {
-      /* solve least squares problem */
-      kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor);
-      parameters = linearRegressor*measuredFootHeights;
+       if (kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor)) {
+         /* solve least squares problem */
+         parameters = linearRegressor*measuredFootHeights;
 
-      /* Find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
-       * is on the plane
-       */
-      position << 0.0, 0.0, parameters(2);
+         /* Find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
+          * is on the plane
+          */
+         position << 0.0, 0.0, parameters(2);
 
-      /* From the assumption that the normal has always unit z-component,
-       * its norm will always be greater than zero
-       */
-      normal << parameters(0), parameters(1), 1.0;
-      normal = normal.normalize();
+         /* From the assumption that the normal has always unit z-component,
+          * its norm will always be greater than zero
+          */
+         normal << parameters(0), parameters(1), 1.0;
+         normal = normal.normalize();
 
-      /*
-      if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
-        rotatePassiveFromBaseToWorldFrame((loco::Position&)normal);
-        homogeneousTransformFromBaseToWorldFrame(position);
-      }
-      */
+         /* Update free plane model */
+         terrainModel_->setNormalandPositionInWorldFrame(normal, position);
 
-      /* Update free plane model */
-      terrainModel_->setNormalandPositionInWorldFrame(normal, position);
+       }
+       else {
+         std::cout << "*******WARNING: pseudoinversion returned error. Skipping terrain update.*******" << std::endl;
+       }
     }
 
   } // update plane estimation
