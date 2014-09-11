@@ -57,7 +57,7 @@ namespace loco {
        * @param normal Normal vector to plane in world frame
        * @param position Point on plane in world frame
        */
-      void setNormalandPositionInWorldFrame(loco::Vector& normal, loco::Position& position);
+      void setNormalandPositionInWorldFrame(const loco::Vector& normal, const loco::Position& position);
 
    protected:
       double frictionCoefficientBetweenTerrainAndFoot_;
