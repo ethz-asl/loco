@@ -73,7 +73,7 @@ namespace loco {
   } // advance
 
 
-  void TerrainPerceptionFreePlane::updateLocalMeasuresOfLeg(loco::LegBase& leg) {
+  void TerrainPerceptionFreePlane::updateLocalMeasuresOfLeg(const loco::LegBase& leg) {
     int legID = leg.getId();
 
     #if TERRAINPERCEPTION_DEBUG

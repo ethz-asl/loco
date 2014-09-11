@@ -36,7 +36,7 @@ namespace loco {
   void TerrainModelFreePlane::setNormalandPositionInWorldFrame(const loco::Vector& normal, const loco::Position& position) {
     normalInWorldFrame_ = normal;
     positionInWorldFrame_ = position;
-  } // set normal and posiition
+  } // set normal and position
 
 
   bool TerrainModelFreePlane::getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const {

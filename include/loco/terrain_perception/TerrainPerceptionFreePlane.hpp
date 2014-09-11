@@ -79,7 +79,7 @@ namespace loco {
      /*! Update last foot positions and torso pose for a leg.
       * @param[in,out] leg The leg to measure.
       */
-     void updateLocalMeasuresOfLeg(loco::LegBase& leg);
+     void updateLocalMeasuresOfLeg(const loco::LegBase& leg);
 
   }; // class
 } /* namespace loco */
