@@ -2,7 +2,7 @@
  * TorsoControlDynamicGaitFreePlane.hpp
  *
  *  Created on: Sep 11, 2014
- *      Author: dario
+ *      Author: Dario Bellicoso
  */
 
 #ifndef LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
@@ -42,6 +42,7 @@ namespace loco {
 
     void setDesiredPositionOffetInWorldFrame(const Position& positionOffsetInWorldFrame);
     void setDesiredOrientationOffset(const RotationQuaternion& orientationOffset);
+
     /*! Computes an interpolated version of the two controllers passed in as parameters.
      *  if t is 0, the current setting is set to controller1, 1 -> controller2, and values in between
      *  correspond to interpolated parameter set.

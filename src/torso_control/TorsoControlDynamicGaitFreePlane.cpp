@@ -19,7 +19,6 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   comControl_(legs),
   headingDistanceFromForeToHindInBaseFrame_(0.0)
 {
-
   std::vector<double> tValues, xValues;
   const double defaultHeight = 0.42;
   desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
@@ -33,36 +32,53 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   desiredTorsoHindHeightAboveGroundInWorldFrame_.setRBFData(tValues, xValues);
 }
 
+
 TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
 
 }
+
+
 bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
   const Position foreHipPosition = legs_->getLeg(0)->getWorldToHipPositionInBaseFrame();
   const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
-//  std::cout << "head dist: " << headingDistanceFromForeToHindInBaseFrame_ << std::endl;
-
   return true;
 }
-
 
 
 bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   comControl_.advance(dt);
 
+  //--- get terrain estimated attitude
+  loco::Vector normalToPlaneInWorldFrame;
+  terrain_->getNormal(loco::Position::Zero(), normalToPlaneInWorldFrame);
+
+  double terrainPitch = atan2(normalToPlaneInWorldFrame.x(), normalToPlaneInWorldFrame.z());
+  std::cout << "normal: " << normalToPlaneInWorldFrame << std::endl;
+  std::cout << "pitch: " << terrainPitch << std::endl;
+  double attitudeOffset = sin(terrainPitch)*headingDistanceFromForeToHindInBaseFrame_/2.0;
+  //---
+
   const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getWorldToHeadingOrientation();
-
-
-
   Position lateralAndHeadingPositionInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
 
-  const double desiredForeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
-  const double desiredHindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
+  const double desiredForeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_
+                                                          + desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase())
+                                                          - attitudeOffset;
+  const double desiredHindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_
+                                                          + desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase())
+                                                          + attitudeOffset;
   const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredForeHeightAboveGroundInWorldFrame + desiredHindHeightAboveGroundInWorldFrame)/2.0;
+
   Position desiredLateralAndHeadingPositionInWorldFrame = lateralAndHeadingPositionInWorldFrame;
   Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
+
   terrain_->getHeight(groundHeightInWorldFrame);
-  Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+
+  Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(),
+                                            desiredLateralAndHeadingPositionInWorldFrame.y(),
+                                            desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+
   desiredTorsoPositionInWorldFrame += desiredPositionOffetInWorldFrame_;
 
 //  Position desiredTorsoPositionInWorldFrame(0.0, desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
@@ -70,9 +86,9 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   /* --- desired orientation --- */
 
   // pitch angle
-  double height = desiredHindHeightAboveGroundInWorldFrame-desiredForeHeightAboveGroundInWorldFrame;
+  double height = desiredHindHeightAboveGroundInWorldFrame - desiredForeHeightAboveGroundInWorldFrame;
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
-  std::cout << "pitch: " << pitchAngle << std::endl;
+  //std::cout << "pitch: " << pitchAngle << std::endl;
   RotationQuaternion orientationDesiredHeadingToBase = RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
 
   const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())/0.5;
