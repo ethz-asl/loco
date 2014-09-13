@@ -66,6 +66,9 @@ double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg, double stridePhase
 
 double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stridePhase) const {
   int pIndex = getStepPatternIndexForLeg(iLeg);
+  if (pIndex == -1) {
+    return -1; // changed with new gait pattern from SC
+  }
 
   double timeUntilFootLiftOff = stepPatterns_[pIndex].getPhaseLeftUntilLiftOff(stridePhase);
   double timeUntilFootStrike = stepPatterns_[pIndex].getPhaseLeftUntilStrike(stridePhase);
