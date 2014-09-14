@@ -62,7 +62,6 @@ class LegStarlETH : public loco::LegBase {
   virtual int getId() const;
 
 
-
  private:
   //! index of the leg (only used to access robot model)
   int iLeg_;

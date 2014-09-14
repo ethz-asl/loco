@@ -132,6 +132,20 @@ class LegGroup {
     return nullptr;
   }
 
+  /*! Gets leg by identifier
+    *
+    * @param offset  index
+    * @return  reference to leg
+    */
+   LegBase* getLegById(int legId) {
+     for (auto leg : legs_) {
+       if (leg->getId() == legId) {
+         return leg;
+       }
+     }
+     return nullptr;
+   }
+
 };
 
 } /* namespace loco */
