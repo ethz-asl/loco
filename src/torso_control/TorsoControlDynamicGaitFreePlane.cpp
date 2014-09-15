@@ -22,13 +22,13 @@ namespace loco {
     desiredPitchSlope_(1.0),
     maxDesiredRollRadians_(2.0*M_PI/180.0),
     desiredRollSlope_(1.0),
-    adaptToTerrain_(SaturatedLinearAdaption)
+    adaptToTerrain_(CompleteAdaption)
   {
     std::vector<double> tValues, xValues;
     const double defaultHeight = 0.42;
     desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
     desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
-    desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
+    desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_  = defaultHeight;
     tValues.push_back(0.00); xValues.push_back(0.0);
     tValues.push_back(0.25); xValues.push_back(0.0);
     tValues.push_back(0.50); xValues.push_back(0.0);
@@ -118,22 +118,24 @@ namespace loco {
     normalToPlaneInDesiredHeadingFrame = orientationWorldToDesiredHeading.rotate(normalToPlaneInWorldFrame);
 
     getDesiredBasePitchFromTerrainPitch(atan2(normalToPlaneInDesiredHeadingFrame.x(), normalToPlaneInDesiredHeadingFrame.z()), desiredBasePitch);
-    getDesiredBasePitchFromTerrainPitch(atan2(normalToPlaneInDesiredHeadingFrame.y(), normalToPlaneInDesiredHeadingFrame.z()), desiredBaseRoll);
+    getDesiredBaseRollFromTerrainRoll(atan2(normalToPlaneInDesiredHeadingFrame.y(), normalToPlaneInDesiredHeadingFrame.z()), desiredBaseRoll);
     //---
 
     //--- Get rotation between normal to body in desired heading frame and normal to plane
     RotationQuaternion orientationDesiredHeadingToBasePitch = RotationQuaternion(AngleAxis(desiredBasePitch, 0.0, 1.0, 0.0));
-    RotationQuaternion orientationDesiredHeadingToBaseRoll = RotationQuaternion(AngleAxis(-desiredBaseRoll, 1.0, 0.0, 0.0));
+    RotationQuaternion orientationDesiredHeadingToBaseRoll  = RotationQuaternion(AngleAxis(desiredBaseRoll, -1.0, 0.0, 0.0));
     //---
 
     //--- Compose rotations
-    RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBaseRoll * orientationDesiredHeadingToBasePitch * orientationWorldToDesiredHeading;
+    RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBaseRoll
+                                                   * orientationDesiredHeadingToBasePitch
+                                                   * orientationWorldToDesiredHeading;
     //---
     /*******************************
      * End set desired orientation *
      *******************************/
 
-    // Set desired pose of body frame with respect to world frame
+    // Set desired pose of base frame with respect to world frame
     torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
 
     /* if a stance leg lost contact, lower it towards the normal to the terrain to re-gain contact */
