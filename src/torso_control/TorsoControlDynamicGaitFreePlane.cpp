@@ -17,7 +17,12 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   torso_(torso),
   terrain_(terrain),
   comControl_(legs),
-  headingDistanceFromForeToHindInBaseFrame_(0.0)
+  headingDistanceFromForeToHindInBaseFrame_(0.0),
+  maxDesiredPitchRadians_(2.0*M_PI/180.0),
+  desiredPitchSlope_(1.0),
+  maxDesiredRollRadians_(2.0*M_PI/180.0),
+  desiredRollSlope_(1.0),
+  adaptToTerrain_(SaturatedLinearAdaption)
 {
   std::vector<double> tValues, xValues;
   const double defaultHeight = 0.42;
@@ -104,22 +109,20 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
     orientationHeadingToDesiredHeading.setIdentity();
   }
 
+  //--- Get terrain estimated attitude and base desired attitude
   loco::RotationQuaternion orientationWorldToDesiredHeading = orientationHeadingToDesiredHeading*orientationWorldToHeading;
-
-  //--- Get terrain estimated attitude
-  loco::Vector normalToPlaneInWorldFrame, normalToPlaneInBaseFrame;
+  loco::Vector normalToPlaneInWorldFrame, normalToPlaneInDesiredHeadingFrame;
   const loco::RotationQuaternion worldToBaseOrientation = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-
   terrain_->getNormal(loco::Position::Zero(), normalToPlaneInWorldFrame);
-  normalToPlaneInBaseFrame = orientationWorldToDesiredHeading.rotate(normalToPlaneInWorldFrame);
-
-  double terrainPitch = atan2(normalToPlaneInBaseFrame.x(), normalToPlaneInBaseFrame.z());
-  double terrainRoll  = atan2(normalToPlaneInBaseFrame.y(), normalToPlaneInBaseFrame.z());
+  normalToPlaneInDesiredHeadingFrame = orientationWorldToDesiredHeading.rotate(normalToPlaneInWorldFrame);
+  double desiredBasePitch, desiredBaseRoll;
+  getDesiredBasePitchFromTerrainPitch(atan2(normalToPlaneInDesiredHeadingFrame.x(), normalToPlaneInDesiredHeadingFrame.z()), desiredBasePitch);
+  getDesiredBasePitchFromTerrainPitch(atan2(normalToPlaneInDesiredHeadingFrame.y(), normalToPlaneInDesiredHeadingFrame.z()), desiredBaseRoll);
   //---
 
   //--- Get rotation between normal to body in desired heading frame and normal to plane
-  RotationQuaternion orientationDesiredHeadingToBasePitch = RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0));
-  RotationQuaternion orientationDesiredHeadingToBaseRoll = RotationQuaternion(AngleAxis(-terrainRoll, 1.0, 0.0, 0.0));
+  RotationQuaternion orientationDesiredHeadingToBasePitch = RotationQuaternion(AngleAxis(desiredBasePitch, 0.0, 1.0, 0.0));
+  RotationQuaternion orientationDesiredHeadingToBaseRoll = RotationQuaternion(AngleAxis(-desiredBaseRoll, 1.0, 0.0, 0.0));
   //---
 
   //--- Compose rotations
@@ -152,6 +155,53 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   }
 
   return true;
+}
+
+
+template <typename T> int TorsoControlDynamicGaitFreePlane::sgn(T val) {
+    return (T(0) < val) - (val < T(0));
+}
+
+
+void TorsoControlDynamicGaitFreePlane::getDesiredBasePitchFromTerrainPitch(const double terrainPitch, double& desiredBasePitch) {
+  if (adaptToTerrain_ == AdaptToTerrain::CompleteAdaption) {
+    desiredBasePitch = terrainPitch;
+  }
+  else if (adaptToTerrain_ == AdaptToTerrain::SaturatedLinearAdaption) {
+    if (fabs(terrainPitch) < maxDesiredPitchRadians_) {
+      desiredBasePitch = terrainPitch;
+    }
+    else {
+      desiredBasePitch = maxDesiredPitchRadians_*sgn(terrainPitch);
+    }
+  }
+  else {
+    /* This is redundant for now (see AdaptToTerrain::CompleteAdaption), but it should be kept here for safety if other enum cases are added
+     * and if AdaptToTerrain::CompleteAdaptation changes in the future
+     */
+    desiredBasePitch = terrainPitch;
+  }
+}
+
+
+void TorsoControlDynamicGaitFreePlane::getDesiredBaseRollFromTerrainRoll(const double terrainRoll, double& desiredBaseRoll) {
+  if (adaptToTerrain_ == AdaptToTerrain::CompleteAdaption) {
+      desiredBaseRoll = terrainRoll;
+    }
+    else if (adaptToTerrain_ == AdaptToTerrain::SaturatedLinearAdaption) {
+      if (fabs(terrainRoll) < maxDesiredRollRadians_) {
+        desiredBaseRoll = terrainRoll;
+      }
+      else {
+        desiredBaseRoll = maxDesiredPitchRadians_*sgn(terrainRoll);
+      }
+    }
+    else {
+      /* This is redundant for now (see AdaptToTerrain::CompleteAdaption), but it should be kept here for safety if other enum cases are added
+       * and if AdaptToTerrain::CompleteAdaptation changes in the future
+       */
+      desiredBaseRoll = terrainRoll;
+    }
 }
 
 

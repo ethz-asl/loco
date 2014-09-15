@@ -25,6 +25,7 @@ namespace loco {
 
   class TorsoControlDynamicGaitFreePlane: public TorsoControlBase {
    public:
+    enum AdaptToTerrain {CompleteAdaption, SaturatedLinearAdaption};
     TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
     virtual ~TorsoControlDynamicGaitFreePlane();
 
@@ -67,10 +68,20 @@ namespace loco {
     rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
     Position desiredPositionOffetInWorldFrame_;
     RotationQuaternion desiredOrientationOffset_;
+    double maxDesiredPitchRadians_;
+    double desiredPitchSlope_;
+    double maxDesiredRollRadians_;
+    double desiredRollSlope_;
+    AdaptToTerrain adaptToTerrain_;
+
+    template <typename T> int sgn(T val);
+
    private:
     virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);
     virtual bool loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory);
     bool interpolateHeightTrajectory(rbf::PeriodicRBF1DC1& interpolatedTrajectory, const rbf::PeriodicRBF1DC1& trajectory1, const rbf::PeriodicRBF1DC1& trajectory2, double t);
+    void getDesiredBasePitchFromTerrainPitch(const double terrainPitch, double& desiredBasePitch);
+    void getDesiredBaseRollFromTerrainRoll(const double terrainRoll, double& desiredBaseRoll);
 
   };
 
