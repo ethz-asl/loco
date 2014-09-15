@@ -62,6 +62,7 @@ namespace loco {
     double headingDistanceFromForeToHindInBaseFrame_;
     double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
     double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
+    double desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;
     rbf::PeriodicRBF1DC1 desiredTorsoForeHeightAboveGroundInWorldFrame_;
     rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
     Position desiredPositionOffetInWorldFrame_;
@@ -70,7 +71,6 @@ namespace loco {
     virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);
     virtual bool loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory);
     bool interpolateHeightTrajectory(rbf::PeriodicRBF1DC1& interpolatedTrajectory, const rbf::PeriodicRBF1DC1& trajectory1, const rbf::PeriodicRBF1DC1& trajectory2, double t);
-
 
   };
 
