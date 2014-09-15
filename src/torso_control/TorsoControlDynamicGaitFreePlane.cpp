@@ -18,11 +18,11 @@ namespace loco {
     terrain_(terrain),
     comControl_(legs),
     headingDistanceFromForeToHindInBaseFrame_(0.0),
-    maxDesiredPitchRadians_(2.0*M_PI/180.0),
+    maxDesiredPitchRadians_(3.0*M_PI/180.0),
     desiredPitchSlope_(1.0),
-    maxDesiredRollRadians_(2.0*M_PI/180.0),
+    maxDesiredRollRadians_(3.0*M_PI/180.0),
     desiredRollSlope_(1.0),
-    adaptToTerrain_(CompleteAdaption)
+    adaptToTerrain_(SaturatedLinearAdaption)
   {
     std::vector<double> tValues, xValues;
     const double defaultHeight = 0.42;
