@@ -13,7 +13,7 @@
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/LegGroup.hpp"
 
-#include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
+#include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
 
 #include "tinyxml.h"
 #include <Eigen/Core>
@@ -28,48 +28,11 @@
 
 namespace loco {
 
-  class FootPlacementStrategyFreePlane: public FootPlacementStrategyBase {
+  class FootPlacementStrategyFreePlane: public FootPlacementStrategyInvertedPendulum {
 
    public:
-    typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
-
-    Position positionWorldToFootHoldInWorldFrame_[4];
-    Position positionWorldToFootHoldInvertedPendulumInWorldFrame_[4];
-
     FootPlacementStrategyFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
     virtual ~FootPlacementStrategyFreePlane();
-
-    virtual bool loadParameters(const TiXmlHandle& handle);
-    virtual bool initialize(double dt);
-    virtual void advance(double dt);
-    /*! Computes an interpolated version of the two controllers passed in as parameters.
-    *  If t is 0, the current setting is set to footPlacementStrategy1, 1 -> footPlacementStrategy2, and values in between
-    *  correspond to interpolated parameter set.
-    * @param footPlacementStrategy1
-    * @param footPlacementStrategy2
-    * @param t interpolation parameter
-    * @returns true if successful
-    */
-    virtual bool setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t);
-    const LegGroup& getLegs() const;
-
-    const Position& getPositionWorldToDesiredFootHoldInWorldFrame(LegBase* leg) const;
-
-    //! Reference to the legs
-    LegGroup* legs_;
-    //! Reference to the torso
-    TorsoBase* torso_;
-    //! Reference to the terrain
-    loco::TerrainModelBase* terrain_;
-
-    //! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
-    Trajectory1D stepInterpolationFunction_;
-
-    //! this value is used to scale the default feedback contribution for the stepping location
-    double stepFeedbackScale_;
-
-    //! trajectory of the height of the swing foot above ground over the swing phase
-    SwingFootHeightTrajectory swingFootHeightTrajectory_;
 
    protected:
     /*! Gets the foot position for the swing leg
@@ -79,33 +42,6 @@ namespace loco {
     * @return
     */
     virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
-
-    double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
-    double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
-
-
-    /*! Computes current desired foot position by interpolating between the predicted and last foothold depending on the swing phase
-    *
-    * @param swingPhase                                           interpolation parameter
-    * @param positionWorldToFootAtLiftOffInWorldFrame             foot location at lift-off
-    * @param positionWorldToFootAtNextTouchDownInWorldFrame       foot location at next touch-down
-    * @return desired foot position in World frame
-    */
-    Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame, LegBase* leg);
-
-    /*! Gets the height of the terrain in world frame at a certain location
-    * @param position  location
-    * @return  height of the terrain
-    */
-    double getHeightOfTerrainInWorldFrame(const loco::Position& position);
-
-    /*! load foot height trajectory from XML
-    * @param hTrajectory handle
-    * @return true if successful
-    */
-    bool loadHeightTrajectory(const TiXmlHandle &hTrajectory);
-
-    bool interpolateHeightTrajectory(rbf::BoundedRBF1D& interpolatedTrajectory, const rbf::BoundedRBF1D& trajectory1, const rbf::BoundedRBF1D& trajectory2, double t);
   };
 
 } /* namespace loco */
