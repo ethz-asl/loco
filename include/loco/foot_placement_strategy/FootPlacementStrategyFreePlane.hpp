@@ -34,14 +34,10 @@ namespace loco {
     FootPlacementStrategyFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
     virtual ~FootPlacementStrategyFreePlane();
 
+    void advance(double dt);
+
    protected:
-    /*! Gets the foot position for the swing leg
-    *
-    * @param leg reference to the leg
-    * @param tinyTimeStep  tiny time step in the future to compute the desired velocities
-    * @return
-    */
-    virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
+    virtual bool getBestFootholdsFromCurrentFootholdInWorldFrame(loco::Position& positionWorldToFootInWorldFrame);
   };
 
 } /* namespace loco */
