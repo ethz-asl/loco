@@ -47,21 +47,26 @@ double GaitPatternFlightPhases::getSwingPhaseForLeg(int iLeg, double stridePhase
   if (pIndex == -1)
     return -1;
 
-//  double timeUntilFootLiftOff = stepPatterns_[pIndex].getPhaseLeftUntilLiftOff(stridePhase);
-//  double timeUntilFootStrike = stepPatterns_[pIndex].getPhaseLeftUntilStrike(stridePhase);
-//
-//  //see if we're not in swing mode...
-//   if (timeUntilFootStrike > timeUntilFootLiftOff)
-//     return -1;
-//
-//   double swingPhaseRange = stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase;
-//
-//   return 1 - timeUntilFootStrike / swingPhaseRange;
+  if (stepPatterns_[pIndex].liftOffPhase == stepPatterns_[pIndex].strikePhase) {
+    return -1; // added by Christian
+  }
 
+  double timeUntilFootLiftOff = stepPatterns_[pIndex].getPhaseLeftUntilLiftOff(stridePhase);
+  double timeUntilFootStrike = stepPatterns_[pIndex].getPhaseLeftUntilStrike(stridePhase);
+
+  //see if we're not in swing mode...
+   if (timeUntilFootStrike > timeUntilFootLiftOff)
+     return -1;
+
+   double swingPhaseRange = stepPatterns_[pIndex].strikePhase - stepPatterns_[pIndex].liftOffPhase;
+
+   return 1 - timeUntilFootStrike / swingPhaseRange;
+
+
+  // old working:
   //the absolute phase parameter should be in the range [0-1], so make it so just in case...
-
-  while (stridePhase < 0) stridePhase += 1; while (stridePhase > 1) stridePhase -= 1;
-  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, stepPatterns_[pIndex].liftOffPhase, stepPatterns_[pIndex].strikePhase);
+//  while (stridePhase < 0) stridePhase += 1; while (stridePhase > 1) stridePhase -= 1;
+//  return getRelativePhaseFromAbsolutePhaseInRange(stridePhase, stepPatterns_[pIndex].liftOffPhase, stepPatterns_[pIndex].strikePhase);
 }
 
 double loco::GaitPatternFlightPhases::getStancePhaseForLeg(int iLeg, double stridePhase) const {
