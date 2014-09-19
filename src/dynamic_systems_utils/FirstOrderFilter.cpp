@@ -12,11 +12,11 @@
 namespace loco {
 
 
-FirstOrderFilter::FirstOrderFilter():
-    y_k_hold_(0.0),
-    u_k_hold_(0.0),
-    continuousTimeConstant_(1.0),
-    gain_(1.0)
+  FirstOrderFilter::FirstOrderFilter():
+      y_k_hold_(0.0),
+      u_k_hold_(0.0),
+      continuousTimeConstant_(1.0),
+      gain_(1.0)
   {
 
   }
