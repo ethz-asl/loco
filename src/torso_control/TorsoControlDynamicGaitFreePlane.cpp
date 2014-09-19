@@ -13,9 +13,9 @@ namespace loco {
 
   TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
     TorsoControlDynamicGait(legs, torso, terrain),
-    maxDesiredPitchRadians_(3.0*M_PI/180.0),
+    maxDesiredPitchRadians_(0.0*M_PI/180.0),
     desiredPitchSlope_(1.0),
-    maxDesiredRollRadians_(3.0*M_PI/180.0),
+    maxDesiredRollRadians_(0.0*M_PI/180.0),
     desiredRollSlope_(1.0),
     adaptToTerrain_(SaturatedLinearAdaption)
   {
@@ -37,7 +37,7 @@ namespace loco {
     const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
     headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
-    firstOrderFilter_->initialize(0.0, 0.1, 1.0);
+    firstOrderFilter_->initialize(0.0, 1.0, 1.0);
 
     return true;
   }
@@ -55,18 +55,19 @@ namespace loco {
 
     // update desired CoM position height as a function of the estimated terrain height and the measured velocity in base frame
     loco::LinearVelocity measuredTorsoVelocityInBaseFrame = torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
+    measuredTorsoVelocityInBaseFrame.y() = 0;
     measuredTorsoVelocityInBaseFrame.z() = 0;
 
     double measuredTorsoVelocityInBaseFrameNorm = fabs( measuredTorsoVelocityInBaseFrame.norm() );
     double heightOffset = 0.1*( 1.0 - exp(-measuredTorsoVelocityInBaseFrameNorm/0.25) );
 
-    heightOffset = firstOrderFilter_->advance(dt, heightOffset);
+    //heightOffset = firstOrderFilter_->advance(dt, heightOffset);
 
-    std::cout << "vel: " << measuredTorsoVelocityInBaseFrameNorm << "filt. height offset: " << heightOffset << std::endl;
+    //std::cout << "vel: " << measuredTorsoVelocityInBaseFrameNorm << "filt. height offset: " << heightOffset << std::endl;
 
     terrain_->getHeight(desiredTorsoPositionInWorldFrame);
     desiredTorsoPositionInWorldFrame.z() += desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;
-    desiredTorsoPositionInWorldFrame.z() -= heightOffset;
+    //desiredTorsoPositionInWorldFrame.z() -= heightOffset;
     desiredTorsoPositionInWorldFrame += desiredPositionOffetInWorldFrame_;
     /***********************************************
      * End set desired CoM position in world frame *

@@ -27,12 +27,18 @@ namespace loco {
 
     double desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;
 
+    //--- Terrain adaptation parameters
     double maxDesiredPitchRadians_;
     double desiredPitchSlope_;
     double maxDesiredRollRadians_;
     double desiredRollSlope_;
     AdaptToTerrain adaptToTerrain_;
+    //---
+
+    //--- Height offset parameters
+    //double maxHeightOffset_;
     FirstOrderFilter* firstOrderFilter_;
+    //---
 
     template <typename T> int sgn(T val);
 
