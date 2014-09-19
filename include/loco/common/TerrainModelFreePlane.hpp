@@ -21,7 +21,10 @@ namespace loco {
 
       //--- HEIGHT IN WORLD FRAME
       double heightInWorldFrame_;
+      double heightFreePlaneInWorldFrame_;
+
       virtual void setHeight(double height);
+      virtual void setHeightFreePlane();
       //---
 
 
@@ -66,7 +69,7 @@ namespace loco {
        */
       void setNormalandPositionInWorldFrame(const loco::Vector& normal, const loco::Position& position);
 
-   protected:
+   public:
       double frictionCoefficientBetweenTerrainAndFoot_;
 
       // Plane properties

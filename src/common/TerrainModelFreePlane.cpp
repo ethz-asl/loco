@@ -14,7 +14,8 @@ namespace loco {
       positionInWorldFrame_(loco::Vector::Zero()),
       normalInWorldFrame_(loco::Vector::UnitZ()),
       frictionCoefficientBetweenTerrainAndFoot_(0.8),
-      heightInWorldFrame_(0.0)
+      heightInWorldFrame_(0.0),
+      heightFreePlaneInWorldFrame_(0.0)
   {
 
   } // constructor
@@ -31,6 +32,7 @@ namespace loco {
     positionInWorldFrame_.setZero();
     frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
     heightInWorldFrame_ = 0.0;
+    heightFreePlaneInWorldFrame_ = 0.0;
     return true;
   } // initialize
 
@@ -40,9 +42,24 @@ namespace loco {
 
   //--- set height as in horizontal
   void TerrainModelFreePlane::setHeight(double height) {
-    heightInWorldFrame_ = height;
+	  heightInWorldFrame_ = height;
+    setHeightFreePlane();
   }
+
+
+  void TerrainModelFreePlane::setHeightFreePlane() {
+	  loco::Position position;
+	  position.setZero();
+
+	  heightFreePlaneInWorldFrame_ = positionInWorldFrame_.z()
+	                    		     + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-position.x() )
+	                                 + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-position.y() );
+	  heightFreePlaneInWorldFrame_ /= normalInWorldFrame_.z();
+  }
+
   //---
+
+
 
 
 
