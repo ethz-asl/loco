@@ -17,7 +17,7 @@ namespace loco {
       heightInWorldFrame_(0.0),
       heightFreePlaneInWorldFrame_(0.0),
       filterHeightHorizontalTimeConstant_(1.0),
-      filterHeightFreeTimeConstant_(1.0)
+      filterHeightFreeTimeConstant_(0.2 )
   {
 
     filterNormalX_ = FirstOrderFilter();
@@ -42,7 +42,7 @@ namespace loco {
     heightInWorldFrame_ = 0.0;
     heightFreePlaneInWorldFrame_ = 0.0;
     filterHeightHorizontalTimeConstant_ = 1.0;
-    filterHeightFreeTimeConstant_ = 1.0;
+    filterHeightFreeTimeConstant_ = 0.2;
 
 
     filterNormalX_.initialize(0.0, 10.0, 1.0);
@@ -63,8 +63,11 @@ namespace loco {
     //normalInWorldFrame_.z()  = filterNormalZ_.advance(dt, normalInWorldFrame_.z());
     //std::cout << "normalz: " << normalInWorldFrame_.z() << std::endl;
 
+	  filterHeightFree_.setContinuousTimeConstant(filterHeightFreeTimeConstant_);
+
     heightFreePlaneInWorldFrame_ = filterHeightFree_.advance(dt, heightFreePlaneInWorldFrame_);
-    heightInWorldFrame_ = filterHeightFree_.advance(dt, heightInWorldFrame_);
+//    heightInWorldFrame_ = filterHeightHorizontal_.advance(dt, heightInWorldFrame_);
+
 
     //std::cout << "height free: " << heightFreePlaneInWorldFrame_ << " height horz: " << heightInWorldFrame_ << std::endl;
 
@@ -125,8 +128,8 @@ namespace loco {
     */
 
 
-    positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
-
+//    positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
+    positionWorldToLocationInWorldFrame.z() = heightFreePlaneInWorldFrame_;
     return true;
   } // get height at position, update position
 
@@ -134,7 +137,8 @@ namespace loco {
   bool TerrainModelFreePlane::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
 
 
-    heightInWorldFrame = heightInWorldFrame_;
+//    heightInWorldFrame = heightInWorldFrame_;
+	  heightInWorldFrame = heightFreePlaneInWorldFrame_;
     return true;
 
     /* Dividing by normalInWorldFrame.z() is safe because the plane equation is z = d-ax-by.
