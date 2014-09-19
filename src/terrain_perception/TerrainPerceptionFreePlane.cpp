@@ -68,6 +68,24 @@ namespace loco {
 
     if (gotNewTouchDown && allLegsGroundedAtLeastOnce) { updatePlaneEstimation(); }
 
+
+    //--- UPDATE HEIGHT AS IN HORIZONTAL PLANE PERCEPTION
+    int groundedLimbCount = 0;
+      double gHeight = 0.0;
+
+
+      for (auto leg : *legs_) {
+        if (leg->isAndShouldBeGrounded()){
+          groundedLimbCount++;
+          gHeight += leg->getWorldToFootPositionInWorldFrame().z();
+        }
+      }
+
+      if (groundedLimbCount > 0) {
+        terrainModel_->setHeight(gHeight / groundedLimbCount);
+      }
+    //---
+
     return true;
 
   } // advance

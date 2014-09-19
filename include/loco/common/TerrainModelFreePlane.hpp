@@ -18,6 +18,13 @@ namespace loco {
       TerrainModelFreePlane();
       virtual ~TerrainModelFreePlane();
 
+
+      //--- HEIGHT IN WORLD FRAME
+      double heightInWorldFrame_;
+      virtual void setHeight(double height);
+      //---
+
+
       /*! Initializes the plane at zero height and normal parallel to z-axis in world frame
        * @param dt  time step
        * @returns true
