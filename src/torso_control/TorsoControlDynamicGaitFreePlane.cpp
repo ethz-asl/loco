@@ -48,8 +48,16 @@ namespace loco {
     Position desiredTorsoPositionInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
 
     // update desired CoM position height as a function of the estimated terrain height
+
+    loco::LinearVelocity measuredTorsoVelocityInBaseFrame = torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
+    measuredTorsoVelocityInBaseFrame.z() = 0;
+
+    double measuredTorsoVelocityInBaseFrameNorm = measuredTorsoVelocityInBaseFrame.norm();
+    double heightOffset = 0.1*( 1.0 - exp(-measuredTorsoVelocityInBaseFrameNorm/0.25) );
+
     terrain_->getHeight(desiredTorsoPositionInWorldFrame);
     desiredTorsoPositionInWorldFrame.z() += desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;
+    desiredTorsoPositionInWorldFrame.z() -= heightOffset;
     desiredTorsoPositionInWorldFrame += desiredPositionOffetInWorldFrame_;
     /***********************************************
      * End set desired CoM position in world frame *
