@@ -15,8 +15,16 @@ namespace loco {
       normalInWorldFrame_(loco::Vector::UnitZ()),
       frictionCoefficientBetweenTerrainAndFoot_(0.8),
       heightInWorldFrame_(0.0),
-      heightFreePlaneInWorldFrame_(0.0)
+      heightFreePlaneInWorldFrame_(0.0),
+      filterHeightHorizontalTimeConstant_(1.0),
+      filterHeightFreeTimeConstant_(1.0)
   {
+
+    filterNormalX_ = FirstOrderFilter();
+    filterNormalY_ = FirstOrderFilter();
+    filterNormalZ_ = FirstOrderFilter();
+    filterHeightFree_ = FirstOrderFilter();
+    filterHeightHorizontal_ = FirstOrderFilter();
 
   } // constructor
 
@@ -33,11 +41,34 @@ namespace loco {
     frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
     heightInWorldFrame_ = 0.0;
     heightFreePlaneInWorldFrame_ = 0.0;
+    filterHeightHorizontalTimeConstant_ = 1.0;
+    filterHeightFreeTimeConstant_ = 1.0;
+
+
+    filterNormalX_.initialize(0.0, 10.0, 1.0);
+    filterNormalY_.initialize(0.0, 10.0, 1.0);
+    filterNormalZ_.initialize(1.0, 10.0, 1.0);
+
+    filterHeightFree_.initialize(0.0, filterHeightFreeTimeConstant_, 1.0);
+    filterHeightHorizontal_.initialize(0.0, filterHeightHorizontalTimeConstant_, 1.0);
+
     return true;
   } // initialize
 
 
 
+  void TerrainModelFreePlane::advance(double dt) {
+    //normalInWorldFrame_.x() = filterNormalX_.advance(dt, normalInWorldFrame_.x());
+    //normalInWorldFrame_.y() = filterNormalY_.advance(dt, normalInWorldFrame_.y());
+    //normalInWorldFrame_.z()  = filterNormalZ_.advance(dt, normalInWorldFrame_.z());
+    //std::cout << "normalz: " << normalInWorldFrame_.z() << std::endl;
+
+    heightFreePlaneInWorldFrame_ = filterHeightFree_.advance(dt, heightFreePlaneInWorldFrame_);
+    heightInWorldFrame_ = filterHeightFree_.advance(dt, heightInWorldFrame_);
+
+    //std::cout << "height free: " << heightFreePlaneInWorldFrame_ << " height horz: " << heightInWorldFrame_ << std::endl;
+
+  }
 
 
   //--- set height as in horizontal

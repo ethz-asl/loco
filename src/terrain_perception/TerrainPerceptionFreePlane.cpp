@@ -86,6 +86,10 @@ namespace loco {
       }
     //---
 
+
+      terrainModel_->advance(dt);
+
+
     return true;
 
   } // advance

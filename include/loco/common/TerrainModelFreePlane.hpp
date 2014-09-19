@@ -9,6 +9,7 @@
 #define LOCO_TERRAINMODELFREEPLANE_HPP_
 
 #include "loco/common/TerrainModelBase.hpp"
+#include "loco/dynamic_systems_utils/FirstOrderFilter.hpp"
 
 namespace loco {
 
@@ -25,6 +26,18 @@ namespace loco {
 
       virtual void setHeight(double height);
       virtual void setHeightFreePlane();
+
+      FirstOrderFilter filterNormalX_;
+      FirstOrderFilter filterNormalY_;
+      FirstOrderFilter filterNormalZ_;
+      FirstOrderFilter filterHeightHorizontal_;
+      FirstOrderFilter filterHeightFree_;
+
+      double filterHeightHorizontalTimeConstant_;
+      double filterHeightFreeTimeConstant_;
+
+      virtual void advance(double dt);
+
       //---
 
 
