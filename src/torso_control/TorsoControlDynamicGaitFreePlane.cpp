@@ -21,11 +21,14 @@ namespace loco {
   {
     const double defaultHeight = 0.42;
     desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_  = defaultHeight;
+
+    firstOrderFilter_ = new loco::FirstOrderFilter();
+
   }
 
 
   TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
-
+    delete firstOrderFilter_;
   }
 
 
@@ -33,6 +36,9 @@ namespace loco {
     const Position foreHipPosition = legs_->getLeg(0)->getWorldToHipPositionInBaseFrame();
     const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
     headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
+
+    firstOrderFilter_->initialize(0.0, 0.1, 1.0);
+
     return true;
   }
 
@@ -47,15 +53,16 @@ namespace loco {
     // evaluate desired CoM position in world frame
     Position desiredTorsoPositionInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
 
-    // update desired CoM position height as a function of the estimated terrain height
-
+    // update desired CoM position height as a function of the estimated terrain height and the measured velocity in base frame
     loco::LinearVelocity measuredTorsoVelocityInBaseFrame = torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
     measuredTorsoVelocityInBaseFrame.z() = 0;
 
     double measuredTorsoVelocityInBaseFrameNorm = fabs( measuredTorsoVelocityInBaseFrame.norm() );
     double heightOffset = 0.1*( 1.0 - exp(-measuredTorsoVelocityInBaseFrameNorm/0.25) );
 
-    // TODO: filter heightOffset
+    heightOffset = firstOrderFilter_->advance(dt, heightOffset);
+
+    std::cout << "vel: " << measuredTorsoVelocityInBaseFrameNorm << "filt. height offset: " << heightOffset << std::endl;
 
     terrain_->getHeight(desiredTorsoPositionInWorldFrame);
     desiredTorsoPositionInWorldFrame.z() += desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;

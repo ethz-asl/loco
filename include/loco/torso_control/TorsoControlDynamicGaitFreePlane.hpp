@@ -10,6 +10,8 @@
 
 
 #include "loco/torso_control/TorsoControlDynamicGait.hpp"
+#include "loco/dynamic_systems_utils/FirstOrderFilter.hpp"
+
 namespace loco {
 
   class TorsoControlDynamicGaitFreePlane: public TorsoControlDynamicGait {
@@ -30,14 +32,14 @@ namespace loco {
     double maxDesiredRollRadians_;
     double desiredRollSlope_;
     AdaptToTerrain adaptToTerrain_;
+    FirstOrderFilter* firstOrderFilter_;
 
     template <typename T> int sgn(T val);
 
-   protected:
     void getDesiredBasePitchFromTerrainPitch(const double terrainPitch, double& desiredBasePitch);
     void getDesiredBaseRollFromTerrainRoll(const double terrainRoll, double& desiredBaseRoll);
 
-
+    double heightOffsetFilterAdvance(double dt);
 
   };
 
