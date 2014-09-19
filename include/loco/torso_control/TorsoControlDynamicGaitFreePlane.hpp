@@ -37,6 +37,8 @@ namespace loco {
     void getDesiredBasePitchFromTerrainPitch(const double terrainPitch, double& desiredBasePitch);
     void getDesiredBaseRollFromTerrainRoll(const double terrainRoll, double& desiredBaseRoll);
 
+
+
   };
 
 } /* namespace loco */

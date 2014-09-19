@@ -52,8 +52,10 @@ namespace loco {
     loco::LinearVelocity measuredTorsoVelocityInBaseFrame = torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
     measuredTorsoVelocityInBaseFrame.z() = 0;
 
-    double measuredTorsoVelocityInBaseFrameNorm = measuredTorsoVelocityInBaseFrame.norm();
+    double measuredTorsoVelocityInBaseFrameNorm = fabs( measuredTorsoVelocityInBaseFrame.norm() );
     double heightOffset = 0.1*( 1.0 - exp(-measuredTorsoVelocityInBaseFrameNorm/0.25) );
+
+    // TODO: filter heightOffset
 
     terrain_->getHeight(desiredTorsoPositionInWorldFrame);
     desiredTorsoPositionInWorldFrame.z() += desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;
