@@ -81,6 +81,13 @@ namespace loco {
       */
      void updateLocalMeasuresOfLeg(const loco::LegBase& leg);
 
+     //--- Compute noise on robot estimator
+     void computeEstimationNoise();
+     std::vector<double> heightMemory_;
+     int heightMemoryIndex_;
+     double heightHorizontalPlaneAlgorithm_;
+     //---
+
   }; // class
 } /* namespace loco */
 

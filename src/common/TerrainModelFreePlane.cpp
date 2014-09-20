@@ -17,7 +17,8 @@ namespace loco {
       heightInWorldFrame_(0.0),
       heightFreePlaneInWorldFrame_(0.0),
       filterHeightHorizontalTimeConstant_(1.0),
-      filterHeightFreeTimeConstant_(0.2 )
+      filterHeightFreeTimeConstant_(0.2 ),
+      heightNoise_(0.0)
   {
 
     filterNormalX_ = FirstOrderFilter();
@@ -64,8 +65,15 @@ namespace loco {
     //filterHeightFree_.initialize(0.0, filterHeightFreeTimeConstant_, 1.0);
     //filterHeightHorizontal_.initialize(0.0, filterHeightHorizontalTimeConstant_, 1.0);
 
+    heightNoise_ = 0.0;
+
     return true;
   } // initialize
+
+
+  void TerrainModelFreePlane::setHeightNoise(double height) {
+    heightNoise_ = height;
+  }
 
 
   void TerrainModelFreePlane::advance(double dt) {
@@ -84,6 +92,8 @@ namespace loco {
 
 
     //std::cout << "height free: " << heightFreePlaneInWorldFrame_ << " height horz: " << heightInWorldFrame_ << std::endl;
+
+    std::cout << "height noise: " << heightNoise_ << std::endl;
 
   }
 
@@ -129,6 +139,9 @@ namespace loco {
                                               + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     positionWorldToLocationInWorldFrame.z() /= normalInWorldFrame_.z();
 
+
+    positionWorldToLocationInWorldFrame.z() += heightNoise_;
+
     //positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
     //positionWorldToLocationInWorldFrame.z() = heightFreePlaneInWorldFrame_;
     return true;
@@ -149,6 +162,9 @@ namespace loco {
                          + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
                          + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     heightInWorldFrame /= normalInWorldFrame_.z();
+
+    heightInWorldFrame += heightNoise_;
+
     return true;
   } // get height at position, return height
 

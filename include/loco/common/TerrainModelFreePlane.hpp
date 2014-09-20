@@ -25,7 +25,9 @@ namespace loco {
       double heightFreePlaneInWorldFrame_;
 
       virtual void setHeight(double height);
+      virtual void setHeightNoise(double height);
       virtual void setHeightFreePlane();
+      double heightNoise_;
 
       FirstOrderFilter filterNormalX_;
       FirstOrderFilter filterNormalY_;

@@ -25,7 +25,9 @@ namespace loco {
     mostRecentPositionOfFoot_(legs_->size()),
     lastWorldToBasePositionInWorldFrameForFoot_(legs_->size()),
     lastWorldToBaseOrientationForFoot_(legs_->size()),
-    gotFirstTouchDownOfFoot_(legs_->size())
+    gotFirstTouchDownOfFoot_(legs_->size()),
+    heightMemory_(100),
+    heightHorizontalPlaneAlgorithm_(0.0)
   {
     for (auto leg: *legs_) {
       mostRecentPositionOfFoot_[leg->getId()].setZero();
@@ -33,6 +35,12 @@ namespace loco {
       lastWorldToBaseOrientationForFoot_[leg->getId()].setIdentity();
       gotFirstTouchDownOfFoot_[leg->getId()] = false;
     }
+
+    for (int k=0; k<heightMemory_.size(); k++) {
+      heightMemory_[k] = 0.0;
+    }
+    heightMemoryIndex_ = 0;
+
   } // constructor
 
 
@@ -46,6 +54,13 @@ namespace loco {
       gotFirstTouchDownOfFoot_[leg->getId()] = false;
       updateLocalMeasuresOfLeg(*leg);
     } // for
+
+    for (int k=0; k<heightMemory_.size(); k++) {
+      heightMemory_[k] = 0.0;
+    }
+    heightMemoryIndex_ = 0;
+    heightHorizontalPlaneAlgorithm_ = 0.0;
+
     return true;
   } // initialize
 
@@ -68,28 +83,60 @@ namespace loco {
     } // for
 
     // Update terrain model properties (if necessary) based on current estimation
-    if (gotNewTouchDown && allLegsGroundedAtLeastOnce) { updatePlaneEstimation(); }
+    if (gotNewTouchDown && allLegsGroundedAtLeastOnce) {
+      updatePlaneEstimation();
+    }
 
-    //--- UPDATE HEIGHT AS IN HORIZONTAL PLANE PERCEPTION
-    int groundedLimbCount = 0;
-      double gHeight = 0.0;
 
-      for (auto leg : *legs_) {
-        if (leg->isAndShouldBeGrounded()){
-          groundedLimbCount++;
-          gHeight += leg->getWorldToFootPositionInWorldFrame().z();
-        }
-      }
-
-      if (groundedLimbCount > 0) {
-        terrainModel_->setHeight(gHeight / groundedLimbCount);
-      }
-    //---
+    computeEstimationNoise();
 
     terrainModel_->advance(dt);
 
     return true;
   } // advance
+
+
+  void TerrainPerceptionFreePlane::computeEstimationNoise() {
+
+    /*
+     * 1. evaluate height as in horizontal plane algorithm
+     * 2. subtract the average from it, so that one has an estimation of the noise coming from the robot estimator
+     * 3. set the height to the terrain model, so that it can be added to the height it returns to other objects
+     */
+
+    //--- UPDATE HEIGHT AS IN HORIZONTAL PLANE PERCEPTION
+    int groundedLimbCount = 0;
+    double gHeight = 0.0;
+
+    for (auto leg : *legs_) {
+      if (leg->isAndShouldBeGrounded()){
+        groundedLimbCount++;
+        gHeight += leg->getWorldToFootPositionInWorldFrame().z();
+      }
+    }
+
+    if (groundedLimbCount > 0) {
+      // 1.
+      heightHorizontalPlaneAlgorithm_ = gHeight / groundedLimbCount;
+
+      // 2.
+      heightMemory_[heightMemoryIndex_] = gHeight / groundedLimbCount;
+      heightMemoryIndex_++;
+      if (heightMemoryIndex_ == heightMemory_.size()) {
+        heightMemoryIndex_ = 0;
+      }
+      double averageHeight = 0.0;
+
+      for (int k=0; k<heightMemory_.size(); k++) {
+        averageHeight += heightMemory_[k]/heightMemory_.size();
+      }
+
+      // 3.
+      terrainModel_->setHeightNoise(heightHorizontalPlaneAlgorithm_-averageHeight);
+    } // if groundedLimbCount
+    //---
+
+  }
 
 
   void TerrainPerceptionFreePlane::updateLocalMeasuresOfLeg(const loco::LegBase& leg) {
