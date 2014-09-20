@@ -93,8 +93,6 @@ namespace loco {
 
     //std::cout << "height free: " << heightFreePlaneInWorldFrame_ << " height horz: " << heightInWorldFrame_ << std::endl;
 
-    std::cout << "height noise: " << heightNoise_ << std::endl;
-
   }
 
 
@@ -106,13 +104,15 @@ namespace loco {
 
 
   void TerrainModelFreePlane::setHeightFreePlane() {
-	  loco::Position position;
-	  position.setZero();
-
+	  /*
 	  heightFreePlaneInWorldFrame_ = positionInWorldFrame_.z()
 	                                  + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-position.x() )
 	                                  + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-position.y() );
 	  heightFreePlaneInWorldFrame_ /= normalInWorldFrame_.z();
+	  */
+
+	  getHeight(loco::Position::Zero(), heightFreePlaneInWorldFrame_);
+
   }
   //---
 

@@ -132,6 +132,7 @@ namespace loco {
       }
 
       // 3.
+      terrainModel_->setHeight(heightHorizontalPlaneAlgorithm_);
       terrainModel_->setHeightNoise(heightHorizontalPlaneAlgorithm_-averageHeight);
     } // if groundedLimbCount
     //---
