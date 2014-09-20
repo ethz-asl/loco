@@ -30,6 +30,10 @@ namespace loco {
       FirstOrderFilter filterNormalX_;
       FirstOrderFilter filterNormalY_;
       FirstOrderFilter filterNormalZ_;
+      FirstOrderFilter filterPositionX_;
+      FirstOrderFilter filterPositionY_;
+      FirstOrderFilter filterPositionZ_;
+
       FirstOrderFilter filterHeightHorizontal_;
       FirstOrderFilter filterHeightFree_;
 
@@ -37,9 +41,7 @@ namespace loco {
       double filterHeightFreeTimeConstant_;
 
       virtual void advance(double dt);
-
       //---
-
 
       /*! Initializes the plane at zero height and normal parallel to z-axis in world frame
        * @param dt  time step
@@ -88,6 +90,9 @@ namespace loco {
       // Plane properties
       loco::Vector normalInWorldFrame_;       // normal to the plane
       loco::Position positionInWorldFrame_;   // position of a point on the plane
+
+      loco::Vector normalInWorldFrameFilterInput_;
+      loco::Position positionInWorldFrameFilterInput_;
 
   }; // class
 

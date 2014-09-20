@@ -76,6 +76,10 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
     return false;
   }
 
+  if (!eventDetector_->initialize(dt)) {
+    return false;
+  }
+
   if (!limbCoordinator_->loadParameters(hLoco)) {
     return false;
   }

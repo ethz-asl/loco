@@ -23,6 +23,10 @@ namespace loco {
     filterNormalX_ = FirstOrderFilter();
     filterNormalY_ = FirstOrderFilter();
     filterNormalZ_ = FirstOrderFilter();
+    filterPositionX_ = FirstOrderFilter();
+    filterPositionY_ = FirstOrderFilter();
+    filterPositionZ_ = FirstOrderFilter();
+
     filterHeightFree_ = FirstOrderFilter();
     filterHeightHorizontal_ = FirstOrderFilter();
 
@@ -38,6 +42,10 @@ namespace loco {
     // Initialize the plane as coincident with the ground
     normalInWorldFrame_ = loco::Vector::UnitZ();
     positionInWorldFrame_.setZero();
+
+    normalInWorldFrameFilterInput_ = normalInWorldFrame_;
+    positionInWorldFrameFilterInput_ = positionInWorldFrame_;
+
     frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
     heightInWorldFrame_ = 0.0;
     heightFreePlaneInWorldFrame_ = 0.0;
@@ -45,27 +53,33 @@ namespace loco {
     filterHeightFreeTimeConstant_ = 0.2;
 
 
-    filterNormalX_.initialize(0.0, 10.0, 1.0);
-    filterNormalY_.initialize(0.0, 10.0, 1.0);
-    filterNormalZ_.initialize(1.0, 10.0, 1.0);
+    filterNormalX_.initialize(normalInWorldFrame_.x(), 0.1, 1.0);
+    filterNormalY_.initialize(normalInWorldFrame_.y(), 0.1, 1.0);
+    filterNormalZ_.initialize(normalInWorldFrame_.z(), 0.1, 1.0);
 
-    filterHeightFree_.initialize(0.0, filterHeightFreeTimeConstant_, 1.0);
-    filterHeightHorizontal_.initialize(0.0, filterHeightHorizontalTimeConstant_, 1.0);
+    filterPositionX_.initialize(positionInWorldFrame_.x(), 0.1, 1.0);
+    filterPositionY_.initialize(positionInWorldFrame_.y(), 0.1, 1.0);
+    filterPositionZ_.initialize(positionInWorldFrame_.z(), 0.1, 1.0);
+
+    //filterHeightFree_.initialize(0.0, filterHeightFreeTimeConstant_, 1.0);
+    //filterHeightHorizontal_.initialize(0.0, filterHeightHorizontalTimeConstant_, 1.0);
 
     return true;
   } // initialize
 
 
-
   void TerrainModelFreePlane::advance(double dt) {
-    //normalInWorldFrame_.x() = filterNormalX_.advance(dt, normalInWorldFrame_.x());
-    //normalInWorldFrame_.y() = filterNormalY_.advance(dt, normalInWorldFrame_.y());
-    //normalInWorldFrame_.z()  = filterNormalZ_.advance(dt, normalInWorldFrame_.z());
-    //std::cout << "normalz: " << normalInWorldFrame_.z() << std::endl;
+    normalInWorldFrame_.x() = filterNormalX_.advance(dt, normalInWorldFrameFilterInput_.x());
+    normalInWorldFrame_.y() = filterNormalY_.advance(dt, normalInWorldFrameFilterInput_.y());
+    normalInWorldFrame_.z() = filterNormalZ_.advance(dt, normalInWorldFrameFilterInput_.z());
 
-	  filterHeightFree_.setContinuousTimeConstant(filterHeightFreeTimeConstant_);
+    positionInWorldFrame_.x() = filterPositionX_.advance(dt, positionInWorldFrameFilterInput_.x());
+    positionInWorldFrame_.y() = filterPositionY_.advance(dt, positionInWorldFrameFilterInput_.y());
+    positionInWorldFrame_.z() = filterPositionZ_.advance(dt, positionInWorldFrameFilterInput_.z());
 
-    heightFreePlaneInWorldFrame_ = filterHeightFree_.advance(dt, heightFreePlaneInWorldFrame_);
+	  //filterHeightFree_.setContinuousTimeConstant(filterHeightFreeTimeConstant_);
+
+    //heightFreePlaneInWorldFrame_ = filterHeightFree_.advance(dt, heightFreePlaneInWorldFrame_);
 //    heightInWorldFrame_ = filterHeightHorizontal_.advance(dt, heightInWorldFrame_);
 
 
@@ -86,24 +100,16 @@ namespace loco {
 	  position.setZero();
 
 	  heightFreePlaneInWorldFrame_ = positionInWorldFrame_.z()
-	                    		     + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-position.x() )
-	                                 + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-position.y() );
+	                                  + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-position.x() )
+	                                  + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-position.y() );
 	  heightFreePlaneInWorldFrame_ /= normalInWorldFrame_.z();
   }
-
   //---
 
 
-
-
-
-
-
-
-
   void TerrainModelFreePlane::setNormalandPositionInWorldFrame(const loco::Vector& normal, const loco::Position& position) {
-    normalInWorldFrame_ = normal;
-    positionInWorldFrame_ = position;
+    normalInWorldFrameFilterInput_ = normal;
+    positionInWorldFrameFilterInput_ = position;
   } // set normal and position
 
 
@@ -118,18 +124,13 @@ namespace loco {
     /* Dividing by normalInWorldFrame.z() is safe because the plane equation is z = d-ax-by.
      * If the normal is normalized, it's z component will still be greater than zero
      */
-
-
-    /*
     positionWorldToLocationInWorldFrame.z() = positionInWorldFrame_.z()
                                               + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
                                               + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     positionWorldToLocationInWorldFrame.z() /= normalInWorldFrame_.z();
-    */
 
-
-//    positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
-    positionWorldToLocationInWorldFrame.z() = heightFreePlaneInWorldFrame_;
+    //positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
+    //positionWorldToLocationInWorldFrame.z() = heightFreePlaneInWorldFrame_;
     return true;
   } // get height at position, update position
 
@@ -138,19 +139,17 @@ namespace loco {
 
 
 //    heightInWorldFrame = heightInWorldFrame_;
-	  heightInWorldFrame = heightFreePlaneInWorldFrame_;
-    return true;
+	  //heightInWorldFrame = heightFreePlaneInWorldFrame_;
+    //return true;
 
     /* Dividing by normalInWorldFrame.z() is safe because the plane equation is z = d-ax-by.
      * If the normal is normalized, it's z component will still be greater than zero
      */
-    /*
     heightInWorldFrame = positionInWorldFrame_.z()
                          + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
                          + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     heightInWorldFrame /= normalInWorldFrame_.z();
     return true;
-    */
   } // get height at position, return height
 
 

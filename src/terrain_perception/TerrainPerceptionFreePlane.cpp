@@ -55,6 +55,7 @@ namespace loco {
     bool allLegsGroundedAtLeastOnce = true;
     int legID = 0;
 
+    // Update foot measurements
     for (auto leg: *legs_) {
       legID = leg->getId();
       if ( leg->getStateTouchDown()->isNow() ) {
@@ -66,13 +67,12 @@ namespace loco {
       allLegsGroundedAtLeastOnce *= gotFirstTouchDownOfFoot_[legID];
     } // for
 
+    // Update terrain model properties (if necessary) based on current estimation
     if (gotNewTouchDown && allLegsGroundedAtLeastOnce) { updatePlaneEstimation(); }
-
 
     //--- UPDATE HEIGHT AS IN HORIZONTAL PLANE PERCEPTION
     int groundedLimbCount = 0;
       double gHeight = 0.0;
-
 
       for (auto leg : *legs_) {
         if (leg->isAndShouldBeGrounded()){
@@ -86,12 +86,9 @@ namespace loco {
       }
     //---
 
-
-      terrainModel_->advance(dt);
-
+    terrainModel_->advance(dt);
 
     return true;
-
   } // advance
 
 
@@ -104,6 +101,7 @@ namespace loco {
     #endif
 
     switch (estimatePlaneInFrame_) {
+
       case(EstimatePlaneInFrame::World): {
         mostRecentPositionOfFoot_[legID] = leg.getWorldToFootPositionInWorldFrame();
       } break;
@@ -117,6 +115,7 @@ namespace loco {
       default: {
         error: throw std::out_of_range("Index out of range ...");
       }
+
     } // switch
   } // update local measures
 
