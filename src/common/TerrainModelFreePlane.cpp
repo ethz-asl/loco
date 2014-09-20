@@ -97,13 +97,13 @@ namespace loco {
 
 
   //--- set height as in horizontal
-  void TerrainModelFreePlane::setHeight(double height) {
+  void TerrainModelFreePlane::setHeight(double height, const loco::Position& torsoPositionInWorldFrame) {
 	  heightInWorldFrame_ = height;
-    setHeightFreePlane();
+	  setHeightFreePlane(torsoPositionInWorldFrame);
   }
 
 
-  void TerrainModelFreePlane::setHeightFreePlane() {
+  void TerrainModelFreePlane::setHeightFreePlane(const loco::Position& torsoPositionInWorldFrame) {
 	  /*
 	  heightFreePlaneInWorldFrame_ = positionInWorldFrame_.z()
 	                                  + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-position.x() )
@@ -111,7 +111,7 @@ namespace loco {
 	  heightFreePlaneInWorldFrame_ /= normalInWorldFrame_.z();
 	  */
 
-	  getHeight(loco::Position::Zero(), heightFreePlaneInWorldFrame_);
+	  getHeight(torsoPositionInWorldFrame, heightFreePlaneInWorldFrame_);
 
   }
   //---
@@ -125,7 +125,8 @@ namespace loco {
 
   bool TerrainModelFreePlane::getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const {
     // For a plane, the normal is constant (independent from the position at which it is evaluated)
-    normalInWorldFrame = normalInWorldFrame_;
+    //normalInWorldFrame = normalInWorldFrame_;
+    normalInWorldFrame = loco::Vector::UnitZ();
     return true;
   } // get normal
 
@@ -134,13 +135,14 @@ namespace loco {
     /* Dividing by normalInWorldFrame.z() is safe because the plane equation is z = d-ax-by.
      * If the normal is normalized, it's z component will still be greater than zero
      */
+
     positionWorldToLocationInWorldFrame.z() = positionInWorldFrame_.z()
                                               + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
                                               + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     positionWorldToLocationInWorldFrame.z() /= normalInWorldFrame_.z();
 
 
-    positionWorldToLocationInWorldFrame.z() += heightNoise_;
+    //positionWorldToLocationInWorldFrame.z() += heightNoise_;
 
     //positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
     //positionWorldToLocationInWorldFrame.z() = heightFreePlaneInWorldFrame_;
@@ -151,19 +153,20 @@ namespace loco {
   bool TerrainModelFreePlane::getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const {
 
 
-//    heightInWorldFrame = heightInWorldFrame_;
+	//heightInWorldFrame = heightInWorldFrame_;
 	  //heightInWorldFrame = heightFreePlaneInWorldFrame_;
     //return true;
 
     /* Dividing by normalInWorldFrame.z() is safe because the plane equation is z = d-ax-by.
      * If the normal is normalized, it's z component will still be greater than zero
      */
+
     heightInWorldFrame = positionInWorldFrame_.z()
                          + normalInWorldFrame_.x()*( positionInWorldFrame_.x()-positionWorldToLocationInWorldFrame.x() )
                          + normalInWorldFrame_.y()*( positionInWorldFrame_.y()-positionWorldToLocationInWorldFrame.y() );
     heightInWorldFrame /= normalInWorldFrame_.z();
 
-    heightInWorldFrame += heightNoise_;
+    //heightInWorldFrame += heightNoise_;
 
     return true;
   } // get height at position, return height

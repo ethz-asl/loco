@@ -73,7 +73,8 @@ namespace loco {
     // Update foot measurements
     for (auto leg: *legs_) {
       legID = leg->getId();
-      if ( leg->getStateTouchDown()->isNow() ) {
+      //if ( leg->getStateTouchDown()->isNow() ) {
+      if (leg->isAndShouldBeGrounded()) {
         gotNewTouchDown = true;
         gotFirstTouchDownOfFoot_[legID] = true;
         updateLocalMeasuresOfLeg(*leg);
@@ -132,7 +133,7 @@ namespace loco {
       }
 
       // 3.
-      terrainModel_->setHeight(heightHorizontalPlaneAlgorithm_);
+      terrainModel_->setHeight(heightHorizontalPlaneAlgorithm_, torso_->getMeasuredState().getWorldToBasePositionInWorldFrame());
       terrainModel_->setHeightNoise(heightHorizontalPlaneAlgorithm_-averageHeight);
     } // if groundedLimbCount
     //---
@@ -260,13 +261,8 @@ namespace loco {
          /* From the assumption that the normal has always unit z-component,
           * its norm will always be greater than zero
           */
-
-         normal << 0.0, 0.0, 1.0;
-
-         /*
          normal << parameters(0), parameters(1), 1.0;
          normal = normal.normalize();
-         */
 
          /* Update free plane model */
          terrainModel_->setNormalandPositionInWorldFrame(normal, position);
