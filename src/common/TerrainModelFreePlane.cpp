@@ -125,8 +125,7 @@ namespace loco {
 
   bool TerrainModelFreePlane::getNormal(const loco::Position& positionWorldToLocationInWorldFrame, loco::Vector& normalInWorldFrame) const {
     // For a plane, the normal is constant (independent from the position at which it is evaluated)
-    //normalInWorldFrame = normalInWorldFrame_;
-    normalInWorldFrame = loco::Vector::UnitZ();
+    normalInWorldFrame = normalInWorldFrame_;
     return true;
   } // get normal
 
