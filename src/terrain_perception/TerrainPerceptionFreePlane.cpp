@@ -27,7 +27,8 @@ namespace loco {
     lastWorldToBaseOrientationForFoot_(legs_->size()),
     gotFirstTouchDownOfFoot_(legs_->size()),
     heightMemory_(100),
-    heightHorizontalPlaneAlgorithm_(0.0)
+    heightHorizontalPlaneAlgorithm_(0.0),
+    planeParameters_(3)
   {
     for (auto leg: *legs_) {
       mostRecentPositionOfFoot_[leg->getId()].setZero();
@@ -40,6 +41,10 @@ namespace loco {
       heightMemory_[k] = 0.0;
     }
     heightMemoryIndex_ = 0;
+
+    for (int k=0; k<planeParameters_.size(); k++) {
+    	planeParameters_[k] = 0.0;
+    }
 
   } // constructor
 
@@ -252,6 +257,10 @@ namespace loco {
        if (kindr::linear_algebra::pseudoInverse(linearRegressor,linearRegressor)) {
          /* solve least squares problem */
          parameters = linearRegressor*measuredFootHeights;
+
+         for (int k=0; k<planeParameters_.size(); k++) {
+        	 planeParameters_[k] = parameters[k];
+         }
 
          /* Find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
           * is on the plane

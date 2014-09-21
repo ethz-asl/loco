@@ -61,6 +61,8 @@ namespace loco {
      */
     void getMostRecentPositionOfFootInWorldFrame(loco::Position& footPositionInWorldFrame, int footID);
 
+    std::vector<double> planeParameters_;
+
    protected:
      TerrainModelFreePlane* terrainModel_;
      LegGroup* legs_;
@@ -71,6 +73,8 @@ namespace loco {
      std::vector<bool> gotFirstTouchDownOfFoot_;
      TerrainPerceptionFreePlane::EstimatePlaneInFrame estimatePlaneInFrame_;
      int numberOfLegs_;
+
+     //std::vector<double> planeParameters_;
 
      /*! Estimate the free plane parameters and update the terrain model.
       */

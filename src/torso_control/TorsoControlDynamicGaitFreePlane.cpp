@@ -13,11 +13,11 @@ namespace loco {
 
   TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
     TorsoControlDynamicGait(legs, torso, terrain),
-    maxDesiredPitchRadians_(0.0*M_PI/180.0),
+    maxDesiredPitchRadians_(5.0*M_PI/180.0),
     desiredPitchSlope_(1.0),
-    maxDesiredRollRadians_(0.0*M_PI/180.0),
+    maxDesiredRollRadians_(5.0*M_PI/180.0),
     desiredRollSlope_(1.0),
-    adaptToTerrain_(SaturatedLinearAdaption)
+    adaptToTerrain_(CompleteAdaption)
   {
     const double defaultHeight = 0.42;
     desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_  = defaultHeight;
