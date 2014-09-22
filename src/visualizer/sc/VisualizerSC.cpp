@@ -10,13 +10,13 @@
 
 namespace loco {
 
-VisualizerSC::VisualizerSC() :
+VisualizerSC::VisualizerSC(int* drawCharacter) :
     VisualizerBase(),
  gaitPatternWindow_(nullptr),
  gaitPatternFlightPhasesWindow_(nullptr),
  isSimulationRunning_(Globals::animationRunning),
- desiredFrameRate_(Globals::desiredFrameRate)
-
+ desiredFrameRate_(Globals::desiredFrameRate),
+ drawCharacter_(drawCharacter)
 {
 
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);

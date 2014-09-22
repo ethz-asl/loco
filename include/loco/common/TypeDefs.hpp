@@ -23,6 +23,7 @@ typedef kindr::rotations::eigen_impl::RotationQuaternionPD RotationQuaternion;
 typedef kindr::rotations::eigen_impl::AngleAxisPD AngleAxis;
 typedef kindr::rotations::eigen_impl::RotationMatrixPD RotationMatrix;
 typedef kindr::rotations::eigen_impl::EulerAnglesZyxPD EulerAnglesZyx;
+typedef kindr::rotations::eigen_impl::RotationVectorPD RotationVector;
 
 typedef kindr::phys_quant::eigen_impl::Position3D Position;
 

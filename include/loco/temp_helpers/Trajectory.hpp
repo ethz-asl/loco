@@ -161,9 +161,13 @@ public:
 	/**
 		Returns the value of the ith knot. It is assumed that i is within the correct range.
 	*/
-	T getKnotValue(int i) const {
+	const T& getKnotValue(int i) const {
 		return values[i];
 	}
+
+  T& getKnotValue(int i) {
+    return values[i];
+  }
 
 	/**
 		Returns the position of the ith knot. It is assumed that i is within the correct range.

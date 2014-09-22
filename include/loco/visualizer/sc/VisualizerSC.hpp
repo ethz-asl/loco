@@ -32,7 +32,7 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
  public:
   typedef  Eigen::Matrix<double, 12,1> VectorQj;
  public:
-  VisualizerSC();
+  VisualizerSC(int* drawCharacter = nullptr);
   virtual ~VisualizerSC();
 
   virtual void addParameters();
@@ -92,6 +92,7 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
   loco::GaitPatternFlightPhasesPreview* gaitPatternFlightPhasesWindow_;
 
  protected:
+  int* drawCharacter_;
   bool isSimulationRunning_;
   double desiredFrameRate_;
   loco::TrajectoryPosition footTrajectories_[4];

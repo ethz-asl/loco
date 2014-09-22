@@ -149,7 +149,6 @@ class LegBase {
   virtual int getId() const = 0;
 
 
-
   const Position& getDesiredWorldToFootPositionInWorldFrame() const;
   void setDesireWorldToFootPositionInWorldFrame(const Position& position);
  protected:
