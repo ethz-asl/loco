@@ -161,7 +161,7 @@ public:
 	/**
 		Returns the value of the ith knot. It is assumed that i is within the correct range.
 	*/
-	T getKnotValue(int i) const {
+	const T& getKnotValue(int i) const {
 		return values[i];
 	}
 
