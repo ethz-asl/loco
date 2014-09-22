@@ -162,6 +162,7 @@ class LegBase {
   double stanceDuration_;
   double swingDuration_;
 
+
   bool isInStanceMode_;
   bool wasInStanceMode_;
   bool isInSwingMode_;

@@ -98,14 +98,14 @@ void LimbCoordinatorDynamicGait::setStridePhase(double stridePhase)  {
 
 bool LimbCoordinatorDynamicGait::isLegInStanceMode(int iLeg) {
   const double swingPhase = gaitPattern_->getSwingPhaseForLeg(iLeg);
-  if (swingPhase > 0.9 && this->isLegGrounded(iLeg)) return true; // early touch-down -> switch to stance mode
+  if (swingPhase > 0.5 && this->isLegGrounded(iLeg)) return true; // early touch-down -> switch to stance mode
   return (swingPhase < 0 || swingPhase > 1); // stance mode
 }
 
 
 bool LimbCoordinatorDynamicGait::isLegInSwingMode(int iLeg) {
   const double swingPhase = gaitPattern_->getSwingPhaseForLeg(iLeg);
-  if (swingPhase > 0.9 && this->isLegGrounded(iLeg)) return false; // early touch-down -> switch to stance mode
+  if (swingPhase > 0.5 && this->isLegGrounded(iLeg)) return false; // early touch-down -> switch to stance mode
   return (swingPhase >= 0 && swingPhase <= 1);
 }
 
