@@ -8,15 +8,14 @@ project(locomotion_control)
 ################
 set(LOCO_INCL ${LOCO_INCL} 
 
-PARENT_SCOPE)
+	PARENT_SCOPE)
 
 ###############
 ### SOURCES ###
 ###############
 set(LOCO_SRCS ${LOCO_SRCS}
-	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionHorizontalPlane.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionFreePlane.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/FirstOrderSystemBase.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/FirstOrderFilter.cpp
 PARENT_SCOPE)
 
 #################
@@ -24,9 +23,7 @@ PARENT_SCOPE)
 #################
 set(LOCO_LIBS ${LOCO_LIBS} 
 
-PARENT_SCOPE)
+	PARENT_SCOPE)
 
-#############
-### TESTS ###
-#############
-#add_subdirectory(test)
+
+set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")

@@ -52,6 +52,8 @@ set(LOCO_SRCS ${LOCO_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/TerrainModelBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TerrainModelHorizontalPlane.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TerrainModelSimulation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TerrainModelFreePlane.cpp
+	
 PARENT_SCOPE)
 
 #################

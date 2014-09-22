@@ -67,8 +67,10 @@ class LegBase {
   virtual bool wasInSwingMode() const;
 
   virtual bool isGrounded() const;
+  virtual bool wasGrounded() const;
   virtual bool shouldBeGrounded() const;
   virtual bool isAndShouldBeGrounded() const;
+  virtual bool isSlipping() const;
 
   virtual double getDesiredLoadFactor() const;
 
@@ -86,7 +88,9 @@ class LegBase {
   virtual void setWasInSwingMode(bool wasInSwingMode);
 
   virtual void setIsGrounded(bool isGrounded);
+  virtual void setWasGrounded(bool wasGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
+  virtual void setIsSlipping(bool isSlipping);
 
   /*!
    * Change how much a leg should be loaded.
@@ -97,10 +101,11 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
-
-
   LegStateTouchDown* getStateTouchDown();
+  const LegStateTouchDown& getStateTouchDown() const;
+
   LegStateLiftOff* getStateLiftOff();
+  const LegStateLiftOff& getStateLiftOff() const;
 
   virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;
   virtual const Position& getWorldToHipPositionInWorldFrame() const  = 0;
@@ -161,11 +166,14 @@ class LegBase {
   bool isInSwingMode_;
   bool wasInSwingMode_;
   bool isGrounded_;
+  bool wasGrounded_;
   bool shouldBeGrounded_;
+  bool isSlipping_;
 
   double loadFactor_;
 
   LegStateTouchDown stateTouchDown_;
+
   LegStateLiftOff stateLiftOff_;
 
   JointControlModes desiredJointControlModes_;

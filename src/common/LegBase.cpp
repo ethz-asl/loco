@@ -21,7 +21,9 @@ LegBase::LegBase() :
     isInSwingMode_(true),
     wasInSwingMode_(true),
     isGrounded_(false),
+    wasGrounded_(false),
     shouldBeGrounded_(false),
+    isSlipping_(false),
     loadFactor_(1.0)
 {
 
@@ -39,7 +41,9 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     isInSwingMode_(true),
     wasInSwingMode_(true),
     isGrounded_(false),
+    wasGrounded_(false),
     shouldBeGrounded_(false),
+    isSlipping_(false),
     loadFactor_(1.0)
 {
 
@@ -86,11 +90,21 @@ bool LegBase::wasInSwingMode() const {
 bool LegBase::isGrounded() const {
   return isGrounded_;
 }
+
+bool LegBase::wasGrounded() const {
+  return wasGrounded_;
+}
+
 bool LegBase::shouldBeGrounded() const {
   return shouldBeGrounded_;
 }
+
 bool LegBase::isAndShouldBeGrounded() const {
   return (isGrounded_ && shouldBeGrounded_);
+}
+
+bool LegBase::isSlipping() const {
+  return isSlipping_;
 }
 
 double LegBase::getDesiredLoadFactor() const
@@ -139,8 +153,16 @@ void LegBase::setIsGrounded(bool isGrounded) {
   isGrounded_ = isGrounded;
 }
 
+void LegBase::setWasGrounded(bool wasGrounded) {
+  wasGrounded_ = wasGrounded;
+}
+
 void LegBase::setShouldBeGrounded(bool shouldBeGrounded) {
   shouldBeGrounded_ = shouldBeGrounded;
+}
+
+void LegBase::setIsSlipping(bool isSlipping) {
+  isSlipping_ = isSlipping;
 }
 
 void LegBase::setDesiredLoadFactor(double loadFactor)
@@ -153,9 +175,22 @@ void LegBase::setDesiredLoadFactor(double loadFactor)
 LegStateTouchDown* LegBase::getStateTouchDown() {
   return &stateTouchDown_;
 }
+
+
+const LegStateTouchDown& LegBase::getStateTouchDown() const {
+  return stateTouchDown_;
+}
+
+
 LegStateLiftOff* LegBase::getStateLiftOff() {
   return &stateLiftOff_;
 }
+
+
+const LegStateLiftOff& LegBase::getStateLiftOff() const {
+  return stateLiftOff_;
+}
+
 
 void LegBase::setDesiredJointPositions(const JointPositions& jointPositions)
 {
@@ -227,6 +262,18 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
 
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;
+  out << "was grounded: " << (leg.wasGrounded() ? "yes" : "no") << std::endl;
+  out << "is slipping: " << (leg.isSlipping() ? "yes" : "no") << std::endl;
+
+  out << "did touchdown: " << ( leg.getStateTouchDown().isNow() ? "yes" : "no" ) << std::endl;
+  out << "       early?: " << ( leg.getStateTouchDown().lastStateWasEarly() ? "yes" : "no" ) << std::endl;
+  out << "        late?: " << ( leg.getStateTouchDown().lastStateWasLate() ? "yes" : "no" ) << std::endl;
+  out << "most recent occurred at time: " << leg.getStateTouchDown().StateChangedAtTime() << std::endl;
+
+  out << "did liftoff: " << ( leg.getStateLiftOff().isNow() ? "yes" : "no" ) << std::endl;
+  out << "most recent occurred at time: " << leg.getStateLiftOff().StateChangedAtTime() << std::endl;
+
+  out << "did touchdown: " << (leg.getStateTouchDown().isNow() ? "yes" : "no") << std::endl;
 
   return out;
 }

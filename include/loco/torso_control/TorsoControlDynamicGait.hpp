@@ -52,7 +52,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
    */
   virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
 
- private:
+ protected:
   LegGroup* legs_;
   TorsoBase* torso_;
   loco::TerrainModelBase* terrain_;
@@ -65,7 +65,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
   Position desiredPositionOffetInWorldFrame_;
   RotationQuaternion desiredOrientationOffset_;
- private:
+ protected:
   virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);
   virtual bool loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory);
   bool interpolateHeightTrajectory(rbf::PeriodicRBF1DC1& interpolatedTrajectory, const rbf::PeriodicRBF1DC1& trajectory1, const rbf::PeriodicRBF1DC1& trajectory2, double t);

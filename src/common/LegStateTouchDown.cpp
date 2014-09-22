@@ -9,18 +9,28 @@
 
 namespace loco {
 
-LegStateTouchDown::LegStateTouchDown() :
-  LegStateBase()
-{
+  LegStateTouchDown::LegStateTouchDown() :
+    LegStateBase(),
+    footPositionInWorldFrame_()
+  {
 
 
-}
-
-LegStateTouchDown::~LegStateTouchDown() {
-
-}
+  }
 
 
+  LegStateTouchDown::~LegStateTouchDown() {
+
+  }
+
+
+  void LegStateTouchDown::setTouchdownFootPositionInWorldFrame(const loco::Position& footPositionInWorldFrame) {
+    footPositionInWorldFrame_ = footPositionInWorldFrame;
+  }
+
+
+  const Position& LegStateTouchDown::getFootPositionInWorldFrame() const {
+    return footPositionInWorldFrame_;
+  }
 
 
 } /* namespace loco */

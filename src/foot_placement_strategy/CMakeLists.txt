@@ -25,6 +25,7 @@ PARENT_SCOPE)
 set(LOCO_SRCS ${LOCO_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/FootPlacementStrategyBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/FootPlacementStrategyInvertedPendulum.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/FootPlacementStrategyFreePlane.cpp
 PARENT_SCOPE)
 
 #################

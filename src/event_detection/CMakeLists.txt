@@ -14,9 +14,8 @@ PARENT_SCOPE)
 ### SOURCES ###
 ###############
 set(LOCO_SRCS ${LOCO_SRCS}
-	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionHorizontalPlane.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TerrainPerceptionFreePlane.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/EventDetector.cpp 
+	${CMAKE_CURRENT_SOURCE_DIR}/EventDetectorBase.cpp
 PARENT_SCOPE)
 
 #################
@@ -26,7 +25,5 @@ set(LOCO_LIBS ${LOCO_LIBS}
 
 PARENT_SCOPE)
 
-#############
-### TESTS ###
-#############
-#add_subdirectory(test)
+
+set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")
