@@ -80,6 +80,7 @@ namespace loco {
       legID = leg->getId();
       //if ( leg->getStateTouchDown()->isNow() ) {
       if (leg->isAndShouldBeGrounded()) {
+      //if (leg->isGrounded()) {
         gotNewTouchDown = true;
         gotFirstTouchDownOfFoot_[legID] = true;
         updateLocalMeasuresOfLeg(*leg);
@@ -92,7 +93,6 @@ namespace loco {
     if (gotNewTouchDown && allLegsGroundedAtLeastOnce) {
       updatePlaneEstimation();
     }
-
 
     computeEstimationNoise();
 

@@ -24,20 +24,14 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   void setIsUpdatingStridePhase(bool isUpdatingStridePhase);
   bool isUpdatingStridePhase() const;
 
-  virtual bool isLegGrounded(int iLeg);
-  virtual bool shouldBeLegGrounded(int iLeg);
-  virtual bool isAndShouldBeLegGrounded(int iLeg);
+
   /**
     returns true if the leg is in stance mode, false otherwise.
   */
   virtual bool isLegInStanceMode(int iLeg);
 
-  /**
-    returns true if the leg is in swing mode, false otherwise.
-  */
-  virtual bool isLegInSwingMode(int iLeg);
 
-  virtual void setIsLegGrounded(int iLeg, bool isLegGrounded);
+
 
 
  virtual bool initialize(double dt);
@@ -72,10 +66,6 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   LegGroup* legs_;
   TorsoBase* torso_;
   GaitPatternBase* gaitPattern_;
-  bool isLegGrounded_[4];
-  bool shouldBeLegGrounded_[4];
-
-  virtual void setShouldBeLegGrounded(int iLeg, bool shouldBeLegGrounded);
 
 };
 

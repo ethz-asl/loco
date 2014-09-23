@@ -46,6 +46,12 @@ namespace loco {
       const double swingPhase  = leg->getSwingPhase();
       const double stancePhase = leg->getStancePhase();
 
+      // Reset properties at start of stance phase
+      if ( (leg->getPreviousStancePhase()==-1) && (leg->getStancePhase()>= 0.0) ) {
+    	  // Begininnig of stance phase
+    	  leg->setDidTouchDownAtLeastOnceDuringStance(false);
+      }
+
       /*********************
        * Liftoff detection *
        *********************/
@@ -55,14 +61,14 @@ namespace loco {
         leg->getStateLiftOff()->setIsNow(true);
         leg->getStateLiftOff()->setStateChangedAtTime(timeSinceInit_);
         // A liftoff was detected, now check if it is earlier or later than expected
-        if ( leg->isInStanceMode() && (stancePhase < (1-toleratedDelay_)) ) {
+        if ( leg->shouldBeGrounded() && (stancePhase < (1-toleratedDelay_)) ) {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] EARLY liftoff on leg: " << iLeg << std::endl;
           #endif
           leg->getStateLiftOff()->setLastStateWasEarly(true);
           leg->getStateLiftOff()->setLastStateWasLate(false);
         }
-        else if ( leg->isInSwingMode() && (swingPhase > toleratedDelay_) ) {
+        else if ( !leg->shouldBeGrounded() && (swingPhase > toleratedDelay_) ) {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] LATE liftoff on leg: " << iLeg << std::endl;
           #endif
@@ -90,17 +96,22 @@ namespace loco {
        ***********************/
       if ( !leg->wasGrounded() && leg->isGrounded() ) {
         leg->getStateTouchDown()->setIsNow(true);
+
+        if (!leg->didTouchDownAtLeastOnceDuringStance()) {
+        	leg->setDidTouchDownAtLeastOnceDuringStance(true);
+        }
+
         leg->getStateTouchDown()->setTouchdownFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
         leg->getStateTouchDown()->setStateChangedAtTime(timeSinceInit_);
         // A touchdown was detected, now check if it is earlier or later than expected
-        if ( leg->isInSwingMode() && (swingPhase < (1-toleratedDelay_)) ) {
+        if ( !leg->shouldBeGrounded() && (swingPhase < (1-toleratedDelay_)) ) {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] EARLY touchdown on leg: " << iLeg << std::endl;
           #endif
           leg->getStateTouchDown()->setLastStateWasEarly(true);
           leg->getStateTouchDown()->setLastStateWasLate(false);
         }
-        else if ( leg->isInStanceMode() && (stancePhase > toleratedDelay_) ) {
+        else if ( leg->shouldBeGrounded() && (stancePhase > toleratedDelay_) ) {
           #if EVENT_DEBUG
           std::cout << "[eventDetector] LATE touchdown on leg: " << iLeg << std::endl;
           #endif
@@ -161,6 +172,23 @@ namespace loco {
       /**********************
        * End slip detection *
        **********************/
+
+
+      /***************************
+       * Check if losing contact during stance phase when leg is supposed to be grounded *
+       ***************************/
+      if (!leg->isGrounded() && leg->shouldBeGrounded() ) {
+          if ( leg->didTouchDownAtLeastOnceDuringStance() ) {
+        	  leg->setIsLosingContact(true);
+          }
+      }
+      else {
+    	  leg->setIsLosingContact(false);
+      }
+      /*******************************
+       * End check if losing contact *
+       *******************************/
+
 
       iLeg++;
     } // for auto leg

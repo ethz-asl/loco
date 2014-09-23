@@ -141,21 +141,7 @@ namespace loco {
     // Set desired pose of base frame with respect to world frame
     torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
 
-    /* if a stance leg lost contact, lower it towards the normal to the terrain to re-gain contact */
-    for (auto leg : *legs_) {
-      if (leg->isInStanceMode()) {
-        Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
 
-        if (!leg->isGrounded()) {
-          positionWorldToFootInWorldFrame -= 0.01*(loco::Position)normalToPlaneInWorldFrame;
-        }
-        leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
-        const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-        const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
-        const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
-        leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
-      }
-    }
 
     return true;
   }

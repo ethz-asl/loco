@@ -97,7 +97,7 @@ bool ContactForceDistribution::prepareLegLoading()
   for (auto& legInfo : legInfos_)
   {
 //    if (sm::definitelyGreaterThan(legInfo.first->getDesiredLoadFactor(), 0.0) && legInfo.first->isAndShouldBeGrounded())
-    if ((legInfo.first->getDesiredLoadFactor() > 0.0) && legInfo.first->isAndShouldBeGrounded()) // get rid of sm dependency
+    if ((legInfo.first->getDesiredLoadFactor() > 0.0) && legInfo.first->isSupportLeg()) // get rid of sm dependency
     {
       legInfo.second.isPartOfForceDistribution_ = true;
       legInfo.second.isLoadConstraintActive_ = false;

@@ -60,8 +60,7 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
 
     missionController_.reset(new loco::MissionControlSpeedFilter);
 
-    locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get()));
-
+    locomotionController_.reset(new loco::LocomotionControllerDynamicGait(legs_.get(), torso_.get(), terrainPerception_.get(), contactDetector_.get(), limbCoordinator_.get(), footPlacementStrategy_.get(), torsoController_.get(), virtualModelController_.get(), contactForceDistribution_.get(), parameterSet_.get(), gaitPatternFlightPhases_.get()));
 
 }
 

@@ -44,7 +44,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
                                   TorsoControlBase* baseController,
                                   VirtualModelController* virtualModelController,
                                   ContactForceDistributionBase* contactForceDistribution,
-                                  ParameterSet* parameterSet);
+                                  ParameterSet* parameterSet,
+                                  GaitPatternBase* gaitPattern);
 
   virtual ~LocomotionControllerDynamicGait();
 
@@ -96,6 +97,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   ContactForceDistributionBase* contactForceDistribution_;
   ParameterSet* parameterSet_;
   EventDetectorBase* eventDetector_;
+  GaitPatternBase* gaitPattern_;
 };
 
 } /* namespace loco */

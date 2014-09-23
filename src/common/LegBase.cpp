@@ -18,13 +18,15 @@ LegBase::LegBase() :
     swingDuration_(0.0),
     isInStanceMode_(false),
     wasInStanceMode_(false),
-    isInSwingMode_(true),
-    wasInSwingMode_(true),
     isGrounded_(false),
     wasGrounded_(false),
     shouldBeGrounded_(false),
     isSlipping_(false),
-    loadFactor_(1.0)
+    isSupportLeg_(false),
+    didTouchDownAtLeastOnceDuringStance_(false),
+    loadFactor_(1.0),
+    previousStancePhase_(0.0),
+    previousSwingPhase_(0.0)
 {
 
 }
@@ -38,13 +40,15 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     swingDuration_(0.0),
     isInStanceMode_(false),
     wasInStanceMode_(false),
-    isInSwingMode_(true),
-    wasInSwingMode_(true),
     isGrounded_(false),
     wasGrounded_(false),
     shouldBeGrounded_(false),
     isSlipping_(false),
-    loadFactor_(1.0)
+    isSupportLeg_(false),
+    didTouchDownAtLeastOnceDuringStance_(false),
+    loadFactor_(1.0),
+    previousStancePhase_(0.0),
+    previousSwingPhase_(0.0)
 {
 
 }
@@ -76,15 +80,50 @@ bool LegBase::isInStanceMode() const {
   return isInStanceMode_;
 }
 bool LegBase::isInSwingMode() const {
-  return isInSwingMode_;
+  return !isInStanceMode_;
 }
 
 bool LegBase::wasInStanceMode() const {
   return wasInStanceMode_;
 }
 bool LegBase::wasInSwingMode() const {
-  return wasInSwingMode_;
+  return !wasInStanceMode_;
 }
+
+bool LegBase::isSupportLeg() const {
+	return isSupportLeg_;
+}
+
+void LegBase::setIsSupportLeg(bool isSupportLeg) {
+	isSupportLeg_ = isSupportLeg;
+}
+
+
+bool LegBase::didTouchDownAtLeastOnceDuringStance() const {
+	return didTouchDownAtLeastOnceDuringStance_;
+}
+
+void LegBase::setDidTouchDownAtLeastOnceDuringStance(bool didTouchDownAtLeastOnceDuringStance) {
+	didTouchDownAtLeastOnceDuringStance_ = didTouchDownAtLeastOnceDuringStance;
+}
+
+
+void LegBase::setPreviousStancePhase(double previousStancePhase) {
+	previousStancePhase_ = previousStancePhase;
+}
+
+double LegBase::getPreviousStancePhase() const {
+	return previousStancePhase_;
+}
+
+void LegBase::setPreviousSwingPhase(double previousSwingPhase) {
+	previousSwingPhase_ = previousSwingPhase;
+}
+
+double LegBase::getPreviousSwingPhase() const {
+	return previousSwingPhase_;
+}
+
 
 
 bool LegBase::isGrounded() const {
@@ -137,7 +176,7 @@ void LegBase::setIsInStanceMode(bool isInStanceMode) {
 }
 
 void LegBase::setIsInSwingMode(bool isInSwingMode) {
-  isInSwingMode_ = isInSwingMode;
+	isInStanceMode_ = !isInSwingMode;
 }
 
 void LegBase::setWasInStanceMode(bool wasInStanceMode) {
@@ -145,7 +184,7 @@ void LegBase::setWasInStanceMode(bool wasInStanceMode) {
 }
 
 void LegBase::setWasInSwingMode(bool wasInSwingMode) {
-  wasInSwingMode_ = wasInSwingMode;
+	wasInStanceMode_ = !wasInSwingMode;
 }
 
 
@@ -245,6 +284,14 @@ const LegBase::JointTorques& LegBase::getDesiredJointTorques()
 
 const std::string& LegBase::getName() const {
   return name_;
+}
+
+bool LegBase::isLosingContact() const {
+	return isLosingContact_;
+}
+
+void LegBase::setIsLosingContact(bool isLosingContact) {
+	isLosingContact_ = isLosingContact;
 }
 
 std::ostream& operator << (std::ostream& out, const LegBase& leg) {

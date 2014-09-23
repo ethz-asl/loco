@@ -74,6 +74,9 @@ class LegBase {
 
   virtual double getDesiredLoadFactor() const;
 
+  virtual bool isSupportLeg() const;
+  virtual bool isLosingContact() const;
+
 
   virtual void setStancePhase(double phase);
   virtual void setSwingPhase(double phase);
@@ -91,6 +94,13 @@ class LegBase {
   virtual void setWasGrounded(bool wasGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
   virtual void setIsSlipping(bool isSlipping);
+
+  virtual void setIsSupportLeg(bool isSupportLeg);
+
+  virtual void setIsLosingContact(bool isLosingContact);
+
+  virtual bool didTouchDownAtLeastOnceDuringStance() const;
+  virtual void setDidTouchDownAtLeastOnceDuringStance(bool didTouchDownAtLeastOnceDuringStance);
 
   /*!
    * Change how much a leg should be loaded.
@@ -151,25 +161,36 @@ class LegBase {
 
   const Position& getDesiredWorldToFootPositionInWorldFrame() const;
   void setDesireWorldToFootPositionInWorldFrame(const Position& position);
- protected:
+
+	void setPreviousStancePhase(double previousStancePhase);
+	double getPreviousStancePhase() const;
+
+	void setPreviousSwingPhase(double previousSwingPhase);
+	double getPreviousSwingPhase() const;
+
+protected:
   std::string name_;
 
   LegLinkGroup* links_;
 
   double stancePhase_;
+  double previousStancePhase_;
+
   double swingPhase_;
+  double previousSwingPhase_;
+
   double stanceDuration_;
   double swingDuration_;
 
-
   bool isInStanceMode_;
   bool wasInStanceMode_;
-  bool isInSwingMode_;
-  bool wasInSwingMode_;
   bool isGrounded_;
   bool wasGrounded_;
   bool shouldBeGrounded_;
   bool isSlipping_;
+  bool isSupportLeg_;
+  bool isLosingContact_;
+  bool didTouchDownAtLeastOnceDuringStance_;
 
   double loadFactor_;
 

@@ -282,20 +282,73 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 {
 
   for (auto leg : *legs_) {
-    if (leg->isInSwingMode()) {
-      const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
-      leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
-      const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-      const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+	  /* this default desired swing behaviour
+	   *
+	   */
 
-      leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
-    }
-//    else {
-//      leg->setDesiredJointPositions(leg->getMeasuredJointPositions());
-//    }
+
+	  if (leg->shouldBeGrounded()) {
+	  		  // stance mode according to plan
+	  		  if (leg->isGrounded()) {
+	  			  if (leg->isSlipping()) {
+	  				  // not safe to use this leg as support leg
+	  				  regainContact(leg);
+	  				  // todo think harder about this
+	  			  }
+	  		  }
+	  		  else {
+	  			  // not yet touch-down
+	  			  // lost contact
+	  			regainContact(leg);
+	  		  }
+	  	  }
+	  	  else {
+	  		  // swing mode according to plan
+	  		  if (leg->isGrounded()) {
+
+	  			  if (leg->getSwingPhase() <= 0.3) {
+	  				  // leg should lift-off (late lift-off)
+	  				setFootTrajectory(leg);
+	  			  }
+
+	  		  }
+	  		  else {
+	  			  // leg is on track
+	  			  setFootTrajectory(leg);
+	  		  }
+	  	  }
 
   }
 
+}
+
+void FootPlacementStrategyInvertedPendulum::regainContact(LegBase* leg) {
+	Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
+
+
+	        	loco::Vector normalInWorldFrame;
+	        	if (terrain_->getNormal(positionWorldToFootInWorldFrame,normalInWorldFrame)) {
+	        		positionWorldToFootInWorldFrame -= 0.01*(loco::Position)normalInWorldFrame;
+	        	}
+	        	else  {
+	        		throw std::runtime_error("FootPlacementStrategyInvertedPendulum::advance cannot get terrain normal.");
+	        	}
+
+	        leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
+	        const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+	        const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
+	        const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+	        leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+
+}
+
+void FootPlacementStrategyInvertedPendulum::setFootTrajectory(LegBase* leg) {
+    const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
+    leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
+    const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
+    const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
+
+    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
 }
 
 double FootPlacementStrategyInvertedPendulum::getHeightOfTerrainInWorldFrame(const Position& steppingLocationCSw)

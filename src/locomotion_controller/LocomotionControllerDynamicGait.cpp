@@ -17,7 +17,8 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
                                                                  LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
-                                                                 ParameterSet* parameterSet) :
+                                                                 ParameterSet* parameterSet,
+                                                                 GaitPatternBase* gaitPattern) :
     LocomotionControllerBase(),
     isInitialized_(false),
     runtime_(0.0),
@@ -32,7 +33,8 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     contactForceDistribution_(contactForceDistribution),
     parameterSet_(parameterSet),
     timeSinceTorqueControl_(0.0),
-    timeIntervalToSwitchToPositionControl_(0.05)
+    timeIntervalToSwitchToPositionControl_(0.05),
+	gaitPattern_(gaitPattern)
 {
   eventDetector_ = new loco::EventDetector;
 }
@@ -50,7 +52,8 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() :
   virtualModelController_(nullptr),
   contactForceDistribution_(nullptr),
   parameterSet_(nullptr),
-  eventDetector_(nullptr)
+  eventDetector_(nullptr),
+  gaitPattern_(nullptr)
 {
 
 }
@@ -112,6 +115,15 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
     return false;
   }
 
+
+  if (!gaitPattern_->loadParameters(TiXmlHandle(hLoco.FirstChild("LimbCoordination")))) {
+	return false;
+  }
+  if(!gaitPattern_->initialize(dt)) {
+	return false;
+  }
+
+
   runtime_ = 0.0;
   
   timeSinceTorqueControl_ = 0.0;
@@ -125,85 +137,47 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 bool LocomotionControllerDynamicGait::advance(double dt) {
   if (!isInitialized_) { return false; }
 
+  //--- Update sensor measurements.
   for (auto leg : *legs_) { leg->advance(dt); }
 
   torso_->advance(dt);
 
   if (!contactDetector_->advance(dt)) { return false; }
-  if (!terrainPerception_->advance(dt)) { return false; }
+  //---
 
-  limbCoordinator_->advance(dt);
+  //--- Update timing.
+  gaitPattern_->advance(dt);
+  torso_->setStridePhase(gaitPattern_->getStridePhase());
+
+  int iLeg =0;
+  for (auto leg : *legs_) {
+	//--- defined by the "planning" / timing
+    leg->setShouldBeGrounded(gaitPattern_->shouldBeLegGrounded(iLeg));
+    leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));
+    leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));
+    //---
+
+    //--- timing measurements
+    leg->setPreviousSwingPhase(leg->getSwingPhase());
+    leg->setSwingPhase(gaitPattern_->getSwingPhaseForLeg(iLeg));
+    leg->setPreviousStancePhase(leg->getStancePhase());
+    leg->setStancePhase(gaitPattern_->getStancePhaseForLeg(iLeg));
+    //---
+
+    iLeg++;
+  }
+
+  //---
 
   /* Update legs state using the event detection */
   eventDetector_->advance(dt, *legs_);
 
-  /* Decide wether the legs should be torque o position controlled. Set desired joint positions, torques and control mode
-   * State change policy:
-   *  1. If leg is a swing leg, it should be position controlled.
-   *  2. If leg is a stance leg, it should be torque controlled.
-   *  3. As soon as a touchdown is detected, control should switch to torque control.
-   *  4. If control switches to torque control, it should not switch back to position for at least a given time interval.
-   *  5. A leg switches to stance mode when it is grounded. It switches to swing mode after a certain time interval.
-   */
-  LegBase::JointControlModes desiredJointControlModes;
-  int iLeg = 0;
-
-  /*
-  //--- Old policy
-  for (auto leg : *legs_) {
-    if (leg->isAndShouldBeGrounded()) {
-      desiredJointControlModes.setConstant(robotModel::AM_Torque);
-    } else {
-      desiredJointControlModes.setConstant(robotModel::AM_Position);
-    }
-    leg->setDesiredJointControlModes(desiredJointControlModes);
-    iLeg++;
-  }
-  //---
-  */
-
-  //--- Policy working in simulation
-  for (auto leg : *legs_) {
-    if (leg->getDesiredJointControlModes().isConstant(robotModel::AM_Torque)) {
-      timeSinceTorqueControl_ += dt;
-      std::cout << "leg: " << leg->getId() << " time: " << timeSinceTorqueControl_ << std::endl;
-    }
-
-    if (leg->isGrounded()) {
-      desiredJointControlModes.setConstant(robotModel::AM_Torque);
-    }
-
-    if (!leg->isAndShouldBeGrounded() && timeSinceTorqueControl_>= timeIntervalToSwitchToPositionControl_) {
-      desiredJointControlModes.setConstant(robotModel::AM_Position);
-      timeSinceTorqueControl_ = 0.0;
-    }
-
-    leg->setDesiredJointControlModes(desiredJointControlModes);
-    iLeg++;
-  }
+  //--- Update knowledge about environment
+  if (!terrainPerception_->advance(dt)) { return false; }
   //---
 
-  /*
-  LegBase::JointControlModes desiredJointControlModes;
-  int iLeg = 0;
-  for (auto leg : *legs_) {
-
-    // 2.
-    if (leg->isGrounded() || timeSinceTorqueControl_ < timeIntervalToSwitchToPositionControl_) {
-      desiredJointControlModes.setConstant(robotModel::AM_Torque);
-      timeSinceTorqueControl_ += dt;
-    }
-
-    // 1.
-    if (!leg->shouldBeGrounded() && timeSinceTorqueControl_ >= timeIntervalToSwitchToPositionControl_) {
-      timeSinceTorqueControl_ = 0.0;
-      desiredJointControlModes.setConstant(robotModel::AM_Position);
-    }
-
-    leg->setDesiredJointControlModes(desiredJointControlModes);
-    iLeg++;
-  }
-  */
+  /* Decide if a leg is a supporting one */
+  limbCoordinator_->advance(dt);
 
   /* Set the position or torque reference */
   footPlacementStrategy_->advance(dt);

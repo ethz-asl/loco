@@ -20,26 +20,11 @@ class LimbCoordinatorBase {
   LimbCoordinatorBase();
   virtual ~LimbCoordinatorBase();
 
-  virtual bool isLegGrounded(int iLeg) = 0;
-  virtual bool shouldBeLegGrounded(int iLeg) = 0;
-  virtual bool isAndShouldBeLegGrounded(int iLeg) = 0;
-  /**
-    returns true if the leg is in stance mode, false otherwise.
-  */
-  virtual bool isLegInStanceMode(int iLeg) = 0;
-
-  /**
-    returns true if the leg is in swing mode, false otherwise.
-  */
-  virtual bool isLegInSwingMode(int iLeg) = 0;
-
   virtual bool initialize(double dt) = 0;
   /*! Advance in time
    * @param dt  time step [s]
    */
   virtual bool advance(double dt) = 0;
-
-  virtual void setIsLegGrounded(int iLeg, bool isLegGrounded) = 0;
 
   virtual GaitPatternBase* getGaitPattern() = 0;
 
