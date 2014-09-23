@@ -32,7 +32,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     contactForceDistribution_(contactForceDistribution),
     parameterSet_(parameterSet),
     timeSinceTorqueControl_(0.0),
-    timeIntervalToSwitchToPositionControl_(0.01)
+    timeIntervalToSwitchToPositionControl_(0.05)
 {
   eventDetector_ = new loco::EventDetector;
 }
@@ -149,6 +149,7 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
   int iLeg = 0;
 
   /*
+  //--- Old policy
   for (auto leg : *legs_) {
     if (leg->isAndShouldBeGrounded()) {
       desiredJointControlModes.setConstant(robotModel::AM_Torque);
@@ -158,12 +159,18 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
     leg->setDesiredJointControlModes(desiredJointControlModes);
     iLeg++;
   }
+  //---
   */
 
+  //--- Policy working in simulation
   for (auto leg : *legs_) {
+    if (leg->getDesiredJointControlModes().isConstant(robotModel::AM_Torque)) {
+      timeSinceTorqueControl_ += dt;
+      std::cout << "leg: " << leg->getId() << " time: " << timeSinceTorqueControl_ << std::endl;
+    }
+
     if (leg->isGrounded()) {
       desiredJointControlModes.setConstant(robotModel::AM_Torque);
-      timeSinceTorqueControl_ += dt;
     }
 
     if (!leg->isAndShouldBeGrounded() && timeSinceTorqueControl_>= timeIntervalToSwitchToPositionControl_) {
@@ -174,6 +181,7 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
     leg->setDesiredJointControlModes(desiredJointControlModes);
     iLeg++;
   }
+  //---
 
   /*
   LegBase::JointControlModes desiredJointControlModes;
