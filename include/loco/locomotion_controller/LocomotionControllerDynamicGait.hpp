@@ -30,6 +30,10 @@ namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
+
+  double timeSinceTorqueControl_;
+  double timeIntervalToSwitchToPositionControl_;
+
   LocomotionControllerDynamicGait();
   LocomotionControllerDynamicGait(LegGroup* legs,
                                   TorsoBase* torso,

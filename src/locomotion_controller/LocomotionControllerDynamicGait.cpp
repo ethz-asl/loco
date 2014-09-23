@@ -30,7 +30,9 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     torsoController_(baseController),
     virtualModelController_(virtualModelController),
     contactForceDistribution_(contactForceDistribution),
-    parameterSet_(parameterSet)
+    parameterSet_(parameterSet),
+    timeSinceTorqueControl_(0.0),
+    timeIntervalToSwitchToPositionControl_(0.01)
 {
   eventDetector_ = new loco::EventDetector;
 }
@@ -112,9 +114,13 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 
   runtime_ = 0.0;
   
+  timeSinceTorqueControl_ = 0.0;
+  timeIntervalToSwitchToPositionControl_ = 0.0;
+
   isInitialized_ = true;
   return isInitialized_;
 }
+
 
 bool LocomotionControllerDynamicGait::advance(double dt) {
   if (!isInitialized_) { return false; }
@@ -131,25 +137,18 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
   /* Update legs state using the event detection */
   eventDetector_->advance(dt, *legs_);
 
-/*
-    //if (leg->wasInSwingMode() && leg->isInStanceMode()) {
-    if (leg->wasInSwingMode() && leg->isGrounded()) {
-      // possible touch-down
-      leg->getStateTouchDown()->setIsNow(true);
-      //leg->getStateTouchDownEarly()->setIsNow(true);
-    } else {
-      leg->getStateTouchDown()->setIsNow(false);
-    }
-
-  }
-*/
-  footPlacementStrategy_->advance(dt);
-  torsoController_->advance(dt);
-  if(!virtualModelController_->compute()) { return false; }
-
-  /* Set desired joint positions, torques and control mode */
+  /* Decide wether the legs should be torque o position controlled. Set desired joint positions, torques and control mode
+   * State change policy:
+   *  1. If leg is a swing leg, it should be position controlled.
+   *  2. If leg is a stance leg, it should be torque controlled.
+   *  3. As soon as a touchdown is detected, control should switch to torque control.
+   *  4. If control switches to torque control, it should not switch back to position for at least a given time interval.
+   *  5. A leg switches to stance mode when it is grounded. It switches to swing mode after a certain time interval.
+   */
   LegBase::JointControlModes desiredJointControlModes;
   int iLeg = 0;
+
+  /*
   for (auto leg : *legs_) {
     if (leg->isAndShouldBeGrounded()) {
       desiredJointControlModes.setConstant(robotModel::AM_Torque);
@@ -159,6 +158,49 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
     leg->setDesiredJointControlModes(desiredJointControlModes);
     iLeg++;
   }
+  */
+
+  for (auto leg : *legs_) {
+    if (leg->isGrounded()) {
+      desiredJointControlModes.setConstant(robotModel::AM_Torque);
+      timeSinceTorqueControl_ += dt;
+    }
+
+    if (!leg->isAndShouldBeGrounded() && timeSinceTorqueControl_>= timeIntervalToSwitchToPositionControl_) {
+      desiredJointControlModes.setConstant(robotModel::AM_Position);
+      timeSinceTorqueControl_ = 0.0;
+    }
+
+    leg->setDesiredJointControlModes(desiredJointControlModes);
+    iLeg++;
+  }
+
+  /*
+  LegBase::JointControlModes desiredJointControlModes;
+  int iLeg = 0;
+  for (auto leg : *legs_) {
+
+    // 2.
+    if (leg->isGrounded() || timeSinceTorqueControl_ < timeIntervalToSwitchToPositionControl_) {
+      desiredJointControlModes.setConstant(robotModel::AM_Torque);
+      timeSinceTorqueControl_ += dt;
+    }
+
+    // 1.
+    if (!leg->shouldBeGrounded() && timeSinceTorqueControl_ >= timeIntervalToSwitchToPositionControl_) {
+      timeSinceTorqueControl_ = 0.0;
+      desiredJointControlModes.setConstant(robotModel::AM_Position);
+    }
+
+    leg->setDesiredJointControlModes(desiredJointControlModes);
+    iLeg++;
+  }
+  */
+
+  /* Set the position or torque reference */
+  footPlacementStrategy_->advance(dt);
+  torsoController_->advance(dt);
+  if(!virtualModelController_->compute()) { return false; }
 
   runtime_ += dt;
   return true;
