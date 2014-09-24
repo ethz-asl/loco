@@ -91,7 +91,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  }
 			  else {
 				  // leg bumped into obstacle
-				  leg->setIsSupportLeg(true);
+				  leg->setIsSupportLeg(false); // true
 			  }
 		  }
 		  else {

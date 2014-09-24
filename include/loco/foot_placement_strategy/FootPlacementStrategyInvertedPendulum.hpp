@@ -42,6 +42,8 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
 // typedef Trajectory1D SwingFootHeightTrajectory;
  typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
 
+ double heightByTrajectory_[4];
+ Position invertedPendulumPositionHipToFootHoldInWorldFrame_[4];
 public:
  Position positionWorldToFootHoldInWorldFrame_[4];
  Position positionWorldToFootHoldInvertedPendulumInWorldFrame_[4];

@@ -90,7 +90,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 //	  boundToRange(&boundedLegLength, -legLengthMax, legLengthMax);
 //	  rFootHoldOffset_CSw_invertedPendulum *= boundedLegLength/desLegLength;
 //	}
-
+	invertedPendulumPositionHipToFootHoldInWorldFrame_[leg->getId()] = invertedPendulumPositionHipToFootHoldInWorldFrame;
 
 	/* feedforward stepping offset */
 	//we also need to add a desired-velocity dependent feed forward step length
@@ -122,6 +122,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	positionWorldToDesiredFootInWorldFrame.z() = getHeightOfTerrainInWorldFrame(positionWorldToDesiredFootInWorldFrame) + swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
 
+	heightByTrajectory_[leg->getId()] =  swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
 	return positionWorldToDesiredFootInWorldFrame;
 
 }
@@ -306,10 +307,10 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 	  		  // swing mode according to plan
 	  		  if (leg->isGrounded()) {
 
-	  			  if (leg->getSwingPhase() <= 0.3) {
+//	  			  if (leg->getSwingPhase() <= 0.3) {
 	  				  // leg should lift-off (late lift-off)
 	  				setFootTrajectory(leg);
-	  			  }
+//	  			  }
 
 	  		  }
 	  		  else {
