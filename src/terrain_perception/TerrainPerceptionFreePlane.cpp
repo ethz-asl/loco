@@ -168,7 +168,7 @@ namespace loco {
 
       default: {
         error: throw std::out_of_range("Index out of range ...");
-      }
+      } break;
 
     } // switch
   } // update local measures

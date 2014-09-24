@@ -74,7 +74,7 @@ public:
   loco::TerrainModelBase* terrain_;
 
   void setFootTrajectory(LegBase* leg);
-  void regainContact(LegBase* leg);
+  void regainContact(LegBase* leg, double dt);
 
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
 	Trajectory1D stepInterpolationFunction_;

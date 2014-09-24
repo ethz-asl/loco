@@ -121,6 +121,12 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	}
 
 	positionWorldToDesiredFootInWorldFrame.z() = getHeightOfTerrainInWorldFrame(positionWorldToDesiredFootInWorldFrame) + swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
+	//--- Add offset to height to take into accoutn the difference between real foot position and its projection on estimated plane
+//	double footPositionAtLiftOffOnFreePlane;
+//	terrain_->getHeight(leg->getStateLiftOff()->getFootPositionInWorldFrame(), footPositionAtLiftOffOnFreePlane);
+//	double realFootHeightInWorldFrameOffset = leg->getStateLiftOff()->getFootPositionInWorldFrame().z()- footPositionAtLiftOffOnFreePlane;
+//	positionWorldToDesiredFootInWorldFrame.z() = realFootHeightInWorldFrameOffset + getHeightOfTerrainInWorldFrame(positionWorldToDesiredFootInWorldFrame) + swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
+	//---
 
 	heightByTrajectory_[leg->getId()] =  swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
 	return positionWorldToDesiredFootInWorldFrame;
@@ -293,14 +299,16 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 	  		  if (leg->isGrounded()) {
 	  			  if (leg->isSlipping()) {
 	  				  // not safe to use this leg as support leg
-	  				  regainContact(leg);
+	  				  regainContact(leg, dt);
 	  				  // todo think harder about this
 	  			  }
+	  			  // torque control
+
 	  		  }
 	  		  else {
 	  			  // not yet touch-down
 	  			  // lost contact
-	  			regainContact(leg);
+	  			regainContact(leg, dt);
 	  		  }
 	  	  }
 	  	  else {
@@ -323,13 +331,14 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 
 }
 
-void FootPlacementStrategyInvertedPendulum::regainContact(LegBase* leg) {
+void FootPlacementStrategyInvertedPendulum::regainContact(LegBase* leg, double dt) {
 	Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
-
+	double loweringSpeed = 0.05;
 
 	        	loco::Vector normalInWorldFrame;
 	        	if (terrain_->getNormal(positionWorldToFootInWorldFrame,normalInWorldFrame)) {
-	        		positionWorldToFootInWorldFrame -= 0.01*(loco::Position)normalInWorldFrame;
+	        		//positionWorldToFootInWorldFrame -= 0.01*(loco::Position)normalInWorldFrame;
+	        		positionWorldToFootInWorldFrame -= (loweringSpeed*dt) * (loco::Position)normalInWorldFrame;
 	        	}
 	        	else  {
 	        		throw std::runtime_error("FootPlacementStrategyInvertedPendulum::advance cannot get terrain normal.");

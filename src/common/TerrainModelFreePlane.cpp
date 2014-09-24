@@ -54,13 +54,13 @@ namespace loco {
     filterHeightFreeTimeConstant_ = 0.2;
 
 
-    filterNormalX_.initialize(normalInWorldFrame_.x(), 0.1, 1.0);
-    filterNormalY_.initialize(normalInWorldFrame_.y(), 0.1, 1.0);
-    filterNormalZ_.initialize(normalInWorldFrame_.z(), 0.1, 1.0);
+    filterNormalX_.initialize(normalInWorldFrame_.x(), 0.05, 1.0);
+    filterNormalY_.initialize(normalInWorldFrame_.y(), 0.05, 1.0);
+    filterNormalZ_.initialize(normalInWorldFrame_.z(), 0.05, 1.0);
 
-    filterPositionX_.initialize(positionInWorldFrame_.x(), 0.1, 1.0);
-    filterPositionY_.initialize(positionInWorldFrame_.y(), 0.1, 1.0);
-    filterPositionZ_.initialize(positionInWorldFrame_.z(), 0.1, 1.0);
+    filterPositionX_.initialize(positionInWorldFrame_.x(), 0.05, 1.0);
+    filterPositionY_.initialize(positionInWorldFrame_.y(), 0.05, 1.0);
+    filterPositionZ_.initialize(positionInWorldFrame_.z(), 0.05, 1.0);
 
     //filterHeightFree_.initialize(0.0, filterHeightFreeTimeConstant_, 1.0);
     //filterHeightHorizontal_.initialize(0.0, filterHeightHorizontalTimeConstant_, 1.0);

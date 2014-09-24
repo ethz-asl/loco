@@ -19,7 +19,9 @@ LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase
     gaitPattern_(gaitPattern)
 {
 
-
+	for (int i=0; i<4; i++) {
+		state_[i] = -1;
+	}
 }
 
 LimbCoordinatorDynamicGait::~LimbCoordinatorDynamicGait() {
@@ -37,7 +39,9 @@ bool LimbCoordinatorDynamicGait::isUpdatingStridePhase() const {
 
 
 bool LimbCoordinatorDynamicGait::initialize(double dt) {
-
+	for (int i=0; i<4; i++) {
+		state_[i] = -1;
+	}
   if(!advance(0.0)) {
     return false;
   }
@@ -47,6 +51,16 @@ bool LimbCoordinatorDynamicGait::initialize(double dt) {
 bool LimbCoordinatorDynamicGait::advance(double dt) {
   int iLeg = 0;
   LegBase::JointControlModes desiredJointControlModes;
+
+  /* state_
+   * 0: stance phase normal condition
+   * 1: swing phase normal condition
+   * 2: slipping
+   * 3: lost contact
+   * 4: late lift-off
+   * 5: early touch-down
+   * 6: bumped into obstacle while swinging
+   */
 
   for (auto leg : *legs_) {
     //leg->setWasInStanceMode(leg->isInStanceMode());
@@ -63,18 +77,21 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 		  if (leg->isGrounded()) {
 			  if (leg->isSlipping()) {
 				  // not safe to use this leg as support leg
-				  leg->setIsSupportLeg(true);
+				  leg->setIsSupportLeg(false);
+				  state_[iLeg] = 2;
 				  // todo think harder about this
 			  }
 			  else {
 				  // safe to use this leg as support leg
 				  leg->setIsSupportLeg(true);
+				  state_[iLeg] = 0;
 			  }
 		  }
 		  else {
 			  // not yet touch-down
 			  // lost contact
 			  leg->setIsSupportLeg(false);
+			  state_[iLeg] = 3;
 		  }
 	  }
 	  else {
@@ -84,19 +101,23 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  if (leg->getSwingPhase() <= 0.3) {
 				  // leg should lift-off (late lift-off)
 				  leg->setIsSupportLeg(false);
+				  state_[iLeg] = 4;
 			  }
 			  else if (leg->getSwingPhase() > 0.6) {
 				  // early touch-down
 				  leg->setIsSupportLeg(true);
+				  state_[iLeg] = 5;
 			  }
 			  else {
 				  // leg bumped into obstacle
 				  leg->setIsSupportLeg(false); // true
+				  state_[iLeg] = 6;
 			  }
 		  }
 		  else {
 			  // leg is on track
 			  leg->setIsSupportLeg(false);
+			  state_[iLeg] = 1;
 		  }
 	  }
     //---

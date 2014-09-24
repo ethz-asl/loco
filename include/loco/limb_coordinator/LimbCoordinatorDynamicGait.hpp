@@ -18,6 +18,8 @@ namespace loco {
 
 class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
  public:
+	int state_[4];
+
   LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern, bool isUpdatingStridePhase=true);
   virtual ~LimbCoordinatorDynamicGait();
 
