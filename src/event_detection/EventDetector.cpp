@@ -147,8 +147,10 @@ namespace loco {
         loco::Position distanceFromTouchdown = leg->getWorldToFootPositionInWorldFrame()
                                                - leg->getStateTouchDown()->getFootPositionInWorldFrame();
 
-        if ( (distanceFromTouchdown.norm() > minimumDistanceForSlipDetection_) ) {
-          leg->setIsSlipping(true);
+        //if ( (distanceFromTouchdown.norm() > minimumDistanceForSlipDetection_) ) {
+        if ( (footVelocityInWorldFrame.norm() > minimumSpeedForSlipDetection_) ) {
+          //leg->setIsSlipping(true);
+        	leg->setIsSlipping(false);
 
           #if EVENT_DEBUG
           std::cout << "[eventDetector] leg "       << iLeg << " is slipping!" << std::endl;

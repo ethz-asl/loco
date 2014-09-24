@@ -55,11 +55,11 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
   /* state_
    * 0: stance phase normal condition
    * 1: swing phase normal condition
-   * 2: slipping
-   * 3: lost contact
-   * 4: late lift-off
-   * 5: early touch-down
-   * 6: bumped into obstacle while swinging
+   * 2: stance, but slipping
+   * 3: stance, but lost contact / not yet touch-down
+   * 4: swing, but late lift-off
+   * 5: late swing, but early touch-down
+   * 6: middle swing, but bumped into obstacle while swinging
    */
 
   for (auto leg : *legs_) {
