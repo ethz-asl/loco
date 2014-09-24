@@ -567,7 +567,7 @@ bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
     printf("Could not find ContactForceDistribution:Constraints\n");
     return false;
   }
-  double frictionCoefficient = 0.8;
+  double frictionCoefficient = 0.6;
   if (element->QueryDoubleAttribute("frictionCoefficient", &frictionCoefficient)!=TIXML_SUCCESS) {
     printf("Could not find ContactForceDistribution:Constraints:frictionCoefficient!\n");
     return false;

@@ -13,7 +13,7 @@ namespace loco {
       TerrainModelBase(),
       positionInWorldFrame_(loco::Vector::Zero()),
       normalInWorldFrame_(loco::Vector::UnitZ()),
-      frictionCoefficientBetweenTerrainAndFoot_(0.8),
+      frictionCoefficientBetweenTerrainAndFoot_(0.6),
       heightInWorldFrame_(0.0),
       heightFreePlaneInWorldFrame_(0.0),
       filterHeightHorizontalTimeConstant_(1.0),
@@ -47,7 +47,7 @@ namespace loco {
     normalInWorldFrameFilterInput_ = normalInWorldFrame_;
     positionInWorldFrameFilterInput_ = positionInWorldFrame_;
 
-    frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
+    frictionCoefficientBetweenTerrainAndFoot_ = 0.6;
     heightInWorldFrame_ = 0.0;
     heightFreePlaneInWorldFrame_ = 0.0;
     filterHeightHorizontalTimeConstant_ = 1.0;
