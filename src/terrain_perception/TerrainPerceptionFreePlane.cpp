@@ -45,6 +45,9 @@ namespace loco {
     for (int k=0; k<planeParameters_.size(); k++) {
     	planeParameters_[k] = 0.0;
     }
+//
+//    updateControlFrameOrigin();
+//    updateControlFrameAttitude();
 
   } // constructor
 
@@ -66,8 +69,57 @@ namespace loco {
     heightMemoryIndex_ = 0;
     heightHorizontalPlaneAlgorithm_ = 0.0;
 
+    updateControlFrameOrigin();
+    updateControlFrameAttitude();
+
     return true;
   } // initialize
+
+
+  void TerrainPerceptionFreePlane::updateControlFrameOrigin() {
+
+    loco::Position positionWorldToMiddleOfFeetInWorldFrame;
+
+    for (auto leg : *legs_) {
+      positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
+    }
+    positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
+
+    terrainModel_->getHeight(positionWorldToMiddleOfFeetInWorldFrame);
+
+    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToMiddleOfFeetInWorldFrame);
+  }
+
+
+  void TerrainPerceptionFreePlane::updateControlFrameAttitude() {
+    double terrainPitch, terrainRoll, controlFrameYaw;
+    loco::Vector normalInWorldFrame;
+    terrainModel_->getNormal(loco::Position::Zero(), normalInWorldFrame);
+
+    terrainPitch = atan2(normalInWorldFrame.x(), normalInWorldFrame.z());
+    terrainRoll = atan2(normalInWorldFrame.y(), normalInWorldFrame.z());
+
+    //--- Get current heading direction
+    const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+    const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+    Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
+    currentHeadingDirectionInWorldFrame.z() = 0.0;
+
+    std::cout << "current heading: " << currentHeadingDirectionInWorldFrame << std::endl;
+
+    RotationQuaternion orientationWorldToControHeading;
+    Eigen::Vector3d axisX = Eigen::Vector3d::UnitX();
+    orientationWorldToControHeading.setFromVectors(axisX, currentHeadingDirectionInWorldFrame.toImplementation());
+    //---
+
+    RotationQuaternion orientationWorldToControl = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))*RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))*orientationWorldToControHeading;
+    torso_->getMeasuredState().setOrientationWorldToControl(orientationWorldToControl);
+    torso_->getMeasuredState().setPositionControlToBaseInControlFrame(orientationWorldToControl.rotate(torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame()));
+
+    RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
+    torso_->getMeasuredState().setOrientationControlToBase(orientationWorldToBase*orientationWorldToControl.inverted());
+
+  }
 
 
   bool TerrainPerceptionFreePlane::advance(double dt) {
@@ -97,6 +149,9 @@ namespace loco {
     computeEstimationNoise();
 
     terrainModel_->advance(dt);
+
+    updateControlFrameOrigin();
+    updateControlFrameAttitude();
 
     return true;
   } // advance
@@ -138,7 +193,7 @@ namespace loco {
       }
 
       // 3.
-      terrainModel_->setHeight(heightHorizontalPlaneAlgorithm_, torso_->getMeasuredState().getWorldToBasePositionInWorldFrame());
+      terrainModel_->setHeight(heightHorizontalPlaneAlgorithm_, torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame());
       terrainModel_->setHeightNoise(heightHorizontalPlaneAlgorithm_-averageHeight);
     } // if groundedLimbCount
     //---
@@ -162,8 +217,8 @@ namespace loco {
 
       case(EstimatePlaneInFrame::Base): {
         mostRecentPositionOfFoot_[legID] = leg.getBaseToFootPositionInBaseFrame();
-        lastWorldToBasePositionInWorldFrameForFoot_[legID] = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-        lastWorldToBaseOrientationForFoot_[legID] = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+        lastWorldToBasePositionInWorldFrameForFoot_[legID] = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+        lastWorldToBaseOrientationForFoot_[legID] = torso_->getMeasuredState().getOrientationWorldToBase();
       } break;
 
       default: {
@@ -176,7 +231,7 @@ namespace loco {
 
   void TerrainPerceptionFreePlane::rotatePassiveFromBaseToWorldFrame(loco::Position& position) {
     RotationQuaternion rot;
-    rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+    rot = torso_->getMeasuredState().getOrientationWorldToBase();
     position = rot.inverseRotate(position);
   } // passive rotation helper
 
@@ -184,10 +239,10 @@ namespace loco {
   void TerrainPerceptionFreePlane::homogeneousTransformFromBaseToWorldFrame(loco::Position& position) {
     RotationQuaternion rot;
     loco::Position positionRotated;
-    rot = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+    rot = torso_->getMeasuredState().getOrientationWorldToBase();
 
     positionRotated = rot.inverseRotate(position);
-    position = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame()
+    position = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame()
               + positionRotated;
   } // homogeneous transform helper
 

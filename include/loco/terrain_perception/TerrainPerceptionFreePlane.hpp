@@ -61,6 +61,9 @@ namespace loco {
      */
     void getMostRecentPositionOfFootInWorldFrame(loco::Position& footPositionInWorldFrame, int footID);
 
+    void updateControlFrameOrigin();
+    void updateControlFrameAttitude();
+
     std::vector<double> planeParameters_;
 
    protected:

@@ -26,16 +26,12 @@ legs_(legs)
 	startShiftTowardsLegAtSwingPhase_ = 0.7;
 	headingOffset_ = 0;
 	lateralOffset_ = 0;
-	errorVector_ = Position();
 }
 
 CoMOverSupportPolygonControl::~CoMOverSupportPolygonControl() {
 
 }
 
-const Position& CoMOverSupportPolygonControl::getPositionErrorVectorInWorldFrame() const {
- return errorVector_;
-}
 
 void CoMOverSupportPolygonControl::advance(double dt) {
   const int nLegs = legs_->size();
@@ -62,8 +58,6 @@ void CoMOverSupportPolygonControl::advance(double dt) {
     iLeg++;
   }
 
-
-  positionWorldToMiddleOfStanceFeetInWorldFrame_ = Position();
   Position comTarget;
 
   iLeg=0;
@@ -74,12 +68,10 @@ void CoMOverSupportPolygonControl::advance(double dt) {
     if (sumWeights != 0) {
       comTarget += Position(positionWorldToFootInWorldFrame.toImplementation()*legWeights[iLeg]/sumWeights);
     }
-    positionWorldToMiddleOfStanceFeetInWorldFrame_ += Position(positionWorldToFootInWorldFrame.toImplementation()*0.25);
     iLeg++;
   }
 
   desiredWorldToFootPositionInWorldFrame_ = comTarget+Position(headingOffset_, lateralOffset_, 0.0);
-  errorVector_ =  comTarget+Position(headingOffset_, lateralOffset_, 0.0) - positionWorldToMiddleOfStanceFeetInWorldFrame_;
 
 }
 
@@ -174,9 +166,7 @@ bool CoMOverSupportPolygonControl::setToInterpolated(const CoMOverSupportPolygon
 	return true;
 }
 
-const Position& CoMOverSupportPolygonControl::getDefaultTarget() const {
-  return positionWorldToMiddleOfStanceFeetInWorldFrame_;
-}
+
 
 const Position& CoMOverSupportPolygonControl::getDesiredWorldToCoMPositionInWorldFrame() const {
   return desiredWorldToFootPositionInWorldFrame_;

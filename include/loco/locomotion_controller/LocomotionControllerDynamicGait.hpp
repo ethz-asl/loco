@@ -59,8 +59,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual bool advance(double dt);
-
+  virtual bool advanceMeasurements(double dt);
+  virtual bool advanceSetPoints(double dt);
 
   virtual bool isInitialized() const;
 

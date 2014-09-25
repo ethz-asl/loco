@@ -101,7 +101,7 @@ void VisualizerSC::drawHistoryOfBasePosition(loco::TorsoBase* torso) {
   const double dt = 1.0/desiredFrameRate_;
   if (isSimulationRunning_) {
     baseTrajectory_.removeKnot(0);
-    baseTrajectory_.addKnot(baseTrajectory_.getKnotPosition(baseTrajectory_.getKnotCount()-1)+dt, torso->getMeasuredState().getWorldToBasePositionInWorldFrame());
+    baseTrajectory_.addKnot(baseTrajectory_.getKnotPosition(baseTrajectory_.getKnotCount()-1)+dt, torso->getMeasuredState().getPositionWorldToBaseInWorldFrame());
   }
   drawTrajectoryCatMullRomPosition(baseTrajectory_, dt, 2.0);
 
@@ -130,8 +130,10 @@ void VisualizerSC::drawDesiredPose(Character* character, AbstractRBEngine* world
 
   loco::RotationQuaternion  orientationWorldToBaseInWorldFrame;
   loco::Position positionWorldToBaseInWorldFrame;
-  orientationWorldToBaseInWorldFrame = torso->getDesiredState().getWorldToBaseOrientationInWorldFrame();
-  positionWorldToBaseInWorldFrame = torso->getDesiredState().getWorldToBasePositionInWorldFrame();
+  orientationWorldToBaseInWorldFrame = torso->getDesiredState().getOrientationControlToBase()*torso->getMeasuredState().getOrientationWorldToControl();
+  positionWorldToBaseInWorldFrame = torso->getMeasuredState().getPositionWorldToControlInWorldFrame()
+                                    + torso->getDesiredState().getPositionControlToBaseInControlFrame();
+
   VectorQj desJointPositions;
   int iLeg =0;
   for (auto leg : *legs) {
@@ -145,8 +147,8 @@ void VisualizerSC::drawMeasuredPose(Character* character, AbstractRBEngine* worl
 
   loco::RotationQuaternion  orientationWorldToBaseInWorldFrame;
   loco::Position positionWorldToBaseInWorldFrame;
-  orientationWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-  positionWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBasePositionInWorldFrame();
+  orientationWorldToBaseInWorldFrame = torso->getMeasuredState().getOrientationWorldToBase();
+  positionWorldToBaseInWorldFrame = torso->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   VectorQj desJointPositions;
   int iLeg =0;
   for (auto leg : *legs) {
@@ -200,9 +202,9 @@ void VisualizerSC::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, 
 
   const Force virtualForceInBaseFrame = forceInBaseFrame;
   const Torque virtualTorqueInBaseFrame = torqueInBaseFrame;
-  const Position positionWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBasePositionInWorldFrame();
+  const Position positionWorldToBaseInWorldFrame = torso->getMeasuredState().getPositionWorldToBaseInWorldFrame();
 
-  const Force virtualForceInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(virtualForceInBaseFrame.toImplementation()));
+  const Force virtualForceInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(virtualForceInBaseFrame.toImplementation()));
 
   // force
 
@@ -210,13 +212,13 @@ void VisualizerSC::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, 
 
   double lengthHipToHip = legs->getLeftForeLeg()->getBaseToHipPositionInBaseFrame().x()-legs->getLeftHindLeg()->getBaseToHipPositionInBaseFrame().x();
   const Force forceYawInBaseFrame(0.0, lengthHipToHip*virtualTorqueInBaseFrame.z(), 0.0);
-  const Force forceYawInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forceYawInBaseFrame.toImplementation()));
+  const Force forceYawInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forceYawInBaseFrame.toImplementation()));
 
   const Force forcePitchInBaseFrame(0.0, 0.0 , lengthHipToHip*virtualTorqueInBaseFrame.y());
-  const Force forcePitchInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forcePitchInBaseFrame.toImplementation()));
+  const Force forcePitchInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forcePitchInBaseFrame.toImplementation()));
 
   const Force forceRollInWorldBase(0.0, 0.0 , lengthHipToHip*virtualTorqueInBaseFrame.x());
-  const Force forceRollInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forceRollInWorldBase.toImplementation()));
+  const Force forceRollInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forceRollInWorldBase.toImplementation()));
 
   const Position foreMidHipInWorldFrame =  Position((legs->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);
   const Position hindMidHipInWorldFrame =  Position((legs->getLeftHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightHindLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);

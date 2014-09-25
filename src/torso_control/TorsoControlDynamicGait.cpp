@@ -48,83 +48,92 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 
 
 bool TorsoControlDynamicGait::advance(double dt) {
-  comControl_.advance(dt);
-
-  const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getWorldToHeadingOrientation();
-
-
-
-  Position lateralAndHeadingPositionInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
-
-  const double desiredForeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
-  const double desiredHindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
-  const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredForeHeightAboveGroundInWorldFrame + desiredHindHeightAboveGroundInWorldFrame)/2.0;
-  Position desiredLateralAndHeadingPositionInWorldFrame = lateralAndHeadingPositionInWorldFrame;
-  Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
-  terrain_->getHeight(groundHeightInWorldFrame);
-  Position desiredTorsoPositionInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
-  desiredTorsoPositionInWorldFrame += desiredPositionOffetInWorldFrame_;
-
-//  Position desiredTorsoPositionInWorldFrame(0.0, desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
-
-  /* --- desired orientation --- */
-
-  // pitch angle
-  double height = desiredHindHeightAboveGroundInWorldFrame-desiredForeHeightAboveGroundInWorldFrame;
-  double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
-  RotationQuaternion orientationDesiredHeadingToBase = RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
-
-  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())/0.5;
-  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())/0.5;
-  Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+ comControl_.getPositionErrorVectorInWorldFrame();
-  Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+ comControl_.getPositionErrorVectorInWorldFrame();
-
-  Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
-  desiredHeadingDirectionInWorldFrame.z() = 0.0;
-
-  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())/0.5;
-  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())/0.5;
-
-
-  Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
-  currentHeadingDirectionInWorldFrame.z() = 0.0;
-
-  RotationQuaternion orientationHeadingToDesiredHeading;
-  try {
-    orientationHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(),desiredHeadingDirectionInWorldFrame.toImplementation());
-  } catch (std::exception& e)
-  {
-    std::cout << e.what() << '\n';
-    std::cout << "currentHeadingDirectionInWorldFrame: " << currentHeadingDirectionInWorldFrame <<std::endl;
-    std::cout << "desiredHeadingDirectionInWorldFrame: " << desiredHeadingDirectionInWorldFrame <<std::endl;
-    orientationHeadingToDesiredHeading.setIdentity();
-  }
-
-
-
-  RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBase*desiredOrientationOffset_*orientationHeadingToDesiredHeading*orientationWorldToHeading;
-
-  /* --- end desired orientation --- */
-
-  torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
-//  torso_->getDesiredState().setBaseTwistInBaseFrame(Twist(desiredLinearVelocity, desiredAngularVelocity));
-
-
-  /* if a stance leg lost contact, lower it to re-gain contact */
-  for (auto leg : *legs_) {
-    if (leg->isInStanceMode()) {
-      Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
-
-
-      if (!leg->isGrounded()) {
-        positionWorldToFootInWorldFrame.z() -= 0.01;
-      }
-      const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getWorldToBasePositionInWorldFrame();
-      const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
-      const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionBaseToFootInWorldFrame);
-      leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
-    }
-  }
+//  comControl_.advance(dt);
+//
+//  const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getOrientationWorldToControl();
+//
+//
+//
+//  Position lateralAndHeadingPositionInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
+//
+//  const double desiredForeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
+//  const double desiredHindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
+//  const double desiredMiddleHeightAboveGroundInWorldFrame = (desiredForeHeightAboveGroundInWorldFrame + desiredHindHeightAboveGroundInWorldFrame)/2.0;
+//  Position desiredLateralAndHeadingPositionInWorldFrame = lateralAndHeadingPositionInWorldFrame;
+//  Position groundHeightInWorldFrame = desiredLateralAndHeadingPositionInWorldFrame;
+//  terrain_->getHeight(groundHeightInWorldFrame);
+//  Position positionWorldToDesiredBaseInWorldFrame(desiredLateralAndHeadingPositionInWorldFrame.x(), desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+//  positionWorldToDesiredBaseInWorldFrame += desiredPositionOffsetInWorldFrame_;
+//
+////  Position desiredTorsoPositionInWorldFrame(0.0, desiredLateralAndHeadingPositionInWorldFrame.y(), desiredMiddleHeightAboveGroundInWorldFrame+groundHeightInWorldFrame.z());
+//
+//  /* --- desired orientation --- */
+//
+//  // pitch angle
+//  double height = desiredHindHeightAboveGroundInWorldFrame-desiredForeHeightAboveGroundInWorldFrame;
+//  double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
+//  RotationQuaternion orientationControlDesiredHeadingToBase = RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
+//
+//  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())/0.5;
+//  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())/0.5;
+//
+//  Position positionError = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
+//
+//  Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+ positionError;
+//  Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+ positionError;
+//
+//  Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
+//  desiredHeadingDirectionInWorldFrame.z() = 0.0;
+//
+//  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())/0.5;
+//  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())/0.5;
+//
+//
+//  Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
+//  currentHeadingDirectionInWorldFrame.z() = 0.0;
+//
+//  RotationQuaternion orientationHeadingToDesiredHeading;
+//  try {
+//    orientationHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(),desiredHeadingDirectionInWorldFrame.toImplementation());
+//  } catch (std::exception& e)
+//  {
+//    std::cout << e.what() << '\n';
+//    std::cout << "currentHeadingDirectionInWorldFrame: " << currentHeadingDirectionInWorldFrame <<std::endl;
+//    std::cout << "desiredHeadingDirectionInWorldFrame: " << desiredHeadingDirectionInWorldFrame <<std::endl;
+//    orientationHeadingToDesiredHeading.setIdentity();
+//  }
+//
+//
+//
+//  RotationQuaternion desOrientationWorldToBase = orientationControlDesiredHeadingToBase*desiredOrientationOffset_*orientationHeadingToDesiredHeading*orientationWorldToHeading;
+//  RotationQuaternion orientationControlToDesiredBase;
+//  /* --- end desired orientation --- */
+//
+//
+//  torso_->getDesiredState().setPositionControlToBaseInControlFrame(positionWorldToDesiredBaseInWorldFrame);
+//  torso_->getDesiredState().setOrientationControlToBase(orientationControlToDesiredBase);
+//
+////  torso_->getDesiredState().setPositionWorldToBaseInWorldFrame(positionWorldToDesiredBaseInWorldFrame);
+//  torso_->getDesiredState().setOrientationWorldToBase(desOrientationWorldToBase);
+//
+////  torso_->getDesiredState().setBaseTwistInBaseFrame(Twist(desiredLinearVelocity, desiredAngularVelocity));
+//
+//
+//  /* if a stance leg lost contact, lower it to re-gain contact */
+//  for (auto leg : *legs_) {
+//    if (leg->isInStanceMode()) {
+//      Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
+//
+//
+//      if (!leg->isGrounded()) {
+//        positionWorldToFootInWorldFrame.z() -= 0.01;
+//      }
+//      const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+//      const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
+//      const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
+//      leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+//    }
+//  }
   return true;
 }
 
@@ -421,7 +430,7 @@ bool TorsoControlDynamicGait::loadHeightTrajectory(const TiXmlHandle &hTrajector
   return true;
 }
 void TorsoControlDynamicGait::setDesiredPositionOffetInWorldFrame(const Position& positionTargetOffsetInWorldFrame) {
-  desiredPositionOffetInWorldFrame_ = positionTargetOffsetInWorldFrame;
+  desiredPositionOffsetInWorldFrame_ = positionTargetOffsetInWorldFrame;
 }
 
 void TorsoControlDynamicGait::setDesiredOrientationOffset(const RotationQuaternion& orientationOffset) {

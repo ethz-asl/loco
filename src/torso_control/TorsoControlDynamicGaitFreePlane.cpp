@@ -19,7 +19,7 @@ namespace loco {
     desiredRollSlope_(1.0),
     adaptToTerrain_(CompleteAdaption)
   {
-    const double defaultHeight = 0.42;
+    const double defaultHeight = 0.35;
     desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_  = defaultHeight;
 
     firstOrderFilter_ = new loco::FirstOrderFilter();
@@ -50,9 +50,19 @@ namespace loco {
     /*******************************************
      * Set desired CoM position in world frame *
      *******************************************/
-    // evaluate desired CoM position in world frame
-    Position desiredTorsoPositionInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
+    // evaluate desired CoM position in control frame
+    Position positionControlToHorizontalTargetBaseInControlFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
 
+
+    // Get the positionError in control frame
+    Position positionError = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
+    double heightAtDesiredWorldToCoMPositionInWorldFrame;
+    terrain_->getHeight(comControl_.getDesiredWorldToCoMPositionInWorldFrame(), heightAtDesiredWorldToCoMPositionInWorldFrame);
+    // Correct the height to project
+    positionError.z() += heightAtDesiredWorldToCoMPositionInWorldFrame;
+
+
+    /*
     // update desired CoM position height as a function of the estimated terrain height and the measured velocity in base frame
     loco::LinearVelocity measuredTorsoVelocityInBaseFrame = torso_->getMeasuredState().getBaseLinearVelocityInBaseFrame();
     measuredTorsoVelocityInBaseFrame.y() = 0;
@@ -68,7 +78,16 @@ namespace loco {
     terrain_->getHeight(desiredTorsoPositionInWorldFrame);
     desiredTorsoPositionInWorldFrame.z() += desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;
     //desiredTorsoPositionInWorldFrame.z() -= heightOffset;
-    desiredTorsoPositionInWorldFrame += desiredPositionOffetInWorldFrame_;
+    desiredTorsoPositionInWorldFrame += desiredPositionOffsetInWorldFrame_;
+    */
+
+    Position positionControlToTargetBaseInControlFrame = positionControlToHorizontalTargetBaseInControlFrame
+                                                        + desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_*loco::Position::UnitZ()
+                                                        + desiredPositionOffsetInWorldFrame_;
+
+//    std::cout << "position com height in control frame: " << positionControlToTargetBaseInControlFrame
+//              << " control frame height: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame().z() << std::endl;
+
     /***********************************************
      * End set desired CoM position in world frame *
      ***********************************************/
@@ -83,15 +102,16 @@ namespace loco {
      *
      ***************************/
     // Get measured orientation
-    const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getWorldToHeadingOrientation(); // --> current heading orientation
-    RotationQuaternion orientationHeadingToDesiredHeading;                                                          // --> rotation due to desired twist
-    RotationQuaternion orientationDesiredHeadingToDesiredBody;                                                      // --> rotation due to desired pitch/roll
+    const RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl(); // --> current heading orientation
+    RotationQuaternion orientationControlToDesiredHeading;                                                          // --> rotation due to desired twist
 
     //--- Get desired heading direction
     const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())*0.5;
     const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())*0.5;
-    Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame + comControl_.getPositionErrorVectorInWorldFrame();
-    Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame + comControl_.getPositionErrorVectorInWorldFrame();
+
+    Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame + positionControlToTargetBaseInControlFrame;
+    Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame + positionControlToTargetBaseInControlFrame;
+
     Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
     desiredHeadingDirectionInWorldFrame.z() = 0.0;
     //---
@@ -104,44 +124,39 @@ namespace loco {
     //---
 
     try {
-      orientationHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(), desiredHeadingDirectionInWorldFrame.toImplementation());
+      orientationControlToDesiredHeading.setFromVectors(
+          orientationWorldToControl.rotate(currentHeadingDirectionInWorldFrame.toImplementation()),
+          orientationWorldToControl.rotate(desiredHeadingDirectionInWorldFrame.toImplementation())
+          );
     } catch (std::exception& e) {
       std::cout << e.what() << '\n';
       std::cout << "currentHeadingDirectionInWorldFrame: " << currentHeadingDirectionInWorldFrame <<std::endl;
       std::cout << "desiredHeadingDirectionInWorldFrame: " << desiredHeadingDirectionInWorldFrame <<std::endl;
-      orientationHeadingToDesiredHeading.setIdentity();
+      orientationControlToDesiredHeading.setIdentity();
     }
 
-    //--- Get terrain estimated attitude and base desired attitude
-    double desiredBasePitch, desiredBaseRoll;
-    const loco::RotationQuaternion orientationWorldToDesiredHeading = orientationHeadingToDesiredHeading*orientationWorldToHeading;
-    loco::Vector normalToPlaneInWorldFrame, normalToPlaneInDesiredHeadingFrame;
-
-    terrain_->getNormal(loco::Position::Zero(), normalToPlaneInWorldFrame);
-    normalToPlaneInDesiredHeadingFrame = orientationWorldToDesiredHeading.rotate(normalToPlaneInWorldFrame);
-
-    getDesiredBasePitchFromTerrainPitch(atan2(normalToPlaneInDesiredHeadingFrame.x(), normalToPlaneInDesiredHeadingFrame.z()), desiredBasePitch);
-    getDesiredBaseRollFromTerrainRoll(atan2(normalToPlaneInDesiredHeadingFrame.y(), normalToPlaneInDesiredHeadingFrame.z()), desiredBaseRoll);
-    //---
-
-    //--- Get rotation between normal to body in desired heading frame and normal to plane
-    RotationQuaternion orientationDesiredHeadingToBasePitch = RotationQuaternion(AngleAxis(desiredBasePitch, 0.0, 1.0, 0.0));
-    RotationQuaternion orientationDesiredHeadingToBaseRoll  = RotationQuaternion(AngleAxis(desiredBaseRoll, -1.0, 0.0, 0.0));
-    //---
-
     //--- Compose rotations
-    RotationQuaternion desOrientationWorldToBase = orientationDesiredHeadingToBaseRoll
-                                                   * orientationDesiredHeadingToBasePitch
-                                                   * orientationWorldToDesiredHeading;
+    //desiredOrientationOffset_ = RotationQuaternion(AngleAxis(4.0*M_PI/180.0,0.0,1.0,0.0));
+    RotationQuaternion orientationControlToDesiredBase = desiredOrientationOffset_*orientationControlToDesiredHeading;
+    std::cout << "desired orient: " << EulerAnglesZyx(orientationControlToDesiredBase).getUnique() << std::endl;
     //---
+
     /*******************************
      * End set desired orientation *
      *******************************/
 
     // Set desired pose of base frame with respect to world frame
-    torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
+    //torso_->getDesiredState().setWorldToBasePoseInWorldFrame(Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
+    torso_->getDesiredState().setPositionControlToBaseInControlFrame(positionControlToTargetBaseInControlFrame);
+    //torso_->getDesiredState().setPositionControlToBaseInControlFrame(Position(0.0,0.0,0.4));
+    torso_->getDesiredState().setOrientationControlToBase(orientationControlToDesiredBase);
+    //torso_->getDesiredState().setOrientationControlToBase(desiredOrientationOffset_);
 
 
+    std::cout << "************" << std::endl;
+    std::cout << "des lin vel in control frame: " << torso_->getDesiredState().getLinearVelocityBaseInControlFrame() << std::endl;
+    std::cout << "control frame pos: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame()
+              << " orientation: " << EulerAnglesZyx(orientationWorldToControl).getUnique() << std::endl;
 
     return true;
   }

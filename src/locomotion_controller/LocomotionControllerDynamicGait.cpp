@@ -134,7 +134,7 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 }
 
 
-bool LocomotionControllerDynamicGait::advance(double dt) {
+bool LocomotionControllerDynamicGait::advanceMeasurements(double dt) {
   if (!isInitialized_) { return false; }
 
   //--- Update sensor measurements.
@@ -144,6 +144,9 @@ bool LocomotionControllerDynamicGait::advance(double dt) {
 
   if (!contactDetector_->advance(dt)) { return false; }
   //---
+  return true;
+}
+bool LocomotionControllerDynamicGait::advanceSetPoints(double dt) {
 
   //--- Update timing.
   gaitPattern_->advance(dt);

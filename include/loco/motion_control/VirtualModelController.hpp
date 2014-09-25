@@ -114,13 +114,13 @@ class VirtualModelController : public MotionControllerBase
   std::shared_ptr<ContactForceDistributionBase> contactForceDistribution_;
 
   //! Base position error in base frame.
-  Position positionErrorInBaseFrame_;
+  Position positionErrorInControlFrame_;
   //! Base orientation error vector (rotation vector) in base frame.
   Eigen::Vector3d orientationError_;
   //! Base linear velocity error in base frame.
-  LinearVelocity linearVelocityErrorInBaseFrame_;
+  LinearVelocity linearVelocityErrorInControlFrame_;
   //! Base angular velocity error in base frame.
-  LocalAngularVelocity angularVelocityErrorInBaseFrame_;
+  LocalAngularVelocity angularVelocityErrorInControlFrame_;
 
   //! Force on torso to compensate for gravity (in base frame).
   Force gravityCompensationForceInBaseFrame_;

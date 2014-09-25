@@ -107,11 +107,7 @@ protected:
 	 */
 	Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame, LegBase* leg);
 
-	/*! Gets the height of the terrain in world frame at a certain location
-	 * @param position  location
-	 * @return  height of the terrain
-	 */
-	double getHeightOfTerrainInWorldFrame(const loco::Position& position);
+
 
 	/*! load foot height trajectory from XML
 	 * @param hTrajectory handle

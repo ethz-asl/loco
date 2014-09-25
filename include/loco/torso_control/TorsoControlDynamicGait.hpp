@@ -63,7 +63,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
   rbf::PeriodicRBF1DC1 desiredTorsoForeHeightAboveGroundInWorldFrame_;
   rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
-  Position desiredPositionOffetInWorldFrame_;
+  Position desiredPositionOffsetInWorldFrame_;
   RotationQuaternion desiredOrientationOffset_;
  protected:
   virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);

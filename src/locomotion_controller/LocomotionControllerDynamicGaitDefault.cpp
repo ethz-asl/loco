@@ -85,7 +85,11 @@ bool LocomotionControllerDynamicGaitDefault::initialize(double dt) {
   return true;
 }
 
-bool LocomotionControllerDynamicGaitDefault::advance(double dt) {
+bool LocomotionControllerDynamicGaitDefault::advanceMeasurements(double dt) {
+
+  if (!locomotionController_->advanceMeasurements(dt)) {
+    return false;
+  }
 
   if (!missionController_->advance(dt)) {
     return false;
@@ -94,10 +98,10 @@ bool LocomotionControllerDynamicGaitDefault::advance(double dt) {
   torsoController_->setDesiredPositionOffetInWorldFrame(missionController_->getDesiredPositionOffsetInWorldFrame());
   torsoController_->setDesiredOrientationOffset(missionController_->getDesiredOrientationOffset());
 
-
-  if (!locomotionController_->advance(dt)) {
-    return false;
+  if (!locomotionController_->advanceSetPoints(dt)) {
+      return false;
   }
+
 //  std::cout << "Torso: \n";
 //  std::cout << *torso_ << std::endl;
 
@@ -115,6 +119,10 @@ bool LocomotionControllerDynamicGaitDefault::advance(double dt) {
     iLeg++;
   }
 
+  return true;
+}
+
+bool LocomotionControllerDynamicGaitDefault::advanceSetPoints(double dt)  {
   return true;
 }
 

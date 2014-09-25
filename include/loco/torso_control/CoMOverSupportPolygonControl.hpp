@@ -37,7 +37,6 @@ public:
 	 * @param legs	references to the legs
 	 * @return error vector expressed in world frame
 	 */
-	const Position& getPositionErrorVectorInWorldFrame() const;
 
 	const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
 
@@ -63,7 +62,6 @@ public:
 	 */
 	bool setToInterpolated(const CoMOverSupportPolygonControl& supportPolygon1, const CoMOverSupportPolygonControl& supportPolygon2, double t);
 
-  const Position& getDefaultTarget() const;
 
   void advance(double dt);
 protected:
@@ -81,9 +79,7 @@ protected:
     double headingOffset_;
 
 
-    Position errorVector_;
 //    //! target position for logging
-    Position positionWorldToMiddleOfStanceFeetInWorldFrame_;
     Position desiredWorldToFootPositionInWorldFrame_;
 
 

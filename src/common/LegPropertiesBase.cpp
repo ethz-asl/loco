@@ -43,7 +43,7 @@ void LegPropertiesBase::setBaseToCenterOfMassPositionInBaseFrame(const Position&
   positionBaseToCenterOfMassInBaseFrame_ = centerOfMassInBaseFrame;
 }
 
-const Position& LegPropertiesBase::getDesiredDefaultSteppingPositionHipToFootInHeadingFrame() const
+const Position& LegPropertiesBase::getDesiredDefaultSteppingPositionHipToFootInControlFrame() const
 {
   return desiredDefaultSteppingPositionHipToFootInHeadingFrame_;
 }

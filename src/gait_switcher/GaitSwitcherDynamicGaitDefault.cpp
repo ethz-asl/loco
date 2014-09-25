@@ -60,8 +60,12 @@ bool GaitSwitcherDynamicGaitDefault::advance(double dt) {
 
   bool isSuccessful = updateTransition(time_);
 
-  if(!locomotionController_->advance(dt)) {
-    isSuccessful = false;
+  if (!locomotionController_->advanceMeasurements(dt)) {
+    return false;
+  }
+
+  if (!locomotionController_->advanceSetPoints(dt)) {
+    return false;
   }
 
   time_ += dt;

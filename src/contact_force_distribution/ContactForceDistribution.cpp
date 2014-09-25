@@ -170,7 +170,7 @@ bool ContactForceDistribution::addMinimalForceConstraints()
   d_.conservativeResize(rowIndex + nLegsInForceDistribution_);
   f_.conservativeResize(rowIndex + nLegsInForceDistribution_);
 
-  const RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
+  const RotationQuaternion& orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
 
   for (auto& legInfo : legInfos_)
   {
@@ -212,8 +212,8 @@ bool ContactForceDistribution::addFrictionConstraints()
   d_.conservativeResize(rowIndex + nConstraints);
   f_.conservativeResize(rowIndex + nConstraints);
 
-  const RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-  const RotationQuaternion orientationHeadingToBase = torso_->getMeasuredState().getHeadingToBaseOrientation();
+  const RotationQuaternion& orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
+  const RotationQuaternion orientationControlToBase = torso_->getMeasuredState().getOrientationControlToBase();
 
   for (auto& legInfo : legInfos_)
   {
@@ -241,7 +241,7 @@ bool ContactForceDistribution::addFrictionConstraints()
 //      Vector3d firstTangential = normalDirection.cross(Vector3d::UnitY()).normalized();
 
       Vector3d vectorY = Vector3d::UnitY();
-      Vector3d firstTangentialInBaseFrame = orientationHeadingToBase.rotate(vectorY);
+      Vector3d firstTangentialInBaseFrame = orientationControlToBase.rotate(vectorY);
       Vector3d firstTangential = normalDirection.cross(firstTangentialInBaseFrame).normalized();
 
       // logging
@@ -345,7 +345,7 @@ bool ContactForceDistribution::solveOptimization()
 bool ContactForceDistribution::computeJointTorques()
 {
   const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
-  const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(gravitationalAccelerationInWorldFrame);
+  const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(gravitationalAccelerationInWorldFrame);
 
 
 //  const int nDofPerLeg = 3; // TODO move to robot commons

@@ -9,7 +9,15 @@
 
 namespace loco {
 
-TorsoStateBase::TorsoStateBase() {
+TorsoStateBase::TorsoStateBase() :
+  positionWorldToBaseInWorldFrame_(),
+  positionControlToBaseInControlFrame_(),
+  orientationWorldToBase_(),
+  orientationWorldToControl_(),
+  orientationControlToBase_(),
+  linearVelocityBaseInBaseFrame_(),
+  angularVelocityBaseInBaseFrame_()
+{
 
 }
 
@@ -17,78 +25,72 @@ TorsoStateBase::~TorsoStateBase() {
 
 }
 
-
-void TorsoStateBase::setBaseTwistInBaseFrame(const Twist& twist) {
-  linearVelocityBaseInBaseFrame_ = twist.getTranslationalVelocity();
-  angularVelocityBaseInBaseFrame_ = twist.getRotationalVelocity();
-  twistBaseInBaseFrame_ = twist;
-}
-
-const loco::Position& TorsoStateBase::getWorldToBasePositionInWorldFrame() const {
+const loco::Position& TorsoStateBase::getPositionWorldToBaseInWorldFrame() const {
   return positionWorldToBaseInWorldFrame_;
 }
 
-const RotationQuaternion& TorsoStateBase::getWorldToBaseOrientationInWorldFrame() const {
-  return orientationWorldToBaseInWorldFrame_;
+const RotationQuaternion& TorsoStateBase::getOrientationWorldToBase() const {
+  return orientationWorldToBase_;
 }
 
-const loco::Twist& TorsoStateBase::getBaseTwistInBaseFrame() const {
-  return twistBaseInBaseFrame_;
+void TorsoStateBase::setOrientationWorldToBase(const RotationQuaternion& orientation) {
+  orientationWorldToBase_ = orientation;
 }
 
-
-
-double TorsoStateBase::getHeadingSpeedInBaseFrame() const {
-  return twistBaseInBaseFrame_.getTranslationalVelocity().x();
-}
-
-double TorsoStateBase::getTurningSpeedInBaseFrame() const {
-  return twistBaseInBaseFrame_.getRotationalVelocity().z();
-}
-
-double TorsoStateBase::getLateralSpeedInBaseFrame() const {
-  return twistBaseInBaseFrame_.getTranslationalVelocity().y();
-}
-
-const loco::LinearVelocity& TorsoStateBase::getBaseLinearVelocityInBaseFrame() const {
+const loco::LinearVelocity& TorsoStateBase::getLinearVelocityBaseInBaseFrame() const {
   return linearVelocityBaseInBaseFrame_;
 }
 
-const loco::LocalAngularVelocity& TorsoStateBase::getBaseAngularVelocityInBaseFrame() const {
+void TorsoStateBase::setLinearVelocityBaseInBaseFrame(const LinearVelocity& linearVelocity) {
+  linearVelocityBaseInBaseFrame_ = linearVelocity;
+}
+
+const loco::LocalAngularVelocity& TorsoStateBase::getAngularVelocityBaseInBaseFrame() const {
   return angularVelocityBaseInBaseFrame_;
 }
 
-const loco::Pose& TorsoStateBase::getWorldToBasePoseInWorldFrame() {
-    return poseBaseToWorldInWorldFrame_;
+void TorsoStateBase::setAngularVelocityBaseInBaseFrame(const loco::LocalAngularVelocity& angularVelocity)  {
+  angularVelocityBaseInBaseFrame_ = angularVelocity;
 }
 
-void TorsoStateBase::setWorldToBasePoseInWorldFrame(const Pose& pose) {
-  poseBaseToWorldInWorldFrame_ = pose;
-  positionWorldToBaseInWorldFrame_ = pose.getPosition();
-  orientationWorldToBaseInWorldFrame_ = pose.getRotation();
+void TorsoStateBase::setOrientationWorldToControl(const RotationQuaternion& orientation) {
+  orientationWorldToControl_ = orientation;
 }
 
-
-const RotationQuaternion& TorsoStateBase::getWorldToHeadingOrientation() const {
-  return orientationWorldToHeading_;
-}
-void TorsoStateBase::setWorldToHeadingOrientation(const RotationQuaternion& orientation) {
-  orientationWorldToHeading_ = orientation;
+const RotationQuaternion& TorsoStateBase::getOrientationWorldToControl() const {
+  return orientationWorldToControl_;
 }
 
-const RotationQuaternion&  TorsoStateBase::getHeadingToBaseOrientation() const {
-  return orientationHeadingToBase_;
+const RotationQuaternion&  TorsoStateBase::getOrientationControlToBase() const {
+  return orientationControlToBase_;
 }
-void TorsoStateBase::setHeadingToBaseOrientation(const RotationQuaternion& orientation) {
-  orientationHeadingToBase_ = orientation;
+void TorsoStateBase::setOrientationControlToBase(const RotationQuaternion& orientation) {
+  orientationControlToBase_ = orientation;
 }
 
-std::ostream& operator << (std::ostream& out, const TorsoStateBase& state) {
-  out << "Position (world): " << state.positionWorldToBaseInWorldFrame_ << std::endl;
-  out << "Orientation (Euler Zyx): " << EulerAnglesZyx(state.orientationWorldToBaseInWorldFrame_).getUnique() << std::endl;
-  out << "Linear velocity (base): " << state.linearVelocityBaseInBaseFrame_ << std::endl;
-  out << "Angular velocity (base): " << state.angularVelocityBaseInBaseFrame_ << std::endl;
-  return out;
+void TorsoStateBase::setPositionWorldToBaseInWorldFrame(
+    const Position& position) {
+  positionWorldToBaseInWorldFrame_ = position;
+}
+
+const Position& TorsoStateBase::getPositionControlToBaseInControlFrame() const {
+  return positionControlToBaseInControlFrame_;
+}
+
+void TorsoStateBase::setPositionControlToBaseInControlFrame(
+    const Position& positionControlToBaseInControlFrame) {
+  positionControlToBaseInControlFrame_ = positionControlToBaseInControlFrame;
+}
+
+const Position& TorsoStateBase::getPositionWorldToControlInWorldFrame() const {
+  return positionWorldToControlInWorldFrame_;
+}
+
+void TorsoStateBase::setPositionWorldToControlInWorldFrame(
+    const Position& positionWorldToControlInWorldFrame) {
+  positionWorldToControlInWorldFrame_ = positionWorldToControlInWorldFrame;
 }
 
 } /* namespace loco */
+
+
