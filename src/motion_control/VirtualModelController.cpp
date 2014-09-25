@@ -68,18 +68,18 @@ bool VirtualModelController::computeError()
 
 //  std::cout << "ornt error: " << orientationError_.transpose() << std::endl;
 
-  std::cout << "***///******" << std::endl;
-  std::cout << "des orientation: " << EulerAnglesZyx(torso_->getDesiredState().getOrientationControlToBase()).getUnique() << std::endl;
-  std::cout << "meas orientation: " << EulerAnglesZyx(torso_->getMeasuredState().getOrientationControlToBase()).getUnique() << std::endl;
-  std::cout << "***///******" << std::endl << std::endl;
+//  std::cout << "***///******" << std::endl;
+//  std::cout << "des orientation: " << EulerAnglesZyx(torso_->getDesiredState().getOrientationControlToBase()).getUnique() << std::endl;
+//  std::cout << "meas orientation: " << EulerAnglesZyx(torso_->getMeasuredState().getOrientationControlToBase()).getUnique() << std::endl;
+//  std::cout << "***///******" << std::endl << std::endl;
 
   linearVelocityErrorInControlFrame_ = torso_->getDesiredState().getLinearVelocityBaseInControlFrame() - orientationControlToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
   angularVelocityErrorInControlFrame_ = torso_->getDesiredState().getAngularVelocityBaseInControlFrame() - orientationControlToBase.inverseRotate(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
-
-  std::cout << "des ang vel: " << torso_->getDesiredState().getAngularVelocityBaseInControlFrame()
-            << "meas ang vel: " << orientationControlToBase.inverseRotate(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame())
-            << "des lin vel: " << torso_->getDesiredState().getLinearVelocityBaseInControlFrame()
-            << "meas lin vel: " << orientationControlToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame()) << std::endl;
+//
+//  std::cout << "des ang vel: " << torso_->getDesiredState().getAngularVelocityBaseInControlFrame()
+//            << "meas ang vel: " << orientationControlToBase.inverseRotate(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame())
+//            << "des lin vel: " << torso_->getDesiredState().getLinearVelocityBaseInControlFrame()
+//            << "meas lin vel: " << orientationControlToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame()) << std::endl;
 
   return true;
 }
@@ -144,11 +144,11 @@ bool VirtualModelController::computeVirtualTorque()
                        + orientationControlToBase.rotate(Torque(feedforwardGainRotation_.cwiseProduct(feedforwardTermInControlFrame)))
                        + gravityCompensationTorqueInBaseFrame_;
 
-  std::cout << "--------------------" << std::endl
-      << "ornt err: " << Torque(proportionalGainRotation_.cwiseProduct(orientationError_)) << std::endl
-      << "derivative err: " << orientationControlToBase.rotate(Torque(derivativeGainRotation_.cwiseProduct(angularVelocityErrorInControlFrame_.toImplementation()))) << std::endl
-      << "ff: " << orientationControlToBase.rotate(Torque(feedforwardGainRotation_.cwiseProduct(feedforwardTermInControlFrame))) << std::endl
-      << "grav comp: " << gravityCompensationTorqueInBaseFrame_ << std::endl;
+//  std::cout << "--------------------" << std::endl
+//      << "ornt err: " << Torque(proportionalGainRotation_.cwiseProduct(orientationError_)) << std::endl
+//      << "derivative err: " << orientationControlToBase.rotate(Torque(derivativeGainRotation_.cwiseProduct(angularVelocityErrorInControlFrame_.toImplementation()))) << std::endl
+//      << "ff: " << orientationControlToBase.rotate(Torque(feedforwardGainRotation_.cwiseProduct(feedforwardTermInControlFrame))) << std::endl
+//      << "grav comp: " << gravityCompensationTorqueInBaseFrame_ << std::endl;
 
   return true;
 }

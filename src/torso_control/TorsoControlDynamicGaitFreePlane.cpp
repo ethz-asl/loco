@@ -53,7 +53,6 @@ namespace loco {
     // evaluate desired CoM position in control frame
     Position positionControlToHorizontalTargetBaseInControlFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
 
-
     // Get the positionError in control frame
     Position positionError = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
     double heightAtDesiredWorldToCoMPositionInWorldFrame;
@@ -138,7 +137,7 @@ namespace loco {
     //--- Compose rotations
     //desiredOrientationOffset_ = RotationQuaternion(AngleAxis(4.0*M_PI/180.0,0.0,1.0,0.0));
     RotationQuaternion orientationControlToDesiredBase = desiredOrientationOffset_*orientationControlToDesiredHeading;
-    std::cout << "desired orient: " << EulerAnglesZyx(orientationControlToDesiredBase).getUnique() << std::endl;
+    //std::cout << "desired orient: " << EulerAnglesZyx(orientationControlToDesiredBase).getUnique() << std::endl;
     //---
 
     /*******************************
@@ -153,10 +152,10 @@ namespace loco {
     //torso_->getDesiredState().setOrientationControlToBase(desiredOrientationOffset_);
 
 
-    std::cout << "************" << std::endl;
-    std::cout << "des lin vel in control frame: " << torso_->getDesiredState().getLinearVelocityBaseInControlFrame() << std::endl;
-    std::cout << "control frame pos: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame()
-              << " orientation: " << EulerAnglesZyx(orientationWorldToControl).getUnique() << std::endl;
+//    std::cout << "************" << std::endl;
+//    std::cout << "des lin vel in control frame: " << torso_->getDesiredState().getLinearVelocityBaseInControlFrame() << std::endl;
+//    std::cout << "control frame pos: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame()
+//              << " orientation: " << EulerAnglesZyx(orientationWorldToControl).getUnique() << std::endl;
 
     return true;
   }

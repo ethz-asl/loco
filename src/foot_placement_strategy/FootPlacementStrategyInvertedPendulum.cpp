@@ -45,7 +45,6 @@ FootPlacementStrategyInvertedPendulum::~FootPlacementStrategyInvertedPendulum() 
 Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep)
 {
 
-
   const RotationQuaternion& orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   const RotationQuaternion& orientationControlToBase = torso_->getMeasuredState().getOrientationControlToBase();
   const RotationQuaternion& orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
@@ -54,13 +53,10 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
   desiredLinearVelocityBaseInControlFrame.y() = 0.0;
   desiredLinearVelocityBaseInControlFrame.z() = 0.0;
 
-
-
   double swingPhase = 1;
-  if (leg->isInSwingMode()) {
+  if (!leg->isSupportLeg()) {
     swingPhase = leg->getSwingPhase();
   }
-
 
   const Position desiredDefaultSteppingPositionHipToFootInControlFrame = leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame();
   const Position defaultPositionHipToFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(desiredDefaultSteppingPositionHipToFootInControlFrame); // todo
@@ -109,9 +105,12 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
   Position feedForwardPositionHipToFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(Position(feedForwardStepLength, 0.0, 0.0));
 
-
+  //--- Find zero height in control frame
 	Position positionHipToDesiredFootholdInWorldFrame = defaultPositionHipToFootHoldInWorldFrame + feedForwardPositionHipToFootHoldInWorldFrame + invertedPendulumPositionHipToFootHoldInWorldFrame;
+	positionHipToDesiredFootholdInWorldFrame = orientationWorldToControl.rotate(positionHipToDesiredFootholdInWorldFrame);
 	positionHipToDesiredFootholdInWorldFrame.z() = 0.0;
+	positionHipToDesiredFootholdInWorldFrame = orientationWorldToControl.inverseRotate(positionHipToDesiredFootholdInWorldFrame);
+	//---
 
 	const Position positionHipToFootInWorldFrameAtLiftOff = leg->getStateLiftOff()->getFootPositionInWorldFrame()-leg->getStateLiftOff()->getHipPositionInWorldFrame();
 	Position positionHipToDesiredFootInWorldFrame = getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(std::min(swingPhase + tinyTimeStep, 1.0),  positionHipToFootInWorldFrameAtLiftOff, positionHipToDesiredFootholdInWorldFrame, leg);
@@ -129,7 +128,8 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	  positionWorldToDesiredFootInWorldFrame = leg->getWorldToFootPositionInWorldFrame();
 	}
 
-	positionWorldToDesiredFootInWorldFrame.z() = 0.0;
+	//positionWorldToDesiredFootInWorldFrame.z() = 0.0;
+	terrain_->getHeight(positionWorldToDesiredFootInWorldFrame);
 	positionWorldToDesiredFootInWorldFrame += (loco::Position)surfaceNormalInWorldFrame*swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
 
 	//--- Add offset to height to take into accoutn the difference between real foot position and its projection on estimated plane
@@ -150,9 +150,8 @@ Position FootPlacementStrategyInvertedPendulum::getCurrentFootPositionFromPredic
 //  const RotationQuaternion orientationWorldToBaseInWorldFrame = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
   const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getOrientationWorldToControl();
 
-
   Position predictedPositionHipToFootHoldInHeadingFrame = orientationWorldToHeading.rotate(positionHipToFootAtNextTouchDownInWorldFrame);
-  const Position positionHipToFootHoldAtLiftOffInHeadingFrame =  orientationWorldToHeading.rotate(positionHipToFootAtLiftOffInWorldFrame);
+  const Position positionHipToFootHoldAtLiftOffInHeadingFrame = orientationWorldToHeading.rotate(positionHipToFootAtLiftOffInWorldFrame);
   return orientationWorldToHeading.inverseRotate(Position(getHeadingComponentOfFootStep(swingPhase, positionHipToFootHoldAtLiftOffInHeadingFrame.x(), predictedPositionHipToFootHoldInHeadingFrame.x(), leg), getLateralComponentOfFootStep(swingPhase,  positionHipToFootHoldAtLiftOffInHeadingFrame.y(), predictedPositionHipToFootHoldInHeadingFrame.y(), leg),0.0));
 }
 

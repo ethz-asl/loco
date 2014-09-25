@@ -96,23 +96,24 @@ namespace loco {
     loco::Vector normalInWorldFrame;
     terrainModel_->getNormal(loco::Position::Zero(), normalInWorldFrame);
 
-    terrainPitch = atan2(normalInWorldFrame.x(), normalInWorldFrame.z());
-    terrainRoll = atan2(normalInWorldFrame.y(), normalInWorldFrame.z());
-
     //--- Get current heading direction
     const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
     const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
     Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
     currentHeadingDirectionInWorldFrame.z() = 0.0;
 
-    std::cout << "current heading: " << currentHeadingDirectionInWorldFrame << std::endl;
+    //std::cout << "current heading: " << currentHeadingDirectionInWorldFrame << std::endl;
 
-    RotationQuaternion orientationWorldToControHeading;
+    RotationQuaternion orientationWorldToControlHeading;
     Eigen::Vector3d axisX = Eigen::Vector3d::UnitX();
-    orientationWorldToControHeading.setFromVectors(axisX, currentHeadingDirectionInWorldFrame.toImplementation());
+    orientationWorldToControlHeading.setFromVectors(axisX, currentHeadingDirectionInWorldFrame.toImplementation());
     //---
 
-    RotationQuaternion orientationWorldToControl = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))*RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))*orientationWorldToControHeading;
+    loco::Vector normalInHeadingControlFrame = orientationWorldToControlHeading.rotate(normalInWorldFrame);
+    terrainPitch = atan2(normalInHeadingControlFrame.x(), normalInHeadingControlFrame.z());
+    terrainRoll = atan2(normalInHeadingControlFrame.y(), normalInHeadingControlFrame.z());
+
+    RotationQuaternion orientationWorldToControl = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))*RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))*orientationWorldToControlHeading;
     torso_->getMeasuredState().setOrientationWorldToControl(orientationWorldToControl);
     torso_->getMeasuredState().setPositionControlToBaseInControlFrame(orientationWorldToControl.rotate(torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame()));
 
