@@ -84,8 +84,8 @@ namespace loco {
                                                         + desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_*loco::Position::UnitZ()
                                                         + desiredPositionOffsetInWorldFrame_;
 
-//    std::cout << "position com height in control frame: " << positionControlToTargetBaseInControlFrame
-//              << " control frame height: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame().z() << std::endl;
+    std::cout << "position com height in control frame: " << positionControlToTargetBaseInControlFrame
+              << " control frame height: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame().z() << std::endl;
 
     /***********************************************
      * End set desired CoM position in world frame *
