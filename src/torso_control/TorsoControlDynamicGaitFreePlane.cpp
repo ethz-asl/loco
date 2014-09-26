@@ -57,12 +57,50 @@ namespace loco {
     // evaluate desired CoM position in control frame
         Position positionControlToHorizontalTargetBaseInControlFrame = orientationWorldToControl.rotate(comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame());
 
-    // Get the positionError in control frame
-    Position positionError = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
-    double heightAtDesiredWorldToCoMPositionInWorldFrame;
-    terrain_->getHeight(comControl_.getDesiredWorldToCoMPositionInWorldFrame(), heightAtDesiredWorldToCoMPositionInWorldFrame);
-    // Correct the height to project
-    positionError.z() += heightAtDesiredWorldToCoMPositionInWorldFrame;
+        loco::Position positionWorldToMiddleOfFeetInWorldFrame;
+        for (auto leg : *legs_) {
+          positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
+        }
+        positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
+        positionWorldToMiddleOfFeetInWorldFrame.z() = 0.0;
+
+
+    const Position horizontalPositionErrorInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - positionWorldToMiddleOfFeetInWorldFrame;
+
+    Position positionHorizontalControlToHorizontalBaseInWorldFrame = orientationWorldToControl.inverseRotate(torso_->getMeasuredState().getPositionControlToBaseInControlFrame())+ horizontalPositionErrorInWorldFrame;
+    positionHorizontalControlToHorizontalBaseInWorldFrame.z() = 0.0;
+
+    //Position positionControlToBaseInWorldFrame = positionHorizontalControlToHorizontalBaseInWorldFrame;
+    //terrain_->getHeight(positionControlToBaseInWorldFrame);
+    //double distanceVerticalDesiredBaseFromTerrain = 0.0;
+    //positionControlToBaseInWorldFrame += distanceVerticalDesiredBaseFromTerrain*loco::Position::UnitZ();
+
+    loco::Vector surfaceNormalInControlFrame;
+    terrain_->getNormal(loco::Position::Zero(), surfaceNormalInControlFrame);
+    orientationWorldToControl.rotate(surfaceNormalInControlFrame);
+
+    loco::Vector axisWorldZInControlFrame = loco::Vector::UnitZ();
+    orientationWorldToControl.rotate(axisWorldZInControlFrame);
+    Position temp = orientationWorldToControl.rotate(positionHorizontalControlToHorizontalBaseInWorldFrame);
+
+    Position temp2 = (Position)(desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_*surfaceNormalInControlFrame)
+           - temp;
+    double scaleNumerator = Position(surfaceNormalInControlFrame).dot(temp2);
+    double scaleDenominator = Position(surfaceNormalInControlFrame).dot(orientationWorldToControl.rotate(axisWorldZInControlFrame));
+
+    double scale = scaleNumerator/scaleDenominator;
+
+    Position positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionHorizontalControlToHorizontalBaseInWorldFrame)
+                                                         +Position(axisWorldZInControlFrame*scale);
+
+
+
+
+
+//    double heightAtDesiredWorldToCoMPositionInWorldFrame;
+//    terrain_->getHeight(comControl_.getDesiredWorldToCoMPositionInWorldFrame(), heightAtDesiredWorldToCoMPositionInWorldFrame);
+//    // Correct the height to project
+//    horizontalPositionErrorInWorldFrame.z() += heightAtDesiredWorldToCoMPositionInWorldFrame;
 
 
     /*
@@ -84,9 +122,7 @@ namespace loco {
     desiredTorsoPositionInWorldFrame += desiredPositionOffsetInWorldFrame_;
     */
 
-    Position positionControlToTargetBaseInControlFrame = positionControlToHorizontalTargetBaseInControlFrame
-                                                        + desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_*loco::Position::UnitZ()
-                                                        + desiredPositionOffsetInWorldFrame_;
+
 
 //    std::cout << "position com height in control frame: " << positionControlToTargetBaseInControlFrame
 //              << " control frame height: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame().z() << std::endl;
@@ -108,8 +144,12 @@ namespace loco {
     const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())*0.5;
     const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())*0.5;
 
-    Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame + positionControlToTargetBaseInControlFrame;
-    Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame + positionControlToTargetBaseInControlFrame;
+//    Position positionControlToTargetBaseInControlFrame = positionControlToHorizontalTargetBaseInControlFrame
+//                                                        + desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_*loco::Position::UnitZ()
+//                                                        + desiredPositionOffsetInWorldFrame_;
+
+    Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame;// + positionControlToTargetBaseInControlFrame;
+    Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame;// + positionControlToTargetBaseInControlFrame;
 
     Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
     desiredHeadingDirectionInWorldFrame.z() = 0.0;

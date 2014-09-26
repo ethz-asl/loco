@@ -72,9 +72,10 @@ void CoMOverSupportPolygonControl::advance(double dt) {
     iLeg++;
   }
 
-  desiredWorldToFootPositionInWorldFrame_ = comTarget+Position(headingOffset_, lateralOffset_, 0.0);
+  positionWorldToHorizontalDesiredBaseInWorldFrame_ = comTarget + Position(headingOffset_, lateralOffset_, 0.0);
+  positionWorldToHorizontalDesiredBaseInWorldFrame_.z() = 0.0;
 
-//  std::cout << "desired world to foot pos: " << desiredWorldToFootPositionInWorldFrame_ << std::endl;
+//  std::cout << "desired world to foot pos: " << positionWorldToHorizontalDesiredBaseInWorldFrame_ << std::endl;
 
 }
 
@@ -172,7 +173,7 @@ bool CoMOverSupportPolygonControl::setToInterpolated(const CoMOverSupportPolygon
 
 
 const Position& CoMOverSupportPolygonControl::getDesiredWorldToCoMPositionInWorldFrame() const {
-  return desiredWorldToFootPositionInWorldFrame_;
+  return positionWorldToHorizontalDesiredBaseInWorldFrame_;
 }
 
 

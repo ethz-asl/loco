@@ -64,6 +64,7 @@ public:
 
 
   void advance(double dt);
+
 protected:
 	  LegGroup* legs_;
     //! this is the minimum weight any leg can have... if this is zero,then the COM will try to be right at center of the support polygon [0,1]
@@ -80,7 +81,7 @@ protected:
 
 
 //    //! target position for logging
-    Position desiredWorldToFootPositionInWorldFrame_;
+    Position positionWorldToHorizontalDesiredBaseInWorldFrame_;
 
 
 
