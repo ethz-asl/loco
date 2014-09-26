@@ -74,7 +74,7 @@ void CoMOverSupportPolygonControl::advance(double dt) {
 
   desiredWorldToFootPositionInWorldFrame_ = comTarget+Position(headingOffset_, lateralOffset_, 0.0);
 
-  std::cout << "desired world to foot pos: " << desiredWorldToFootPositionInWorldFrame_ << std::endl;
+//  std::cout << "desired world to foot pos: " << desiredWorldToFootPositionInWorldFrame_ << std::endl;
 
 }
 

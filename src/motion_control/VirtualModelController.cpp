@@ -75,13 +75,13 @@ bool VirtualModelController::computeError()
 
   linearVelocityErrorInControlFrame_ = torso_->getDesiredState().getLinearVelocityBaseInControlFrame() - orientationControlToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame());
   angularVelocityErrorInControlFrame_ = torso_->getDesiredState().getAngularVelocityBaseInControlFrame() - orientationControlToBase.inverseRotate(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame());
-//
+
 //  std::cout << "des ang vel: " << torso_->getDesiredState().getAngularVelocityBaseInControlFrame()
 //            << "meas ang vel: " << orientationControlToBase.inverseRotate(torso_->getMeasuredState().getAngularVelocityBaseInBaseFrame())
 //            << "des lin vel: " << torso_->getDesiredState().getLinearVelocityBaseInControlFrame()
 //            << "meas lin vel: " << orientationControlToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame()) << std::endl;
 
-  std::cout << "des torso pos: " << torso_->getDesiredState().getPositionControlToBaseInControlFrame() << std::endl;
+//  std::cout << "des torso pos: " << torso_->getDesiredState().getPositionControlToBaseInControlFrame() << std::endl;
   return true;
 }
 
@@ -110,6 +110,7 @@ bool VirtualModelController::computeGravityCompensation()
   return true;
 }
 
+
 bool VirtualModelController::computeVirtualForce()
 {
 
@@ -133,9 +134,9 @@ bool VirtualModelController::computeVirtualForce()
   virtualForceInBaseFrame_ = orientationControlToBase.rotate(Force(proportionalGainTranslation_.cwiseProduct(positionErrorInControlFrame_.toImplementation())))
                        + orientationControlToBase.rotate(Force(derivativeGainTranslation_.cwiseProduct(linearVelocityErrorInControlFrame_.toImplementation())))
                        + orientationControlToBase.rotate(Force(feedforwardGainTranslation_.cwiseProduct(feedforwardTermInControlFrame)))
-                       + gravityCompensationForceInBaseFrame_
-                       + gravityCompensationFeedbackInBaseFrame
-                       + gravityDampingCompensationFeedbackInBaseFrame;
+                       + gravityCompensationForceInBaseFrame_;
+                       //+ gravityCompensationFeedbackInBaseFrame
+                       //+ gravityDampingCompensationFeedbackInBaseFrame;
 
 //  std::cout << "proportional: " << orientationControlToBase.rotate(Force(proportionalGainTranslation_.cwiseProduct(positionErrorInControlFrame_.toImplementation()))) << std::endl;
 //  std::cout << "derivative: " << orientationControlToBase.rotate(Force(derivativeGainTranslation_.cwiseProduct(linearVelocityErrorInControlFrame_.toImplementation()))) << std::endl;
@@ -144,6 +145,7 @@ bool VirtualModelController::computeVirtualForce()
 
   return true;
 }
+
 
 bool VirtualModelController::computeVirtualTorque()
 {
@@ -168,6 +170,7 @@ bool VirtualModelController::computeVirtualTorque()
   return true;
 }
 
+
 bool VirtualModelController::isParametersLoaded() const
 {
   if (isParametersLoaded_) return true;
@@ -175,6 +178,7 @@ bool VirtualModelController::isParametersLoaded() const
   cout << "Virtual model control parameters are not loaded." << endl; // TODO use warning output
   return false;
 }
+
 
 std::ostream& operator << (std::ostream& out, const VirtualModelController& motionController)
 {

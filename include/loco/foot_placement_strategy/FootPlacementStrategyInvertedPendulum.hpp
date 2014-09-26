@@ -39,11 +39,17 @@ namespace loco {
  */
 class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
  public:
-// typedef Trajectory1D SwingFootHeightTrajectory;
- typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
+ typedef Trajectory1D SwingFootHeightTrajectory;
+// typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
 
  double heightByTrajectory_[4];
  Position invertedPendulumPositionHipToFootHoldInWorldFrame_[4];
+
+
+ Position testingFFhipToFootInWorldFrame_[4];
+ Position testingFBinvertedPendulumContribution_[4];
+ Position testingHipToDesiredFootHold_[4];
+
 public:
  Position positionWorldToDefaultFootHoldInWorldFrame_[4];
  Position positionWorldToFootHoldInWorldFrame_[4];

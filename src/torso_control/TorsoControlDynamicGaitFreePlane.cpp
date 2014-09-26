@@ -47,11 +47,15 @@ namespace loco {
 
     comControl_.advance(dt);
 
+    // Get measured orientation
+        const RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl(); // --> current heading orientation
+        RotationQuaternion orientationControlToDesiredHeading;                                                          // --> rotation due to desired twist
+
     /*******************************************
      * Set desired CoM position in world frame *
      *******************************************/
     // evaluate desired CoM position in control frame
-    Position positionControlToHorizontalTargetBaseInControlFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
+        Position positionControlToHorizontalTargetBaseInControlFrame = orientationWorldToControl.rotate(comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame());
 
     // Get the positionError in control frame
     Position positionError = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
@@ -84,8 +88,8 @@ namespace loco {
                                                         + desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_*loco::Position::UnitZ()
                                                         + desiredPositionOffsetInWorldFrame_;
 
-    std::cout << "position com height in control frame: " << positionControlToTargetBaseInControlFrame
-              << " control frame height: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame().z() << std::endl;
+//    std::cout << "position com height in control frame: " << positionControlToTargetBaseInControlFrame
+//              << " control frame height: " << torso_->getMeasuredState().getPositionWorldToControlInWorldFrame().z() << std::endl;
 
     /***********************************************
      * End set desired CoM position in world frame *
@@ -100,10 +104,6 @@ namespace loco {
      *    --> rotation from desired heading to desired base. This is an adaption to the terrain's estimated pitch and roll angles.
      *
      ***************************/
-    // Get measured orientation
-    const RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl(); // --> current heading orientation
-    RotationQuaternion orientationControlToDesiredHeading;                                                          // --> rotation due to desired twist
-
     //--- Get desired heading direction
     const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())*0.5;
     const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())*0.5;

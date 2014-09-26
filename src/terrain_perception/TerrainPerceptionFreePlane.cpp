@@ -102,8 +102,6 @@ namespace loco {
     Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
     currentHeadingDirectionInWorldFrame.z() = 0.0;
 
-    //std::cout << "current heading: " << currentHeadingDirectionInWorldFrame << std::endl;
-
     RotationQuaternion orientationWorldToControlHeading;
     Eigen::Vector3d axisX = Eigen::Vector3d::UnitX();
     orientationWorldToControlHeading.setFromVectors(axisX, currentHeadingDirectionInWorldFrame.toImplementation());
