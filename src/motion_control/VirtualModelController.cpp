@@ -81,14 +81,16 @@ bool VirtualModelController::computeError()
 //            << "des lin vel: " << torso_->getDesiredState().getLinearVelocityBaseInControlFrame()
 //            << "meas lin vel: " << orientationControlToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame()) << std::endl;
 
+  std::cout << "des torso pos: " << torso_->getDesiredState().getPositionControlToBaseInControlFrame() << std::endl;
   return true;
 }
 
 bool VirtualModelController::computeGravityCompensation()
 {
   const LinearAcceleration gravitationalAccelerationInWorldFrame = torso_->getProperties().getGravity();
-  const LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(gravitationalAccelerationInWorldFrame);
+  LinearAcceleration gravitationalAccelerationInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(gravitationalAccelerationInWorldFrame);
 
+//  gravitationalAccelerationInBaseFrame /= 1.1;
 
   const Force forceTorso = Force(-gravityCompensationForcePercentage_*torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame);
   gravityCompensationForceInBaseFrame_ = forceTorso;
@@ -112,15 +114,28 @@ bool VirtualModelController::computeVirtualForce()
 {
 
   const RotationQuaternion& orientationControlToBase = torso_->getMeasuredState().getOrientationControlToBase();
+  const RotationQuaternion& orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
+  const RotationQuaternion& orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
 
   Vector3d feedforwardTermInControlFrame = Vector3d::Zero();
   feedforwardTermInControlFrame.x() += torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x();
   feedforwardTermInControlFrame.y() += torso_->getDesiredState().getLinearVelocityBaseInControlFrame().y();
 
+  Position positionErrorInWorldFrame = orientationWorldToControl.inverseRotate(positionErrorInControlFrame_);
+  Force gravityCompensationFeedbackInWorldFrame = Force(proportionalGainTranslation_.cwiseProduct(Position(0.0,0.0,positionErrorInWorldFrame.z()).toImplementation()));
+
+  LinearVelocity velocityErrorInWorldFrame = orientationWorldToControl.inverseRotate(linearVelocityErrorInControlFrame_);
+  Force gravityDampingCompensationFeedbackInWorldFrame = Force(derivativeGainTranslation_.cwiseProduct(Position(0.0,0.0,velocityErrorInWorldFrame.z()).toImplementation()));
+
+  Force gravityCompensationFeedbackInBaseFrame = orientationWorldToBase.rotate(gravityCompensationFeedbackInWorldFrame);
+  Force gravityDampingCompensationFeedbackInBaseFrame = orientationWorldToBase.rotate(gravityDampingCompensationFeedbackInWorldFrame);
+
   virtualForceInBaseFrame_ = orientationControlToBase.rotate(Force(proportionalGainTranslation_.cwiseProduct(positionErrorInControlFrame_.toImplementation())))
                        + orientationControlToBase.rotate(Force(derivativeGainTranslation_.cwiseProduct(linearVelocityErrorInControlFrame_.toImplementation())))
                        + orientationControlToBase.rotate(Force(feedforwardGainTranslation_.cwiseProduct(feedforwardTermInControlFrame)))
-                       + gravityCompensationForceInBaseFrame_;
+                       + gravityCompensationForceInBaseFrame_
+                       + gravityCompensationFeedbackInBaseFrame
+                       + gravityDampingCompensationFeedbackInBaseFrame;
 
 //  std::cout << "proportional: " << orientationControlToBase.rotate(Force(proportionalGainTranslation_.cwiseProduct(positionErrorInControlFrame_.toImplementation()))) << std::endl;
 //  std::cout << "derivative: " << orientationControlToBase.rotate(Force(derivativeGainTranslation_.cwiseProduct(linearVelocityErrorInControlFrame_.toImplementation()))) << std::endl;

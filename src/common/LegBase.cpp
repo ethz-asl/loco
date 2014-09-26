@@ -16,8 +16,6 @@ LegBase::LegBase() :
     swingPhase_(0.0),
     stanceDuration_(0.0),
     swingDuration_(0.0),
-    isInStanceMode_(false),
-    wasInStanceMode_(false),
     isGrounded_(false),
     wasGrounded_(false),
     shouldBeGrounded_(false),
@@ -38,8 +36,6 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     swingPhase_(0.0),
     stanceDuration_(0.0),
     swingDuration_(0.0),
-    isInStanceMode_(false),
-    wasInStanceMode_(false),
     isGrounded_(false),
     wasGrounded_(false),
     shouldBeGrounded_(false),
@@ -74,20 +70,6 @@ double LegBase::getStanceDuration() const {
 }
 double LegBase::getSwingDuration() const {
   return swingDuration_;
-}
-
-bool LegBase::isInStanceMode() const {
-  return isInStanceMode_;
-}
-bool LegBase::isInSwingMode() const {
-  return !isInStanceMode_;
-}
-
-bool LegBase::wasInStanceMode() const {
-  return wasInStanceMode_;
-}
-bool LegBase::wasInSwingMode() const {
-  return !wasInStanceMode_;
 }
 
 bool LegBase::isSupportLeg() const {
@@ -170,23 +152,6 @@ void LegBase::setStanceDuration(double duration) {
 void LegBase::setSwingDuration(double duration) {
   swingDuration_ = duration;
 }
-
-void LegBase::setIsInStanceMode(bool isInStanceMode) {
-  isInStanceMode_ = isInStanceMode;
-}
-
-void LegBase::setIsInSwingMode(bool isInSwingMode) {
-	isInStanceMode_ = !isInSwingMode;
-}
-
-void LegBase::setWasInStanceMode(bool wasInStanceMode) {
-  wasInStanceMode_ = wasInStanceMode;
-}
-
-void LegBase::setWasInSwingMode(bool wasInSwingMode) {
-	wasInStanceMode_ = !wasInSwingMode;
-}
-
 
 void LegBase::setIsGrounded(bool isGrounded) {
   isGrounded_ = isGrounded;
@@ -300,12 +265,6 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
   out << "stance phase: " << leg.getStancePhase() << std::endl;
   out << "swing duration: " << leg.getSwingDuration() << std::endl;
   out << "stance duration: " << leg.getStanceDuration() << std::endl;
-
-  out << "is in stance mode: " << (leg.isInStanceMode() ? "yes" : "no") << std::endl;
-  out << "is in swing mode: " << (leg.isInSwingMode() ? "yes" : "no") << std::endl;
-
-  out << "was in stance mode: " << (leg.wasInStanceMode() ? "yes" : "no") << std::endl;
-  out << "was in swing mode: " << (leg.wasInSwingMode() ? "yes" : "no") << std::endl;
 
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;

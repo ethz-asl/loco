@@ -25,8 +25,7 @@ namespace loco {
   void FootPlacementStrategyFreePlane::advance(double dt) {
 
     for (auto leg : *legs_) {
-      if (leg->isInSwingMode()) {
-
+      if (!leg->isSupportLeg()) {
         Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
 
         if (!getBestFootholdsFromCurrentFootholdInWorldFrame(positionWorldToFootInWorldFrame)) {

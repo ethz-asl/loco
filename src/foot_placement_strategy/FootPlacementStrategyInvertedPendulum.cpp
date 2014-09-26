@@ -61,6 +61,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
   const Position desiredDefaultSteppingPositionHipToFootInControlFrame = leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame();
   const Position defaultPositionHipToFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(desiredDefaultSteppingPositionHipToFootInControlFrame); // todo
 
+  std::cout << "defaultPositionHipToFootHoldInWorldFrame" << defaultPositionHipToFootHoldInWorldFrame << std::endl;
 
 	/* inverted pendulum stepping offset */
 	const Position refPositionWorldToHipInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
@@ -103,11 +104,12 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	/* feedforward stepping offset */
 	//we also need to add a desired-velocity dependent feed forward step length
 	double netCOMDisplacementPerStride = desiredLinearVelocityBaseInControlFrame.x() * leg->getStanceDuration();
-	std::cout << "net com displ: " << netCOMDisplacementPerStride << std::endl;
 	//this is relative to the hip location, hence the divide by 2.0
 	double feedForwardStepLength = netCOMDisplacementPerStride / 2.0;
+	std::cout << "net com displ: " << netCOMDisplacementPerStride << std::endl;
 
   Position feedForwardPositionHipToFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(Position(feedForwardStepLength, 0.0, 0.0));
+  std::cout << "ff pos hip to foothold in world: " << feedForwardPositionHipToFootHoldInWorldFrame << std::endl;
 
   //--- Find zero height in control frame
 	Position positionHipToDesiredFootholdInWorldFrame = defaultPositionHipToFootHoldInWorldFrame + feedForwardPositionHipToFootHoldInWorldFrame + invertedPendulumPositionHipToFootHoldInWorldFrame;
@@ -121,11 +123,18 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
   Position positionWorldToDesiredFootInWorldFrame = refPositionWorldToHipInWorldFrame + (Position(refLinearVelocityAtHipInWorldFrame)*tinyTimeStep + positionHipToDesiredFootInWorldFrame);
 
+  //--- logging
+  // log the predicted foot hold location which has the the same height as the terrain.
   positionWorldToFootHoldInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame + (Position(refLinearVelocityAtHipInWorldFrame)*tinyTimeStep + positionHipToDesiredFootholdInWorldFrame);
   terrain_->getHeight(positionWorldToFootHoldInWorldFrame_[leg->getId()],positionWorldToFootHoldInWorldFrame_[leg->getId()].z());
 
-  positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()] =  refPositionWorldToHipInWorldFrame + Position(refLinearVelocityAtHipInWorldFrame)*tinyTimeStep + defaultPositionHipToFootHoldInWorldFrame;
+  positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame + invertedPendulumPositionHipToFootHoldInWorldFrame;
   terrain_->getHeight(positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()], positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()].z());
+
+  positionWorldToDefaultFootHoldInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame + defaultPositionHipToFootHoldInWorldFrame;
+  terrain_->getHeight(positionWorldToDefaultFootHoldInWorldFrame_[leg->getId()]);
+
+  //---
 
   // to avoid slippage, do not move the foot in the horizontal plane when the leg is still grounded
 	if (leg->isGrounded()) {

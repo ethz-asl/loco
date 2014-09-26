@@ -31,6 +31,7 @@ VisualizerSC::VisualizerSC(int* drawCharacter) :
       desiredFootTrajectories_[iLeg].addKnot(t, loco::Position());
       predictedFootHoldTrajectories_[iLeg].addKnot(t, loco::Position());
       predictedFootHoldInvertedPendulumTrajectories_[iLeg].addKnot(t, loco::Position());
+      predictedDefaultFootHoldTrajectories_[iLeg].addKnot(t, loco::Position());
     }
   }
   for (double t=0; t<windowSize; t=t+dt) {
@@ -77,7 +78,7 @@ void VisualizerSC::drawHistoryOfDesiredFootPositions(loco::LegGroup* legs) {
 
 void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrategyInvertedPendulum* strategy) {
   const double dt = 1.0/desiredFrameRate_;
-  GLUtilsKindr::glLColor(0.0, 153.0/255.0, 0.0, 1.0);
+  GLUtilsKindr::glLColor(0.0, 153.0/255.0, 0.0, 1.0); // green
 
   for (int iLeg=0; iLeg<4; iLeg++) {
     if (isSimulationRunning_) {
@@ -87,7 +88,7 @@ void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrate
     drawTrajectoryCatMullRomPosition(predictedFootHoldTrajectories_[iLeg], dt, 2.0);
   }
 
-  GLUtilsKindr::glLColor(0.0, 0.0,  0.0, 1.0);
+  GLUtilsKindr::glLColor(0.0, 0.0,  0.0, 1.0); // black
   for (int iLeg=0; iLeg<4; iLeg++) {
     if (isSimulationRunning_) {
       predictedFootHoldInvertedPendulumTrajectories_[iLeg].removeKnot(0);
@@ -95,6 +96,17 @@ void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrate
     }
     drawTrajectoryCatMullRomPosition(predictedFootHoldInvertedPendulumTrajectories_[iLeg], dt, 2.0);
   }
+
+  GLUtilsKindr::glLColor(1.0, 128.0/255.0,  0.0, 1.0); // orange
+  for (int iLeg=0; iLeg<4; iLeg++) {
+    if (isSimulationRunning_) {
+      predictedDefaultFootHoldTrajectories_[iLeg].removeKnot(0);
+      predictedDefaultFootHoldTrajectories_[iLeg].addKnot(predictedDefaultFootHoldTrajectories_[iLeg].getKnotPosition(predictedDefaultFootHoldTrajectories_[iLeg].getKnotCount()-1)+dt, strategy->positionWorldToDefaultFootHoldInWorldFrame_[iLeg]);
+    }
+    drawTrajectoryCatMullRomPosition(predictedDefaultFootHoldTrajectories_[iLeg], dt, 2.0);
+  }
+
+
 }
 
 void VisualizerSC::drawHistoryOfBasePosition(loco::TorsoBase* torso) {

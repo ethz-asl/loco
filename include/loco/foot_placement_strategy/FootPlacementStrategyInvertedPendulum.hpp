@@ -45,6 +45,7 @@ class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
  double heightByTrajectory_[4];
  Position invertedPendulumPositionHipToFootHoldInWorldFrame_[4];
 public:
+ Position positionWorldToDefaultFootHoldInWorldFrame_[4];
  Position positionWorldToFootHoldInWorldFrame_[4];
  Position positionWorldToFootHoldInvertedPendulumInWorldFrame_[4];
   FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);

@@ -44,7 +44,8 @@ void CoMOverSupportPolygonControl::advance(double dt) {
   int nStanceLegs = 0;
   int iLeg=0;
   for ( auto leg : *legs_) {
-    if (leg->isInStanceMode()) {
+    //if (leg->isInStanceMode()) {
+    if (leg->isSupportLeg()) {
       double t = 1 - mapTo01Range(leg->getStancePhase(),startShiftAwayFromLegAtStancePhase_, 1.0);
       t = linearlyInterpolate(minSwingLegWeight_, 1, 0, 1, t);
       legWeights[iLeg] = t;
@@ -72,6 +73,8 @@ void CoMOverSupportPolygonControl::advance(double dt) {
   }
 
   desiredWorldToFootPositionInWorldFrame_ = comTarget+Position(headingOffset_, lateralOffset_, 0.0);
+
+  std::cout << "desired world to foot pos: " << desiredWorldToFootPositionInWorldFrame_ << std::endl;
 
 }
 

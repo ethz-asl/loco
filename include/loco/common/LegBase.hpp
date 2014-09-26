@@ -60,12 +60,6 @@ class LegBase {
   virtual double getStanceDuration() const;
   virtual double getSwingDuration() const;
 
-  virtual bool isInStanceMode() const;
-  virtual bool isInSwingMode() const;
-
-  virtual bool wasInStanceMode() const;
-  virtual bool wasInSwingMode() const;
-
   virtual bool isGrounded() const;
   virtual bool wasGrounded() const;
   virtual bool shouldBeGrounded() const;
@@ -83,12 +77,6 @@ class LegBase {
 
   virtual void setStanceDuration(double duration);
   virtual void setSwingDuration(double duration);
-
-  virtual void setIsInStanceMode(bool isInStanceMode);
-  virtual void setIsInSwingMode(bool isInSwingMode);
-
-  virtual void setWasInStanceMode(bool wasInStanceMode);
-  virtual void setWasInSwingMode(bool wasInSwingMode);
 
   virtual void setIsGrounded(bool isGrounded);
   virtual void setWasGrounded(bool wasGrounded);
@@ -182,8 +170,6 @@ protected:
   double stanceDuration_;
   double swingDuration_;
 
-  bool isInStanceMode_;
-  bool wasInStanceMode_;
   bool isGrounded_;
   bool wasGrounded_;
   bool shouldBeGrounded_;

@@ -98,6 +98,7 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
   loco::TrajectoryPosition footTrajectories_[4];
   loco::TrajectoryPosition desiredFootTrajectories_[4];
   loco::TrajectoryPosition predictedFootHoldTrajectories_[4];
+  loco::TrajectoryPosition predictedDefaultFootHoldTrajectories_[4];
   loco::TrajectoryPosition predictedFootHoldInvertedPendulumTrajectories_[4];
   loco::TrajectoryPosition baseTrajectory_;
 };
