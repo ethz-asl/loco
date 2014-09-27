@@ -44,6 +44,8 @@ namespace loco {
     Position positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[4];
     Position positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[4];
 
+    Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[4];
+
    protected:
     virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
     virtual bool getBestFootholdsFromCurrentFootholdInWorldFrame(loco::Position& positionWorldToFootInWorldFrame);

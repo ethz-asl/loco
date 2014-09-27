@@ -86,7 +86,13 @@ namespace loco {
     positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
 
     terrainModel_->getHeight(positionWorldToMiddleOfFeetInWorldFrame);
-    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToMiddleOfFeetInWorldFrame);
+//    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToMiddleOfFeetInWorldFrame);
+
+
+    Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+    terrainModel_->getHeight(positionWorldToBaseInWorldFrame);
+    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToBaseInWorldFrame);
+
   }
 
 

@@ -21,6 +21,7 @@ FootPlacementStrategyFreePlane::FootPlacementStrategyFreePlane(LegGroup* legs, T
     positionDesiredFootOnTerrainToDesiredFootInWorldFrame_[leg->getId()].setZero();
     positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg->getId()].setZero();
     positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg->getId()].setZero();
+    positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()].setZero();
   }
 
 }
@@ -34,7 +35,8 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
   for (auto leg : *legs_) {
     // save the hip position at lift off for trajectory generation
     Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getHipPositionInWorldFrame();
-    Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+    positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+    Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
     leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
 
   }
@@ -65,8 +67,9 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
     // save the hip position at lift off for trajectory generation
     if (leg->getStateLiftOff()->isNow()) {
       Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getHipPositionInWorldFrame();
-      Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
-      leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+            positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+            Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
+            leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
     }
 
     /* this default desired swing behaviour
@@ -209,7 +212,7 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
 
 Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeedBackInControlFrame(const LegBase& leg) {
   //---
-  Position positionDesiredFootOnTerrainFeedBackInControlFrame;
+  Position positionDesiredFootHoldOnTerrainFeedBackInControlFrame;
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
   LinearVelocity linearVelocityErrorInWorldFrame;
@@ -220,9 +223,9 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
   //---
 
   //--- Get desired velocity heading component in control frame
-  Vector axisX = Vector::UnitX();
+  Vector axisXOfControlFrame = Vector::UnitX();
   linearVeloctyDesiredInControlFrame = torso_->getDesiredState().getLinearVelocityBaseInControlFrame();
-  linearVeloctyDesiredHeadingInControlFrame = LinearVelocity(linearVeloctyDesiredInControlFrame.toImplementation().cwiseProduct(axisX.toImplementation()));
+  linearVeloctyDesiredHeadingInControlFrame = LinearVelocity(linearVeloctyDesiredInControlFrame.toImplementation().cwiseProduct(axisXOfControlFrame.toImplementation()));
   linearVeloctyDesiredInWorldFrame = orientationWorldToControl.inverseRotate(linearVeloctyDesiredHeadingInControlFrame);
   //---
 
@@ -239,16 +242,16 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
   //--- Get inverted pendulum height
   double terrainHeightAtHipInWorldFrame;
   terrain_->getHeight(leg.getWorldToHipPositionInWorldFrame(), terrainHeightAtHipInWorldFrame);
-  const double heightInvertedPendulum = leg.getWorldToHipPositionInWorldFrame().z() - terrainHeightAtHipInWorldFrame;
+  const double heightInvertedPendulum = fabs(leg.getWorldToHipPositionInWorldFrame().z() - terrainHeightAtHipInWorldFrame);
   //---
 
   const double gravitationalAccleration = torso_->getProperties().getGravity().norm();
-  const Position positionDesiredFootOnTerrainFeedBackInWorldFrame = Position(linearVelocityErrorInWorldFrame
-                                                                             *stepFeedbackScale_
+  const Position positionDesiredFootHoldOnTerrainFeedBackInWorldFrame = Position(linearVelocityErrorInWorldFrame
+                                                                             *(stepFeedbackScale_*1.0)
                                                                              *std::sqrt(heightInvertedPendulum/gravitationalAccleration));
 
-  positionDesiredFootOnTerrainFeedBackInControlFrame = orientationWorldToControl.rotate(positionDesiredFootOnTerrainFeedBackInWorldFrame);
-  return positionDesiredFootOnTerrainFeedBackInControlFrame;
+  positionDesiredFootHoldOnTerrainFeedBackInControlFrame = orientationWorldToControl.rotate(positionDesiredFootHoldOnTerrainFeedBackInWorldFrame);
+  return positionDesiredFootHoldOnTerrainFeedBackInControlFrame;
 
 }
 
