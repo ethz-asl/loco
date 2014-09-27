@@ -251,6 +251,7 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
                                                                              *std::sqrt(heightInvertedPendulum/gravitationalAccleration));
 
   positionDesiredFootHoldOnTerrainFeedBackInControlFrame = orientationWorldToControl.rotate(positionDesiredFootHoldOnTerrainFeedBackInWorldFrame);
+  positionDesiredFootHoldOnTerrainFeedBackInControlFrame.z() = 0.0; // project on terrain
   return positionDesiredFootHoldOnTerrainFeedBackInControlFrame;
 
 }
