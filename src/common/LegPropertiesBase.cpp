@@ -48,6 +48,10 @@ const Position& LegPropertiesBase::getDesiredDefaultSteppingPositionHipToFootInC
   return desiredDefaultSteppingPositionHipToFootInHeadingFrame_;
 }
 
+Position& LegPropertiesBase::getDesiredDefaultSteppingPositionHipToFootInControlFrame() {
+  return desiredDefaultSteppingPositionHipToFootInHeadingFrame_;
+}
+
 
 void LegPropertiesBase::setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(const Position& position)
 {

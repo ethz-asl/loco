@@ -134,9 +134,9 @@ bool VirtualModelController::computeVirtualForce()
   virtualForceInBaseFrame_ = orientationControlToBase.rotate(Force(proportionalGainTranslation_.cwiseProduct(positionErrorInControlFrame_.toImplementation())))
                        + orientationControlToBase.rotate(Force(derivativeGainTranslation_.cwiseProduct(linearVelocityErrorInControlFrame_.toImplementation())))
                        + orientationControlToBase.rotate(Force(feedforwardGainTranslation_.cwiseProduct(feedforwardTermInControlFrame)))
-                       + gravityCompensationForceInBaseFrame_;
-                       //+ gravityCompensationFeedbackInBaseFrame
-                       //+ gravityDampingCompensationFeedbackInBaseFrame;
+                       + gravityCompensationForceInBaseFrame_
+                       + gravityCompensationFeedbackInBaseFrame
+                       + gravityDampingCompensationFeedbackInBaseFrame;
 
 //  std::cout << "proportional: " << orientationControlToBase.rotate(Force(proportionalGainTranslation_.cwiseProduct(positionErrorInControlFrame_.toImplementation()))) << std::endl;
 //  std::cout << "derivative: " << orientationControlToBase.rotate(Force(derivativeGainTranslation_.cwiseProduct(linearVelocityErrorInControlFrame_.toImplementation()))) << std::endl;

@@ -61,8 +61,6 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
     swingPhase = leg->getSwingPhase();
   }
 
-  const Position desiredDefaultSteppingPositionHipToFootInControlFrame = leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame();
-  const Position defaultPositionHipToFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(desiredDefaultSteppingPositionHipToFootInControlFrame); // todo
 
 	/* inverted pendulum stepping offset */
 	const Position refPositionWorldToHipInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
@@ -138,8 +136,10 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
   testingFBinvertedPendulumContribution_[leg->getId()] = invertedPendulumPositionHipToFootHoldInWorldFrame;
 
+
   //--- Find zero height in control frame
-	Position positionHipToDesiredFootholdInWorldFrame = defaultPositionHipToFootHoldInWorldFrame + feedForwardPositionHipToFootHoldInWorldFrame + invertedPendulumPositionHipToFootHoldInWorldFrame;
+//	Position positionHipToDesiredFootholdInWorldFrame = defaultPositionHipToFootHoldInWorldFrame + feedForwardPositionHipToFootHoldInWorldFrame + invertedPendulumPositionHipToFootHoldInWorldFrame;
+  Position positionHipToDesiredFootholdInWorldFrame = feedForwardPositionHipToFootHoldInWorldFrame + invertedPendulumPositionHipToFootHoldInWorldFrame;
 	positionHipToDesiredFootholdInWorldFrame = orientationWorldToControl.rotate(positionHipToDesiredFootholdInWorldFrame);
 	positionHipToDesiredFootholdInWorldFrame.z() = 0.0;
 	positionHipToDesiredFootholdInWorldFrame = orientationWorldToControl.inverseRotate(positionHipToDesiredFootholdInWorldFrame);
@@ -156,6 +156,15 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	const Position positionHipToFootInWorldFrameAtLiftOff = leg->getStateLiftOff()->getFootPositionInWorldFrame()-leg->getStateLiftOff()->getHipPositionInWorldFrame();
 	Position positionOffsetFromHipProjectedOnTerrainToDesiredFoot = getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(std::min(swingPhase + tinyTimeStep, 1.0),  positionHipToFootInWorldFrameAtLiftOff, positionHipToDesiredFootholdInWorldFrame, leg);
+//
+//	defaultPositionHipToFootHoldInWorldFrame = orientationWorldToControl.rotate(defaultPositionHipToFootHoldInWorldFrame);
+//	defaultPositionHipToFootHoldInWorldFrame.z() = 0.0;
+//	defaultPositionHipToFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(defaultPositionHipToFootHoldInWorldFrame);
+
+
+	Position defaultHipToFoot = orientationWorldToControl.inverseRotate(leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame());
+
+	positionOffsetFromHipProjectedOnTerrainToDesiredFoot += defaultHipToFoot;
 
 	Position positionWorldToDesiredFootInWorldFrame = leg->getWorldToHipPositionInWorldFrame()
 	                                                  - (loco::Position)surfaceNormalInWorldFrame*distanceHipToTerrain
@@ -164,16 +173,30 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	//Position positionWorldToDesiredFootInWorldFrame = refPositionWorldToHipInWorldFrame + (Position(refLinearVelocityAtHipInWorldFrame)*tinyTimeStep + positionOffsetFromHipProjectedOnTerrainToDesiredFoot);
 
+  std::cout << "leg: " << leg->getId() << std::endl;
+  std::cout << "defaultPositionHipToFootHoldInWorldFrame: " << defaultHipToFoot << std::endl;
+  std::cout << "feedForwardPositionHipToFootHoldInWorldFrame: " << feedForwardPositionHipToFootHoldInWorldFrame << std::endl;
+  std::cout << "invertedPendulumPositionHipToFootHoldInWorldFrame: " << invertedPendulumPositionHipToFootHoldInWorldFrame << std::endl;
 
   //--- logging
   // log the predicted foot hold location which has the the same height as the terrain.
-  positionWorldToFootHoldInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame + (Position(refLinearVelocityAtHipInWorldFrame)*tinyTimeStep + positionHipToDesiredFootholdInWorldFrame);
+	// green
+  positionWorldToFootHoldInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame
+                                                       + (Position(refLinearVelocityAtHipInWorldFrame)*tinyTimeStep
+                                                       + positionHipToDesiredFootholdInWorldFrame);
   terrain_->getHeight(positionWorldToFootHoldInWorldFrame_[leg->getId()],positionWorldToFootHoldInWorldFrame_[leg->getId()].z());
 
-  positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame + invertedPendulumPositionHipToFootHoldInWorldFrame;
-  terrain_->getHeight(positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()], positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()].z());
+  // black
+  positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame
+                                                                       + invertedPendulumPositionHipToFootHoldInWorldFrame;
 
-  positionWorldToDefaultFootHoldInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame + defaultPositionHipToFootHoldInWorldFrame;
+  terrain_->getHeight(positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()],
+                      positionWorldToFootHoldInvertedPendulumInWorldFrame_[leg->getId()].z());
+
+  // orange
+  positionWorldToDefaultFootHoldInWorldFrame_[leg->getId()] = refPositionWorldToHipInWorldFrame
+                                                              + defaultHipToFoot;
+
   terrain_->getHeight(positionWorldToDefaultFootHoldInWorldFrame_[leg->getId()]);
   //---
 
@@ -184,7 +207,14 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	//positionWorldToDesiredFootInWorldFrame.z() = 0.0;
 	//terrain_->getHeight(positionWorldToDesiredFootInWorldFrame);
-	positionWorldToDesiredFootInWorldFrame += (loco::Position)surfaceNormalInWorldFrame*swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
+
+	// Set desired foot height according to linear height interpolation
+	positionWorldToDesiredFootInWorldFrame = orientationWorldToControl.rotate(positionWorldToDesiredFootInWorldFrame);
+	positionWorldToDesiredFootInWorldFrame.z() = swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
+	positionWorldToDesiredFootInWorldFrame = orientationWorldToControl.inverseRotate(positionWorldToDesiredFootInWorldFrame);
+
+
+//	positionWorldToDesiredFootInWorldFrame += (loco::Position)surfaceNormalInWorldFrame*swingFootHeightTrajectory_.evaluate(std::min(swingPhase + tinyTimeStep, 1.0));
 
 	//--- Add offset to height to take into accoutn the difference between real foot position and its projection on estimated plane
 //	double footPositionAtLiftOffOnFreePlane;

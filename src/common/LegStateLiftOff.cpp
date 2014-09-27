@@ -12,7 +12,8 @@ namespace loco {
 LegStateLiftOff::LegStateLiftOff() :
   LegStateBase(),
   footPositionInWorldFrame_(),
-  hipPositionInWorldFrame_()
+  hipPositionInWorldFrame_(),
+  positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_()
 {
 
 }
@@ -29,6 +30,10 @@ const Position& LegStateLiftOff::getFootPositionInWorldFrame() const {
   return footPositionInWorldFrame_;
 }
 
+const Position& LegStateLiftOff::getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame() const {
+  return positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_;
+}
+
 void LegStateLiftOff::setHipPositionInWorldFrame(const Position& hipPositionInWorldFrame)  {
   hipPositionInWorldFrame_ = hipPositionInWorldFrame;
 }
@@ -38,6 +43,9 @@ void LegStateLiftOff::setFootPositionInWorldFrame(const Position& footPositionIn
   footPositionInWorldFrame_ = footPositionInWorldFrame;
 }
 
+void LegStateLiftOff::setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(const Position& positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame) {
+  positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_ = positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame;
+}
 
 
 } /* namespace loco */

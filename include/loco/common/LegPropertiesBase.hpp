@@ -26,6 +26,7 @@ class LegPropertiesBase
   virtual void setBaseToCenterOfMassPositionInBaseFrame(const Position& centerOfMassInBaseFrame);
 
   virtual const Position& getDesiredDefaultSteppingPositionHipToFootInControlFrame() const;
+  virtual Position& getDesiredDefaultSteppingPositionHipToFootInControlFrame();
   virtual void setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(const Position& position);
   virtual double getLegLength() = 0;
  private:

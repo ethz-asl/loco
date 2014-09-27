@@ -19,7 +19,7 @@ namespace loco {
     desiredRollSlope_(1.0),
     adaptToTerrain_(CompleteAdaption)
   {
-    const double defaultHeight = 0.35;
+    const double defaultHeight = 0.41;
     desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
     firstOrderFilter_ = new loco::FirstOrderFilter();

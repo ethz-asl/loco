@@ -41,15 +41,15 @@ void CoMOverSupportPolygonControl::advance(double dt) {
   }
 
   double sumWeights = 0;
-  int nStanceLegs = 0;
   int iLeg=0;
   for ( auto leg : *legs_) {
     //if (leg->isInStanceMode()) {
-    if (leg->isSupportLeg()) {
+    //if (leg->isSupportLeg()) {
+    if ( (leg->isSupportLeg() && (leg->getSwingPhase() > 0.8)) || leg->shouldBeGrounded() ) {
+
       double t = 1 - mapTo01Range(leg->getStancePhase(),startShiftAwayFromLegAtStancePhase_, 1.0);
       t = linearlyInterpolate(minSwingLegWeight_, 1, 0, 1, t);
       legWeights[iLeg] = t;
-      nStanceLegs++;
     } else {
       double t = mapTo01Range(leg->getSwingPhase(), startShiftTowardsLegAtSwingPhase_, 1.0);
       t = linearlyInterpolate(minSwingLegWeight_, 1, 0, 1, t);
@@ -61,16 +61,22 @@ void CoMOverSupportPolygonControl::advance(double dt) {
 
   Position comTarget;
 
-  iLeg=0;
-  for (auto leg : *legs_) {
-    //	            tprintf("leg %d(%s): stanceMode: %lf, swingMode: %lf. Weight:%lf\n", i, leg->getName(), leg->getStancePhase(),leg->getSwingPhase(), legWeights[i]);
-    const Position positionWorldToFootInWorldFrame = leg->getWorldToFootPositionInWorldFrame();
-
-    if (sumWeights != 0) {
-      comTarget += Position(positionWorldToFootInWorldFrame.toImplementation()*legWeights[iLeg]/sumWeights);
+  if (sumWeights != 0) {
+    iLeg=0;
+    for (auto leg : *legs_) {
+      //	            tprintf("leg %d(%s): stanceMode: %lf, swingMode: %lf. Weight:%lf\n", i, leg->getName(), leg->getStancePhase(),leg->getSwingPhase(), legWeights[i]);
+      comTarget += leg->getWorldToFootPositionInWorldFrame()*legWeights[iLeg];
+      iLeg++;
     }
-    iLeg++;
+    comTarget /= sumWeights;
+  } else {
+    for (auto leg : *legs_) {
+      comTarget += leg->getWorldToFootPositionInWorldFrame();
+    }
+    comTarget /= legs_->size();
   }
+
+  std::cout << "comTarget: " << comTarget << std::endl;
 
   positionWorldToHorizontalDesiredBaseInWorldFrame_ = comTarget + Position(headingOffset_, lateralOffset_, 0.0);
   positionWorldToHorizontalDesiredBaseInWorldFrame_.z() = 0.0;
