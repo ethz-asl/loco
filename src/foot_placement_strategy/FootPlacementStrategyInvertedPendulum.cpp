@@ -57,9 +57,9 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
   //---
 
   double swingPhase = 1;
-//  if (!leg->isSupportLeg()) {
-//    swingPhase = leg->getSwingPhase();
-//  }
+  if (!leg->isSupportLeg()) {
+    swingPhase = leg->getSwingPhase();
+  }
 
   const Position desiredDefaultSteppingPositionHipToFootInControlFrame = leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame();
   const Position defaultPositionHipToFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(desiredDefaultSteppingPositionHipToFootInControlFrame); // todo

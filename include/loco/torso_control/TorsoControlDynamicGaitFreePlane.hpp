@@ -25,7 +25,7 @@ namespace loco {
 
    protected:
 
-    double desiredTorsoCoMHeightAboveGroundInWorldFrameOffset_;
+    double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
 
     //--- Terrain adaptation parameters
     double maxDesiredPitchRadians_;
