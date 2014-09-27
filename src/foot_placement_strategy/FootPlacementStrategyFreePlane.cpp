@@ -65,11 +65,14 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
   for (auto leg : *legs_) {
 
     // save the hip position at lift off for trajectory generation
-    if (leg->getStateLiftOff()->isNow()) {
-      Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getHipPositionInWorldFrame();
-            positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
-            Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
-            leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+//    if (leg->isGrounded() && leg->shouldBeGrounded()) {
+      if (leg->shouldBeGrounded()) {
+        Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
+              positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+              Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
+              leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+              leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
+              leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
     }
 
     /* this default desired swing behaviour
@@ -246,9 +249,12 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
   //---
 
   const double gravitationalAccleration = torso_->getProperties().getGravity().norm();
-  const Position positionDesiredFootHoldOnTerrainFeedBackInWorldFrame = Position(linearVelocityErrorInWorldFrame
+  Position positionDesiredFootHoldOnTerrainFeedBackInWorldFrame = Position(linearVelocityErrorInWorldFrame
                                                                              *(stepFeedbackScale_*1.0)
                                                                              *std::sqrt(heightInvertedPendulum/gravitationalAccleration));
+  //--- hack
+  //  positionDesiredFootHoldOnTerrainFeedBackInWorldFrame.z() = 0.0;
+  //---
 
   positionDesiredFootHoldOnTerrainFeedBackInControlFrame = orientationWorldToControl.rotate(positionDesiredFootHoldOnTerrainFeedBackInWorldFrame);
   positionDesiredFootHoldOnTerrainFeedBackInControlFrame.z() = 0.0; // project on terrain

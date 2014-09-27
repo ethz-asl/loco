@@ -76,7 +76,7 @@ void CoMOverSupportPolygonControl::advance(double dt) {
     comTarget /= legs_->size();
   }
 
-  std::cout << "comTarget: " << comTarget << std::endl;
+//  std::cout << "comTarget: " << comTarget << std::endl;
 
   positionWorldToHorizontalDesiredBaseInWorldFrame_ = comTarget + Position(headingOffset_, lateralOffset_, 0.0);
   positionWorldToHorizontalDesiredBaseInWorldFrame_.z() = 0.0;
