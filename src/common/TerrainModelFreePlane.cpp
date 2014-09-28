@@ -202,6 +202,23 @@ namespace loco {
     }
   }
 
+  double TerrainModelFreePlane::getDistanceFromSurfaceAlongSurfaceNormalToPositionInWorldFrame(const Position& positionInWorldFrame) const {
+    // For theory background see Papula, "Mathematische Formelasammlung", pag. 62
+    Vector n;
+    this->getNormal(positionInWorldFrame, n);
+    double terrainHeightAtPosition;
+    this->getHeight(positionInWorldFrame, terrainHeightAtPosition);
+
+    Position r1, rq;
+    r1 = Position::Zero();
+    this->getHeight(r1);
+    rq = positionInWorldFrame;
+    Position r1q = rq-r1;
+
+    return fabs(n.dot((Vector)r1q))/n.norm();
+
+
+  }
 
 
 } /* namespace loco */

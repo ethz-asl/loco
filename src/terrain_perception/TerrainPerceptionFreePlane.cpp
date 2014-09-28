@@ -119,10 +119,10 @@ namespace loco {
     RotationQuaternion orientationWorldToControl = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))*RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))*orientationWorldToControlHeading;
 
     //--- hack set control frame equal to heading frame
-//    EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(torso_->getMeasuredState().getOrientationWorldToBase()).getUnique();
-//    orientationWorldToHeadingEulerZyx.setPitch(0.0);
-//    orientationWorldToHeadingEulerZyx.setRoll(0.0);
-//    orientationWorldToControl = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
+    EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(torso_->getMeasuredState().getOrientationWorldToBase()).getUnique();
+    orientationWorldToHeadingEulerZyx.setPitch(0.0);
+    orientationWorldToHeadingEulerZyx.setRoll(0.0);
+    orientationWorldToControl = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
     //---
 
     torso_->getMeasuredState().setOrientationWorldToControl(orientationWorldToControl);

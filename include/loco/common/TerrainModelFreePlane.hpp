@@ -88,6 +88,7 @@ namespace loco {
 
 
       Position getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(const Position& position)  const;
+      double getDistanceFromSurfaceAlongSurfaceNormalToPositionInWorldFrame(const Position& positionInWorldFrame) const;
    public:
       double frictionCoefficientBetweenTerrainAndFoot_;
 

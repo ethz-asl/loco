@@ -251,10 +251,21 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
   //---
 
   //--- Get inverted pendulum height
+  /*
+   * Method I
+   */
   double terrainHeightAtHipInWorldFrame;
   terrain_->getHeight(leg.getWorldToHipPositionInWorldFrame(), terrainHeightAtHipInWorldFrame);
   const double heightInvertedPendulum = fabs(leg.getWorldToHipPositionInWorldFrame().z() - terrainHeightAtHipInWorldFrame);
+  /*
+   * Method II
+   */
+//  TerrainModelFreePlane* terrainFreePlane = dynamic_cast<TerrainModelFreePlane*>(terrain_);
+//  const double heightInvertedPendulum = terrainFreePlane->getDistanceFromSurfaceAlongSurfaceNormalToPositionInWorldFrame(leg.getWorldToHipPositionInWorldFrame());
   //---
+
+
+
 
   const double gravitationalAccleration = torso_->getProperties().getGravity().norm();
   Position positionDesiredFootHoldOnTerrainFeedBackInWorldFrame = Position(linearVelocityErrorInWorldFrame
