@@ -86,6 +86,8 @@ namespace loco {
        */
       void setNormalandPositionInWorldFrame(const loco::Vector& normal, const loco::Position& position);
 
+
+      Position getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(const Position& position)  const;
    public:
       double frictionCoefficientBetweenTerrainAndFoot_;
 

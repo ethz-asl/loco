@@ -176,6 +176,33 @@ namespace loco {
     return true;
   } // get friction
 
+  Position TerrainModelFreePlane::getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(const Position& positionInWorldFrame)  const {
+    // For theory background see Papula, "Mathematische Formelasammlung", pag. 62
+    Vector n;
+    this->getNormal(positionInWorldFrame, n);
+    double terrainHeightAtPosition;
+    this->getHeight(positionInWorldFrame, terrainHeightAtPosition);
+
+    Position r1, rq;
+    r1 = Position::Zero();
+    this->getHeight(r1);
+    rq = positionInWorldFrame;
+    Position r1q = rq-r1;
+
+    double distanceFromSurfaceAlongSurfaceNormal = fabs(n.dot((Vector)r1q))/n.norm();
+
+    if (positionInWorldFrame.z() > terrainHeightAtPosition) {
+      return (positionInWorldFrame - distanceFromSurfaceAlongSurfaceNormal*Position(n));
+    }
+    else if (positionInWorldFrame.z() < terrainHeightAtPosition) {
+      return (positionInWorldFrame + distanceFromSurfaceAlongSurfaceNormal*Position(n));
+    }
+    else {
+      return positionInWorldFrame;
+    }
+  }
+
+
 
 } /* namespace loco */
 

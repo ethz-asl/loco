@@ -9,6 +9,8 @@
 #include "loco/common/TorsoBase.hpp"
 #include "loco/temp_helpers/math.hpp"
 
+#include "loco/common/TerrainModelFreePlane.hpp"
+
 namespace loco {
 
 FootPlacementStrategyFreePlane::FootPlacementStrategyFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain) :
@@ -115,29 +117,31 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
 
 
 Position FootPlacementStrategyFreePlane::getPositionProjectedOnPlaneAlongSurfaceNormal(const Position& position) {
-  // For theory background see Papula, "Mathematische Formelasammlung", pag. 62
-  Vector n;
-  terrain_->getNormal(position, n);
-  double terrainHeightAtPosition;
-  terrain_->getHeight(position, terrainHeightAtPosition);
-
-  Position r1, rq;
-  r1 = Position::Zero();
-  terrain_->getHeight(r1);
-  rq = position;
-  Position r1q = rq-r1;
-
-  double distanceFromSurfaceAlongSurfaceNormal = fabs(n.dot((Vector)r1q))/n.norm();
-
-  if (position.z() > terrainHeightAtPosition) {
-    return (position - distanceFromSurfaceAlongSurfaceNormal*Position(n));
-  }
-  else if (position.z() < terrainHeightAtPosition) {
-    return (position + distanceFromSurfaceAlongSurfaceNormal*Position(n));
-  }
-  else {
-    return position;
-  }
+//  // For theory background see Papula, "Mathematische Formelasammlung", pag. 62
+//  Vector n;
+//  terrain_->getNormal(position, n);
+//  double terrainHeightAtPosition;
+//  terrain_->getHeight(position, terrainHeightAtPosition);
+//
+//  Position r1, rq;
+//  r1 = Position::Zero();
+//  terrain_->getHeight(r1);
+//  rq = position;
+//  Position r1q = rq-r1;
+//
+//  double distanceFromSurfaceAlongSurfaceNormal = fabs(n.dot((Vector)r1q))/n.norm();
+//
+//  if (position.z() > terrainHeightAtPosition) {
+//    return (position - distanceFromSurfaceAlongSurfaceNormal*Position(n));
+//  }
+//  else if (position.z() < terrainHeightAtPosition) {
+//    return (position + distanceFromSurfaceAlongSurfaceNormal*Position(n));
+//  }
+//  else {
+//    return position;
+//  }
+  TerrainModelFreePlane* terrainFreePlane = dynamic_cast<TerrainModelFreePlane*>(terrain_);
+  return terrainFreePlane->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(position);
 }
 
 
@@ -241,6 +245,10 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
 
   linearVelocityErrorInWorldFrame = linearVeloctyReferenceInWorldFrame
                                     - linearVeloctyDesiredInWorldFrame;
+
+  //--- hack
+  //  linearVelocityErrorInWorldFrame.z() = 0.0;
+  //---
 
   //--- Get inverted pendulum height
   double terrainHeightAtHipInWorldFrame;
