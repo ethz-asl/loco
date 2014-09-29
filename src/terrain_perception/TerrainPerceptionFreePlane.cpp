@@ -78,51 +78,61 @@ namespace loco {
 
   void TerrainPerceptionFreePlane::updateControlFrameOrigin() {
 
-    loco::Position positionWorldToMiddleOfFeetInWorldFrame;
-
-    for (auto leg : *legs_) {
-      positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
-    }
-    positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
-
-    terrainModel_->getHeight(positionWorldToMiddleOfFeetInWorldFrame);
+    //--- Position of the control frame is equal to the position of the middle of the feet
+    //    projected on the terrain along the vertical axis of the world frame.
+//    loco::Position positionWorldToMiddleOfFeetInWorldFrame;
+//    for (auto leg : *legs_) {
+//      positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
+//    }
+//    positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
+//
+//    terrainModel_->getHeight(positionWorldToMiddleOfFeetInWorldFrame);
 //    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToMiddleOfFeetInWorldFrame);
+    //---
+
+    //--- Position of the control frame is equal to the position of the base frame
+    //    projected on the terrain along the vertical axis of the world frame.
+//    const Position& positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+//    Position positionWorldToControlInWorldFrame = positionWorldToBaseInWorldFrame;
+//    terrainModel_->getHeight(positionWorldToControlInWorldFrame);
+//    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToControlInWorldFrame);
+    //---
 
 
-    Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
-    terrainModel_->getHeight(positionWorldToBaseInWorldFrame);
-    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToBaseInWorldFrame);
-
+    //--- Position of the control frame is equal to the position of the world frame.
+    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(Position::Zero());
+    //---
   }
 
 
   void TerrainPerceptionFreePlane::updateControlFrameAttitude() {
-    double terrainPitch, terrainRoll, controlFrameYaw;
-    loco::Vector normalInWorldFrame;
-    terrainModel_->getNormal(loco::Position::Zero(), normalInWorldFrame);
-
-    //--- Get current heading direction
-    const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
-    const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
-    Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
-    currentHeadingDirectionInWorldFrame.z() = 0.0;
-
-    RotationQuaternion orientationWorldToControlHeading;
-    Eigen::Vector3d axisX = Eigen::Vector3d::UnitX();
-    orientationWorldToControlHeading.setFromVectors(axisX, currentHeadingDirectionInWorldFrame.toImplementation());
-    //---
-
-    loco::Vector normalInHeadingControlFrame = orientationWorldToControlHeading.rotate(normalInWorldFrame);
-    terrainPitch = atan2(normalInHeadingControlFrame.x(), normalInHeadingControlFrame.z());
-    terrainRoll = atan2(normalInHeadingControlFrame.y(), normalInHeadingControlFrame.z());
-
-    RotationQuaternion orientationWorldToControl = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))*RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))*orientationWorldToControlHeading;
+//    double terrainPitch, terrainRoll, controlFrameYaw;
+//    loco::Vector normalInWorldFrame;
+//    terrainModel_->getNormal(loco::Position::Zero(), normalInWorldFrame);
+//
+//    //--- Get current heading direction
+//    const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+//    const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+//    Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
+//    currentHeadingDirectionInWorldFrame.z() = 0.0;
+//
+//    RotationQuaternion orientationWorldToControlHeading;
+//    Eigen::Vector3d axisX = Eigen::Vector3d::UnitX();
+//    orientationWorldToControlHeading.setFromVectors(axisX, currentHeadingDirectionInWorldFrame.toImplementation());
+//    //---
+//
+//    loco::Vector normalInHeadingControlFrame = orientationWorldToControlHeading.rotate(normalInWorldFrame);
+//    terrainPitch = atan2(normalInHeadingControlFrame.x(), normalInHeadingControlFrame.z());
+//    terrainRoll = atan2(normalInHeadingControlFrame.y(), normalInHeadingControlFrame.z());
+//
+//    RotationQuaternion orientationWorldToControl = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))*RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))*orientationWorldToControlHeading;
 
     //--- hack set control frame equal to heading frame
-//    EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(torso_->getMeasuredState().getOrientationWorldToBase()).getUnique();
-//    orientationWorldToHeadingEulerZyx.setPitch(0.0);
-//    orientationWorldToHeadingEulerZyx.setRoll(0.0);
-//    orientationWorldToControl = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
+    RotationQuaternion orientationWorldToControl;
+    EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(torso_->getMeasuredState().getOrientationWorldToBase()).getUnique();
+    orientationWorldToHeadingEulerZyx.setPitch(0.0);
+    orientationWorldToHeadingEulerZyx.setRoll(0.0);
+    orientationWorldToControl = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
     //---
 
     torso_->getMeasuredState().setOrientationWorldToControl(orientationWorldToControl);
