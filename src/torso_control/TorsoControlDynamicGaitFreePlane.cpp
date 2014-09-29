@@ -19,7 +19,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   desiredRollSlope_(1.0),
   adaptToTerrain_(CompleteAdaption)
 {
-  const double defaultHeight = 0.41;
+  const double defaultHeight = 0.38;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new loco::FirstOrderFilter();
@@ -119,10 +119,26 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   * height of the torso above ground.
   *
   *************************************************************************/
+
+  RotationQuaternion orientationWorldToTerrain = getOrientationWorldToHeadingOnTerrainSurface(RotationQuaternion());
+  Position positionWorldToDesiredHeightAboveTerrainInTerrainFrame(0.0, 0.0, desiredTorsoCoMHeightAboveGroundInControlFrameOffset_);
+  Position positionWorldToDesiredHeightAboveTerrainInWorldFrame = orientationWorldToTerrain.inverseRotate(positionWorldToDesiredHeightAboveTerrainInTerrainFrame);
+
+  loco::Vector surfaceNormalInWorldFrame;
+  terrain_->getNormal(loco::Position::Zero(), surfaceNormalInWorldFrame);
+  double heightOverTerrain = positionWorldToDesiredHeightAboveTerrainInWorldFrame.dot(surfaceNormalInWorldFrame);
+  heightOverTerrain /= surfaceNormalInWorldFrame.z();
+
+
   double heightOfTerrainInWorldFrame = 0.0;
   terrain_->getHeight(positionWorldToDesiredHorizontalBaseInWorldFrame, heightOfTerrainInWorldFrame);
+
+  Position positionWorldToHorizontalBaseInWorldFrame_temp = positionWorldToDesiredHorizontalBaseInWorldFrame + heightOfTerrainInWorldFrame*Position::UnitZ();
+
+  std::cout << "terr height: " << heightOfTerrainInWorldFrame << " over terr: " << heightOverTerrain << std::endl;
+
   Position positionControlToTargetBaseInWorldFrame = positionHorizontalControlToHorizontalBaseInWorldFrame
-                                              + (heightOfTerrainInWorldFrame + desiredTorsoCoMHeightAboveGroundInControlFrameOffset_)*Position::UnitZ();
+                                              + (heightOfTerrainInWorldFrame + heightOverTerrain)*Position::UnitZ();
   positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionControlToTargetBaseInWorldFrame);
 
   /********************************************************************************************************
