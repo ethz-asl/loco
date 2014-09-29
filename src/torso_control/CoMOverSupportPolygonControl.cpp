@@ -45,8 +45,8 @@ void CoMOverSupportPolygonControl::advance(double dt) {
   for ( auto leg : *legs_) {
     //if (leg->isInStanceMode()) {
     //if (leg->isSupportLeg()) {
-    if ( (leg->isSupportLeg() && (leg->getSwingPhase() > 0.8)) || leg->shouldBeGrounded() ) {
-
+//    if ( (leg->isSupportLeg() && (leg->getSwingPhase() > 0.8)) || leg->shouldBeGrounded() ) { // correct
+    if ( false ) {
       double t = 1 - mapTo01Range(leg->getStancePhase(),startShiftAwayFromLegAtStancePhase_, 1.0);
       t = linearlyInterpolate(minSwingLegWeight_, 1, 0, 1, t);
       legWeights[iLeg] = t;
