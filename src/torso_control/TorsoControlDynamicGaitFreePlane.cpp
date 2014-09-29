@@ -19,7 +19,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   desiredRollSlope_(1.0),
   adaptToTerrain_(CompleteAdaption)
 {
-  const double defaultHeight = 0.38;
+  const double defaultHeight = 0.43;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new loco::FirstOrderFilter();
