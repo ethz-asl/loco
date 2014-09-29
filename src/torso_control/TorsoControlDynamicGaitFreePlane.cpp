@@ -88,25 +88,25 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
    *   We compute it in control frame instead of world frame.
    *
    *************************************************************************/
-    // this is the surface normal
-    loco::Vector surfaceNormalInWorldFrame;
-    terrain_->getNormal(loco::Position::Zero(), surfaceNormalInWorldFrame);
-    loco::Vector surfaceNormalInControlFrame = orientationWorldToControl.rotate(surfaceNormalInWorldFrame);
-
-    const loco::Vector verticalAxisOfWorldFrameInWorldFrame = loco::Vector::UnitZ();
-    const loco::Vector verticalAxisOfWorldFrameInControlFrame = orientationWorldToControl.rotate(verticalAxisOfWorldFrameInWorldFrame);
-
-
-    const Position positionHorizontalControlToHorizontalBaseInControlFrame = orientationWorldToControl.rotate(positionHorizontalControlToHorizontalBaseInWorldFrame);
-
-    Position temp2 = (desiredTorsoCoMHeightAboveGroundInControlFrameOffset_*Position(surfaceNormalInControlFrame))
-           - positionHorizontalControlToHorizontalBaseInControlFrame;
-    double scaleNumerator = Position(surfaceNormalInControlFrame).dot(temp2);
-    double scaleDenominator = Position(surfaceNormalInControlFrame).dot(verticalAxisOfWorldFrameInControlFrame);
-    double scale = scaleNumerator/scaleDenominator;
-
-    positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionHorizontalControlToHorizontalBaseInWorldFrame)
-                                                         + Position(verticalAxisOfWorldFrameInControlFrame*scale);
+//    // this is the surface normal
+//    loco::Vector surfaceNormalInWorldFrame;
+//    terrain_->getNormal(loco::Position::Zero(), surfaceNormalInWorldFrame);
+//    loco::Vector surfaceNormalInControlFrame = orientationWorldToControl.rotate(surfaceNormalInWorldFrame);
+//
+//    const loco::Vector verticalAxisOfWorldFrameInWorldFrame = loco::Vector::UnitZ();
+//    const loco::Vector verticalAxisOfWorldFrameInControlFrame = orientationWorldToControl.rotate(verticalAxisOfWorldFrameInWorldFrame);
+//
+//
+//    const Position positionHorizontalControlToHorizontalBaseInControlFrame = orientationWorldToControl.rotate(positionHorizontalControlToHorizontalBaseInWorldFrame);
+//
+//    Position temp2 = (desiredTorsoCoMHeightAboveGroundInControlFrameOffset_*Position(surfaceNormalInControlFrame))
+//           - positionHorizontalControlToHorizontalBaseInControlFrame;
+//    double scaleNumerator = Position(surfaceNormalInControlFrame).dot(temp2);
+//    double scaleDenominator = Position(surfaceNormalInControlFrame).dot(verticalAxisOfWorldFrameInControlFrame);
+//    double scale = scaleNumerator/scaleDenominator;
+//
+//    positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionHorizontalControlToHorizontalBaseInWorldFrame)
+//                                                         + Position(verticalAxisOfWorldFrameInControlFrame*scale);
 
   /*************************************************************************
   *  Method II
@@ -119,11 +119,11 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   * height of the torso above ground.
   *
   *************************************************************************/
-//  double heightOfTerrainInWorldFrame = 0.0;
-//  terrain_->getHeight(positionWorldToDesiredHorizontalBaseInWorldFrame, heightOfTerrainInWorldFrame);
-//  Position positionControlToTargetBaseInWorldFrame = positionHorizontalControlToHorizontalBaseInWorldFrame
-//                                              + (heightOfTerrainInWorldFrame + desiredTorsoCoMHeightAboveGroundInControlFrameOffset_)*Position::UnitZ();
-//  positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionControlToTargetBaseInWorldFrame);
+  double heightOfTerrainInWorldFrame = 0.0;
+  terrain_->getHeight(positionWorldToDesiredHorizontalBaseInWorldFrame, heightOfTerrainInWorldFrame);
+  Position positionControlToTargetBaseInWorldFrame = positionHorizontalControlToHorizontalBaseInWorldFrame
+                                              + (heightOfTerrainInWorldFrame + desiredTorsoCoMHeightAboveGroundInControlFrameOffset_)*Position::UnitZ();
+  positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionControlToTargetBaseInWorldFrame);
 
   /********************************************************************************************************
    * End set desired CoM position in world frame *
@@ -149,20 +149,20 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
    *    --> rotation from desired heading to desired base. This is an adaption to the terrain's estimated pitch and roll angles.
    *
    *************************************************************************/
-//  RotationQuaternion orientationCurrentHeadingToDesiredHeading = getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(positionWorldToDesiredHorizontalBaseInWorldFrame);
-//
-//  //--- Compose rotations
-//  orientationControlToDesiredBase = desiredOrientationOffset_*orientationCurrentHeadingToDesiredHeading;
-//  //---
+  RotationQuaternion orientationCurrentHeadingToDesiredHeading = getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(positionWorldToDesiredHorizontalBaseInWorldFrame);
+
+  //--- Compose rotations
+  orientationControlToDesiredBase = desiredOrientationOffset_*orientationCurrentHeadingToDesiredHeading;
+  //---
 
 
   /*************************************************************************
    * Method II
    *
    *************************************************************************/
-  RotationQuaternion orientationCurrentHeadingToDesiredHeading = getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(positionWorldToDesiredHorizontalBaseInWorldFrame);
-  RotationQuaternion orientationWorldToDesiredBase =  getOrientationWorldToHeadingOnTerrainSurface(orientationCurrentHeadingToDesiredHeading*getOrientationWorldToHeadingBasedOnHipLocations());
-  orientationControlToDesiredBase = orientationWorldToDesiredBase*orientationWorldToControl.inverted();
+//  RotationQuaternion orientationCurrentHeadingToDesiredHeading = getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(positionWorldToDesiredHorizontalBaseInWorldFrame);
+//  RotationQuaternion orientationWorldToDesiredBase =  getOrientationWorldToHeadingOnTerrainSurface(orientationCurrentHeadingToDesiredHeading*getOrientationWorldToHeadingBasedOnHipLocations());
+//  orientationControlToDesiredBase = orientationWorldToDesiredBase*orientationWorldToControl.inverted();
 
   /*******************************
    * End set desired orientation *

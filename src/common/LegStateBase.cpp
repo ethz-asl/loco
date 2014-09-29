@@ -13,7 +13,8 @@ namespace loco {
         isNow_(false),
         lastStateWasEarly_(false),
         lastStateWasLate_(false),
-        stateChangedAtTime_(0.0)
+        stateChangedAtTime_(0.0),
+        swingPhase_(0.0)
   {
 
 
@@ -36,5 +37,14 @@ namespace loco {
 
   void LegStateBase::setStateChangedAtTime(double time) { stateChangedAtTime_ = time; }
   double LegStateBase::StateChangedAtTime() const { return stateChangedAtTime_; }
+
+  double LegStateBase::getSwingPhase() const {
+    return swingPhase_;
+  }
+
+  void LegStateBase::setSwingPhase(double swingPhase) {
+    swingPhase_ = swingPhase;
+  }
+
 
 } /* namespace loco */

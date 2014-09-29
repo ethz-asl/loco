@@ -67,14 +67,17 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
   for (auto leg : *legs_) {
 
     // save the hip position at lift off for trajectory generation
-//    if (leg->isGrounded() && leg->shouldBeGrounded()) {
-      if (leg->shouldBeGrounded()) {
+//    if (leg->isGrounded() && leg->shouldBeGrounded()) { // wrong
+      if (leg->shouldBeGrounded() ||
+          (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
+      ) {  // fixme: wrong for late touch-down
         Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
               positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
               Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
               leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
               leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
               leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+              leg->setSwingPhase(leg->getSwingPhase());
     }
 
     /* this default desired swing behaviour
@@ -298,7 +301,8 @@ double FootPlacementStrategyFreePlane::getInterpolationPhase(const LegBase& leg)
   if (!leg.isSupportLeg()) {
     swingPhase = leg.getSwingPhase();
   }
-  return swingPhase;
+  return mapTo01Range(swingPhase, leg.getStateLiftOff().getSwingPhase(), 1.0);
+//  return swingPhase;
 }
 
 
