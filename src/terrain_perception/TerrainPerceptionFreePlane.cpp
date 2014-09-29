@@ -77,35 +77,43 @@ namespace loco {
 
 
   void TerrainPerceptionFreePlane::updateControlFrameOrigin() {
-
+  /*********************************************************
+    * METHOD I
+    *********************************************************/
     //--- Position of the control frame is equal to the position of the middle of the feet
     //    projected on the terrain along the vertical axis of the world frame.
-//    loco::Position positionWorldToMiddleOfFeetInWorldFrame;
-//    for (auto leg : *legs_) {
-//      positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
-//    }
-//    positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
-//
-//    terrainModel_->getHeight(positionWorldToMiddleOfFeetInWorldFrame);
-//    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToMiddleOfFeetInWorldFrame);
+    loco::Position positionWorldToMiddleOfFeetInWorldFrame;
+    for (auto leg : *legs_) {
+      positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
+    }
+    positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
+
+    terrainModel_->getHeight(positionWorldToMiddleOfFeetInWorldFrame);
+    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToMiddleOfFeetInWorldFrame);
     //---
 
     //--- Position of the control frame is equal to the position of the base frame
     //    projected on the terrain along the vertical axis of the world frame.
-//    const Position& positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
-//    Position positionWorldToControlInWorldFrame = positionWorldToBaseInWorldFrame;
-//    terrainModel_->getHeight(positionWorldToControlInWorldFrame);
-//    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToControlInWorldFrame);
+    const Position& positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+    Position positionWorldToControlInWorldFrame = positionWorldToBaseInWorldFrame;
+    terrainModel_->getHeight(positionWorldToControlInWorldFrame);
+    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToControlInWorldFrame);
     //---
 
 
+    /*********************************************************
+     * METHOD II
+     *********************************************************/
     //--- Position of the control frame is equal to the position of the world frame.
-    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(Position::Zero());
+//    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(Position::Zero());
     //---
   }
 
 
   void TerrainPerceptionFreePlane::updateControlFrameAttitude() {
+    /*********************************************************
+      * METHOD I
+      *********************************************************/
 //    double terrainPitch, terrainRoll, controlFrameYaw;
 //    loco::Vector normalInWorldFrame;
 //    terrainModel_->getNormal(loco::Position::Zero(), normalInWorldFrame);
@@ -127,6 +135,10 @@ namespace loco {
 //
 //    RotationQuaternion orientationWorldToControl = RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))*RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))*orientationWorldToControlHeading;
 
+
+    /*********************************************************
+     * METHOD II
+     *********************************************************/
     //--- hack set control frame equal to heading frame
     RotationQuaternion orientationWorldToControl;
     EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(torso_->getMeasuredState().getOrientationWorldToBase()).getUnique();
@@ -135,15 +147,14 @@ namespace loco {
     orientationWorldToControl = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
     //---
 
+
+
+
     torso_->getMeasuredState().setOrientationWorldToControl(orientationWorldToControl);
     torso_->getMeasuredState().setPositionControlToBaseInControlFrame(orientationWorldToControl.rotate(torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame()));
 
     RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
     torso_->getMeasuredState().setOrientationControlToBase(orientationWorldToBase*orientationWorldToControl.inverted());
-
-
-
-
 
   }
 
