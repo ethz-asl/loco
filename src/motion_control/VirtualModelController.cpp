@@ -58,6 +58,9 @@ bool VirtualModelController::computeError()
 {
   // Errors are defined as (q_desired - q_actual).
 
+  /***************************************************
+   *  Method I
+   ***************************************************/
   const RotationQuaternion& orientationControlToBase = torso_->getMeasuredState().getOrientationControlToBase();
 
    positionErrorInControlFrame_ = torso_->getDesiredState().getPositionControlToBaseInControlFrame()
@@ -65,6 +68,20 @@ bool VirtualModelController::computeError()
 
   orientationError_ = torso_->getDesiredState().getOrientationControlToBase().boxMinus(
       torso_->getMeasuredState().getOrientationControlToBase());
+
+  /***************************************************
+   *  Method II
+   ***************************************************/
+//  const RotationQuaternion& orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+//  const Position positionErrorInWorldFrame_ = torso_->getDesiredState().getPositionControlToBaseInControlFrame()
+//          - torso_->getMeasuredState().getPositionControlToBaseInControlFrame();
+//  positionErrorInBaseFrame_ = torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame().rotate(positionErrorInWorldFrame_);
+//
+//  orientationError_ = torso_->getDesiredState().getWorldToBaseOrientationInWorldFrame().boxMinus(
+//      torso_->getMeasuredState().getWorldToBaseOrientationInWorldFrame());
+
+
+
 
 //  std::cout << "ornt error: " << orientationError_.transpose() << std::endl;
 

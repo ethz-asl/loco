@@ -155,7 +155,18 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
   //---
 
   // Project hip position on the plane along the plane normal direction
-  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg->getWorldToHipPositionInWorldFrame());
+  /*
+   * METHOD I
+   * project hips on terrain along the surface normal
+   */
+  //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg->getWorldToHipPositionInWorldFrame());
+
+  /*
+   * METHOD II
+   * * project hips on terrain along the world z axis
+   */
+  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
+  terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
   //--- Evaluate the interpolation contributions
   positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame = getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(*leg); //x-y
