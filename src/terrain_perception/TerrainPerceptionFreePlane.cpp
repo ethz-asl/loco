@@ -78,10 +78,10 @@ namespace loco {
 
   void TerrainPerceptionFreePlane::updateControlFrameOrigin() {
   /*********************************************************
-    * METHOD I
+    * METHOD I - NEW
     *********************************************************/
-    //--- Position of the control frame is equal to the position of the middle of the feet
-    //    projected on the terrain along the vertical axis of the world frame.
+//    //--- Position of the control frame is equal to the position of the middle of the feet
+//    //    projected on the terrain along the vertical axis of the world frame.
 //    loco::Position positionWorldToMiddleOfFeetInWorldFrame;
 //    for (auto leg : *legs_) {
 //      positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
@@ -98,11 +98,11 @@ namespace loco {
 //    Position positionWorldToControlInWorldFrame = positionWorldToBaseInWorldFrame;
 //    terrainModel_->getHeight(positionWorldToControlInWorldFrame);
 //    torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(positionWorldToControlInWorldFrame);
-    //---
+//    //---
 
 
     /*********************************************************
-     * METHOD II
+     * METHOD II - Old
      *********************************************************/
     //--- Position of the control frame is equal to the position of the world frame.
     torso_->getMeasuredState().setPositionWorldToControlInWorldFrame(Position::Zero());
@@ -112,7 +112,7 @@ namespace loco {
 
   void TerrainPerceptionFreePlane::updateControlFrameAttitude() {
     /*********************************************************
-      * METHOD I
+      * METHOD I - NEW
       *********************************************************/
     double terrainPitch, terrainRoll, controlFrameYaw;
     loco::Vector normalInWorldFrame;
@@ -139,13 +139,13 @@ namespace loco {
     /*********************************************************
      * METHOD II
      *********************************************************/
-    //--- hack set control frame equal to heading frame
+//    //--- hack set control frame equal to heading frame
 //    RotationQuaternion orientationWorldToControl;
 //    EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(torso_->getMeasuredState().getOrientationWorldToBase()).getUnique();
 //    orientationWorldToHeadingEulerZyx.setPitch(0.0);
 //    orientationWorldToHeadingEulerZyx.setRoll(0.0);
 //    orientationWorldToControl = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
-    //---
+//    //---
 
 
 

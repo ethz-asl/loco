@@ -72,7 +72,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 
 
   /*************************************************************************
-   *  Method I
+   *  Method I - NEW
    *
    * The desired base position has to lie on the line:
    *    W_r_C_B* = W_r_C_Bh* + lambda*W_e_z^W
@@ -109,7 +109,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 //                                                         + Position(verticalAxisOfWorldFrameInControlFrame*scale);
 
   /*************************************************************************
-  *  Method II
+  *  Method II - OLD
   *
   * The desired base position has to lie on the line:
   *    W_r_C_B* = W_r_C_Bh* + lambda*W_e_z^W
@@ -137,7 +137,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   RotationQuaternion orientationControlToDesiredBase;
 
   /*************************************************************************
-   * Method I
+   * Method I - NEW
    *
    * Assumes that the control frame is aligned with the terrain surface.
    * If the orientation of the body should be fully adapted to the terrain,
@@ -157,7 +157,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 
 
   /*************************************************************************
-   * Method II
+   * Method II - OLD
    *
    *************************************************************************/
 //  RotationQuaternion orientationCurrentHeadingToDesiredHeading = getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(positionWorldToDesiredHorizontalBaseInWorldFrame);
@@ -172,6 +172,20 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 
   torso_->getDesiredState().setPositionControlToBaseInControlFrame(positionControlToTargetBaseInControlFrame);
   torso_->getDesiredState().setOrientationControlToBase(orientationControlToDesiredBase);
+
+
+  /*************************************************************************
+   * Method II - OLD
+   * The input  torso_->getDesiredState().setLinearVelocityBaseInControlFrame is actually not in control frame!!!!
+   * We need to correct this with a hack (fixme in future)
+   *
+   * velocities are given in frame HeadingOnTerrain
+   *
+   *************************************************************************/
+//  RotationQuaternion orientationWorldToHeadingOnTerrain = getOrientationWorldToHeadingOnTerrainSurface(getOrientationWorldToHeadingBasedOnHipLocations());
+//  RotationQuaternion orientationControlToHeadingOnTerrain = orientationWorldToControl*orientationWorldToHeadingOnTerrain.inverted();
+//          LinearVelocity linearVelocityBaseInControlFrame = orientationControlToHeadingOnTerrain.rotate(torso_->getDesiredState().getLinearVelocityBaseInControlFrame());
+//  torso_->getDesiredState().setLinearVelocityBaseInControlFrame(linearVelocityBaseInControlFrame);
   return true;
 }
 

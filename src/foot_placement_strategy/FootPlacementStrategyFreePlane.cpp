@@ -70,11 +70,20 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
 //    if (leg->isGrounded() && leg->shouldBeGrounded()) { // wrong
       if (leg->shouldBeGrounded() ||
           (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
-      ) {  // fixme: wrong for late touch-down
+      ) {
         Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
               positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
               Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
-              leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+              //leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+
+              /*
+               * this is a hack. We are choosing Ht as the projection of the hip on the terrain along the z world axis.
+               * before, ht was the projection of the hip along the terrain normal.
+               */
+              Position positionWorldToHipOnTerrainAlongZWorld = positionWorldToHipAtLiftOffInWorldFrame;
+              terrain_->getHeight(positionWorldToHipOnTerrainAlongZWorld);
+
+              leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongZWorld);
               leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
               leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
               leg->setSwingPhase(leg->getSwingPhase());
