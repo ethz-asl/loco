@@ -45,6 +45,9 @@ namespace loco {
     void getDesiredBasePitchFromTerrainPitch(const double terrainPitch, double& desiredBasePitch);
     void getDesiredBaseRollFromTerrainRoll(const double terrainRoll, double& desiredBaseRoll);
 
+    RotationQuaternion getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(const Position& positionWorldToDesiredHorizontalBaseInWorldFrame) const;
+    RotationQuaternion getOrientationWorldToHeadingOnTerrainSurface(const RotationQuaternion& orientationWorldToHeading) const;
+    RotationQuaternion getOrientationWorldToHeadingBasedOnHipLocations() const;
     double heightOffsetFilterAdvance(double dt);
 
   };
