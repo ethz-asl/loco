@@ -52,6 +52,8 @@ class TorsoControlDynamicGait: public TorsoControlBase {
    */
   virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
 
+  virtual CoMOverSupportPolygonControl* getCoMOverSupportPolygonControl();
+
  protected:
   LegGroup* legs_;
   TorsoBase* torso_;

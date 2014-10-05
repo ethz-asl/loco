@@ -48,6 +48,7 @@ add_subdirectory(src/gait_switcher)
 add_subdirectory(src/locomotion_controller)
 add_subdirectory(src/event_detection)
 add_subdirectory(src/dynamic_systems_utils)
+add_subdirectory(src/state_switcher)
 
 
 set(LOCO_INCL ${LOCO_INCL}

@@ -13,6 +13,7 @@
 #include "loco/gait_pattern/GaitPatternBase.hpp"
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
+#include "loco/state_switcher/StateSwitcher.hpp"
 
 namespace loco {
 
@@ -68,6 +69,7 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   LegGroup* legs_;
   TorsoBase* torso_;
   GaitPatternBase* gaitPattern_;
+  StateSwitcher* stateSwitcher_[4];
 
 };
 

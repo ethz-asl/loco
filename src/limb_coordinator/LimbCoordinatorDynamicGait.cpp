@@ -9,7 +9,9 @@
 #include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
 #include "RobotModel_common.hpp"
 
+
 namespace loco {
+
 
 LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase* torso, GaitPatternBase* gaitPattern, bool isUpdatingStridePhase) :
     LimbCoordinatorBase(),
@@ -18,24 +20,29 @@ LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase
     torso_(torso),
     gaitPattern_(gaitPattern)
 {
-
+  // initialize state for each leg
 	for (int i=0; i<4; i++) {
 		state_[i] = -1;
+
+		stateSwitcher_[i] = new StateSwitcher();
+		stateSwitcher_[i]->setState(StateSwitcher::States::Init);
 	}
 }
+
 
 LimbCoordinatorDynamicGait::~LimbCoordinatorDynamicGait() {
 
 }
 
+
 void LimbCoordinatorDynamicGait::setIsUpdatingStridePhase(bool isUpdatingStridePhase) {
   isUpdatingStridePhase_ = isUpdatingStridePhase;
 }
+
+
 bool LimbCoordinatorDynamicGait::isUpdatingStridePhase() const {
   return isUpdatingStridePhase_;
 }
-
-
 
 
 bool LimbCoordinatorDynamicGait::initialize(double dt) {
@@ -47,6 +54,7 @@ bool LimbCoordinatorDynamicGait::initialize(double dt) {
   }
   return true;
 }
+
 
 bool LimbCoordinatorDynamicGait::advance(double dt) {
   int iLeg = 0;
@@ -79,12 +87,18 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  // not safe to use this leg as support leg
 				  leg->setIsSupportLeg(false);
 				  state_[iLeg] = 2;
+
+				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::StanceSlipping);
+
 				  // todo think harder about this
 			  }
 			  else {
 				  // safe to use this leg as support leg
 				  leg->setIsSupportLeg(true);
 				  state_[iLeg] = 0;
+
+				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::StanceNormal);
+
 			  }
 		  }
 		  else {
@@ -92,6 +106,9 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  // lost contact
 			  leg->setIsSupportLeg(false);
 			  state_[iLeg] = 3;
+
+			  stateSwitcher_[iLeg]->setState(StateSwitcher::States::StanceLostContact);
+
 		  }
 	  }
 	  else {
@@ -102,22 +119,26 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  // leg should lift-off (late lift-off)
 				  leg->setIsSupportLeg(false);
 				  state_[iLeg] = 4;
+				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingLateLiftOff);
 			  }
 			  else if (leg->getSwingPhase() > 0.6) {
 				  // early touch-down
 				  leg->setIsSupportLeg(true);
 				  state_[iLeg] = 5;
+				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingEarlyTouchDown);
 			  }
 			  else {
 				  // leg bumped into obstacle
 				  leg->setIsSupportLeg(false); // true
 				  state_[iLeg] = 6;
+				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingBumpedIntoObstacle);
 			  }
 		  }
 		  else {
 			  // leg is on track
 			  leg->setIsSupportLeg(false);
 			  state_[iLeg] = 1;
+			  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingNormal);
 		  }
 	  }
     //---
@@ -138,9 +159,11 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
   return true;
 }
 
+
 void LimbCoordinatorDynamicGait::setStridePhase(double stridePhase)  {
   gaitPattern_->setStridePhase(stridePhase);
 }
+
 
 bool LimbCoordinatorDynamicGait::isLegInStanceMode(int iLeg) {
   const double swingPhase = gaitPattern_->getSwingPhaseForLeg(iLeg);
@@ -149,20 +172,21 @@ bool LimbCoordinatorDynamicGait::isLegInStanceMode(int iLeg) {
 }
 
 
-
-
 GaitPatternBase* LimbCoordinatorDynamicGait::getGaitPattern() {
   return gaitPattern_;
 }
+
 
 const GaitPatternBase& LimbCoordinatorDynamicGait::getGaitPattern() const {
   return *gaitPattern_;
 }
 
+
 bool LimbCoordinatorDynamicGait::loadParameters(const TiXmlHandle& handle)
 {
   return true;
 }
+
 
 bool LimbCoordinatorDynamicGait::setToInterpolated(const LimbCoordinatorBase& limbCoordinator1, const LimbCoordinatorBase& limbCoordinator2, double t) {
   const LimbCoordinatorDynamicGait& coordinator1 = static_cast<const LimbCoordinatorDynamicGait&>(limbCoordinator1);
@@ -172,5 +196,6 @@ bool LimbCoordinatorDynamicGait::setToInterpolated(const LimbCoordinatorBase& li
   }
   return true;
 }
+
 
 } /* namespace loco */

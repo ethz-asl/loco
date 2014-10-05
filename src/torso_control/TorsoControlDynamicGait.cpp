@@ -46,6 +46,10 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 }
 
 
+CoMOverSupportPolygonControl* TorsoControlDynamicGait::getCoMOverSupportPolygonControl() {
+  return &comControl_;
+}
+
 
 bool TorsoControlDynamicGait::advance(double dt) {
 //  comControl_.advance(dt);

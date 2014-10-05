@@ -47,18 +47,53 @@ namespace loco {
     Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[4];
 
    protected:
+
+    /*! Compute and return the current desired foot position in world frame.
+     * @params[in] leg The leg relative to the desired foot.
+     * @returns The desired foot position in world frame.
+     */
     virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
+
+    /*! Method to interface with best foothold service.
+     */
     virtual bool getBestFootholdsFromCurrentFootholdInWorldFrame(loco::Position& positionWorldToFootInWorldFrame);
 
+    /*! Project a point on a plane along the plane's normal.
+     * @params[in] position The coordinates of the point that has to be projected.
+     * @returns The coordinates of the point projected on the terrain along the surface normal.
+     */
     virtual Position getPositionProjectedOnPlaneAlongSurfaceNormal(const Position& position);
-    virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
-    virtual Position getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(const LegBase& leg,
-                                                                                const Position& positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame);
-    virtual double getInterpolationPhase(const LegBase& leg);
 
+    virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
+
+    /*! Return the height component of the desired foot position in control frame.
+     * @params[in] leg The desired foot's leg.
+     * @params[in] positionHipOnTerrainToDesiredFootOnTerrainInControlFrame Position of the projection of the hip according to the desired configuration (from telescopic to lever)
+     * @returns The desired foot position on the terrain in control frame.
+     */
+    virtual Position getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(const LegBase& leg,
+                                                                                const Position& positionHipOnTerrainToDesiredFootOnTerrainInControlFrame);
+
+    /*! Return the interpolation phase relative to a given leg.
+     * @params[in] The leg relative the to the interpolating foot.
+     * @returns The interpolation phase.
+     */
+    virtual double getInterpolationPhase(const LegBase& leg);
 
     virtual Position getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(const LegBase& leg);
     virtual Position getPositionDesiredFootHoldOnTerrainFeedBackInControlFrame(const LegBase& leg);
+
+    virtual Position getPositionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame(const LegBase& leg);
+
+    // Adjust foot steps depending on hip projection
+    virtual Position getOffsetDesiredFootOnTerrainToCorrectedFootOnTerrainInControlFrame(const LegBase& leg);
+
+
+    /*! 0: telescopic
+     *  1: lever
+     *  in (0,1): combination of both
+     */
+    double telescopicLeverConfiguration_;
 
   };
 

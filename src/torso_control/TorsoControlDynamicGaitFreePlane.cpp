@@ -39,6 +39,10 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
 
   firstOrderFilter_->initialize(0.0, 1.0, 1.0);
 
+  comControl_.setTorso(torso_);
+  comControl_.setTerrainModel(terrain_);
+
+
   return true;
 }
 
@@ -134,8 +138,6 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   terrain_->getHeight(positionWorldToDesiredHorizontalBaseInWorldFrame, heightOfTerrainInWorldFrame);
 
   Position positionWorldToHorizontalBaseInWorldFrame_temp = positionWorldToDesiredHorizontalBaseInWorldFrame + heightOfTerrainInWorldFrame*Position::UnitZ();
-
-  std::cout << "terr height: " << heightOfTerrainInWorldFrame << " over terr: " << heightOverTerrain << std::endl;
 
   Position positionControlToTargetBaseInWorldFrame = positionHorizontalControlToHorizontalBaseInWorldFrame
                                               + (heightOfTerrainInWorldFrame + heightOverTerrain)*Position::UnitZ();

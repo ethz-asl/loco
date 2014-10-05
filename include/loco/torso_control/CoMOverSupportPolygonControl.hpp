@@ -14,7 +14,10 @@
 
 #include <Eigen/Core>
 #include "loco/common/LegGroup.hpp"
+#include "loco/common/TorsoBase.hpp"
+#include "loco/common/TerrainModelBase.hpp"
 #include "loco/common/TypeDefs.hpp"
+
 namespace loco {
 
 //! Support Polygon Task
@@ -64,6 +67,17 @@ public:
 
 
   void advance(double dt);
+  void advanceLeverConfiguration(double dt);
+
+  void setTorso(TorsoBase* torso);
+  void setTerrainModel(TerrainModelBase* terrainModel);
+
+
+  //--- DEBUG
+  Position positionCenterToForeHindSupportFeetInControlFrame_[2];
+  Position positionWorldToCenterInWorldFrame_;
+  //---
+
 
 protected:
 	  LegGroup* legs_;
@@ -82,6 +96,9 @@ protected:
 
 //    //! target position for logging
     Position positionWorldToHorizontalDesiredBaseInWorldFrame_;
+
+    TorsoBase* torso_;
+    TerrainModelBase* terrainModel_;
 
 
 
