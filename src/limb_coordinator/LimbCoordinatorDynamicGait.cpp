@@ -18,14 +18,14 @@ LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase
     isUpdatingStridePhase_(isUpdatingStridePhase),
     legs_(legs),
     torso_(torso),
-    gaitPattern_(gaitPattern)
+    gaitPattern_(gaitPattern),
+    stateSwitcher_(legs->size())
 {
   // initialize state for each leg
 	for (int i=0; i<4; i++) {
 		state_[i] = -1;
 
-		stateSwitcher_[i] = new StateSwitcher();
-		stateSwitcher_[i]->setState(StateSwitcher::States::Init);
+		stateSwitcher_[i].setState(StateSwitcher::States::Init);
 	}
 }
 
@@ -88,7 +88,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  leg->setIsSupportLeg(false);
 				  state_[iLeg] = 2;
 
-				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::StanceSlipping);
+				  stateSwitcher_[iLeg].setState(StateSwitcher::States::StanceSlipping);
 
 				  // todo think harder about this
 			  }
@@ -97,7 +97,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  leg->setIsSupportLeg(true);
 				  state_[iLeg] = 0;
 
-				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::StanceNormal);
+				  stateSwitcher_[iLeg].setState(StateSwitcher::States::StanceNormal);
 
 			  }
 		  }
@@ -107,7 +107,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  leg->setIsSupportLeg(false);
 			  state_[iLeg] = 3;
 
-			  stateSwitcher_[iLeg]->setState(StateSwitcher::States::StanceLostContact);
+			  stateSwitcher_[iLeg].setState(StateSwitcher::States::StanceLostContact);
 
 		  }
 	  }
@@ -119,26 +119,26 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  // leg should lift-off (late lift-off)
 				  leg->setIsSupportLeg(false);
 				  state_[iLeg] = 4;
-				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingLateLiftOff);
+				  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingLateLiftOff);
 			  }
 			  else if (leg->getSwingPhase() > 0.6) {
 				  // early touch-down
 				  leg->setIsSupportLeg(true);
 				  state_[iLeg] = 5;
-				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingEarlyTouchDown);
+				  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingEarlyTouchDown);
 			  }
 			  else {
 				  // leg bumped into obstacle
 				  leg->setIsSupportLeg(false); // true
 				  state_[iLeg] = 6;
-				  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingBumpedIntoObstacle);
+				  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingBumpedIntoObstacle);
 			  }
 		  }
 		  else {
 			  // leg is on track
 			  leg->setIsSupportLeg(false);
 			  state_[iLeg] = 1;
-			  stateSwitcher_[iLeg]->setState(StateSwitcher::States::SwingNormal);
+			  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingNormal);
 		  }
 	  }
     //---

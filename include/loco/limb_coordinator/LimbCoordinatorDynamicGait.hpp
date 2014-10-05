@@ -69,7 +69,7 @@ class LimbCoordinatorDynamicGait: public LimbCoordinatorBase {
   LegGroup* legs_;
   TorsoBase* torso_;
   GaitPatternBase* gaitPattern_;
-  StateSwitcher* stateSwitcher_[4];
+  std::vector<StateSwitcher> stateSwitcher_;
 
 };
 
