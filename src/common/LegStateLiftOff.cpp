@@ -22,7 +22,7 @@ LegStateLiftOff::~LegStateLiftOff() {
 
 }
 
-const Position& LegStateLiftOff::getHipPositionInWorldFrame() const {
+const Position& LegStateLiftOff::getWorldToHipPositionInWorldFrame() const {
   return hipPositionInWorldFrame_;
 }
 

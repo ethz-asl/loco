@@ -6,7 +6,6 @@
  */
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyFreePlane.hpp"
-#include "loco/common/TorsoBase.hpp"
 #include "loco/temp_helpers/math.hpp"
 
 #include "loco/state_switcher/StateSwitcher.hpp"
@@ -41,7 +40,7 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
 
   for (auto leg : *legs_) {
     // save the hip position at lift off for trajectory generation
-    Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getHipPositionInWorldFrame();
+    Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getWorldToHipPositionInWorldFrame();
     positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
     Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
     leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
@@ -129,6 +128,7 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
 
   // Find starting point: hip projected vertically on ground
   Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
+//  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getStateLiftOff()->getWorldToHipPositionInWorldFrame();
   terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
   // Get offset to change between telescopic and lever configuration
@@ -345,8 +345,9 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
   //--- save for debug
   //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
 
-//  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getHipPositionInWorldFrame();//leg.getWorldToHipPositionInWorldFrame();
-  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
+//  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
+  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getWorldToHipPositionInWorldFrame();
+
   terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
 
   positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame
