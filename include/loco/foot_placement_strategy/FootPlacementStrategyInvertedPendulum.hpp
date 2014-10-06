@@ -104,7 +104,6 @@ protected:
 	double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 	double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 
-
 	/*! Computes current desired foot position by interpolating between the predicted and last foothold depending on the swing phase
 	 *
 	 * @param swingPhase                                           interpolation parameter
@@ -113,8 +112,6 @@ protected:
 	 * @return desired foot position in World frame
 	 */
 	Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame, LegBase* leg);
-
-
 
 	/*! load foot height trajectory from XML
 	 * @param hTrajectory handle

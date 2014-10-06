@@ -66,9 +66,12 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
         Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
         terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
 
+        /*
+         * WARNING: these were also updated by the event detector
+         */
         leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
-        leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
-        leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+        leg->getStateLiftOff()->setWorldToFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
+        leg->getStateLiftOff()->setWorldToHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
         leg->setSwingPhase(leg->getSwingPhase());
     }
 
@@ -84,6 +87,7 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
 
         case(StateSwitcher::States::SwingNormal):
         case(StateSwitcher::States::SwingLateLiftOff):
+//        case(StateSwitcher::States::SwingBumpedIntoObstacle):
           setFootTrajectory(leg); break;
 
         default:
@@ -340,8 +344,11 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
 
   //--- save for debug
   //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
+
+//  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getHipPositionInWorldFrame();//leg.getWorldToHipPositionInWorldFrame();
   Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
   terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
+
   positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame
                                                       + orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame);
   //---

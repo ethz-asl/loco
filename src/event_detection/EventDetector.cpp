@@ -56,8 +56,8 @@ namespace loco {
        * Liftoff detection *
        *********************/
       if (leg->wasGrounded() && !leg->isGrounded()) {
-        leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
-        leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+//        leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
+//        leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
         leg->getStateLiftOff()->setIsNow(true);
         leg->getStateLiftOff()->setStateChangedAtTime(timeSinceInit_);
         // A liftoff was detected, now check if it is earlier or later than expected
