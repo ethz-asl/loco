@@ -19,21 +19,21 @@ include_directories(${EIGEN_INCLUDE_DIRS})
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 include_directories(../../include)
-include_directories(../../thirdparty/tinyxml)
+#include_directories(../../thirdparty/tinyxml)
 
 
 set(GAITPATTERN_SRCS
 	../test_main.cpp
 	GaitPatternAPSTest.cpp
-	../../src/gait_pattern/APS.cpp
-	../../src/gait_pattern/GaitAPS.cpp
-	../../src/gait_pattern/GaitPatternAPS.cpp
+	#../../src/gait_pattern/APS.cpp
+	#../../src/gait_pattern/GaitAPS.cpp
+	#../../src/gait_pattern/GaitPatternAPS.cpp
 	
 )
 
 # Add test cpp file
 add_executable( runUnitTestsGaitPattern EXCLUDE_FROM_ALL ${GAITPATTERN_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsGaitPattern  gtest_main gtest pthread tinyxml)
+target_link_libraries(runUnitTestsGaitPattern gtest_main gtest pthread loco ${LOCO_LIBS})
 add_test( runUnitTestsGaitPattern ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsGaitPattern )
 add_dependencies(check runUnitTestsGaitPattern)

@@ -2,7 +2,7 @@
  * TerrainModelSimulation.hpp
  *
  *  Created on: May 5, 2014
- *      Author: Peter Fankhauser
+ *      Author: Peter Fankhauser, Christian Gehring
  */
 
 #ifndef LOCO_TERRAINMODELSIMULATION_HPP_
@@ -13,10 +13,15 @@
 
 namespace loco {
 
+/*! This terrain model gives direct access to the simulation.
+ * The model cannot be used on the real robot!
+ */
 class TerrainModelSimulation: public TerrainModelBase {
  public:
   TerrainModelSimulation(robotTerrain::TerrainBase* terrain);
   virtual ~TerrainModelSimulation();
+
+  virtual bool initialize(double dt);
 
   /*!
    * Gets the surface normal of the terrain at a certain position.
@@ -35,7 +40,21 @@ class TerrainModelSimulation: public TerrainModelBase {
    */
   virtual bool getHeight(loco::Position& position) const;
 
-  virtual bool initialize(double dt);
+  /*!Gets the height of the terrain at the coordinate
+   * (in world frame) and sets the position.z() as the height (in world frame).
+   * @param[in] positionWorldToLocationInWorldFrame   position from origin of world frame to the requested location expressed in world frame
+   * @param[out]  height of the terrain in world frame
+   * @return true if successful, false otherwise
+   */
+  virtual bool getHeight(const loco::Position& positionWorldToLocationInWorldFrame, double& heightInWorldFrame) const;
+
+  /*! Gets the friction coefficient between foot and terrain at a certain location.
+   * @param positionWorldToLocationInWorldFrame   position of the requested location expressed in world frame
+   * @param frictionCoefficient   friction coefficient
+   * @returns true if successful, false otherwise
+   */
+  virtual bool getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const;
+
 
  private:
 

@@ -12,7 +12,8 @@ namespace loco {
 LegStateLiftOff::LegStateLiftOff() :
   LegStateBase(),
   footPositionInWorldFrame_(),
-  hipPositionInWorldFrame_()
+  hipPositionInWorldFrame_(),
+  positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_()
 {
 
 }
@@ -21,7 +22,7 @@ LegStateLiftOff::~LegStateLiftOff() {
 
 }
 
-const Position& LegStateLiftOff::getHipPositionInWorldFrame() const {
+const Position& LegStateLiftOff::getWorldToHipPositionInWorldFrame() const {
   return hipPositionInWorldFrame_;
 }
 
@@ -29,15 +30,22 @@ const Position& LegStateLiftOff::getFootPositionInWorldFrame() const {
   return footPositionInWorldFrame_;
 }
 
-void LegStateLiftOff::setHipPositionInWorldFrame(const Position& hipPositionInWorldFrame)  {
+const Position& LegStateLiftOff::getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame() const {
+  return positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_;
+}
+
+void LegStateLiftOff::setWorldToHipPositionInWorldFrame(const Position& hipPositionInWorldFrame)  {
   hipPositionInWorldFrame_ = hipPositionInWorldFrame;
 }
 
-void LegStateLiftOff::setFootPositionInWorldFrame(const Position& footPositionInWorldFrame)
+void LegStateLiftOff::setWorldToFootPositionInWorldFrame(const Position& footPositionInWorldFrame)
 {
   footPositionInWorldFrame_ = footPositionInWorldFrame;
 }
 
+void LegStateLiftOff::setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(const Position& positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame) {
+  positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_ = positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame;
+}
 
 
 } /* namespace loco */

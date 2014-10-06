@@ -32,7 +32,7 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
  public:
   typedef  Eigen::Matrix<double, 12,1> VectorQj;
  public:
-  VisualizerSC();
+  VisualizerSC(int* drawCharacter = nullptr);
   virtual ~VisualizerSC();
 
   virtual void addParameters();
@@ -57,7 +57,9 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
   void drawHistoryOfFootPositions(loco::LegGroup* legs);
   void drawHistoryOfDesiredFootPositions(loco::LegGroup* legs);
   void drawHistoryOfBasePosition(loco::TorsoBase* torso);
-  void drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt = 0.1, double lineWidth = 0.5);
+  void drawTrajectoryCatMullRomPosition(TrajectoryPosition &trajectory, double dt = 0.1, double lineWidth = 0.5);
+  void drawTrajectoryLinearPosition(TrajectoryPosition &trajectory, double dt = 0.1, double lineWidth = 0.5);
+  void drawTrajectoryLinearPositionKnots(TrajectoryPosition &trajectory, double lineWidth = 0.5);
 
   virtual void drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrategyInvertedPendulum* strategy);
 
@@ -90,11 +92,13 @@ class VisualizerSC: public VisualizerBase, public TaskVisualizer {
   loco::GaitPatternFlightPhasesPreview* gaitPatternFlightPhasesWindow_;
 
  protected:
+  int* drawCharacter_;
   bool isSimulationRunning_;
   double desiredFrameRate_;
   loco::TrajectoryPosition footTrajectories_[4];
   loco::TrajectoryPosition desiredFootTrajectories_[4];
   loco::TrajectoryPosition predictedFootHoldTrajectories_[4];
+  loco::TrajectoryPosition predictedDefaultFootHoldTrajectories_[4];
   loco::TrajectoryPosition predictedFootHoldInvertedPendulumTrajectories_[4];
   loco::TrajectoryPosition baseTrajectory_;
 };

@@ -19,6 +19,8 @@
 
 //#include "loco/common/LegLinkGroup.hpp"
 
+#include "loco/state_switcher/StateSwitcher.hpp"
+
 #include <Eigen/Core>
 
 #include <string>
@@ -60,17 +62,16 @@ class LegBase {
   virtual double getStanceDuration() const;
   virtual double getSwingDuration() const;
 
-  virtual bool isInStanceMode() const;
-  virtual bool isInSwingMode() const;
-
-  virtual bool wasInStanceMode() const;
-  virtual bool wasInSwingMode() const;
-
   virtual bool isGrounded() const;
+  virtual bool wasGrounded() const;
   virtual bool shouldBeGrounded() const;
   virtual bool isAndShouldBeGrounded() const;
+  virtual bool isSlipping() const;
 
   virtual double getDesiredLoadFactor() const;
+
+  virtual bool isSupportLeg() const;
+  virtual bool isLosingContact() const;
 
 
   virtual void setStancePhase(double phase);
@@ -79,14 +80,17 @@ class LegBase {
   virtual void setStanceDuration(double duration);
   virtual void setSwingDuration(double duration);
 
-  virtual void setIsInStanceMode(bool isInStanceMode);
-  virtual void setIsInSwingMode(bool isInSwingMode);
-
-  virtual void setWasInStanceMode(bool wasInStanceMode);
-  virtual void setWasInSwingMode(bool wasInSwingMode);
-
   virtual void setIsGrounded(bool isGrounded);
+  virtual void setWasGrounded(bool wasGrounded);
   virtual void setShouldBeGrounded(bool shouldBeGrounded);
+  virtual void setIsSlipping(bool isSlipping);
+
+  virtual void setIsSupportLeg(bool isSupportLeg);
+
+  virtual void setIsLosingContact(bool isLosingContact);
+
+  virtual bool didTouchDownAtLeastOnceDuringStance() const;
+  virtual void setDidTouchDownAtLeastOnceDuringStance(bool didTouchDownAtLeastOnceDuringStance);
 
   /*!
    * Change how much a leg should be loaded.
@@ -97,10 +101,11 @@ class LegBase {
    */
   virtual void setDesiredLoadFactor(double loadFactor);
 
-
-
   LegStateTouchDown* getStateTouchDown();
+  const LegStateTouchDown& getStateTouchDown() const;
+
   LegStateLiftOff* getStateLiftOff();
+  const LegStateLiftOff& getStateLiftOff() const;
 
   virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;
   virtual const Position& getWorldToHipPositionInWorldFrame() const  = 0;
@@ -139,33 +144,46 @@ class LegBase {
   virtual bool advance(double dt) = 0;
 
   virtual LegPropertiesBase& getProperties() = 0;
-//  virtual LegPropertiesBase* getProperties() = 0;
+  virtual const LegPropertiesBase& getProperties() const = 0;
   virtual int getId() const = 0;
-
-
 
   const Position& getDesiredWorldToFootPositionInWorldFrame() const;
   void setDesireWorldToFootPositionInWorldFrame(const Position& position);
- protected:
+
+	void setPreviousStancePhase(double previousStancePhase);
+	double getPreviousStancePhase() const;
+
+	void setPreviousSwingPhase(double previousSwingPhase);
+	double getPreviousSwingPhase() const;
+
+	virtual StateSwitcher* getStateSwitcher() const;
+
+protected:
   std::string name_;
 
   LegLinkGroup* links_;
 
   double stancePhase_;
+  double previousStancePhase_;
+
   double swingPhase_;
+  double previousSwingPhase_;
+
   double stanceDuration_;
   double swingDuration_;
 
-  bool isInStanceMode_;
-  bool wasInStanceMode_;
-  bool isInSwingMode_;
-  bool wasInSwingMode_;
   bool isGrounded_;
+  bool wasGrounded_;
   bool shouldBeGrounded_;
+  bool isSlipping_;
+  bool isSupportLeg_;
+  bool isLosingContact_;
+  bool didTouchDownAtLeastOnceDuringStance_;
 
   double loadFactor_;
 
   LegStateTouchDown stateTouchDown_;
+
   LegStateLiftOff stateLiftOff_;
 
   JointControlModes desiredJointControlModes_;
@@ -175,6 +193,9 @@ class LegBase {
   JointTorques desiredJointTorques_;
 
   Position desiredWorldToFootPositionInWorldFrame_;
+
+  StateSwitcher* stateSwitcher_;
+
 };
 
 } /* namespace loco */

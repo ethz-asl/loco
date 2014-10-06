@@ -67,6 +67,13 @@ public:
 		lastIndex = 0;
 		copy( other );
 	}
+	GenericTrajectory<T>& operator =( const GenericTrajectory<T>& other ){
+    lastIndex = 0;
+    copy( other );
+    return *this;
+  }
+
+
 	virtual ~GenericTrajectory(void){
 		clear();
 	}
@@ -154,9 +161,13 @@ public:
 	/**
 		Returns the value of the ith knot. It is assumed that i is within the correct range.
 	*/
-	T getKnotValue(int i) const {
+	const T& getKnotValue(int i) const {
 		return values[i];
 	}
+
+  T& getKnotValue(int i) {
+    return values[i];
+  }
 
 	/**
 		Returns the position of the ith knot. It is assumed that i is within the correct range.
@@ -288,6 +299,20 @@ public:
 			values.push_back( other.values[i] );
 		}
 	}
+
+  void copy( const GenericTrajectory<T>& other ) {
+
+    tValues.clear();
+    values.clear();
+    int size = other.getKnotCount();
+
+    tValues.reserve(size);
+    values.reserve(size);
+    for( int i=0; i < size; ++i ) {
+      tValues.push_back( other.tValues[i] );
+      values.push_back( other.values[i] );
+    }
+  }
 
 };
 

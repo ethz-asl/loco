@@ -20,7 +20,7 @@ class MissionControlSpeedTrajectory: public MissionControlBase {
 
   virtual const Twist& getDesiredBaseTwistInHeadingFrame() const;
   virtual bool initialize(double dt);
-  virtual void advance(double dt);
+  virtual bool advance(double dt);
   virtual bool loadParameters(const TiXmlHandle& handle);
  protected:
   double time_;

@@ -20,8 +20,19 @@ class MissionControlBase {
 
   virtual const Twist& getDesiredBaseTwistInHeadingFrame() const = 0;
   virtual bool initialize(double dt) = 0;
-  virtual void advance(double dt) = 0;
+  virtual bool advance(double dt) = 0;
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
+
+  /*! Computes an interpolated version of the two mission controllers passed in as parameters.
+   *  If t is 0, the current setting is set to missionController1, 1 -> missionController2, and values in between
+   *  correspond to interpolated parameter set.
+   * @param missionController1
+   * @param missionController2
+   * @param t interpolation parameter
+   * @returns true if successful
+   */
+  virtual bool setToInterpolated(const MissionControlBase& missionController1, const MissionControlBase& missionController2, double t);
+
 };
 
 } /* namespace loco */

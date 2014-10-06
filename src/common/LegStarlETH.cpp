@@ -35,6 +35,10 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg, robotModel::RobotMod
   links_->getLegLink(0)->setMass(robotModel_->params().hip_.m);
   links_->getLegLink(1)->setMass(robotModel_->params().thigh_.m);
   links_->getLegLink(2)->setMass(robotModel_->params().shank_.m);
+
+
+  stateSwitcher_ = new StateSwitcher();
+
 }
 
 LegStarlETH::~LegStarlETH()
@@ -44,6 +48,9 @@ LegStarlETH::~LegStarlETH()
     delete link;
   }
   delete links_;
+
+  delete stateSwitcher_;
+
 }
 
 const Position& LegStarlETH::getWorldToFootPositionInWorldFrame() const
@@ -91,8 +98,12 @@ bool LegStarlETH::initialize(double dt) {
   if(!this->advance(dt)) {
     return false;
   }
-  stateLiftOff_.setFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
-  stateLiftOff_.setHipPositionInWorldFrame(positionWorldToHipInWorldFrame_);
+  stateLiftOff_.setWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
+  stateLiftOff_.setWorldToHipPositionInWorldFrame(positionWorldToHipInWorldFrame_);
+
+  stateTouchDown_.setTouchdownFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
+
+  stateSwitcher_->initialize(0);
 
   return true;
 }
@@ -101,6 +112,8 @@ bool LegStarlETH::advance(double dt)
 {
   properties_.advance(dt);
   
+  this->setWasGrounded(this->isGrounded());
+
   if (robotModel_->contacts().getCA()(iLeg_) == 1) {
     this->setIsGrounded(true);
   } else {
@@ -156,6 +169,10 @@ LegPropertiesBase& LegStarlETH::getProperties()
   return properties_;
 }
 
+const LegPropertiesBase& LegStarlETH::getProperties() const
+{
+  return properties_;
+}
 
 const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const
 {
@@ -179,5 +196,6 @@ const Vector& LegStarlETH::getFootContactNormalInWorldFrame() const {
 int LegStarlETH::getId() const {
   return iLeg_;
 }
+
 
 } /* namespace loco */

@@ -21,6 +21,10 @@ class TerrainPerceptionBase {
    * @param dt  time step [s]
    */
   virtual bool advance(double dt) = 0;
+
+  virtual void updateControlFrameOrigin() = 0;
+  virtual void updateControlFrameAttitude() = 0;
+
 };
 
 } /* namespace loco */

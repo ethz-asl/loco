@@ -39,19 +39,39 @@ namespace loco {
  */
 class FootPlacementStrategyInvertedPendulum: public FootPlacementStrategyBase {
  public:
-// typedef Trajectory1D SwingFootHeightTrajectory;
- typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
+ typedef Trajectory1D SwingFootHeightTrajectory;
+// typedef  rbf::BoundedRBF1D SwingFootHeightTrajectory;
+
+ double heightByTrajectory_[4];
+ Position invertedPendulumPositionHipToFootHoldInWorldFrame_[4];
+
+
+ Position testingFFhipToFootInWorldFrame_[4];
+ Position testingFBinvertedPendulumContribution_[4];
+ Position testingHipToDesiredFootHold_[4];
 
 public:
+ Position positionWorldToDefaultFootHoldInWorldFrame_[4];
  Position positionWorldToFootHoldInWorldFrame_[4];
  Position positionWorldToFootHoldInvertedPendulumInWorldFrame_[4];
-	FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
-	virtual ~FootPlacementStrategyInvertedPendulum();
+  FootPlacementStrategyInvertedPendulum(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
+  virtual ~FootPlacementStrategyInvertedPendulum();
 
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual bool initialize(double dt);
   virtual void advance(double dt);
+  /*! Computes an interpolated version of the two controllers passed in as parameters.
+  *  If t is 0, the current setting is set to footPlacementStrategy1, 1 -> footPlacementStrategy2, and values in between
+  *  correspond to interpolated parameter set.
+  * @param footPlacementStrategy1
+  * @param footPlacementStrategy2
+  * @param t interpolation parameter
+  * @returns true if successful
+  */
+  virtual bool setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t);
+  const LegGroup& getLegs() const;
 
+  const Position& getPositionWorldToDesiredFootHoldInWorldFrame(LegBase* leg) const;
 public:
   //! Reference to the legs
   LegGroup* legs_;
@@ -59,6 +79,9 @@ public:
   TorsoBase* torso_;
   //! Reference to the terrain
   loco::TerrainModelBase* terrain_;
+
+  void setFootTrajectory(LegBase* leg);
+  void regainContact(LegBase* leg, double dt);
 
 	//! and this swing-phase based trajectory is used to control the desired swing foot position (interpolating between initial location of the step, and final target) during swing.
 	Trajectory1D stepInterpolationFunction_;
@@ -81,7 +104,6 @@ protected:
 	double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 	double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 
-
 	/*! Computes current desired foot position by interpolating between the predicted and last foothold depending on the swing phase
 	 *
 	 * @param swingPhase                                           interpolation parameter
@@ -91,17 +113,13 @@ protected:
 	 */
 	Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame, LegBase* leg);
 
-	/*! Gets the height of the terrain in world frame at a certain location
-	 * @param position  location
-	 * @return  height of the terrain
-	 */
-	double getHeightOfTerrainInWorldFrame(const loco::Position& position);
-
 	/*! load foot height trajectory from XML
 	 * @param hTrajectory handle
 	 * @return true if successful
 	 */
   bool loadHeightTrajectory(const TiXmlHandle &hTrajectory);
+
+  bool interpolateHeightTrajectory(rbf::BoundedRBF1D& interpolatedTrajectory, const rbf::BoundedRBF1D& trajectory1, const rbf::BoundedRBF1D& trajectory2, double t);
 };
 
 } // namespace loco

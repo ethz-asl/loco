@@ -18,11 +18,30 @@ class TorsoStateDesired: public TorsoStateBase {
   TorsoStateDesired();
   virtual ~TorsoStateDesired();
 
-  const RotationQuaternion&  getWorldToHeadingOrientation() const = delete;
-  void setWorldToHeadingOrientation(const RotationQuaternion& orientation) = delete;
+  void setLinearVelocityBaseInControlFrame(const LinearVelocity& linearVelocity);
+  const LinearVelocity& getLinearVelocityBaseInControlFrame() const;
 
-  const RotationQuaternion&  getHeadingToBaseOrientation() const = delete;
-  void setHeadingToBaseOrientation(const RotationQuaternion& orientation) = delete;
+  void setAngularVelocityBaseInControlFrame(const LocalAngularVelocity& angularVelocity);
+  const LocalAngularVelocity& getAngularVelocityBaseInControlFrame() const;
+
+
+
+  const Position& getPositionWorldToBaseInWorldFrame() const = delete;
+  void setPositionWorldToBaseInWorldFrame(const Position& position) = delete;
+
+  const LinearVelocity& getLinearVelocityBaseInBaseFrame() const = delete;
+  void setLinearVelocityBaseInBaseFrame(const LinearVelocity& linearVelocity) = delete;
+
+  const LocalAngularVelocity& getAngularVelocityBaseInBaseFrame() const = delete;
+  void setAngularVelocityBaseInBaseFrame(const loco::LocalAngularVelocity& angularVelocity) = delete;
+
+  const RotationQuaternion& getOrientationWorldToBase() const = delete;
+  void setOrientationWorldToBase(const RotationQuaternion& orientation) = delete;
+
+ protected:
+
+  LinearVelocity linearVelocityBaseInControlFrame_;
+  LocalAngularVelocity angularVelocityBaseInControlFrame_;
 };
 
 } /* namespace loco */

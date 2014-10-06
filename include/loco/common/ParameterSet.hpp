@@ -23,6 +23,8 @@ class ParameterSet {
   //! Constructor
   ParameterSet();
 
+  ParameterSet(const std::string& filename);
+
   //! Destructor
   virtual ~ParameterSet();
 

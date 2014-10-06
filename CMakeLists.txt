@@ -3,19 +3,14 @@ cmake_minimum_required (VERSION 2.8)
 
 project(locomotion_control)
 
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
+message("      Including locomotion controller")
 
-# Set Build Type
-#   * None (CMAKE_C_FLAGS or CMAKE_CXX_FLAGS used)
-#   * Debug (CMAKE_C_FLAGS_DEBUG or CMAKE_CXX_FLAGS_DEBUG)
-#   * Release (CMAKE_C_FLAGS_RELEASE or CMAKE_CXX_FLAGS_RELEASE)
-#   * RelWithDebInfo (CMAKE_C_FLAGS_RELWITHDEBINFO or CMAKE_CXX_FLAGS_RELWITHDEBINFO
-#   * MinSizeRel (CMAKE_C_FLAGS_MINSIZEREL or CMAKE_CXX_FLAGS_MINSIZEREL) 
-#set(CMAKE_BUILD_TYPE Debug)
+
+#set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
+set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # CMake modules
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
-
 
 add_definitions(--std=c++11)
 
@@ -37,77 +32,58 @@ endif()
 endif(BUILD_TEST)
 
 
-
-# Add static contact force distribution
-add_subdirectory(src/contact_force_distribution)
-
-# Add virtual model control 
-add_subdirectory(src/motion_control)
-
-# Add gait patern
-add_subdirectory(src/gait_pattern)
-
-# Add foot placement strategies
-add_subdirectory(src/foot_placement_strategy)
-
-# Add limb coordination
-add_subdirectory(src/limb_coordinator)
-
-# Add torso control
-add_subdirectory(src/torso_control)
-
-# Add motor velocity control
-add_subdirectory(src/motor_velocity_controller)
-
-# Add mission control
-add_subdirectory(src/mission_control)
-
-# Add common
 add_subdirectory(src/common)
-
-# Add locmotion controller
-add_subdirectory(src/locomotion_controller)
-
+add_subdirectory(src/contact_force_distribution)
+add_subdirectory(src/motion_control)
+add_subdirectory(src/gait_pattern)
+add_subdirectory(src/foot_placement_strategy)
+add_subdirectory(src/limb_coordinator)
+add_subdirectory(src/torso_control)
+add_subdirectory(src/mission_control)
 add_subdirectory(src/terrain_perception)
-
 add_subdirectory(src/visualizer)
-
 add_subdirectory(src/tools)
-
-add_subdirectory(src/joint_control)
-
 add_subdirectory(src/contact_detection)
+add_subdirectory(src/gait_switcher)
+add_subdirectory(src/locomotion_controller)
+add_subdirectory(src/event_detection)
+add_subdirectory(src/dynamic_systems_utils)
+add_subdirectory(src/state_switcher)
 
-if (BUILD_TEST AND BUILD_GTEST)
-add_subdirectory(test EXCLUDE_FROM_ALL)
-endif()
 
-set(TASK_INCL ${TASK_INCL}
+set(LOCO_INCL ${LOCO_INCL}
 	${CMAKE_CURRENT_SOURCE_DIR}/include 
 )
 
-################
-### INCLUDES ###
-################
-set(TASK_INCL ${TASK_INCL}
+include_directories(../robotUtils/include)
+include_directories(${LOCO_INCL}) 
+include_directories(${TASK_INCL})
+
+set(LOCO_LIBS ${LOCO_LIBS}
+  starlethRobotModel robotUtils starlethUtils tinyxml 
+)
+
+
+# Add include directories to task
+set(TASK_INCL ${TASK_INCL} ${LOCO_INCL}
 PARENT_SCOPE)
 
-###############
-### SOURCES ###
-###############
-set(TASK_SRCS ${TASK_SRCS} 
+
+# Add this library to the task
+set(TASK_LIBS ${TASK_LIBS} ${LOCO_LIBS} 
+    loco  
 PARENT_SCOPE)
 
-#################
-### LIBRARIES ###
-#################
-set(TASK_LIBS ${TASK_LIBS} 
-PARENT_SCOPE)
 
-#include_directories(${TASK_INCL}) 
-#add_library(loco ${TASK_SRCS})
+add_library(loco ${LOCO_SRCS})
+target_link_libraries(loco ${LOCO_LIBS})
 
 # Add Doxygen documentation
 if (BUILD_DOC)
 add_subdirectory(doc/doxygen)
 endif (BUILD_DOC)
+
+
+if (BUILD_TEST AND BUILD_GTEST)
+add_subdirectory(test EXCLUDE_FROM_ALL)
+endif()

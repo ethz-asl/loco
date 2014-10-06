@@ -53,9 +53,7 @@ TorsoPropertiesBase& TorsoStarlETH::getProperties()
   return static_cast<TorsoPropertiesBase&>(properties_);
 }
 
-void TorsoStarlETH::setDesiredBaseTwistInHeadingFrame(const Twist& desiredBaseTwistInHeadingFrame) {
-  desiredBaseTwistInHeadingFrame_ = desiredBaseTwistInHeadingFrame;
-}
+
 
 bool TorsoStarlETH::initialize(double dt)
 {
@@ -76,36 +74,43 @@ bool TorsoStarlETH::advance(double dt)
 
   kindr::rotations::eigen_impl::RotationQuaternionAD rquatWorldToBaseActive(
       robotModel_->est().getActualEstimator()->getQuat());
-  const RotationQuaternion orientationWorldToBase = rquatWorldToBaseActive.getPassive();
+  const RotationQuaternion  orientationWorldToBase = rquatWorldToBaseActive.getPassive();
   const Position positionWorldToBaseInWorldFrame = Position(
       robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos());
 //  std::cout << "world2base position: " << robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos() << std::endl;
 //  std::cout << "position: " << rquatWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getPos()) << std::endl;
 
-  this->getMeasuredState().setWorldToBasePoseInWorldFrame(Pose(positionWorldToBaseInWorldFrame, orientationWorldToBase));
-  const LinearVelocity linearVelocity(
+  this->getMeasuredState().setPositionWorldToBaseInWorldFrame(positionWorldToBaseInWorldFrame);
+  this->getMeasuredState().setOrientationWorldToBase(orientationWorldToBase);
+  const LinearVelocity linearVelocityInBaseFrame(
       orientationWorldToBase.rotate(robotModel_->kin()[robotModel::JT_World2Base_CSw]->getVel()));
-  const LocalAngularVelocity localAngularVelocity(
+  const LocalAngularVelocity localAngularVelocityInBaseFrame(
       orientationWorldToBase.rotate(robotModel_->kin()(robotModel::JR_World2Base_CSw)->getOmega()));
-  this->getMeasuredState().setBaseTwistInBaseFrame(Twist(linearVelocity, localAngularVelocity));
+
+  this->getMeasuredState().setLinearVelocityBaseInBaseFrame(linearVelocityInBaseFrame);
+  this->getMeasuredState().setAngularVelocityBaseInBaseFrame(localAngularVelocityInBaseFrame);
+
+//  std::cout << "lin vel in base frame: " << linearVelocityInBaseFrame << std::endl;
 
 
-  EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(orientationWorldToBase).getUnique();
-  orientationWorldToHeadingEulerZyx.setPitch(0.0);
-  orientationWorldToHeadingEulerZyx.setRoll(0.0);
-  RotationQuaternion orientationWorldToHeading = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
-  this->getMeasuredState().setWorldToHeadingOrientation(orientationWorldToHeading);
-  const RotationQuaternion orientationHeadingToBase = orientationWorldToBase*orientationWorldToHeading.inverted();
-  this->getMeasuredState().setHeadingToBaseOrientation(orientationHeadingToBase);
+//  EulerAnglesZyx orientationWorldToHeadingEulerZyx = EulerAnglesZyx(orientationWorldToBase).getUnique();
+//  orientationWorldToHeadingEulerZyx.setPitch(0.0);
+//  orientationWorldToHeadingEulerZyx.setRoll(0.0);
+//  RotationQuaternion orientationWorldToHeading = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
+//  this->getMeasuredState().setWorldToControlOrientation(orientationWorldToHeading);
+//  const RotationQuaternion orientationHeadingToBase = orientationWorldToBase*orientationWorldToHeading.inverted();
+//  this->getMeasuredState().setControlToBaseOrientation(orientationHeadingToBase);
 
-  const Twist desiredBaseTwistInBaseFrame = Twist(orientationHeadingToBase.rotate(desiredBaseTwistInHeadingFrame_.getTranslationalVelocity()),orientationHeadingToBase.rotate(desiredBaseTwistInHeadingFrame_.getRotationalVelocity()));
-  this->getDesiredState().setBaseTwistInBaseFrame(desiredBaseTwistInBaseFrame);
+  // todo fix this in torso control
+//  const Twist desiredBaseTwistInBaseFrame = Twist(orientationHeadingToBase.rotate(desiredBaseTwistInHeadingFrame_.getTranslationalVelocity()),orientationHeadingToBase.rotate(desiredBaseTwistInHeadingFrame_.getRotationalVelocity()));
+//  this->getDesiredState().setBaseTwistInBaseFrame(desiredBaseTwistInBaseFrame);
   return true;
 }
 
 
 std::ostream& operator << (std::ostream& out, const TorsoStarlETH& torso) {
-  out << "Desired speed: " << torso.getDesiredState().getBaseTwistInBaseFrame();
+//  out << "Orientation base to world (z-y-x): " << EulerAnglesZyx(torso.getDesiredState().getWorldToBaseOrientationInWorldFrame()).getUnique() << std::endl;
+//  out << "Desired speed: " << torso.getDesiredState().getBaseTwistInBaseFrame();
   return out;
 }
 

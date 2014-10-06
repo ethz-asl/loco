@@ -14,6 +14,7 @@
 
 #include <cmath>
 #include <vector>
+#include <stdexcept>
 
 namespace loco {
 
@@ -41,6 +42,8 @@ double GaitPatternAPS::getSwingPhaseForLeg(int iLeg) {
 	return GaitAPS::getSwingPhase(iLeg);
 
 }
+
+
 
 
 double GaitPatternAPS::getStanceDuration(int iLeg) {
@@ -386,20 +389,84 @@ double GaitPatternAPS::getVelocity()
 	return velocity_;
 }
 
-void GaitPatternAPS::advance(double dt) {
+bool GaitPatternAPS::advance(double dt) {
   GaitAPS::advance(dt);
+  return true;
 }
 
 bool GaitPatternAPS::shouldBeLegGrounded(int iLeg) {
-  GaitAPS::shouldBeGrounded(iLeg);
+  return GaitAPS::shouldBeGrounded(iLeg);
 }
 
-double GaitPatternAPS::getStridePhase() {
-  GaitAPS::getStridePhase();
+double GaitPatternAPS::getStridePhase() const {
+  return GaitAPS::getStridePhase();
+}
+
+void GaitPatternAPS::setStridePhase(double stridePhase) {
+  GaitAPS::setStridePhase(stridePhase);
 }
 
 bool GaitPatternAPS::isInitialized() {
   return isInitialized_;
+}
+
+
+double GaitPatternAPS::getTimeLeftInStance(int iLeg, double strideDuration, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getTimeLeftInStance not implemented yet!");
+  return 0.0;
+}
+
+double GaitPatternAPS::getTimeLeftInSwing(int iLeg, double strideDuration, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getTimeLeftInSwing not implemented yet!");
+  return 0.0;
+}
+
+double GaitPatternAPS::getTimeSpentInStance(int iLeg, double strideDuration, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getTimeSpentInStance not implemented yet!");
+  return 0.0;
+}
+
+double GaitPatternAPS::getTimeSpentInSwing(int iLeg, double strideDuration, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getTimeSpentInSwing not implemented yet!");
+  return 0.0;
+}
+
+double GaitPatternAPS::getTimeUntilNextStancePhase(int iLeg, double strideDuration, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getTimeUntilNextStancePhase not implemented yet!");
+  return 0.0;
+}
+
+
+double GaitPatternAPS::getTimeUntilNextSwingPhase(int iLeg, double strideDuration, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getTimeUntilNextSwingPhase not implemented yet!");
+  return 0.0;
+}
+
+double GaitPatternAPS::getSwingDuration(int iLeg, double strideDuration) const {
+  throw std::runtime_error("GaitPatternAPS::getSwingDuration not implemented yet!");
+  return 0.0;
+}
+
+
+double GaitPatternAPS::getStanceDuration(int iLeg, double strideDuration) const {
+  throw std::runtime_error("GaitPatternAPS::getStanceDuration not implemented yet!");
+  return 0.0;
+}
+
+double GaitPatternAPS::getSwingPhaseForLeg(int iLeg, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getSwingPhaseForLeg not implemented yet!");
+  return 0.0;
+}
+
+double GaitPatternAPS::getStancePhaseForLeg(int iLeg, double stridePhase) const {
+  throw std::runtime_error("GaitPatternAPS::getStancePhaseForLeg not implemented yet!");
+  return 0.0;
+}
+
+
+int GaitPatternAPS::getNumberOfStanceLegs(double stridePhase) {
+  throw std::runtime_error("GaitPatternAPS::getNumberOfStanceLegs not implemented yet!");
+  return 0;
 }
 
 

@@ -8,6 +8,8 @@
 */
 #include "loco/gait_pattern/GaitAPS.hpp"
 #include <cstdio>
+#include <stdexcept>
+#include <math.h>       /* fabs */
 
 namespace loco {
 
@@ -71,7 +73,7 @@ void GaitAPS::setStrideDuration(double strideDuration)
 	printf("WARNING: hindCycleDuration is not adapted!\n");
 }
 
-void GaitAPS::advance(double dt)
+bool GaitAPS::advance(double dt)
 {
 	// update time
 	time_ += dt;
@@ -313,7 +315,7 @@ void GaitAPS::advance(double dt)
 
 	}
 
-
+	return true;
 }
 
 
@@ -402,6 +404,11 @@ void GaitAPS::print() {
 APS* GaitAPS::getCurrentAPS() {
 	return &(*currentAPS[0]);
 }
+
+const APS& GaitAPS::getCurrentAPS() const {
+  return *currentAPS[0];
+}
+
 
 APS* GaitAPS::getNextAPS() {
 	return &(*nextAPS[0]);
@@ -497,8 +504,16 @@ void GaitAPS::resetInterpolation()
 	}
 }
 
-double GaitAPS::getStridePhase() {
-  return getCurrentAPS()->phase_;
+double GaitAPS::getStridePhase() const {
+  return getCurrentAPS().phase_;
+}
+
+void GaitAPS::setStridePhase(double stridePhase) {
+  throw std::runtime_error("GaitAPS::setStridePhase not yet implemented!");
+  double dt = 0.0; // fixme
+  while ( fabs(getCurrentAPS()->phase_ - stridePhase) <= 1.0/dt) {
+    advance(dt);
+  }
 }
 
 } // namespace loco

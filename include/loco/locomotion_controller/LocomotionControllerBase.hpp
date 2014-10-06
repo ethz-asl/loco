@@ -27,12 +27,16 @@ class LocomotionControllerBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual bool advance(double dt) = 0;
+  virtual bool advanceMeasurements(double dt) = 0;
+  virtual bool advanceSetPoints(double dt) = 0;
 
-
+  /*! @returns true if the controller is initialized.
+   */
   virtual bool isInitialized() const = 0;
 
-
+  /*! @returns the run time of the controller in seconds.
+   */
+  virtual double getRuntime() const = 0;
 
  protected:
 

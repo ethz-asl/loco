@@ -19,4 +19,9 @@ TorsoControlBase::~TorsoControlBase() {
 
 }
 
+bool TorsoControlBase::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
+  return false;
+}
+
+
 } /* namespace loco */

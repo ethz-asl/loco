@@ -10,13 +10,13 @@
 
 namespace loco {
 
-VisualizerSC::VisualizerSC() :
+VisualizerSC::VisualizerSC(int* drawCharacter) :
     VisualizerBase(),
  gaitPatternWindow_(nullptr),
  gaitPatternFlightPhasesWindow_(nullptr),
  isSimulationRunning_(Globals::animationRunning),
- desiredFrameRate_(Globals::desiredFrameRate)
-
+ desiredFrameRate_(Globals::desiredFrameRate),
+ drawCharacter_(drawCharacter)
 {
 
   gaitPatternWindow_ = new GaitPatternAPSPreview(0, 0, 450, 150);
@@ -31,6 +31,7 @@ VisualizerSC::VisualizerSC() :
       desiredFootTrajectories_[iLeg].addKnot(t, loco::Position());
       predictedFootHoldTrajectories_[iLeg].addKnot(t, loco::Position());
       predictedFootHoldInvertedPendulumTrajectories_[iLeg].addKnot(t, loco::Position());
+      predictedDefaultFootHoldTrajectories_[iLeg].addKnot(t, loco::Position());
     }
   }
   for (double t=0; t<windowSize; t=t+dt) {
@@ -77,7 +78,7 @@ void VisualizerSC::drawHistoryOfDesiredFootPositions(loco::LegGroup* legs) {
 
 void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrategyInvertedPendulum* strategy) {
   const double dt = 1.0/desiredFrameRate_;
-  GLUtilsKindr::glLColor(0.0, 153.0/255.0, 0.0, 1.0);
+  GLUtilsKindr::glLColor(0.0, 153.0/255.0, 0.0, 1.0); // green
 
   for (int iLeg=0; iLeg<4; iLeg++) {
     if (isSimulationRunning_) {
@@ -87,7 +88,7 @@ void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrate
     drawTrajectoryCatMullRomPosition(predictedFootHoldTrajectories_[iLeg], dt, 2.0);
   }
 
-  GLUtilsKindr::glLColor(0.0, 0.0,  0.0, 1.0);
+  GLUtilsKindr::glLColor(0.0, 0.0,  0.0, 1.0); // black
   for (int iLeg=0; iLeg<4; iLeg++) {
     if (isSimulationRunning_) {
       predictedFootHoldInvertedPendulumTrajectories_[iLeg].removeKnot(0);
@@ -95,13 +96,24 @@ void VisualizerSC::drawdrawHistoryOfPredictedFootHolds(loco::FootPlacementStrate
     }
     drawTrajectoryCatMullRomPosition(predictedFootHoldInvertedPendulumTrajectories_[iLeg], dt, 2.0);
   }
+
+  GLUtilsKindr::glLColor(1.0, 128.0/255.0,  0.0, 1.0); // orange
+  for (int iLeg=0; iLeg<4; iLeg++) {
+    if (isSimulationRunning_) {
+      predictedDefaultFootHoldTrajectories_[iLeg].removeKnot(0);
+      predictedDefaultFootHoldTrajectories_[iLeg].addKnot(predictedDefaultFootHoldTrajectories_[iLeg].getKnotPosition(predictedDefaultFootHoldTrajectories_[iLeg].getKnotCount()-1)+dt, strategy->positionWorldToDefaultFootHoldInWorldFrame_[iLeg]);
+    }
+    drawTrajectoryCatMullRomPosition(predictedDefaultFootHoldTrajectories_[iLeg], dt, 2.0);
+  }
+
+
 }
 
 void VisualizerSC::drawHistoryOfBasePosition(loco::TorsoBase* torso) {
   const double dt = 1.0/desiredFrameRate_;
   if (isSimulationRunning_) {
     baseTrajectory_.removeKnot(0);
-    baseTrajectory_.addKnot(baseTrajectory_.getKnotPosition(baseTrajectory_.getKnotCount()-1)+dt, torso->getMeasuredState().getWorldToBasePositionInWorldFrame());
+    baseTrajectory_.addKnot(baseTrajectory_.getKnotPosition(baseTrajectory_.getKnotCount()-1)+dt, torso->getMeasuredState().getPositionWorldToBaseInWorldFrame());
   }
   drawTrajectoryCatMullRomPosition(baseTrajectory_, dt, 2.0);
 
@@ -119,9 +131,10 @@ void VisualizerSC::drawGaitPatternAPS(loco::GaitPatternAPS* gaitPattern, double 
 
 void VisualizerSC::drawContactForces(AbstractRBEngine* world) {
   std::vector<ContactForce>* cfs = world->getContactForces();
-  GLUtils::glLColor(0, 0, 0);
+  GLUtils::glLColor(1.0, 0, 0);
+//  glColor4d(1.0, 0.0, 0.0, 1.0);
   for (uint i=0; i<cfs->size();i++) {
-    GLUtils::drawArrow(cfs->at(i).f/-300.0, cfs->at(i).cp, 0.005);
+    GLUtils::drawArrow(-cfs->at(i).f/-500.0, cfs->at(i).cp, 0.005);
   }
 }
 
@@ -129,8 +142,10 @@ void VisualizerSC::drawDesiredPose(Character* character, AbstractRBEngine* world
 
   loco::RotationQuaternion  orientationWorldToBaseInWorldFrame;
   loco::Position positionWorldToBaseInWorldFrame;
-  orientationWorldToBaseInWorldFrame = torso->getDesiredState().getWorldToBaseOrientationInWorldFrame();
-  positionWorldToBaseInWorldFrame = torso->getDesiredState().getWorldToBasePositionInWorldFrame();
+  orientationWorldToBaseInWorldFrame = torso->getDesiredState().getOrientationControlToBase()*torso->getMeasuredState().getOrientationWorldToControl();
+  positionWorldToBaseInWorldFrame = torso->getMeasuredState().getPositionWorldToControlInWorldFrame()
+                                    + torso->getDesiredState().getPositionControlToBaseInControlFrame();
+
   VectorQj desJointPositions;
   int iLeg =0;
   for (auto leg : *legs) {
@@ -144,8 +159,8 @@ void VisualizerSC::drawMeasuredPose(Character* character, AbstractRBEngine* worl
 
   loco::RotationQuaternion  orientationWorldToBaseInWorldFrame;
   loco::Position positionWorldToBaseInWorldFrame;
-  orientationWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame();
-  positionWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBasePositionInWorldFrame();
+  orientationWorldToBaseInWorldFrame = torso->getMeasuredState().getOrientationWorldToBase();
+  positionWorldToBaseInWorldFrame = torso->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   VectorQj desJointPositions;
   int iLeg =0;
   for (auto leg : *legs) {
@@ -199,9 +214,9 @@ void VisualizerSC::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, 
 
   const Force virtualForceInBaseFrame = forceInBaseFrame;
   const Torque virtualTorqueInBaseFrame = torqueInBaseFrame;
-  const Position positionWorldToBaseInWorldFrame = torso->getMeasuredState().getWorldToBasePositionInWorldFrame();
+  const Position positionWorldToBaseInWorldFrame = torso->getMeasuredState().getPositionWorldToBaseInWorldFrame();
 
-  const Force virtualForceInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(virtualForceInBaseFrame.toImplementation()));
+  const Force virtualForceInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(virtualForceInBaseFrame.toImplementation()));
 
   // force
 
@@ -209,13 +224,13 @@ void VisualizerSC::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, 
 
   double lengthHipToHip = legs->getLeftForeLeg()->getBaseToHipPositionInBaseFrame().x()-legs->getLeftHindLeg()->getBaseToHipPositionInBaseFrame().x();
   const Force forceYawInBaseFrame(0.0, lengthHipToHip*virtualTorqueInBaseFrame.z(), 0.0);
-  const Force forceYawInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forceYawInBaseFrame.toImplementation()));
+  const Force forceYawInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forceYawInBaseFrame.toImplementation()));
 
   const Force forcePitchInBaseFrame(0.0, 0.0 , lengthHipToHip*virtualTorqueInBaseFrame.y());
-  const Force forcePitchInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forcePitchInBaseFrame.toImplementation()));
+  const Force forcePitchInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forcePitchInBaseFrame.toImplementation()));
 
   const Force forceRollInWorldBase(0.0, 0.0 , lengthHipToHip*virtualTorqueInBaseFrame.x());
-  const Force forceRollInWorldFrame = forceScale*Force(torso->getMeasuredState().getWorldToBaseOrientationInWorldFrame().inverseRotate(forceRollInWorldBase.toImplementation()));
+  const Force forceRollInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forceRollInWorldBase.toImplementation()));
 
   const Position foreMidHipInWorldFrame =  Position((legs->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);
   const Position hindMidHipInWorldFrame =  Position((legs->getLeftHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightHindLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);
@@ -403,29 +418,98 @@ void VisualizerSC::drawGaitPatternFlightPhases(loco::GaitPatternFlightPhases* ga
   }
 }
 
-void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &c, double dt, double lineWidth) {
+void VisualizerSC::drawTrajectoryCatMullRomPosition(TrajectoryPosition &trajectory, double dt, double lineWidth) {
 
 
-  if (c.getKnotCount() == 0)
+  const int knotCount = trajectory.getKnotCount();
+
+  if (knotCount == 0) {
     return;
+  }
+
   glLineWidth(lineWidth);
+   GLfloat prevLineWidth;
+   glGetFloatv(GL_LINE_WIDTH, &prevLineWidth);
 
   glBegin(GL_LINES);
-    double trajLength = c.getKnotPosition(c.getKnotCount()-1);
-    Position pt = c.evaluate_catmull_rom(0.0);
+    double trajLength = trajectory.getKnotPosition(trajectory.getKnotCount()-1);
+    Position pt = trajectory.evaluate_catmull_rom(0.0);
     for (double t=dt; t<trajLength-dt/2; t+=dt)
     {
-      Position nextPt = c.evaluate_catmull_rom(t);
+      Position nextPt = trajectory.evaluate_catmull_rom(t);
       glVertex3d(pt.x(), pt.y(), pt.z());
       glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
       pt = nextPt;
     }
-    Position nextPt = c.evaluate_catmull_rom(trajLength);
+    Position nextPt = trajectory.evaluate_catmull_rom(trajLength);
     glVertex3d(pt.x(), pt.y(), pt.z());
     glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
   glEnd();
 
-  glLineWidth(1);
+  glLineWidth(prevLineWidth);
+
+}
+
+
+
+void VisualizerSC::drawTrajectoryLinearPosition(TrajectoryPosition &trajectory, double dt, double lineWidth) {
+
+  const int knotCount = trajectory.getKnotCount();
+
+  if (knotCount == 0) {
+    return;
+  }
+
+  glLineWidth(lineWidth);
+  GLfloat prevLineWidth;
+  glGetFloatv(GL_LINE_WIDTH, &prevLineWidth);
+
+  glBegin(GL_LINES);
+    double trajLength = trajectory.getKnotPosition(knotCount-1);
+    Position pt = trajectory.evaluate_linear(0.0);
+    for (double t=dt; t<trajLength-dt/2; t+=dt)
+    {
+      Position nextPt = trajectory.evaluate_linear(t);
+      glVertex3d(pt.x(), pt.y(), pt.z());
+      glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+      pt = nextPt;
+    }
+    Position nextPt = trajectory.evaluate_linear(trajLength);
+    glVertex3d(pt.x(), pt.y(), pt.z());
+    glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+  glEnd();
+
+  glLineWidth(prevLineWidth);
+
+}
+
+void VisualizerSC::drawTrajectoryLinearPositionKnots(TrajectoryPosition &trajectory, double lineWidth) {
+
+  const int knotCount = trajectory.getKnotCount();
+
+  if (knotCount == 0) {
+    return;
+  }
+
+  glLineWidth(lineWidth);
+  GLfloat prevLineWidth;
+  glGetFloatv(GL_LINE_WIDTH, &prevLineWidth);
+
+  glBegin(GL_LINES);
+    Position pt = trajectory.getKnotValue(0);
+    for (int i=0; i<knotCount; i++)
+    {
+      Position nextPt = trajectory.getKnotValue(i);
+      glVertex3d(pt.x(), pt.y(), pt.z());
+      glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+      pt = nextPt;
+    }
+    Position nextPt = trajectory.getKnotValue(knotCount-1);
+    glVertex3d(pt.x(), pt.y(), pt.z());
+    glVertex3d(nextPt.x(), nextPt.y(), nextPt.z());
+  glEnd();
+
+  glLineWidth(prevLineWidth);
 
 }
 

@@ -19,6 +19,5 @@ TorsoStateMeasured::~TorsoStateMeasured() {
 
 
 
-
 } /* namespace loco */
 

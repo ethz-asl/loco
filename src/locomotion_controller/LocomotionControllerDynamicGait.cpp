@@ -17,9 +17,11 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
                                                                  LimbCoordinatorBase* limbCoordinator,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
-                                                                 ParameterSet* parameterSet) :
+                                                                 ParameterSet* parameterSet,
+                                                                 GaitPatternBase* gaitPattern) :
     LocomotionControllerBase(),
     isInitialized_(false),
+    runtime_(0.0),
     legs_(legs),
     torso_(torso),
     terrainPerception_(terrainPerception),
@@ -29,7 +31,29 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     torsoController_(baseController),
     virtualModelController_(virtualModelController),
     contactForceDistribution_(contactForceDistribution),
-    parameterSet_(parameterSet)
+    parameterSet_(parameterSet),
+    timeSinceTorqueControl_(0.0),
+    timeIntervalToSwitchToPositionControl_(0.05),
+	gaitPattern_(gaitPattern)
+{
+  eventDetector_ = new loco::EventDetector;
+}
+
+LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() :
+    LocomotionControllerBase(),
+  isInitialized_(false),
+  legs_(nullptr),
+  torso_(nullptr),
+  terrainPerception_(nullptr),
+  contactDetector_(nullptr),
+  limbCoordinator_(nullptr),
+  footPlacementStrategy_(nullptr),
+  torsoController_(nullptr),
+  virtualModelController_(nullptr),
+  contactForceDistribution_(nullptr),
+  parameterSet_(nullptr),
+  eventDetector_(nullptr),
+  gaitPattern_(nullptr)
 {
 
 }
@@ -43,17 +67,10 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   isInitialized_ = false;
 
   for (auto leg : *legs_) {
-    if(!leg->initialize(dt)) {
-      return false;
-    }
-    //  std::cout << *leg << std::endl;
-  }
-  if (!torso_->initialize(dt)) {
-    return false;
+    if(!leg->initialize(dt)) { return false; }
   }
 
-
-
+  if (!torso_->initialize(dt)) { return false; }
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
   if (!terrainPerception_->initialize(dt)) {
@@ -61,6 +78,10 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   }
 
   if (!contactDetector_->initialize(dt)) {
+    return false;
+  }
+
+  if (!eventDetector_->initialize(dt)) {
     return false;
   }
 
@@ -95,116 +116,165 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   }
 
 
+  if (!gaitPattern_->loadParameters(TiXmlHandle(hLoco.FirstChild("LimbCoordination")))) {
+	return false;
+  }
+  if(!gaitPattern_->initialize(dt)) {
+	return false;
+  }
+
+
+  runtime_ = 0.0;
+  
+  timeSinceTorqueControl_ = 0.0;
+  timeIntervalToSwitchToPositionControl_ = 0.0;
+
   isInitialized_ = true;
   return isInitialized_;
 }
 
-bool LocomotionControllerDynamicGait::advance(double dt) {
-  if (!isInitialized_) {
-//    std::cout << "locomotion controller is not initialized!\n" << std::endl;
-    return false;
-  }
 
+bool LocomotionControllerDynamicGait::advanceMeasurements(double dt) {
+  if (!isInitialized_) { return false; }
 
-  for (auto leg : *legs_) {
-    leg->advance(dt);
-//      std::cout << *leg << std::endl;
-//    std::cout << "leg: " << leg->getName() << (leg->isGrounded() ? "is grounded" : "is NOT grounded") << std::endl;
-  }
-
-//  std::cout << "Torso:\n";
-//  std::cout << *torso_ << std::endl;
+  //--- Update sensor measurements.
+  for (auto leg : *legs_) { leg->advance(dt); }
 
   torso_->advance(dt);
 
-  if (!contactDetector_->advance(dt)) {
-    return false;
-  }
+  if (!contactDetector_->advance(dt)) { return false; }
+  //---
+  return true;
+}
+bool LocomotionControllerDynamicGait::advanceSetPoints(double dt) {
 
-  if (!terrainPerception_->advance(dt)) {
-    return false;
-  }
+  //--- Update timing.
+  gaitPattern_->advance(dt);
+  torso_->setStridePhase(gaitPattern_->getStridePhase());
 
-  limbCoordinator_->advance(dt);
-
+  int iLeg =0;
   for (auto leg : *legs_) {
-    const double swingPhase = leg->getSwingPhase();
-//    std::cout << *leg << std::endl;
+	//--- defined by the "planning" / timing
+    leg->setShouldBeGrounded(gaitPattern_->shouldBeLegGrounded(iLeg));
+    leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));
+    leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));
+    //---
 
-//    if (leg->isInStanceMode() != leg->wasInStanceMode()) {
-//      std::cout << leg->getName() << " -----------------------------------------------------------------\n";
-//    }
-//
-//    if ((swingPhase >= 0.0 && swingPhase <= 0.5) && leg->wasInStanceMode()) {
-    if (leg->wasInStanceMode() && leg->isInSwingMode()) {
-      // possible lift-off
-      leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame()); // or base2foot?
-      leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
-//      std::cout << leg->getName() << ": lift-off" << std::endl;
-      leg->getStateLiftOff()->setIsNow(true);
-    } else {
-      leg->getStateLiftOff()->setIsNow(false);
-    }
-
-    if (leg->wasInSwingMode() && leg->isInStanceMode()) {
-      // possible touch-down
-      leg->getStateTouchDown()->setIsNow(true);
-    } else {
-      leg->getStateTouchDown()->setIsNow(false);
-    }
-
-  }
-  footPlacementStrategy_->advance(dt);
-  torsoController_->advance(dt);
-  if(!virtualModelController_->compute()) {
-    return false;
-  }
+    //--- timing measurements
+    leg->setPreviousSwingPhase(leg->getSwingPhase());
+    leg->setSwingPhase(gaitPattern_->getSwingPhaseForLeg(iLeg));
+    leg->setPreviousStancePhase(leg->getStancePhase());
+    leg->setStancePhase(gaitPattern_->getStancePhaseForLeg(iLeg));
+    //---
 
 
-  /* Set desired joint positions, torques and control mode */
-  LegBase::JointControlModes desiredJointControlModes;
-  int iLeg = 0;
-  for (auto leg : *legs_) {
-    if (leg->isAndShouldBeGrounded()) {
-      desiredJointControlModes.setConstant(robotModel::AM_Torque);
-    } else {
-      desiredJointControlModes.setConstant(robotModel::AM_Position);
-    }
-    leg->setDesiredJointControlModes(desiredJointControlModes);
     iLeg++;
   }
 
+  //---
+
+  /* Update legs state using the event detection */
+  eventDetector_->advance(dt, *legs_);
+
+  //--- Update knowledge about environment
+  if (!terrainPerception_->advance(dt)) { return false; }
+  //---
+
+  /* Decide if a leg is a supporting one */
+  limbCoordinator_->advance(dt);
+
+  /* Set the position or torque reference */
+  footPlacementStrategy_->advance(dt);
+  torsoController_->advance(dt);
+  if(!virtualModelController_->compute()) { return false; }
+
+  runtime_ += dt;
   return true;
 }
+
 
 TorsoBase* LocomotionControllerDynamicGait::getTorso() {
   return torso_;
 }
+
+
 LegGroup* LocomotionControllerDynamicGait::getLegs() {
   return legs_;
 }
+
 
 FootPlacementStrategyBase* LocomotionControllerDynamicGait::getFootPlacementStrategy() {
   return footPlacementStrategy_;
 }
 
+
+const FootPlacementStrategyBase& LocomotionControllerDynamicGait::getFootPlacementStrategy() const {
+  return *footPlacementStrategy_;
+}
+
+
 VirtualModelController* LocomotionControllerDynamicGait::getVirtualModelController() {
   return virtualModelController_;
 }
+
+
 ContactForceDistributionBase* LocomotionControllerDynamicGait::getContactForceDistribution() {
   return contactForceDistribution_;
 }
+
 
 LimbCoordinatorBase*  LocomotionControllerDynamicGait::getLimbCoordinator() {
   return limbCoordinator_;
 }
 
+
+const LimbCoordinatorBase& LocomotionControllerDynamicGait::getLimbCoordinator() const {
+  return *limbCoordinator_;
+}
+
+
+const TorsoControlBase& LocomotionControllerDynamicGait::getTorsoController() const {
+  return *torsoController_;
+}
+
+
+const VirtualModelController& LocomotionControllerDynamicGait::getVirtualModelController() const {
+  return *virtualModelController_;
+}
+
+
 TerrainPerceptionBase* LocomotionControllerDynamicGait::getTerrainPerception() {
   return terrainPerception_;
 }
 
+
 bool LocomotionControllerDynamicGait::isInitialized() const {
   return isInitialized_;
+}
+
+
+
+double LocomotionControllerDynamicGait::getRuntime() const {
+  return runtime_;
+}
+
+bool LocomotionControllerDynamicGait::setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t) {
+  if (!limbCoordinator_->setToInterpolated(controller1.getLimbCoordinator(), controller2.getLimbCoordinator(), t)) {
+    return false;
+  }
+  if (!torsoController_->setToInterpolated(controller1.getTorsoController(), controller2.getTorsoController(), t)) {
+    return false;
+  }
+
+  if (!footPlacementStrategy_->setToInterpolated(controller1.getFootPlacementStrategy(), controller2.getFootPlacementStrategy(), t)) {
+     return false;
+   }
+
+  if (!virtualModelController_->setToInterpolated(controller1.getVirtualModelController(), controller2.getVirtualModelController(), t)) {
+    return false;
+  }
+
+  return true;
 }
 
 } /* namespace loco */

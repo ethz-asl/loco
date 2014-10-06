@@ -18,6 +18,17 @@ ParameterSet::ParameterSet() :
 
 }
 
+ParameterSet::ParameterSet(const std::string& filename) :
+    isDocumentLoaded_(false),
+    xmlDocument_(),
+    xmlDocumentHandle_(&xmlDocument_)
+{
+  loadXmlDocument(filename);
+  if (!isDocumentLoaded_) {
+    std::cout << "Could not load parameter file: " << parameterFile_  << std::endl;
+  }
+}
+
 ParameterSet::~ParameterSet() {
 
 }

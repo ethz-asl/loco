@@ -17,38 +17,44 @@ class TorsoStateBase {
   TorsoStateBase();
   virtual ~TorsoStateBase();
 
-  double getHeadingSpeedInBaseFrame() const;
-  double getTurningSpeedInBaseFrame() const;
-  double getLateralSpeedInBaseFrame() const;
+  const Position& getPositionWorldToBaseInWorldFrame() const;
+  void setPositionWorldToBaseInWorldFrame(const Position& position);
 
+  const Position& getPositionControlToBaseInControlFrame() const;
+  void setPositionControlToBaseInControlFrame(
+      const Position& positionControlToBaseInControlFrame);
 
-  const LinearVelocity& getBaseLinearVelocityInBaseFrame() const;
-  const LocalAngularVelocity& getBaseAngularVelocityInBaseFrame() const;
-  const Twist& getBaseTwistInBaseFrame() const;
+  const LinearVelocity& getLinearVelocityBaseInBaseFrame() const;
+  void setLinearVelocityBaseInBaseFrame(const LinearVelocity& linearVelocity);
 
-  const Position& getWorldToBasePositionInWorldFrame() const;
-  const RotationQuaternion& getWorldToBaseOrientationInWorldFrame() const;
-  const Pose& getWorldToBasePoseInWorldFrame();
+  const LocalAngularVelocity& getAngularVelocityBaseInBaseFrame() const;
+  void setAngularVelocityBaseInBaseFrame(const loco::LocalAngularVelocity& angularVelocity);
 
-  void setBaseTwistInBaseFrame(const Twist& twist);
-  void setWorldToBasePoseInWorldFrame(const Pose& pose);
+  const RotationQuaternion& getOrientationWorldToBase() const;
+  void setOrientationWorldToBase(const RotationQuaternion& orientation);
 
-  const RotationQuaternion&  getWorldToHeadingOrientation() const;
-  void setWorldToHeadingOrientation(const RotationQuaternion& orientation);
+  // good:
+  const RotationQuaternion& getOrientationWorldToControl() const;
+  void setOrientationWorldToControl(const RotationQuaternion& orientation);
 
-  const RotationQuaternion&  getHeadingToBaseOrientation() const;
-  void setHeadingToBaseOrientation(const RotationQuaternion& orientation);
+  const RotationQuaternion&  getOrientationControlToBase() const;
+  void setOrientationControlToBase(const RotationQuaternion& orientation);
+  const Position& getPositionWorldToControlInWorldFrame() const;
+  void setPositionWorldToControlInWorldFrame(
+      const Position& positionWorldToControlInWorldFrame);
 
- protected:
+protected:
   Position positionWorldToBaseInWorldFrame_;
-  RotationQuaternion orientationWorldToBaseInWorldFrame_;
-  RotationQuaternion orientationWorldToHeading_;
-  RotationQuaternion orientationHeadingToBase_;
-  Pose poseBaseToWorldInWorldFrame_;
+  Position positionWorldToControlInWorldFrame_;
+  Position positionControlToBaseInControlFrame_;
+
+  RotationQuaternion orientationWorldToBase_;
+  RotationQuaternion orientationWorldToControl_;
+  RotationQuaternion orientationControlToBase_;
+
 
   LinearVelocity linearVelocityBaseInBaseFrame_;
   LocalAngularVelocity angularVelocityBaseInBaseFrame_;
-  Twist twistBaseInBaseFrame_;
 
 
 };

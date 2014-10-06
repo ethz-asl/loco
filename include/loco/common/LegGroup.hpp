@@ -116,6 +116,36 @@ class LegGroup {
     return legs_[offset];
   }
 
+
+  /*! Gets leg by identifier
+   *
+   * @param offset  index
+   * @return  reference to leg
+   */
+  const LegBase* getLegById(int legId) const {
+    for (auto leg : legs_) {
+      if (leg->getId() == legId) {
+        return leg;
+      }
+    }
+    return nullptr;
+  }
+
+  /*! Gets leg by identifier
+    *
+    * @param offset  index
+    * @return  reference to leg
+    */
+   LegBase* getLegById(int legId) {
+     for (auto leg : legs_) {
+       if (leg->getId() == legId) {
+         return leg;
+       }
+     }
+     return nullptr;
+   }
+
+
 };
 
 } /* namespace loco */

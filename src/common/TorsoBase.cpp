@@ -17,7 +17,7 @@ TorsoBase::~TorsoBase() {
 
 }
 std::ostream& operator << (std::ostream& out, const TorsoBase& torso) {
-  out << "Desired speed: " << torso.getDesiredState().getBaseTwistInBaseFrame();
+//  out << "Desired speed: " << torso.getDesiredState().getBaseTwistInBaseFrame();
   return out;
 }
 

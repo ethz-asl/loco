@@ -16,13 +16,17 @@ LegBase::LegBase() :
     swingPhase_(0.0),
     stanceDuration_(0.0),
     swingDuration_(0.0),
-    isInStanceMode_(false),
-    wasInStanceMode_(false),
-    isInSwingMode_(true),
-    wasInSwingMode_(true),
     isGrounded_(false),
+    wasGrounded_(false),
     shouldBeGrounded_(false),
-    loadFactor_(1.0)
+    isSlipping_(false),
+    isSupportLeg_(false),
+    didTouchDownAtLeastOnceDuringStance_(false),
+    loadFactor_(1.0),
+    previousStancePhase_(0.0),
+    previousSwingPhase_(0.0),
+    isLosingContact_(false),
+    stateSwitcher_(nullptr)
 {
 
 }
@@ -34,13 +38,17 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     swingPhase_(0.0),
     stanceDuration_(0.0),
     swingDuration_(0.0),
-    isInStanceMode_(false),
-    wasInStanceMode_(false),
-    isInSwingMode_(true),
-    wasInSwingMode_(true),
     isGrounded_(false),
+    wasGrounded_(false),
     shouldBeGrounded_(false),
-    loadFactor_(1.0)
+    isSlipping_(false),
+    isSupportLeg_(false),
+    didTouchDownAtLeastOnceDuringStance_(false),
+    loadFactor_(1.0),
+    previousStancePhase_(0.0),
+    previousSwingPhase_(0.0),
+    isLosingContact_(false),
+    stateSwitcher_(nullptr)
 {
 
 }
@@ -68,29 +76,60 @@ double LegBase::getSwingDuration() const {
   return swingDuration_;
 }
 
-bool LegBase::isInStanceMode() const {
-  return isInStanceMode_;
-}
-bool LegBase::isInSwingMode() const {
-  return isInSwingMode_;
+bool LegBase::isSupportLeg() const {
+	return isSupportLeg_;
 }
 
-bool LegBase::wasInStanceMode() const {
-  return wasInStanceMode_;
+void LegBase::setIsSupportLeg(bool isSupportLeg) {
+	isSupportLeg_ = isSupportLeg;
 }
-bool LegBase::wasInSwingMode() const {
-  return wasInSwingMode_;
+
+
+bool LegBase::didTouchDownAtLeastOnceDuringStance() const {
+	return didTouchDownAtLeastOnceDuringStance_;
 }
+
+void LegBase::setDidTouchDownAtLeastOnceDuringStance(bool didTouchDownAtLeastOnceDuringStance) {
+	didTouchDownAtLeastOnceDuringStance_ = didTouchDownAtLeastOnceDuringStance;
+}
+
+
+void LegBase::setPreviousStancePhase(double previousStancePhase) {
+	previousStancePhase_ = previousStancePhase;
+}
+
+double LegBase::getPreviousStancePhase() const {
+	return previousStancePhase_;
+}
+
+void LegBase::setPreviousSwingPhase(double previousSwingPhase) {
+	previousSwingPhase_ = previousSwingPhase;
+}
+
+double LegBase::getPreviousSwingPhase() const {
+	return previousSwingPhase_;
+}
+
 
 
 bool LegBase::isGrounded() const {
   return isGrounded_;
 }
+
+bool LegBase::wasGrounded() const {
+  return wasGrounded_;
+}
+
 bool LegBase::shouldBeGrounded() const {
   return shouldBeGrounded_;
 }
+
 bool LegBase::isAndShouldBeGrounded() const {
   return (isGrounded_ && shouldBeGrounded_);
+}
+
+bool LegBase::isSlipping() const {
+  return isSlipping_;
 }
 
 double LegBase::getDesiredLoadFactor() const
@@ -118,29 +157,20 @@ void LegBase::setSwingDuration(double duration) {
   swingDuration_ = duration;
 }
 
-void LegBase::setIsInStanceMode(bool isInStanceMode) {
-  isInStanceMode_ = isInStanceMode;
-}
-
-void LegBase::setIsInSwingMode(bool isInSwingMode) {
-  isInSwingMode_ = isInSwingMode;
-}
-
-void LegBase::setWasInStanceMode(bool wasInStanceMode) {
-  wasInStanceMode_ = wasInStanceMode;
-}
-
-void LegBase::setWasInSwingMode(bool wasInSwingMode) {
-  wasInSwingMode_ = wasInSwingMode;
-}
-
-
 void LegBase::setIsGrounded(bool isGrounded) {
   isGrounded_ = isGrounded;
 }
 
+void LegBase::setWasGrounded(bool wasGrounded) {
+  wasGrounded_ = wasGrounded;
+}
+
 void LegBase::setShouldBeGrounded(bool shouldBeGrounded) {
   shouldBeGrounded_ = shouldBeGrounded;
+}
+
+void LegBase::setIsSlipping(bool isSlipping) {
+  isSlipping_ = isSlipping;
 }
 
 void LegBase::setDesiredLoadFactor(double loadFactor)
@@ -153,9 +183,22 @@ void LegBase::setDesiredLoadFactor(double loadFactor)
 LegStateTouchDown* LegBase::getStateTouchDown() {
   return &stateTouchDown_;
 }
+
+
+const LegStateTouchDown& LegBase::getStateTouchDown() const {
+  return stateTouchDown_;
+}
+
+
 LegStateLiftOff* LegBase::getStateLiftOff() {
   return &stateLiftOff_;
 }
+
+
+const LegStateLiftOff& LegBase::getStateLiftOff() const {
+  return stateLiftOff_;
+}
+
 
 void LegBase::setDesiredJointPositions(const JointPositions& jointPositions)
 {
@@ -212,6 +255,20 @@ const std::string& LegBase::getName() const {
   return name_;
 }
 
+bool LegBase::isLosingContact() const {
+	return isLosingContact_;
+}
+
+void LegBase::setIsLosingContact(bool isLosingContact) {
+	isLosingContact_ = isLosingContact;
+}
+
+
+StateSwitcher* LegBase::getStateSwitcher() const {
+  return stateSwitcher_;
+}
+
+
 std::ostream& operator << (std::ostream& out, const LegBase& leg) {
   out << "name: " << leg.getName() << std::endl;
   out << "swing phase: " << leg.getSwingPhase() << std::endl;
@@ -219,14 +276,20 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
   out << "swing duration: " << leg.getSwingDuration() << std::endl;
   out << "stance duration: " << leg.getStanceDuration() << std::endl;
 
-  out << "is in stance mode: " << (leg.isInStanceMode() ? "yes" : "no") << std::endl;
-  out << "is in swing mode: " << (leg.isInSwingMode() ? "yes" : "no") << std::endl;
-
-  out << "was in stance mode: " << (leg.wasInStanceMode() ? "yes" : "no") << std::endl;
-  out << "was in swing mode: " << (leg.wasInSwingMode() ? "yes" : "no") << std::endl;
-
   out << "is grounded: " << (leg.isGrounded() ? "yes" : "no") << std::endl;
   out << "should be grounded: " << (leg.shouldBeGrounded() ? "yes" : "no") << std::endl;
+  out << "was grounded: " << (leg.wasGrounded() ? "yes" : "no") << std::endl;
+  out << "is slipping: " << (leg.isSlipping() ? "yes" : "no") << std::endl;
+
+  out << "did touchdown: " << ( leg.getStateTouchDown().isNow() ? "yes" : "no" ) << std::endl;
+  out << "       early?: " << ( leg.getStateTouchDown().lastStateWasEarly() ? "yes" : "no" ) << std::endl;
+  out << "        late?: " << ( leg.getStateTouchDown().lastStateWasLate() ? "yes" : "no" ) << std::endl;
+  out << "most recent occurred at time: " << leg.getStateTouchDown().StateChangedAtTime() << std::endl;
+
+  out << "did liftoff: " << ( leg.getStateLiftOff().isNow() ? "yes" : "no" ) << std::endl;
+  out << "most recent occurred at time: " << leg.getStateLiftOff().StateChangedAtTime() << std::endl;
+
+  out << "did touchdown: " << (leg.getStateTouchDown().isNow() ? "yes" : "no") << std::endl;
 
   return out;
 }

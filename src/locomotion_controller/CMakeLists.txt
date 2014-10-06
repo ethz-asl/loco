@@ -11,7 +11,7 @@ find_package(Kindr REQUIRED)
 ################
 ### INCLUDES ###
 ################
-set(TASK_INCL ${TASK_INCL} 
+set(LOCO_INCL ${LOCO_INCL} 
 	${EIGEN_INCLUDE_DIRS}
 	${Kindr_INCLUDE_DIRS}
 PARENT_SCOPE)
@@ -19,16 +19,17 @@ PARENT_SCOPE)
 ###############
 ### SOURCES ###
 ###############
-set(TASK_SRCS ${TASK_SRCS} 
+set(LOCO_SRCS ${LOCO_SRCS} 
 	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerDynamicGait.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerJump.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LocomotionControllerDynamicGaitDefault.cpp
 PARENT_SCOPE)
 
 #################
 ### LIBRARIES ###
 #################
-set(TASK_LIBS ${TASK_LIBS} 
+set(LOCO_LIBS ${LOCO_LIBS} 
 
 PARENT_SCOPE)
 

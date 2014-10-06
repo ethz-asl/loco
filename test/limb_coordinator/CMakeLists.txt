@@ -22,13 +22,15 @@ include_directories(${Kindr_INCLUDE_DIRS})
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 
-include_directories(../../thirdparty/tinyxml)
-include_directories(../../include)
-include_directories(../../temp_helpers/include)
+#include_directories(../../thirdparty/tinyxml)
+#include_directories(../../include)
+#include_directories(../../temp_helpers/include)
 
 set(LIMBCOORDINATOR_SRCS
 	../test_main.cpp
 	LimbCoordinatorTest.cpp
+	)
+	set(TEAteateas
 	../../src/limb_coordinator/LimbCoordinatorBase.cpp
 	../../src/limb_coordinator/LimbCoordinatorDynamicGait.cpp
 	
@@ -60,6 +62,6 @@ set(LIMBCOORDINATOR_SRCS
 # Add test cpp file
 add_executable( runUnitTestsLimbCoordinator EXCLUDE_FROM_ALL ${LIMBCOORDINATOR_SRCS})
 # Link test executable against gtest & gtest_main
-target_link_libraries(runUnitTestsLimbCoordinator  gtest_main gtest pthread starlethRobotModel starlethUtils tinyxml)
+target_link_libraries(runUnitTestsLimbCoordinator  gtest_main gtest pthread loco ${LOCO_LIBS} )
 add_test( runUnitTestsLimbCoordinator ${EXECUTABLE_OUTPUT_PATH}/runUnitTestsLimbCoordinator )
 add_dependencies(check runUnitTestsLimbCoordinator)

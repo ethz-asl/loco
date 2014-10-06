@@ -14,7 +14,10 @@
 
 #include <Eigen/Core>
 #include "loco/common/LegGroup.hpp"
+#include "loco/common/TorsoBase.hpp"
+#include "loco/common/TerrainModelBase.hpp"
 #include "loco/common/TypeDefs.hpp"
+
 namespace loco {
 
 //! Support Polygon Task
@@ -37,9 +40,8 @@ public:
 	 * @param legs	references to the legs
 	 * @return error vector expressed in world frame
 	 */
-	Position getPositionErrorVectorInWorldFrame();
 
-	Position getDesiredWorldToCoMPositionInWorldFrame();
+	const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
 
 	/*! Loads the parameters from the XML object
 	 * @param hParameterSet		handle
@@ -63,9 +65,20 @@ public:
 	 */
 	bool setToInterpolated(const CoMOverSupportPolygonControl& supportPolygon1, const CoMOverSupportPolygonControl& supportPolygon2, double t);
 
-  Position getDefaultTarget();
 
   void advance(double dt);
+  void advanceLeverConfiguration(double dt);
+
+  void setTorso(TorsoBase* torso);
+  void setTerrainModel(TerrainModelBase* terrainModel);
+
+
+  //--- DEBUG
+  Position positionCenterToForeHindSupportFeetInControlFrame_[2];
+  Position positionWorldToCenterInWorldFrame_;
+  //---
+
+
 protected:
 	  LegGroup* legs_;
     //! this is the minimum weight any leg can have... if this is zero,then the COM will try to be right at center of the support polygon [0,1]
@@ -81,10 +94,11 @@ protected:
     double headingOffset_;
 
 
-    Position errorVector_;
 //    //! target position for logging
-    Position defaultTarget_;
-    Position desiredWorldToFootPositionInWorldFrame_;
+    Position positionWorldToHorizontalDesiredBaseInWorldFrame_;
+
+    TorsoBase* torso_;
+    TerrainModelBase* terrainModel_;
 
 
 

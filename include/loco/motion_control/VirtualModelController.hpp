@@ -100,17 +100,27 @@ class VirtualModelController : public MotionControllerBase
 
   double getGravityCompensationForcePercentage() const;
   void setGravityCompensationForcePercentage(double percentage);
+  const ContactForceDistributionBase& getContactForceDistribution() const;
+
+  /*! Sets the parameters to the interpolated ones between motionController1 and controller2.
+   * @param motionController1     If the interpolation parameter is 0, then the parameter set is equal to the one of motionController1.
+   * @param motionController2     If the interpolation parameter is 1, then the parameter set is equal to the one of motionController2.
+   * @param t                     interpolation parameter in [0, 1]
+   * @return                      true if successful
+   */
+  virtual bool setToInterpolated(const MotionControllerBase& motionController1, const MotionControllerBase& motionController2, double t);
+
  private:
   std::shared_ptr<ContactForceDistributionBase> contactForceDistribution_;
 
   //! Base position error in base frame.
-  Position positionErrorInBaseFrame_;
+  Position positionErrorInControlFrame_;
   //! Base orientation error vector (rotation vector) in base frame.
   Eigen::Vector3d orientationError_;
   //! Base linear velocity error in base frame.
-  LinearVelocity linearVelocityErrorInBaseFrame_;
+  LinearVelocity linearVelocityErrorInControlFrame_;
   //! Base angular velocity error in base frame.
-  LocalAngularVelocity angularVelocityErrorInBaseFrame_;
+  LocalAngularVelocity angularVelocityErrorInControlFrame_;
 
   //! Force on torso to compensate for gravity (in base frame).
   Force gravityCompensationForceInBaseFrame_;

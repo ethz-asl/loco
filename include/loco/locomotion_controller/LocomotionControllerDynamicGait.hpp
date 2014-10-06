@@ -19,6 +19,8 @@
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
 
+#include "loco/event_detection/EventDetector.hpp"
+
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/ParameterSet.hpp"
@@ -28,13 +30,23 @@ namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
-  LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,
+
+  double timeSinceTorqueControl_;
+  double timeIntervalToSwitchToPositionControl_;
+
+  LocomotionControllerDynamicGait();
+  LocomotionControllerDynamicGait(LegGroup* legs,
+                                  TorsoBase* torso,
                                   TerrainPerceptionBase* terrainPerception,
                                   ContactDetectorBase* contactDetector,
                                   LimbCoordinatorBase* limbCoordinator,
-                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
-                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
-                                  ParameterSet* parameterSet);
+                                  FootPlacementStrategyBase* footPlacementStrategy,
+                                  TorsoControlBase* baseController,
+                                  VirtualModelController* virtualModelController,
+                                  ContactForceDistributionBase* contactForceDistribution,
+                                  ParameterSet* parameterSet,
+                                  GaitPatternBase* gaitPattern);
+
   virtual ~LocomotionControllerDynamicGait();
 
   /*!
@@ -47,8 +59,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual bool advance(double dt);
-
+  virtual bool advanceMeasurements(double dt);
+  virtual bool advanceSetPoints(double dt);
 
   virtual bool isInitialized() const;
 
@@ -56,12 +68,24 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   virtual LegGroup* getLegs();
 
   FootPlacementStrategyBase* getFootPlacementStrategy();
+  const FootPlacementStrategyBase& getFootPlacementStrategy() const;
   VirtualModelController* getVirtualModelController();
   ContactForceDistributionBase* getContactForceDistribution();
   LimbCoordinatorBase* getLimbCoordinator();
+  const LimbCoordinatorBase& getLimbCoordinator() const;
+  const TorsoControlBase& getTorsoController() const;
+  const VirtualModelController& getVirtualModelController() const;
   TerrainPerceptionBase* getTerrainPerception();
+
+  bool setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t);
+
+  /*! @returns the run time of the controller in seconds.
+   */
+  virtual double getRuntime() const;
  protected:
   bool isInitialized_;
+  //! Run time of the controller in seconds.
+  double runtime_;
   LegGroup* legs_;
   TorsoBase* torso_;
   TerrainPerceptionBase* terrainPerception_;
@@ -72,6 +96,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   VirtualModelController* virtualModelController_;
   ContactForceDistributionBase* contactForceDistribution_;
   ParameterSet* parameterSet_;
+  EventDetectorBase* eventDetector_;
+  GaitPatternBase* gaitPattern_;
 };
 
 } /* namespace loco */

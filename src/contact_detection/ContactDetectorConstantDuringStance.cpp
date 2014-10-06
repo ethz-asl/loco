@@ -33,11 +33,14 @@ bool ContactDetectorConstantDuringStance::advance(double dt) {
 
   for (auto leg :  *legs_) {
     int i = leg->getId();
-    if (leg->isInSwingMode())
+    //if (leg->isInSwingMode())
+    if (!leg->isSupportLeg()) {
       registeredContact_[i] = false;
-    if (leg->isInStanceMode() && leg->isGrounded())
+    //if (leg->isInStanceMode() && leg->isGrounded())
+    }
+      else {
       registeredContact_[i] = true;
-
+      }
 
     leg->setIsGrounded( registeredContact_[i] || leg->isGrounded());
   }
