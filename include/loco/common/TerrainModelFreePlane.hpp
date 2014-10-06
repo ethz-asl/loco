@@ -9,7 +9,6 @@
 #define LOCO_TERRAINMODELFREEPLANE_HPP_
 
 #include "loco/common/TerrainModelBase.hpp"
-#include "loco/dynamic_systems_utils/FirstOrderFilter.hpp"
 
 namespace loco {
 
@@ -18,32 +17,6 @@ namespace loco {
    public:
       TerrainModelFreePlane();
       virtual ~TerrainModelFreePlane();
-
-
-      //--- HEIGHT IN WORLD FRAME
-      double heightInWorldFrame_;
-      double heightFreePlaneInWorldFrame_;
-
-      virtual void setHeight(double height, const loco::Position& torsoPositionInWorldFrame);
-      virtual void setHeightNoise(double height);
-      virtual void setHeightFreePlane(const loco::Position& torsoPositionInWorldFrame);
-      double heightNoise_;
-
-      FirstOrderFilter filterNormalX_;
-      FirstOrderFilter filterNormalY_;
-      FirstOrderFilter filterNormalZ_;
-      FirstOrderFilter filterPositionX_;
-      FirstOrderFilter filterPositionY_;
-      FirstOrderFilter filterPositionZ_;
-
-      FirstOrderFilter filterHeightHorizontal_;
-      FirstOrderFilter filterHeightFree_;
-
-      double filterHeightHorizontalTimeConstant_;
-      double filterHeightFreeTimeConstant_;
-
-      virtual void advance(double dt);
-      //---
 
       /*! Initializes the plane at zero height and normal parallel to z-axis in world frame
        * @param dt  time step
@@ -86,18 +59,15 @@ namespace loco {
        */
       void setNormalandPositionInWorldFrame(const loco::Vector& normal, const loco::Position& position);
 
-
       Position getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(const Position& position)  const;
       double getDistanceFromSurfaceAlongSurfaceNormalToPositionInWorldFrame(const Position& positionInWorldFrame) const;
+
    public:
       double frictionCoefficientBetweenTerrainAndFoot_;
 
       // Plane properties
       loco::Vector normalInWorldFrame_;       // normal to the plane
       loco::Position positionInWorldFrame_;   // position of a point on the plane
-
-      loco::Vector normalInWorldFrameFilterInput_;
-      loco::Position positionInWorldFrameFilterInput_;
 
   }; // class
 

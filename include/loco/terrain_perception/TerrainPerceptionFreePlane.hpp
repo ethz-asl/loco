@@ -13,6 +13,8 @@
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
 
+#include "loco/dynamic_systems_utils/FirstOrderFilter.hpp"
+
 namespace loco {
 
   class TerrainPerceptionFreePlane: public TerrainPerceptionBase {
@@ -61,6 +63,7 @@ namespace loco {
      */
     void getMostRecentPositionOfFootInWorldFrame(loco::Position& footPositionInWorldFrame, int footID);
 
+
     void updateControlFrameOrigin();
     void updateControlFrameAttitude();
 
@@ -75,9 +78,25 @@ namespace loco {
      std::vector<RotationQuaternion> lastWorldToBaseOrientationForFoot_;
      std::vector<bool> gotFirstTouchDownOfFoot_;
      TerrainPerceptionFreePlane::EstimatePlaneInFrame estimatePlaneInFrame_;
-     int numberOfLegs_;
 
-     //std::vector<double> planeParameters_;
+     //--- First order filters
+     FirstOrderFilter filterNormalX_;
+     FirstOrderFilter filterNormalY_;
+     FirstOrderFilter filterNormalZ_;
+     FirstOrderFilter filterPositionX_;
+     FirstOrderFilter filterPositionY_;
+     FirstOrderFilter filterPositionZ_;
+
+     double filterNormalTimeConstant_;
+     double filterPositionTimeConstant_;
+     double filterNormalGain_;
+     double filterPositionGain_;
+
+     loco::Vector normalInWorldFrameFilterInput_;
+     loco::Position positionInWorldFrameFilterInput_;
+     loco::Vector normalInWorldFrameFilterOutput_;
+     loco::Position positionInWorldFrameFilterOutput_;
+     //---
 
      /*! Estimate the free plane parameters and update the terrain model.
       */
@@ -87,13 +106,6 @@ namespace loco {
       * @param[in,out] leg The leg to measure.
       */
      void updateLocalMeasuresOfLeg(const loco::LegBase& leg);
-
-     //--- Compute noise on robot estimator
-     void computeEstimationNoise();
-     std::vector<double> heightMemory_;
-     int heightMemoryIndex_;
-     double heightHorizontalPlaneAlgorithm_;
-     //---
 
   }; // class
 } /* namespace loco */

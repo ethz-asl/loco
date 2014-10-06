@@ -21,14 +21,15 @@ namespace loco {
     legs_(legs),
     torso_(torso),
     estimatePlaneInFrame_(estimatePlaneInFrame),
-    numberOfLegs_(legs_->size()),
     mostRecentPositionOfFoot_(legs_->size()),
     lastWorldToBasePositionInWorldFrameForFoot_(legs_->size()),
     lastWorldToBaseOrientationForFoot_(legs_->size()),
     gotFirstTouchDownOfFoot_(legs_->size()),
-    heightMemory_(100),
-    heightHorizontalPlaneAlgorithm_(0.0),
-    planeParameters_(3)
+    planeParameters_(3),
+    filterNormalTimeConstant_(0.05),
+    filterPositionTimeConstant_(0.05),
+    filterNormalGain_(1.0),
+    filterPositionGain_(1.0)
   {
     for (auto leg: *legs_) {
       mostRecentPositionOfFoot_[leg->getId()].setZero();
@@ -37,14 +38,23 @@ namespace loco {
       gotFirstTouchDownOfFoot_[leg->getId()] = false;
     }
 
-    for (int k=0; k<heightMemory_.size(); k++) {
-      heightMemory_[k] = 0.0;
-    }
-    heightMemoryIndex_ = 0;
-
     for (int k=0; k<planeParameters_.size(); k++) {
     	planeParameters_[k] = 0.0;
     }
+
+    filterNormalX_ = FirstOrderFilter();
+    filterNormalY_ = FirstOrderFilter();
+    filterNormalZ_ = FirstOrderFilter();
+    filterPositionX_ = FirstOrderFilter();
+    filterPositionY_ = FirstOrderFilter();
+    filterPositionZ_ = FirstOrderFilter();
+
+//    const double filterNormalTimeConstant = 0.05;
+
+
+
+
+
 //
 //    updateControlFrameOrigin();
 //    updateControlFrameAttitude();
@@ -61,13 +71,26 @@ namespace loco {
     for (auto leg: *legs_) {
       gotFirstTouchDownOfFoot_[leg->getId()] = false;
       updateLocalMeasuresOfLeg(*leg);
-    } // for
-
-    for (int k=0; k<heightMemory_.size(); k++) {
-      heightMemory_[k] = 0.0;
     }
-    heightMemoryIndex_ = 0;
-    heightHorizontalPlaneAlgorithm_ = 0.0;
+
+    //--- Initialize normal and position vectors
+    normalInWorldFrameFilterOutput_ = loco::Vector::UnitZ();
+    positionInWorldFrameFilterOutput_.setZero();
+    normalInWorldFrameFilterInput_ = normalInWorldFrameFilterOutput_;
+    positionInWorldFrameFilterInput_ = positionInWorldFrameFilterOutput_;
+
+    filterNormalTimeConstant_ = 1.0;
+    filterPositionTimeConstant_ = 1.0;
+    filterNormalGain_ = 1.0;
+    filterPositionGain_ = 1.0;
+
+    filterNormalX_.initialize(normalInWorldFrameFilterOutput_.x(), filterNormalTimeConstant_, filterNormalGain_);
+    filterNormalY_.initialize(normalInWorldFrameFilterOutput_.y(), filterNormalTimeConstant_, filterNormalGain_);
+    filterNormalZ_.initialize(normalInWorldFrameFilterOutput_.z(), filterNormalTimeConstant_, filterNormalGain_);
+
+    filterPositionX_.initialize(positionInWorldFrameFilterOutput_.x(), filterPositionTimeConstant_, filterPositionGain_);
+    filterPositionY_.initialize(positionInWorldFrameFilterOutput_.y(), filterPositionTimeConstant_, filterPositionGain_);
+    filterPositionZ_.initialize(positionInWorldFrameFilterOutput_.z(), filterPositionTimeConstant_, filterPositionGain_);
 
     updateControlFrameOrigin();
     updateControlFrameAttitude();
@@ -178,64 +201,36 @@ namespace loco {
       allLegsGroundedAtLeastOnce *= gotFirstTouchDownOfFoot_[legID];
     } // for
 
-    // Update terrain model properties (if necessary) based on current estimation
+
+    /* Sequence:
+     * 1. update (if needed) normal and position
+     * 2. filter
+     * 3. set to terrain model
+     * 4. update control frame
+     */
+    // 1. Update terrain model properties (if necessary) based on current estimation
     if (gotNewTouchDown && allLegsGroundedAtLeastOnce) {
       updatePlaneEstimation();
     }
 
-    computeEstimationNoise();
+    // 2. filter
+    normalInWorldFrameFilterOutput_.x() = filterNormalX_.advance(dt, normalInWorldFrameFilterInput_.x());
+    normalInWorldFrameFilterOutput_.y() = filterNormalY_.advance(dt, normalInWorldFrameFilterInput_.y());
+    normalInWorldFrameFilterOutput_.z() = filterNormalZ_.advance(dt, normalInWorldFrameFilterInput_.z());
 
-    terrainModel_->advance(dt);
+    positionInWorldFrameFilterOutput_.x() = filterPositionX_.advance(dt, positionInWorldFrameFilterInput_.x());
+    positionInWorldFrameFilterOutput_.y() = filterPositionY_.advance(dt, positionInWorldFrameFilterInput_.y());
+    positionInWorldFrameFilterOutput_.z() = filterPositionZ_.advance(dt, positionInWorldFrameFilterInput_.z());
 
+    // 3.
+    terrainModel_->setNormalandPositionInWorldFrame(normalInWorldFrameFilterOutput_, positionInWorldFrameFilterOutput_);
+
+    // 4.
     updateControlFrameOrigin();
     updateControlFrameAttitude();
 
     return true;
   } // advance
-
-
-  void TerrainPerceptionFreePlane::computeEstimationNoise() {
-
-    /*
-     * 1. evaluate height as in horizontal plane algorithm
-     * 2. subtract the average from it, so that one has an estimation of the noise coming from the robot estimator
-     * 3. set the height to the terrain model, so that it can be added to the height it returns to other objects
-     */
-
-    //--- UPDATE HEIGHT AS IN HORIZONTAL PLANE PERCEPTION
-    int groundedLimbCount = 0;
-    double gHeight = 0.0;
-
-    for (auto leg : *legs_) {
-      if (leg->isAndShouldBeGrounded()){
-        groundedLimbCount++;
-        gHeight += leg->getWorldToFootPositionInWorldFrame().z();
-      }
-    }
-
-    if (groundedLimbCount > 0) {
-      // 1.
-      heightHorizontalPlaneAlgorithm_ = gHeight / groundedLimbCount;
-
-      // 2.
-      heightMemory_[heightMemoryIndex_] = gHeight / groundedLimbCount;
-      heightMemoryIndex_++;
-      if (heightMemoryIndex_ == heightMemory_.size()) {
-        heightMemoryIndex_ = 0;
-      }
-      double averageHeight = 0.0;
-
-      for (int k=0; k<heightMemory_.size(); k++) {
-        averageHeight += heightMemory_[k]/heightMemory_.size();
-      }
-
-      // 3.
-      terrainModel_->setHeight(heightHorizontalPlaneAlgorithm_, torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame());
-      terrainModel_->setHeightNoise(heightHorizontalPlaneAlgorithm_-averageHeight);
-    } // if groundedLimbCount
-    //---
-
-  }
 
 
   void TerrainPerceptionFreePlane::updateLocalMeasuresOfLeg(const loco::LegBase& leg) {
@@ -304,13 +299,10 @@ namespace loco {
     Eigen::MatrixXd linearRegressor(4,3);
     Eigen::Vector4d measuredFootHeights;
     Eigen::Vector3d parameters;
-    loco::Vector normal;
-    loco::Position position;
 
     linearRegressor.setZero();
     measuredFootHeights.setZero();
     parameters.setZero();
-    normal.setZero();
 
     if (estimatePlaneInFrame_ == EstimatePlaneInFrame::Base) {
       std::vector<loco::Position> mostRecenPositionOfFootInWorldFrame(legs_->size());
@@ -357,16 +349,13 @@ namespace loco {
          /* Find a point on the plane. From z = d-ax-by, it is easy to find that p = [0 0 d]
           * is on the plane
           */
-         position << 0.0, 0.0, parameters(2);
+         positionInWorldFrameFilterInput_ << 0.0, 0.0, parameters(2);
 
          /* From the assumption that the normal has always unit z-component,
           * its norm will always be greater than zero
           */
-         normal << parameters(0), parameters(1), 1.0;
-         normal = normal.normalize();
-
-         /* Update free plane model */
-         terrainModel_->setNormalandPositionInWorldFrame(normal, position);
+         normalInWorldFrameFilterInput_ << parameters(0), parameters(1), 1.0;
+         normalInWorldFrameFilterInput_ = normalInWorldFrameFilterInput_.normalize();
 
        }
        else {

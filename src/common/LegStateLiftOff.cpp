@@ -43,7 +43,7 @@ void LegStateLiftOff::setFootPositionInWorldFrame(const Position& footPositionIn
   footPositionInWorldFrame_ = footPositionInWorldFrame;
 }
 
-void LegStateLiftOff::setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(const Position& positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame) {
+void LegStateLiftOff::setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(const Position& positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame) {
   positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_ = positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame;
 }
 

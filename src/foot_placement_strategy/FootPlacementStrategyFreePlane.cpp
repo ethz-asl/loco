@@ -45,7 +45,7 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
     Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getHipPositionInWorldFrame();
     positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
     Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
-    leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+    leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
   }
 
   return true;
@@ -63,16 +63,11 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
         Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
         positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
         Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
-        //leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
 
-        /*
-         * this is a hack. We are choosing Ht as the projection of the hip on the terrain along the z world axis.
-         * before, ht was the projection of the hip along the terrain normal.
-         */
-        Position positionWorldToHipOnTerrainAlongZWorld = positionWorldToHipAtLiftOffInWorldFrame;
-        terrain_->getHeight(positionWorldToHipOnTerrainAlongZWorld);
+        Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
+        terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
 
-        leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongZWorld);
+        leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
         leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
         leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
         leg->setSwingPhase(leg->getSwingPhase());
@@ -340,7 +335,7 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
 
   /* TESTING */
   //--- add offset
-  Position offset = getOffsetDesiredFootOnTerrainToCorrectedFootOnTerrainInControlFrame(leg);
+//  Position offset = getOffsetDesiredFootOnTerrainToCorrectedFootOnTerrainInControlFrame(leg);
 //  std::cout << "offset: " << offset << std::endl;
 //  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame -= offset;
   //---
