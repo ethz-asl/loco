@@ -92,7 +92,12 @@ bool LocomotionControllerDynamicGaitDefault::advanceMeasurements(double dt) {
   if (!missionController_->advance(dt)) {
     return false;
   }
-  torso_->setDesiredBaseTwistInHeadingFrame(missionController_->getDesiredBaseTwistInHeadingFrame());
+
+  loco::LinearVelocity desLinearVelocityBaseInControlFrame = missionController_->getDesiredBaseTwistInHeadingFrame().getTranslationalVelocity();
+  loco::LocalAngularVelocity desAngularVelocityBaseInControlFrame = missionController_->getDesiredBaseTwistInHeadingFrame().getRotationalVelocity();
+  torso_->getDesiredState().setLinearVelocityBaseInControlFrame(desLinearVelocityBaseInControlFrame);
+  torso_->getDesiredState().setAngularVelocityBaseInControlFrame(desAngularVelocityBaseInControlFrame);
+
   torsoController_->setDesiredPositionOffetInWorldFrame(missionController_->getDesiredPositionOffsetInWorldFrame());
   torsoController_->setDesiredOrientationOffset(missionController_->getDesiredOrientationOffset());
 

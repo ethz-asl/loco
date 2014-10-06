@@ -53,9 +53,7 @@ TorsoPropertiesBase& TorsoStarlETH::getProperties()
   return static_cast<TorsoPropertiesBase&>(properties_);
 }
 
-void TorsoStarlETH::setDesiredBaseTwistInHeadingFrame(const Twist& desiredBaseTwistInHeadingFrame) {
-  desiredBaseTwistInHeadingFrame_ = desiredBaseTwistInHeadingFrame;
-}
+
 
 bool TorsoStarlETH::initialize(double dt)
 {
