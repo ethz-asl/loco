@@ -45,7 +45,7 @@ class FootPlacementStrategyJump : public FootPlacementStrategyBase {
 
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual bool initialize(double dt);
-  virtual void advance(double dt);
+  virtual bool advance(double dt);
 
  public:
   //! Reference to the legs

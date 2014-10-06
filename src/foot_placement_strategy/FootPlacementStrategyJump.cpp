@@ -40,7 +40,7 @@ bool FootPlacementStrategyJump::initialize(double dt) {
   return true;
 }
 
-void FootPlacementStrategyJump::advance(double dt) {
+bool FootPlacementStrategyJump::advance(double dt) {
   /* Calculate landing positions for legs after doing a jump */
   LegBase* leftForeleg = legs_->getLeftForeLeg();
   LegBase* rightForeleg = legs_->getRightForeLeg();
@@ -59,6 +59,7 @@ void FootPlacementStrategyJump::advance(double dt) {
 
     rightHindleg->setDesiredJointPositions(-leftForeInitJointPositions_);
   }
+  return true;
 }
 
 }  // namespace loco

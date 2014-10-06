@@ -18,7 +18,8 @@
 #include "loco/torso_control/TorsoControlJump.hpp"
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
-#include "loco/limb_coordinator/LimbCoordinatorJump.hpp"
+#include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
+#include "loco/event_detection/EventDetector.hpp"
 
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
@@ -35,7 +36,8 @@ class LocomotionControllerJump: public LocomotionControllerBase {
                                   LimbCoordinatorBase* limbCoordinator,
                                   FootPlacementStrategyBase* footPlacementStrategy, MotorVelocityController* motorVelocityController, TorsoControlBase* baseController,
                                   VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
-                                  ParameterSet* parameterSet);
+                                  ParameterSet* parameterSet,
+                                  TerrainModelBase* terrainModel);
   virtual ~LocomotionControllerJump();
 
   /*!
@@ -48,7 +50,8 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   /*! Advance in time
    * @param dt  time step [s]
    */
-  virtual bool advance(double dt);
+  virtual bool advanceMeasurements(double dt);
+  virtual bool advanceSetPoints(double dt);
 
 
   virtual bool isInitialized() const;
@@ -78,6 +81,8 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   VirtualModelController* virtualModelController_;
   ContactForceDistributionBase* contactForceDistribution_;
   ParameterSet* parameterSet_;
+  EventDetectorBase* eventDetector_;
+  TerrainModelBase* terrainModel_;
 };
 
 } /* namespace loco */

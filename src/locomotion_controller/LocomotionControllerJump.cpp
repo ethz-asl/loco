@@ -18,7 +18,8 @@ LocomotionControllerJump::LocomotionControllerJump(
     TorsoControlBase* baseController,
     VirtualModelController* virtualModelController,
     ContactForceDistributionBase* contactForceDistribution,
-    ParameterSet* parameterSet)
+    ParameterSet* parameterSet,
+    TerrainModelBase* terrainModel)
     : LocomotionControllerBase(),
       isInitialized_(false),
       legs_(legs),
@@ -31,12 +32,15 @@ LocomotionControllerJump::LocomotionControllerJump(
       torsoController_(baseController),
       virtualModelController_(virtualModelController),
       contactForceDistribution_(contactForceDistribution),
-      parameterSet_(parameterSet) {
+      parameterSet_(parameterSet),
+      eventDetector_(new loco::EventDetector),
+      terrainModel_(terrainModel)
+{
 
 }
 
 LocomotionControllerJump::~LocomotionControllerJump() {
-
+  delete eventDetector_;
 }
 
 bool LocomotionControllerJump::initialize(double dt) {
@@ -53,6 +57,10 @@ bool LocomotionControllerJump::initialize(double dt) {
 
   TiXmlHandle hLoco(
       parameterSet_->getHandle().FirstChild("LocomotionController"));
+
+  if (!terrainModel_->initialize(dt)) {
+    return false;
+  }
 
   if (!terrainPerception_->initialize(dt)) {
     return false;
@@ -118,73 +126,83 @@ bool LocomotionControllerJump::initialize(double dt) {
   isInitialized_ = true;
   return isInitialized_;
 }
-
-bool LocomotionControllerJump::advance(double dt) {
+bool LocomotionControllerJump::advanceMeasurements(double dt) {
   if (!isInitialized_) {
     return false;
   }
 
+  //--- Update sensor measurements.
   for (auto leg : *legs_) {
-    leg->advance(dt);
+    if (!leg->advance(dt)) {
+      return false;
+    }
   }
 
-  torso_->advance(dt);
+  if(!torso_->advance(dt)) {
+    return false;
+  }
 
   if (!contactDetector_->advance(dt)) {
     return false;
   }
+  //---
+  return true;
+}
 
+bool LocomotionControllerJump::advanceSetPoints(double dt) {
+  if (!isInitialized_) {
+    return false;
+  }
+
+  //--- Update timing.
+
+  int iLeg =0;
+  for (auto leg : *legs_) {
+  //--- defined by the "planning" / timing
+//    leg->setShouldBeGrounded(gaitPattern_->shouldBeLegGrounded(iLeg));
+//    leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));
+//    leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));
+//    //---
+//
+//    //--- timing measurements
+//    leg->setPreviousSwingPhase(leg->getSwingPhase());
+//    leg->setSwingPhase(gaitPattern_->getSwingPhaseForLeg(iLeg));
+//    leg->setPreviousStancePhase(leg->getStancePhase());
+//    leg->setStancePhase(gaitPattern_->getStancePhaseForLeg(iLeg));
+    //---
+
+
+    iLeg++;
+  }
+
+
+  //---
+
+  /* Update legs state using the event detection */
+  if (!eventDetector_->advance(dt, *legs_)) {
+    return false;
+  }
+
+  //--- Update knowledge about environment
   if (!terrainPerception_->advance(dt)) {
     return false;
   }
+  //---
 
-  limbCoordinator_->advance(dt);
-
-  for (auto leg : *legs_) {
-    const double swingPhase = leg->getSwingPhase();
-    if (leg->wasInStanceMode() && leg->isInSwingMode()) {
-      // possible lift-off
-      leg->getStateLiftOff()->setFootPositionInWorldFrame(
-          leg->getWorldToFootPositionInWorldFrame());  // or base2foot?
-      leg->getStateLiftOff()->setHipPositionInWorldFrame(
-          leg->getWorldToHipPositionInWorldFrame());
-      leg->getStateLiftOff()->setIsNow(true);
-    } else {
-      leg->getStateLiftOff()->setIsNow(false);
-    }
-
-    if (leg->wasInSwingMode() && leg->isInStanceMode()) {
-      // possible touch-down
-      leg->getStateTouchDown()->setIsNow(true);
-    } else {
-      leg->getStateTouchDown()->setIsNow(false);
-    }
-
-  }
-
-  motorVelocityController_->advance(dt);
-  torsoController_->advance(dt);
-  footPlacementStrategy_->advance(dt);
-
-  if (!virtualModelController_->compute()) {
+  /* Decide if a leg is a supporting one */
+  if (!limbCoordinator_->advance(dt)) {
     return false;
   }
 
-  /* Set desired joint positions, torques and control mode */
-  LegBase::JointControlModes desiredJointControlModes;
-  int iLeg = 0;
-  for (auto leg : *legs_) {
-    if (leg->isAndShouldBeGrounded() && !hasJumped()) {
-      if (!trajectoryFollower_.inVelocityMode()) {
-        desiredJointControlModes.setConstant(robotModel::AM_Torque);
-      } else {
-        desiredJointControlModes.setConstant(robotModel::AM_Velocity);
-      }
-    } else {
-      desiredJointControlModes.setConstant(robotModel::AM_Position);
-    }
-    leg->setDesiredJointControlModes(desiredJointControlModes);
-    iLeg++;
+  /* Set the position or torque reference */
+  if(!footPlacementStrategy_->advance(dt)) {
+    return false;
+  }
+  if (!torsoController_->advance(dt)) {
+    return false;
+  }
+  if(!virtualModelController_->compute()) {
+    return false;
   }
 
   return true;
