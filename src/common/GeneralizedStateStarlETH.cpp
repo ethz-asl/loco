@@ -13,7 +13,7 @@ GeneralizedStateStarlETH::GeneralizedStateStarlETH()
     : generalizedCoordinates_(GeneralizedCoordinates::Zero()),
       generalizedVelocities_(GeneralizedVelocities::Zero()),
       generalizedAccelerations_(GeneralizedAccelerations::Zero()) {
-
+  generalizedCoordinates_(3) = 1.0; // scalar of quaternion
 }
 
 GeneralizedStateStarlETH::~GeneralizedStateStarlETH() {
@@ -24,6 +24,12 @@ void GeneralizedStateStarlETH::setPositionWorldToBaseInWorldFrame(
     const Position& worldToBaseInWorldFrame) {
   generalizedCoordinates_.block<3, 1>(0, 0) = worldToBaseInWorldFrame
       .toImplementation();
+}
+void GeneralizedStateStarlETH::setOrientationWorldToBase(const RotationQuaternion& orientationWorldToBase) {
+  generalizedCoordinates_(3) = orientationWorldToBase.w();
+  generalizedCoordinates_(4) = orientationWorldToBase.x();
+  generalizedCoordinates_(5) = orientationWorldToBase.y();
+  generalizedCoordinates_(6) = orientationWorldToBase.z();
 }
 
 const GeneralizedCoordinates& GeneralizedStateStarlETH::getGeneralizedCoordinates() const {
