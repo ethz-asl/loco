@@ -25,7 +25,8 @@ LegBase::LegBase() :
     loadFactor_(1.0),
     previousStancePhase_(0.0),
     previousSwingPhase_(0.0),
-    isLosingContact_(false)
+    isLosingContact_(false),
+    stateSwitcher_(nullptr)
 {
 
 }
@@ -47,9 +48,9 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     previousStancePhase_(0.0),
     previousSwingPhase_(0.0),
     isLosingContact_(false),
-    stateSwitcher_()
+    stateSwitcher_(nullptr)
 {
-  stateSwitcher_.initialize(0);
+
 }
 
 LegBase::~LegBase() {
@@ -263,7 +264,7 @@ void LegBase::setIsLosingContact(bool isLosingContact) {
 }
 
 
-const StateSwitcher& LegBase::getStateSwitcher() const {
+StateSwitcher* LegBase::getStateSwitcher() const {
   return stateSwitcher_;
 }
 

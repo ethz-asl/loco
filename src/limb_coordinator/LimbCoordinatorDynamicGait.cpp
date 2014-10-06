@@ -69,7 +69,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
    * 6: middle swing, but bumped into obstacle while swinging
    */
 
-  StateSwitcher stateSwitcher;
+  StateSwitcher* stateSwitcher;
 
   for (auto leg : *legs_) {
 
@@ -92,7 +92,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  leg->setIsSupportLeg(false);
 //				  state_[iLeg] = 2;
 
-				  stateSwitcher.setState(StateSwitcher::States::StanceSlipping);
+				  stateSwitcher->setState(StateSwitcher::States::StanceSlipping);
 
 				  // todo think harder about this
 			  }
@@ -101,7 +101,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  leg->setIsSupportLeg(true);
 //				  state_[iLeg] = 0;
 
-				  stateSwitcher.setState(StateSwitcher::States::StanceNormal);
+				  stateSwitcher->setState(StateSwitcher::States::StanceNormal);
 
 			  }
 		  }
@@ -110,7 +110,7 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  // lost contact
 			  leg->setIsSupportLeg(false);
 //			  state_[iLeg] = 3;
-			  stateSwitcher.setState(StateSwitcher::States::StanceLostContact);
+			  stateSwitcher->setState(StateSwitcher::States::StanceLostContact);
 
 		  }
 	  }
@@ -122,26 +122,26 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 				  // leg should lift-off (late lift-off)
 				  leg->setIsSupportLeg(false);
 //				  state_[iLeg] = 4;
-				  stateSwitcher.setState(StateSwitcher::States::SwingLateLiftOff);
+				  stateSwitcher->setState(StateSwitcher::States::SwingLateLiftOff);
 			  }
 			  else if (leg->getSwingPhase() > 0.6) {
 				  // early touch-down
 				  leg->setIsSupportLeg(true);
 //				  state_[iLeg] = 5;
-				  stateSwitcher.setState(StateSwitcher::States::SwingEarlyTouchDown);
+				  stateSwitcher->setState(StateSwitcher::States::SwingEarlyTouchDown);
 			  }
 			  else {
 				  // leg bumped into obstacle
 				  leg->setIsSupportLeg(false); // true
 //				  state_[iLeg] = 6;
-				  stateSwitcher.setState(StateSwitcher::States::SwingBumpedIntoObstacle);
+				  stateSwitcher->setState(StateSwitcher::States::SwingBumpedIntoObstacle);
 			  }
 		  }
 		  else {
 			  // leg is on track
 			  leg->setIsSupportLeg(false);
 //			  state_[iLeg] = 1;
-			  stateSwitcher.setState(StateSwitcher::States::SwingNormal);
+			  stateSwitcher->setState(StateSwitcher::States::SwingNormal);
 		  }
 	  }
     //---

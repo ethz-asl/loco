@@ -156,7 +156,7 @@ class LegBase {
 	void setPreviousSwingPhase(double previousSwingPhase);
 	double getPreviousSwingPhase() const;
 
-	virtual const StateSwitcher& getStateSwitcher() const;
+	virtual StateSwitcher* getStateSwitcher() const;
 
 protected:
   std::string name_;
@@ -194,7 +194,7 @@ protected:
 
   Position desiredWorldToFootPositionInWorldFrame_;
 
-  StateSwitcher stateSwitcher_;
+  StateSwitcher* stateSwitcher_;
 
 };
 

@@ -8,7 +8,7 @@
 #include "loco/state_switcher/StateSwitcher.hpp"
 #include <iostream>
 
-const bool STATESWITCHER_DEBUG = true;
+const bool STATESWITCHER_DEBUG = false;
 
 namespace loco {
 

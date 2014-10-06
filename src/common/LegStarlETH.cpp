@@ -35,6 +35,10 @@ LegStarlETH::LegStarlETH(const std::string& name, int iLeg, robotModel::RobotMod
   links_->getLegLink(0)->setMass(robotModel_->params().hip_.m);
   links_->getLegLink(1)->setMass(robotModel_->params().thigh_.m);
   links_->getLegLink(2)->setMass(robotModel_->params().shank_.m);
+
+
+  stateSwitcher_ = new StateSwitcher();
+
 }
 
 LegStarlETH::~LegStarlETH()
@@ -44,6 +48,9 @@ LegStarlETH::~LegStarlETH()
     delete link;
   }
   delete links_;
+
+  delete stateSwitcher_;
+
 }
 
 const Position& LegStarlETH::getWorldToFootPositionInWorldFrame() const
@@ -95,6 +102,8 @@ bool LegStarlETH::initialize(double dt) {
   stateLiftOff_.setHipPositionInWorldFrame(positionWorldToHipInWorldFrame_);
 
   stateTouchDown_.setTouchdownFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
+
+  stateSwitcher_->initialize(0);
 
   return true;
 }

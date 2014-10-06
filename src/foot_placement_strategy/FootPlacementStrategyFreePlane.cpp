@@ -54,22 +54,6 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
 
 void FootPlacementStrategyFreePlane::advance(double dt) {
 
-//    for (auto leg : *legs_) {
-//      if (!leg->isSupportLeg()) {
-//        Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
-//
-//        if (!getBestFootholdsFromCurrentFootholdInWorldFrame(positionWorldToFootInWorldFrame)) {
-//          // TODO: handle exception
-//        }
-//
-//        leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
-//        const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
-//        const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
-//        leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
-//      }
-//    }
-
-
   for (auto leg : *legs_) {
 
     // save the hip position at lift off for trajectory generation
@@ -77,66 +61,42 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
           (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
       ) {
         Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
-              positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
-              Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
-              //leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+        positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+        Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
+        //leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
 
-              /*
-               * this is a hack. We are choosing Ht as the projection of the hip on the terrain along the z world axis.
-               * before, ht was the projection of the hip along the terrain normal.
-               */
-              Position positionWorldToHipOnTerrainAlongZWorld = positionWorldToHipAtLiftOffInWorldFrame;
-              terrain_->getHeight(positionWorldToHipOnTerrainAlongZWorld);
+        /*
+         * this is a hack. We are choosing Ht as the projection of the hip on the terrain along the z world axis.
+         * before, ht was the projection of the hip along the terrain normal.
+         */
+        Position positionWorldToHipOnTerrainAlongZWorld = positionWorldToHipAtLiftOffInWorldFrame;
+        terrain_->getHeight(positionWorldToHipOnTerrainAlongZWorld);
 
-              leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongZWorld);
-              leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
-              leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
-              leg->setSwingPhase(leg->getSwingPhase());
+        leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongZWorld);
+        leg->getStateLiftOff()->setFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
+        leg->getStateLiftOff()->setHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+        leg->setSwingPhase(leg->getSwingPhase());
     }
 
-    /* this default desired swing behaviour
-     *
-     */
+
     if (!leg->isSupportLeg()) {
-      if (leg->shouldBeGrounded()) {
-          // stance mode according to plan
-        if (leg->isGrounded()) {
-          if (leg->isSlipping()) {
-          // not safe to use this leg as support leg
-           regainContact(leg, dt);
-              // todo think harder about this
-          }
-            // torque control
 
-        }
-        else {
-        // not yet touch-down
-        // lost contact
-        regainContact(leg, dt);
-        }
+      StateSwitcher* stateSwitcher = leg->getStateSwitcher();
+
+      switch(stateSwitcher->getState()) {
+        case(StateSwitcher::States::StanceSlipping):
+        case(StateSwitcher::States::StanceLostContact):
+          regainContact(leg, dt); break;
+
+        case(StateSwitcher::States::SwingNormal):
+        case(StateSwitcher::States::SwingLateLiftOff):
+          setFootTrajectory(leg); break;
+
+        default:
+          break;
       }
-      else {
-      // swing mode according to plan
-        if (leg->isGrounded()) {
-          if (leg->getSwingPhase() <= 0.3) {
-            // leg should lift-off (late lift-off)
-            setFootTrajectory(leg);
-            }
-          }
-          else {
-            // leg is on track
-            setFootTrajectory(leg);
-          }
-      }
+
     }
-
-
-//    enum {Slipping, Grounded} States;
-//    States state;
-//    switch(state) {
-////      case States::Groun
-//    }
-
 
   }
 }
