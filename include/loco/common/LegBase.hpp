@@ -19,6 +19,8 @@
 
 //#include "loco/common/LegLinkGroup.hpp"
 
+#include "loco/state_switcher/StateSwitcher.hpp"
+
 #include <Eigen/Core>
 
 #include <string>
@@ -143,9 +145,7 @@ class LegBase {
 
   virtual LegPropertiesBase& getProperties() = 0;
   virtual const LegPropertiesBase& getProperties() const = 0;
-//  virtual LegPropertiesBase* getProperties() = 0;
   virtual int getId() const = 0;
-
 
   const Position& getDesiredWorldToFootPositionInWorldFrame() const;
   void setDesireWorldToFootPositionInWorldFrame(const Position& position);
@@ -155,6 +155,8 @@ class LegBase {
 
 	void setPreviousSwingPhase(double previousSwingPhase);
 	double getPreviousSwingPhase() const;
+
+	virtual const StateSwitcher& getStateSwitcher() const;
 
 protected:
   std::string name_;
@@ -191,6 +193,9 @@ protected:
   JointTorques desiredJointTorques_;
 
   Position desiredWorldToFootPositionInWorldFrame_;
+
+  StateSwitcher stateSwitcher_;
+
 };
 
 } /* namespace loco */

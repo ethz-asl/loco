@@ -8,8 +8,9 @@
 #include "loco/state_switcher/StateSwitcher.hpp"
 #include <iostream>
 
-namespace loco {
+const bool STATESWITCHER_DEBUG = true;
 
+namespace loco {
 
 StateSwitcher::StateSwitcher(): StateSwitcherBase() {
   currentState_ = States::Init;
@@ -36,7 +37,9 @@ StateSwitcher::States StateSwitcher::getState() {
 
 
 void StateSwitcher::setState(States state) {
-  std::cout << "Setting state from: " << getStateName(currentState_) << " to: " << getStateName(state) << std::endl;
+  if (STATESWITCHER_DEBUG) {
+    std::cout << "Setting state from: " << getStateName(currentState_) << " to: " << getStateName(state) << std::endl;
+  }
   oldState_ = currentState_;
   currentState_ = state;
 }
@@ -56,7 +59,5 @@ std::string StateSwitcher::getStateName(StateSwitcher::States state) {
   }
 }
 
-
 } /* namespace loco */
-
 

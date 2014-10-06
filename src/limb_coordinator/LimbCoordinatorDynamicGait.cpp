@@ -9,6 +9,7 @@
 #include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
 #include "RobotModel_common.hpp"
 
+#include "loco/state_switcher/StateSwitcher.hpp"
 
 namespace loco {
 
@@ -18,15 +19,13 @@ LimbCoordinatorDynamicGait::LimbCoordinatorDynamicGait(LegGroup* legs, TorsoBase
     isUpdatingStridePhase_(isUpdatingStridePhase),
     legs_(legs),
     torso_(torso),
-    gaitPattern_(gaitPattern),
-    stateSwitcher_(legs->size())
+    gaitPattern_(gaitPattern)
 {
   // initialize state for each leg
-	for (int i=0; i<4; i++) {
-		state_[i] = -1;
-
-		stateSwitcher_[i].setState(StateSwitcher::States::Init);
+	for (auto leg: *legs_) {
+    state_[leg->getId()] = -1;
 	}
+
 }
 
 
@@ -70,7 +69,12 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
    * 6: middle swing, but bumped into obstacle while swinging
    */
 
+  StateSwitcher stateSwitcher;
+
   for (auto leg : *legs_) {
+
+    stateSwitcher = leg->getStateSwitcher();
+
     //leg->setWasInStanceMode(leg->isInStanceMode());
     //leg->setIsInStanceMode(isLegInStanceMode(iLeg));
 
@@ -86,18 +90,18 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  if (leg->isSlipping()) {
 				  // not safe to use this leg as support leg
 				  leg->setIsSupportLeg(false);
-				  state_[iLeg] = 2;
+//				  state_[iLeg] = 2;
 
-				  stateSwitcher_[iLeg].setState(StateSwitcher::States::StanceSlipping);
+				  stateSwitcher.setState(StateSwitcher::States::StanceSlipping);
 
 				  // todo think harder about this
 			  }
 			  else {
 				  // safe to use this leg as support leg
 				  leg->setIsSupportLeg(true);
-				  state_[iLeg] = 0;
+//				  state_[iLeg] = 0;
 
-				  stateSwitcher_[iLeg].setState(StateSwitcher::States::StanceNormal);
+				  stateSwitcher.setState(StateSwitcher::States::StanceNormal);
 
 			  }
 		  }
@@ -105,9 +109,8 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  // not yet touch-down
 			  // lost contact
 			  leg->setIsSupportLeg(false);
-			  state_[iLeg] = 3;
-
-			  stateSwitcher_[iLeg].setState(StateSwitcher::States::StanceLostContact);
+//			  state_[iLeg] = 3;
+			  stateSwitcher.setState(StateSwitcher::States::StanceLostContact);
 
 		  }
 	  }
@@ -118,32 +121,32 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 			  if (leg->getSwingPhase() <= 0.3) {
 				  // leg should lift-off (late lift-off)
 				  leg->setIsSupportLeg(false);
-				  state_[iLeg] = 4;
-				  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingLateLiftOff);
+//				  state_[iLeg] = 4;
+				  stateSwitcher.setState(StateSwitcher::States::SwingLateLiftOff);
 			  }
 			  else if (leg->getSwingPhase() > 0.6) {
 				  // early touch-down
 				  leg->setIsSupportLeg(true);
-				  state_[iLeg] = 5;
-				  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingEarlyTouchDown);
+//				  state_[iLeg] = 5;
+				  stateSwitcher.setState(StateSwitcher::States::SwingEarlyTouchDown);
 			  }
 			  else {
 				  // leg bumped into obstacle
 				  leg->setIsSupportLeg(false); // true
-				  state_[iLeg] = 6;
-				  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingBumpedIntoObstacle);
+//				  state_[iLeg] = 6;
+				  stateSwitcher.setState(StateSwitcher::States::SwingBumpedIntoObstacle);
 			  }
 		  }
 		  else {
 			  // leg is on track
 			  leg->setIsSupportLeg(false);
-			  state_[iLeg] = 1;
-			  stateSwitcher_[iLeg].setState(StateSwitcher::States::SwingNormal);
+//			  state_[iLeg] = 1;
+			  stateSwitcher.setState(StateSwitcher::States::SwingNormal);
 		  }
 	  }
     //---
 
-	//--- Set control mode
+	  //--- Set control mode
     if (leg->isSupportLeg()) {
       desiredJointControlModes.setConstant(robotModel::AM_Torque);
     }

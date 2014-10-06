@@ -13,7 +13,6 @@
 
 namespace loco {
 
-
 class StateSwitcher: public StateSwitcherBase {
  public:
 
@@ -52,7 +51,6 @@ class StateSwitcher: public StateSwitcherBase {
   virtual std::string getStateName(States state);
 
 };
-
 
 } /* namespace loco */
 

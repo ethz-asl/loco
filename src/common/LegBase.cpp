@@ -24,7 +24,8 @@ LegBase::LegBase() :
     didTouchDownAtLeastOnceDuringStance_(false),
     loadFactor_(1.0),
     previousStancePhase_(0.0),
-    previousSwingPhase_(0.0)
+    previousSwingPhase_(0.0),
+    isLosingContact_(false)
 {
 
 }
@@ -44,9 +45,11 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     didTouchDownAtLeastOnceDuringStance_(false),
     loadFactor_(1.0),
     previousStancePhase_(0.0),
-    previousSwingPhase_(0.0)
+    previousSwingPhase_(0.0),
+    isLosingContact_(false),
+    stateSwitcher_()
 {
-
+  stateSwitcher_.initialize(0);
 }
 
 LegBase::~LegBase() {
@@ -258,6 +261,12 @@ bool LegBase::isLosingContact() const {
 void LegBase::setIsLosingContact(bool isLosingContact) {
 	isLosingContact_ = isLosingContact;
 }
+
+
+const StateSwitcher& LegBase::getStateSwitcher() const {
+  return stateSwitcher_;
+}
+
 
 std::ostream& operator << (std::ostream& out, const LegBase& leg) {
   out << "name: " << leg.getName() << std::endl;

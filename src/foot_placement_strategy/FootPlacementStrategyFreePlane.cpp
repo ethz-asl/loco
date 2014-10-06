@@ -10,6 +10,7 @@
 #include "loco/temp_helpers/math.hpp"
 
 #include "loco/common/TerrainModelFreePlane.hpp"
+#include "loco/state_switcher/StateSwitcher.hpp"
 
 namespace loco {
 
