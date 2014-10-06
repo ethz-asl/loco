@@ -24,15 +24,13 @@
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/ParameterSet.hpp"
+#include "loco/common/TerrainModelBase.hpp"
 
 
 namespace loco {
 
 class LocomotionControllerDynamicGait: public LocomotionControllerBase {
  public:
-
-  double timeSinceTorqueControl_;
-  double timeIntervalToSwitchToPositionControl_;
 
   LocomotionControllerDynamicGait();
   LocomotionControllerDynamicGait(LegGroup* legs,
@@ -45,7 +43,8 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
                                   VirtualModelController* virtualModelController,
                                   ContactForceDistributionBase* contactForceDistribution,
                                   ParameterSet* parameterSet,
-                                  GaitPatternBase* gaitPattern);
+                                  GaitPatternBase* gaitPattern,
+                                  TerrainModelBase* terrainModel);
 
   virtual ~LocomotionControllerDynamicGait();
 
@@ -76,6 +75,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   const TorsoControlBase& getTorsoController() const;
   const VirtualModelController& getVirtualModelController() const;
   TerrainPerceptionBase* getTerrainPerception();
+  TerrainModelBase* getTerrainModel();
 
   bool setToInterpolated(const LocomotionControllerDynamicGait& controller1, const LocomotionControllerDynamicGait& controller2, double t);
 
@@ -98,6 +98,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   ParameterSet* parameterSet_;
   EventDetectorBase* eventDetector_;
   GaitPatternBase* gaitPattern_;
+  TerrainModelBase* terrainModel_;
 };
 
 } /* namespace loco */

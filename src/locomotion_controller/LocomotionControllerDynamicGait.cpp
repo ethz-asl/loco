@@ -18,7 +18,8 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
                                                                  FootPlacementStrategyBase* footPlacementStrategy, TorsoControlBase* baseController,
                                                                  VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
                                                                  ParameterSet* parameterSet,
-                                                                 GaitPatternBase* gaitPattern) :
+                                                                 GaitPatternBase* gaitPattern,
+                                                                 TerrainModelBase* terrainModel) :
     LocomotionControllerBase(),
     isInitialized_(false),
     runtime_(0.0),
@@ -32,28 +33,29 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     virtualModelController_(virtualModelController),
     contactForceDistribution_(contactForceDistribution),
     parameterSet_(parameterSet),
-    timeSinceTorqueControl_(0.0),
-    timeIntervalToSwitchToPositionControl_(0.05),
-	gaitPattern_(gaitPattern)
+    gaitPattern_(gaitPattern),
+    terrainModel_(terrainModel)
 {
   eventDetector_ = new loco::EventDetector;
 }
 
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() :
     LocomotionControllerBase(),
-  isInitialized_(false),
-  legs_(nullptr),
-  torso_(nullptr),
-  terrainPerception_(nullptr),
-  contactDetector_(nullptr),
-  limbCoordinator_(nullptr),
-  footPlacementStrategy_(nullptr),
-  torsoController_(nullptr),
-  virtualModelController_(nullptr),
-  contactForceDistribution_(nullptr),
-  parameterSet_(nullptr),
-  eventDetector_(nullptr),
-  gaitPattern_(nullptr)
+    isInitialized_(false),
+    runtime_(0.0),
+    legs_(nullptr),
+    torso_(nullptr),
+    terrainPerception_(nullptr),
+    contactDetector_(nullptr),
+    limbCoordinator_(nullptr),
+    footPlacementStrategy_(nullptr),
+    torsoController_(nullptr),
+    virtualModelController_(nullptr),
+    contactForceDistribution_(nullptr),
+    parameterSet_(nullptr),
+    eventDetector_(nullptr),
+    gaitPattern_(nullptr),
+    terrainModel_(nullptr)
 {
 
 }
@@ -123,11 +125,11 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 	return false;
   }
 
+  if (!terrainModel_->initialize(dt)) {
+  }
 
   runtime_ = 0.0;
   
-  timeSinceTorqueControl_ = 0.0;
-  timeIntervalToSwitchToPositionControl_ = 0.0;
 
   isInitialized_ = true;
   return isInitialized_;
