@@ -75,17 +75,33 @@ namespace loco {
                                                                                 const Position& positionHipOnTerrainToDesiredFootOnTerrainInControlFrame);
 
     /*! Return the interpolation phase relative to a given leg.
-     * @params[in] The leg relative the to the interpolating foot.
+     * @params[in] leg The leg relative the to the interpolating foot.
      * @returns The interpolation phase.
      */
     virtual double getInterpolationPhase(const LegBase& leg);
 
+    /*! Evaluate the feed forward component for the desired foot hold
+     * @params[in] leg The leg relative the to the desired foot hold.
+     * @returns The feed forward component.
+     */
     virtual Position getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(const LegBase& leg);
+
+    /*! Evaluate the feedback (inverted pendulum) component for the desired foot hold
+     * @params[in] leg The leg relative the to the desired foot hold.
+     * @returns The feedback component.
+     */
     virtual Position getPositionDesiredFootHoldOnTerrainFeedBackInControlFrame(const LegBase& leg);
 
+    /*! Returns an offset that sets the position from where the interpolation for the desired foot hold should start (depens on the value of telescopicLeverConfiguration_).
+     * @params[in] leg The leg relative to the selected configuration.
+     * @returns The offset for the desired configuration.
+     */
     virtual Position getPositionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame(const LegBase& leg);
 
-    // Adjust foot steps depending on hip projection
+    /*! Adjust the hind foothold
+     * @params[in] leg The leg relative to the selected configuration.
+     * @returns The offset for the desired configuration.
+     */
     virtual Position getOffsetDesiredFootOnTerrainToCorrectedFootOnTerrainInControlFrame(const LegBase& leg);
 
 

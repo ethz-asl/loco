@@ -9,7 +9,6 @@
 #include "loco/common/TorsoBase.hpp"
 #include "loco/temp_helpers/math.hpp"
 
-//#include "loco/common/TerrainModelFreePlane.hpp"
 #include "loco/state_switcher/StateSwitcher.hpp"
 
 namespace loco {
@@ -98,11 +97,7 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
 
 
 Position FootPlacementStrategyFreePlane::getPositionProjectedOnPlaneAlongSurfaceNormal(const Position& position) {
-//  TerrainModelFreePlane* terrainFreePlane = dynamic_cast<TerrainModelFreePlane*>(terrain_);
-//  return terrainFreePlane->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(position);
-
   return terrain_->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(position);
-
 }
 
 
@@ -143,7 +138,7 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
 
   //--- Build the world to desired foot position and return it
   Position positionWorldToDesiredFootInWorldFrame = positionWorldToHipOnPlaneAlongNormalInWorldFrame // starting point, hip projected on the plane along world z axis
-                                                    + positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame  // lever - telescopic contribution
+                                                    + positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame  // lever || telescopic component
                                                     + orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame) // x-y
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame); // z
   //---
@@ -304,8 +299,8 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
 
   const double gravitationalAccleration = torso_->getProperties().getGravity().norm();
   Position positionDesiredFootHoldOnTerrainFeedBackInWorldFrame = Position(linearVelocityErrorInWorldFrame
-                                                                             *(stepFeedbackScale_*1.0)
-                                                                             *std::sqrt(heightInvertedPendulum/gravitationalAccleration));
+                                                                  *(stepFeedbackScale_*1.0)
+                                                                  *std::sqrt(heightInvertedPendulum/gravitationalAccleration));
   //--- hack
   //  positionDesiredFootHoldOnTerrainFeedBackInWorldFrame.z() = 0.0;
   //---
