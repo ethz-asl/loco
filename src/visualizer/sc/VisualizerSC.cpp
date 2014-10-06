@@ -134,7 +134,7 @@ void VisualizerSC::drawContactForces(AbstractRBEngine* world) {
   GLUtils::glLColor(1.0, 0, 0);
 //  glColor4d(1.0, 0.0, 0.0, 1.0);
   for (uint i=0; i<cfs->size();i++) {
-    GLUtils::drawArrow(cfs->at(i).f/500.0, cfs->at(i).cp, 0.005);
+    GLUtils::drawArrow(-cfs->at(i).f/-500.0, cfs->at(i).cp, 0.005);
   }
 }
 
