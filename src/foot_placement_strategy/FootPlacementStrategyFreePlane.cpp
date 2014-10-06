@@ -53,27 +53,25 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
 void FootPlacementStrategyFreePlane::advance(double dt) {
 
   for (auto leg : *legs_) {
-
     // save the hip position at lift off for trajectory generation
-      if (leg->shouldBeGrounded() ||
-          (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
-      ) {
-        Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
-        positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
-        Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
+    if (leg->shouldBeGrounded() ||
+        (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
+    ) {
+      Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
+      positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+      Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
 
-        Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
-        terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+      Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
+      terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
 
-        /*
-         * WARNING: these were also updated by the event detector
-         */
-        leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
-        leg->getStateLiftOff()->setWorldToFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
-        leg->getStateLiftOff()->setWorldToHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
-        leg->setSwingPhase(leg->getSwingPhase());
+      /*
+       * WARNING: these were also updated by the event detector
+       */
+      leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+      leg->getStateLiftOff()->setWorldToFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
+      leg->getStateLiftOff()->setWorldToHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+      leg->setSwingPhase(leg->getSwingPhase());
     }
-
 
     if (!leg->isSupportLeg()) {
 
@@ -128,7 +126,6 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
 
   // Find starting point: hip projected vertically on ground
   Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
-//  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getStateLiftOff()->getWorldToHipPositionInWorldFrame();
   terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
   // Get offset to change between telescopic and lever configuration
