@@ -43,9 +43,6 @@ class TorsoStarlETH: public TorsoBase {
 
   virtual TorsoPropertiesBase& getProperties();
 
-  virtual void setDesiredBaseTwistInHeadingFrame(const Twist& desiredBaseTwistInHeadingFrame);
-
-
   friend std::ostream& operator << (std::ostream& out, const TorsoStarlETH& torso);
 protected:
   robotModel::RobotModel* robotModel_;
@@ -54,14 +51,6 @@ protected:
   TorsoStateDesired stateDesired_;
   TorsoPropertiesStarlETH properties_;
   double stridePhase_;
-
-private:
-  Twist desiredBaseTwistInHeadingFrame_;
-
-
-
-
-
 
 
 
