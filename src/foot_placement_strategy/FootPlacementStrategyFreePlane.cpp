@@ -50,7 +50,7 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
 }
 
 
-void FootPlacementStrategyFreePlane::advance(double dt) {
+bool FootPlacementStrategyFreePlane::advance(double dt) {
 
   for (auto leg : *legs_) {
     // save the hip position at lift off for trajectory generation
@@ -94,6 +94,7 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
     }
 
   }
+  return true;
 }
 
 
