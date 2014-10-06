@@ -36,7 +36,7 @@ public:
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
   virtual bool initialize(double dt) = 0;
 
-	virtual void advance(double dt) = 0;
+	virtual bool advance(double dt) = 0;
 
   /*! Computes an interpolated version of the two controllers passed in as parameters.
    *  If t is 0, the current setting is set to footPlacementStrategy1, 1 -> footPlacementStrategy2, and values in between

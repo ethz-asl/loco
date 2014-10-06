@@ -34,7 +34,7 @@ namespace loco {
     FootPlacementStrategyFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
     virtual ~FootPlacementStrategyFreePlane();
 
-    virtual void advance(double dt);
+    virtual bool advance(double dt);
     virtual bool initialize(double dt);
 
     Position positionWorldToHipOnPlaneAlongNormalInWorldFrame_[4];

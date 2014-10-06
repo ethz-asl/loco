@@ -387,7 +387,7 @@ bool FootPlacementStrategyInvertedPendulum::initialize(double dt) {
   return true;
 }
 
-void FootPlacementStrategyInvertedPendulum::advance(double dt)
+bool FootPlacementStrategyInvertedPendulum::advance(double dt)
 {
 
   for (auto leg : *legs_) {
@@ -428,7 +428,7 @@ void FootPlacementStrategyInvertedPendulum::advance(double dt)
 	  }
 
   }
-
+  return true;
 }
 
 void FootPlacementStrategyInvertedPendulum::regainContact(LegBase* leg, double dt) {

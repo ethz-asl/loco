@@ -33,10 +33,11 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs,
     virtualModelController_(virtualModelController),
     contactForceDistribution_(contactForceDistribution),
     parameterSet_(parameterSet),
+    eventDetector_(new loco::EventDetector),
     gaitPattern_(gaitPattern),
     terrainModel_(terrainModel)
 {
-  eventDetector_ = new loco::EventDetector;
+
 }
 
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() :
@@ -61,7 +62,7 @@ LocomotionControllerDynamicGait::LocomotionControllerDynamicGait() :
 }
 
 LocomotionControllerDynamicGait::~LocomotionControllerDynamicGait() {
-
+  delete eventDetector_;
 }
 
 bool LocomotionControllerDynamicGait::initialize(double dt)
@@ -137,14 +138,24 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 
 
 bool LocomotionControllerDynamicGait::advanceMeasurements(double dt) {
-  if (!isInitialized_) { return false; }
+  if (!isInitialized_) {
+    return false;
+  }
 
   //--- Update sensor measurements.
-  for (auto leg : *legs_) { leg->advance(dt); }
+  for (auto leg : *legs_) {
+    if (!leg->advance(dt)) {
+      return false;
+    }
+  }
 
-  torso_->advance(dt);
+  if(!torso_->advance(dt)) {
+    return false;
+  }
 
-  if (!contactDetector_->advance(dt)) { return false; }
+  if (!contactDetector_->advance(dt)) {
+    return false;
+  }
   //---
   return true;
 }
@@ -176,19 +187,31 @@ bool LocomotionControllerDynamicGait::advanceSetPoints(double dt) {
   //---
 
   /* Update legs state using the event detection */
-  eventDetector_->advance(dt, *legs_);
+  if (!eventDetector_->advance(dt, *legs_)) {
+    return false;
+  }
 
   //--- Update knowledge about environment
-  if (!terrainPerception_->advance(dt)) { return false; }
+  if (!terrainPerception_->advance(dt)) {
+    return false;
+  }
   //---
 
   /* Decide if a leg is a supporting one */
-  limbCoordinator_->advance(dt);
+  if (!limbCoordinator_->advance(dt)) {
+    return false;
+  }
 
   /* Set the position or torque reference */
-  footPlacementStrategy_->advance(dt);
-  torsoController_->advance(dt);
-  if(!virtualModelController_->compute()) { return false; }
+  if(!footPlacementStrategy_->advance(dt)) {
+    return false;
+  }
+  if (!torsoController_->advance(dt)) {
+    return false;
+  }
+  if(!virtualModelController_->compute()) {
+    return false;
+  }
 
   runtime_ += dt;
   return true;
