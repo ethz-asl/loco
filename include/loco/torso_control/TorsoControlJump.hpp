@@ -47,7 +47,7 @@ class TorsoControlJump : public TorsoControlBase {
                    loco::TerrainModelBase* terrain);
   virtual ~TorsoControlJump();
   virtual bool initialize(double dt);
-  virtual void advance(double dt);
+  virtual bool advance(double dt);
 
   virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat,
                                             const Vector& axis);

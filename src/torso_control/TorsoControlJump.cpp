@@ -64,10 +64,10 @@ void TorsoControlJump::setInTorsoPositionMode(bool isInTorsoPositionMode) {
   inTorsoPositionMode_ = isInTorsoPositionMode;
 }
 
-void TorsoControlJump::advance(double dt) {
+bool TorsoControlJump::advance(double dt) {
   comControl_.advance(dt);
-  const RotationQuaternion orientationWorldToHeading =
-      torso_->getMeasuredState().getWorldToHeadingOrientation();
+  const RotationQuaternion orientationWorldToControl =
+      torso_->getMeasuredState().getOrientationWorldToControl();
 
   Position lateralAndHeadingPositionInWorldFrame = comControl_
       .getDesiredWorldToCoMPositionInWorldFrame();
@@ -103,12 +103,15 @@ void TorsoControlJump::advance(double dt) {
     RotationQuaternion desOrientationWorldToBase = RotationQuaternion();
 
     /* --- end desired orientation --- */
-    torso_->getDesiredState().setWorldToBasePoseInWorldFrame(
-        Pose(desiredTorsoPositionInWorldFrame, desOrientationWorldToBase));
+    torso_->getDesiredState().setPositionControlToBaseInControlFrame(desiredTorsoPositionInWorldFrame);
+    torso_->getDesiredState().setOrientationControlToBase(desOrientationWorldToBase);
+
+
   }
   addMeasuresToTrajectory(
-      torso_->getMeasuredState().getWorldToBasePositionInWorldFrame().z());
+      torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame().z());
 
+  return true;
 }
 
 /**

@@ -13,6 +13,7 @@ find_package(Kindr REQUIRED)
 set(LOCO_INCL ${LOCO_INCL} 
 	${EIGEN_INCLUDE_DIRS}
 	${Kindr_INCLUDE_DIRS}
+	../../../robotBase/robotUtils/function_approximators/dynamicMovementPrimitive
 PARENT_SCOPE)
 
 ###############

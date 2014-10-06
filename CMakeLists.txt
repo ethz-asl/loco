@@ -58,6 +58,7 @@ set(LOCO_INCL ${LOCO_INCL}
 include_directories(../robotUtils/include)
 include_directories(${LOCO_INCL}) 
 include_directories(${TASK_INCL})
+include_directories(../robotBase/robotUtils/function_approximators/dynamicMovementPrimitive)
 
 set(LOCO_LIBS ${LOCO_LIBS}
   starlethRobotModel robotUtils starlethUtils tinyxml 
