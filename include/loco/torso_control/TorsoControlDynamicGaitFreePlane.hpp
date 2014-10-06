@@ -8,7 +8,6 @@
 #ifndef LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 #define LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 
-
 #include "loco/torso_control/TorsoControlDynamicGait.hpp"
 #include "loco/dynamic_systems_utils/FirstOrderFilter.hpp"
 

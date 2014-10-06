@@ -59,6 +59,8 @@ class TerrainModelHorizontalPlane: public TerrainModelBase {
    */
   void setHeight(double heightInWorldFrame);
 
+  virtual Position getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(const Position& positionInWorldFrame) const;
+  virtual double getDistanceFromSurfaceAlongSurfaceNormalToPositionInWorldFrame(const Position& positionInWorldFrame) const;
 
  protected:
   //! Height of the horizontal plane expressed in world frame

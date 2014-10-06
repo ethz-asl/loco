@@ -9,7 +9,7 @@
 #include "loco/common/TorsoBase.hpp"
 #include "loco/temp_helpers/math.hpp"
 
-#include "loco/common/TerrainModelFreePlane.hpp"
+//#include "loco/common/TerrainModelFreePlane.hpp"
 #include "loco/state_switcher/StateSwitcher.hpp"
 
 namespace loco {
@@ -98,8 +98,11 @@ void FootPlacementStrategyFreePlane::advance(double dt) {
 
 
 Position FootPlacementStrategyFreePlane::getPositionProjectedOnPlaneAlongSurfaceNormal(const Position& position) {
-  TerrainModelFreePlane* terrainFreePlane = dynamic_cast<TerrainModelFreePlane*>(terrain_);
-  return terrainFreePlane->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(position);
+//  TerrainModelFreePlane* terrainFreePlane = dynamic_cast<TerrainModelFreePlane*>(terrain_);
+//  return terrainFreePlane->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(position);
+
+  return terrain_->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(position);
+
 }
 
 

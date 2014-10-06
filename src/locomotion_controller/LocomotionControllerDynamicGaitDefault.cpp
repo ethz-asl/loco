@@ -20,8 +20,6 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
                                                                                robotTerrain::TerrainBase* terrain,
                                                                                double dt): LocomotionControllerBase(), robotModel_(robotModel)
 {
-
-
     parameterSet_.reset(new loco::ParameterSet());
     if (!parameterSet_->loadXmlDocument(parameterFile)) {
       std::cout << "Could not load parameter file: " << parameterFile  << std::endl;
@@ -46,7 +44,7 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
 
     /* create torso */
     torso_.reset(new loco::TorsoStarlETH(robotModel));
-    terrainPerception_.reset(new loco::TerrainPerceptionHorizontalPlane((loco::TerrainModelHorizontalPlane*)terrainModel_.get(), legs_.get()));
+    terrainPerception_.reset(new loco::TerrainPerceptionHorizontalPlane((loco::TerrainModelHorizontalPlane*)terrainModel_.get(), legs_.get(), torso_.get()));
 
     /* create locomotion controller */
     contactDetector_.reset(new loco::ContactDetectorConstantDuringStance(legs_.get()));

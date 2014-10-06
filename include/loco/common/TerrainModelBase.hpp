@@ -55,6 +55,9 @@ class TerrainModelBase {
    */
   virtual bool getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const = 0;
 
+  virtual Position getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(const Position& positionInWorldFrame) const = 0;
+  virtual double getDistanceFromSurfaceAlongSurfaceNormalToPositionInWorldFrame(const Position& positionInWorldFrame) const = 0;
+
 };
 
 } /* namespace loco */

@@ -48,17 +48,6 @@ namespace loco {
     filterPositionX_ = FirstOrderFilter();
     filterPositionY_ = FirstOrderFilter();
     filterPositionZ_ = FirstOrderFilter();
-
-//    const double filterNormalTimeConstant = 0.05;
-
-
-
-
-
-//
-//    updateControlFrameOrigin();
-//    updateControlFrameAttitude();
-
   } // constructor
 
 
@@ -79,8 +68,8 @@ namespace loco {
     normalInWorldFrameFilterInput_ = normalInWorldFrameFilterOutput_;
     positionInWorldFrameFilterInput_ = positionInWorldFrameFilterOutput_;
 
-    filterNormalTimeConstant_ = 1.0;
-    filterPositionTimeConstant_ = 1.0;
+    filterNormalTimeConstant_ = 0.05;
+    filterPositionTimeConstant_ = 0.05;
     filterNormalGain_ = 1.0;
     filterPositionGain_ = 1.0;
 
@@ -169,8 +158,6 @@ namespace loco {
 //    orientationWorldToHeadingEulerZyx.setRoll(0.0);
 //    orientationWorldToControl = RotationQuaternion(orientationWorldToHeadingEulerZyx.getUnique());
 //    //---
-
-
 
 
     torso_->getMeasuredState().setOrientationWorldToControl(orientationWorldToControl);

@@ -173,10 +173,10 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	//Position positionWorldToDesiredFootInWorldFrame = refPositionWorldToHipInWorldFrame + (Position(refLinearVelocityAtHipInWorldFrame)*tinyTimeStep + positionOffsetFromHipProjectedOnTerrainToDesiredFoot);
 
-  std::cout << "leg: " << leg->getId() << std::endl;
-  std::cout << "defaultPositionHipToFootHoldInWorldFrame: " << defaultHipToFoot << std::endl;
-  std::cout << "feedForwardPositionHipToFootHoldInWorldFrame: " << feedForwardPositionHipToFootHoldInWorldFrame << std::endl;
-  std::cout << "invertedPendulumPositionHipToFootHoldInWorldFrame: " << invertedPendulumPositionHipToFootHoldInWorldFrame << std::endl;
+//  std::cout << "leg: " << leg->getId() << std::endl;
+//  std::cout << "defaultPositionHipToFootHoldInWorldFrame: " << defaultHipToFoot << std::endl;
+//  std::cout << "feedForwardPositionHipToFootHoldInWorldFrame: " << feedForwardPositionHipToFootHoldInWorldFrame << std::endl;
+//  std::cout << "invertedPendulumPositionHipToFootHoldInWorldFrame: " << invertedPendulumPositionHipToFootHoldInWorldFrame << std::endl;
 
   //--- logging
   // log the predicted foot hold location which has the the same height as the terrain.

@@ -26,7 +26,7 @@ TerrainModelHorizontalPlane::~TerrainModelHorizontalPlane() {
 bool TerrainModelHorizontalPlane::initialize(double dt) {
   heightInWorldFrame_ = 0.0;
   normalInWorldFrame_ = loco::Vector::UnitZ();
-  frictionCoefficientBetweenTerrainAndFoot_ = 0.8;
+  frictionCoefficientBetweenTerrainAndFoot_ = 0.6;
   return true;
 }
 
@@ -40,7 +40,7 @@ bool TerrainModelHorizontalPlane::getNormal(const loco::Position& positionWorldT
 bool TerrainModelHorizontalPlane::getHeight(loco::Position& positionWorldToLocationInWorldFrame) const
 {
   positionWorldToLocationInWorldFrame.z() = heightInWorldFrame_;
-  return false;
+  return true;
 }
 
 
@@ -56,6 +56,19 @@ void TerrainModelHorizontalPlane::setHeight(double heightInWorldFrame) {
 bool TerrainModelHorizontalPlane::getFrictionCoefficientForFoot(const loco::Position& positionWorldToLocationInWorldFrame, double& frictionCoefficient) const {
   frictionCoefficient = frictionCoefficientBetweenTerrainAndFoot_;
   return true;
+}
+
+Position TerrainModelHorizontalPlane::getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(const Position& positionInWorldFrame)  const {
+  Position position = positionInWorldFrame;
+  getHeight(position);
+  return position;
+}
+
+
+double TerrainModelHorizontalPlane::getDistanceFromSurfaceAlongSurfaceNormalToPositionInWorldFrame(const Position& positionInWorldFrame) const {
+  double distance;
+  getHeight(positionInWorldFrame, distance);
+  return distance;
 }
 
 

@@ -19,7 +19,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   desiredRollSlope_(1.0),
   adaptToTerrain_(CompleteAdaption)
 {
-  const double defaultHeight = 0.38;
+  const double defaultHeight = 0.41;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new loco::FirstOrderFilter();
@@ -133,11 +133,10 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
   double heightOverTerrain = positionWorldToDesiredHeightAboveTerrainInWorldFrame.dot(surfaceNormalInWorldFrame);
   heightOverTerrain /= surfaceNormalInWorldFrame.z();
 
-
   double heightOfTerrainInWorldFrame = 0.0;
   terrain_->getHeight(positionWorldToDesiredHorizontalBaseInWorldFrame, heightOfTerrainInWorldFrame);
 
-  Position positionWorldToHorizontalBaseInWorldFrame_temp = positionWorldToDesiredHorizontalBaseInWorldFrame + heightOfTerrainInWorldFrame*Position::UnitZ();
+//  Position positionWorldToHorizontalBaseInWorldFrame_temp = positionWorldToDesiredHorizontalBaseInWorldFrame + heightOfTerrainInWorldFrame*Position::UnitZ();
 
   Position positionControlToTargetBaseInWorldFrame = positionHorizontalControlToHorizontalBaseInWorldFrame
                                               + (heightOfTerrainInWorldFrame + heightOverTerrain)*Position::UnitZ();
