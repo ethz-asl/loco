@@ -13,7 +13,7 @@
 
 namespace loco {
 
-  class TorsoControlDynamicGaitFreePlane: public TorsoControlDynamicGait {
+  class TorsoControlDynamicGaitFreePlane: public TorsoControlBase {
    public:
     enum AdaptToTerrain {CompleteAdaption, SaturatedLinearAdaption};
     TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
@@ -22,7 +22,16 @@ namespace loco {
     virtual bool initialize(double dt);
     virtual bool advance(double dt);
 
+    virtual bool loadParameters(const TiXmlHandle& handle);
+
+    CoMOverSupportPolygonControlDynamicGait* getCoMControl();
+    const CoMOverSupportPolygonControlDynamicGait& getCoMControl() const;
+
    protected:
+    LegGroup* legs_;
+    TorsoBase* torso_;
+    loco::TerrainModelBase* terrain_;
+    CoMOverSupportPolygonControlDynamicGait comControl_;
 
     double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
 

@@ -12,7 +12,11 @@
 namespace loco {
 
 TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
-  TorsoControlDynamicGait(legs, torso, terrain),
+  TorsoControlBase(),
+  legs_(legs),
+  torso_(torso),
+  terrain_(terrain),
+  comControl_(legs),
   maxDesiredPitchRadians_(5.0*M_PI/180.0),
   desiredPitchSlope_(1.0),
   maxDesiredRollRadians_(5.0*M_PI/180.0),
@@ -333,5 +337,29 @@ void TorsoControlDynamicGaitFreePlane::getDesiredBaseRollFromTerrainRoll(const d
       desiredBaseRoll = terrainRoll;
     }
 }
+
+
+bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle) {
+  TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
+  if (!comControl_.loadParameters(hDynGait)) {
+    return false;
+  }
+  if (!loadParametersHipConfiguration(hDynGait)) {
+    return false;
+  }
+
+  return true;
+}
+
+
+CoMOverSupportPolygonControlDynamicGait* TorsoControlDynamicGaitFreePlane::getCoMControl() {
+  return &comControl_;
+}
+
+
+const CoMOverSupportPolygonControlDynamicGait& TorsoControlDynamicGaitFreePlane::getCoMControl() const {
+  return comControl_;
+}
+
 
 } /* namespace loco */
