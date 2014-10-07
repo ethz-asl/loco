@@ -22,10 +22,12 @@ class LimbCoordinatorJump: public LimbCoordinatorBase
 
   virtual bool initialize(double dt);
 
-   /*! Advance in time
-    * @param dt  time step [s]
-    */
-   virtual bool advance(double dt);
+  /*! Advance in time
+  * @param dt  time step [s]
+  */
+  virtual bool advance(double dt);
+  virtual bool loadParameters(const TiXmlHandle& handle);
+  virtual GaitPatternBase* getGaitPattern();
  private:
    LegGroup* legs_;
    TorsoBase* torso_;

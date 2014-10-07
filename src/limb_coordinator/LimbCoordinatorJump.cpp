@@ -5,7 +5,8 @@
  *      Author: gech
  */
 
-#include "LimbCoordinatorJump.hpp"
+#include "loco/limb_coordinator/LimbCoordinatorJump.hpp"
+#include "RobotModel_common.hpp"
 
 namespace loco {
 
@@ -27,15 +28,35 @@ bool LimbCoordinatorJump::initialize(double dt) {
 bool LimbCoordinatorJump::advance(double dt) {
 
   StateSwitcher* stateSwitcher;
+  LegBase::JointControlModes desiredJointControlModes;
 
    for (auto leg : *legs_) {
 
      stateSwitcher = leg->getStateSwitcher();
      stateSwitcher->setState(StateSwitcher::States::StanceNormal);
-     leg->setIsSupportLeg(true);
+     if (leg->isGrounded()) {
+       leg->setIsSupportLeg(true);
+     }
 
+     //--- Set control mode
+     if (leg->isSupportLeg()) {
+       desiredJointControlModes.setConstant(robotModel::AM_Torque);
+     }
+     else {
+       desiredJointControlModes.setConstant(robotModel::AM_Position);
+     }
+     leg->setDesiredJointControlModes(desiredJointControlModes);
+     //---
    }
   return true;
+}
+
+bool LimbCoordinatorJump::loadParameters(const TiXmlHandle& handle) {
+  return true;
+}
+
+GaitPatternBase* LimbCoordinatorJump::getGaitPattern() {
+  return nullptr;
 }
 
 } /* namespace loco */

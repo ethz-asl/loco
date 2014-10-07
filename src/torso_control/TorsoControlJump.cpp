@@ -40,4 +40,8 @@ bool TorsoControlJump::advance(double dt) {
   return true;
 }
 
+bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
+  return true;
+}
+
 } /* namespace loco */

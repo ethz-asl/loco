@@ -20,6 +20,7 @@ LocomotionControllerJump::LocomotionControllerJump(
     ParameterSet* parameterSet,
     TerrainModelBase* terrainModel)
     : LocomotionControllerBase(),
+      runtime_(0.0),
       isInitialized_(false),
       legs_(legs),
       torso_(torso),
@@ -43,6 +44,7 @@ LocomotionControllerJump::~LocomotionControllerJump() {
 
 bool LocomotionControllerJump::initialize(double dt) {
   isInitialized_ = false;
+  runtime_ = 0.0;
 
   for (auto leg : *legs_) {
     if (!leg->initialize(dt)) {
@@ -182,6 +184,7 @@ bool LocomotionControllerJump::advanceSetPoints(double dt) {
     return false;
   }
 
+  runtime_ += dt;
   return true;
 }
 
@@ -220,6 +223,10 @@ TerrainPerceptionBase* LocomotionControllerJump::getTerrainPerception() {
 
 bool LocomotionControllerJump::isInitialized() const {
   return isInitialized_;
+}
+
+double LocomotionControllerJump::getRuntime() const {
+  return runtime_;
 }
 
 } /* namespace loco */

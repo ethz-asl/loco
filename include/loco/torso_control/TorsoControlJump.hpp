@@ -22,6 +22,7 @@ class TorsoControlJump: public TorsoControlBase
   virtual ~TorsoControlJump();
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
+  virtual bool loadParameters(const TiXmlHandle& handle);
  protected:
   LegGroup* legs_;
   TorsoBase* torso_;

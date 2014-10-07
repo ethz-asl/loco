@@ -35,10 +35,6 @@ namespace loco {
 class FootPlacementStrategyJump : public FootPlacementStrategyBase {
  public:
 
- public:
-  Position positionWorldToFootHoldInWorldFrame_[4];
-  Position positionWorldToFootHoldJumpInWorldFrame_[4];
-
   FootPlacementStrategyJump(LegGroup* legs, TorsoBase* torso,
                             loco::TerrainModelBase* terrain);
   virtual ~FootPlacementStrategyJump();
@@ -47,7 +43,7 @@ class FootPlacementStrategyJump : public FootPlacementStrategyBase {
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
 
- public:
+ protected:
   //! Reference to the legs
   LegGroup* legs_;
   //! Reference to the torso
@@ -56,33 +52,10 @@ class FootPlacementStrategyJump : public FootPlacementStrategyBase {
   loco::TerrainModelBase* terrain_;
 
  protected:
-  /*! Gets the foot position for the swing leg
-   *
-   * @param leg reference to the leg
-   * @param tinyTimeStep  tiny time step in the future to compute the desired velocities
-   * @return
-   */
-//  virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
-
   LegBase::JointPositions leftForeInitJointPositions_;
-	double getLateralComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
-	double getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg);
 
 
-	/*! Computes current desired foot position by interpolating between the predicted and last foothold depending on the swing phase
-	 *
-	 * @param swingPhase                                           interpolation parameter
-	 * @param positionWorldToFootAtLiftOffInWorldFrame             foot location at lift-off
-	 * @param positionWorldToFootAtNextTouchDownInWorldFrame       foot location at next touch-down
-	 * @return desired foot position in World frame
-	 */
-	Position getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(double swingPhase, const loco::Position& positionWorldToFootAtLiftOffInWorldFrame, const loco::Position& positionWorldToFootAtNextTouchDownInWorldFrame, LegBase* leg);
 
-	/*! Gets the height of the terrain in world frame at a certain location
-   * @param position  location
-   * @return  height of the terrain
-   */
-  double getHeightOfTerrainInWorldFrame(const loco::Position& position);
 };
 
 }  // namespace loco

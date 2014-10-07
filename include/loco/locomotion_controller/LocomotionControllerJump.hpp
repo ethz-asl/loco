@@ -54,6 +54,7 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   virtual bool advanceMeasurements(double dt);
   virtual bool advanceSetPoints(double dt);
 
+  virtual double getRuntime() const;
 
   virtual bool isInitialized() const;
 
@@ -69,6 +70,7 @@ class LocomotionControllerJump: public LocomotionControllerBase {
 
  protected:
   GaussianKernelJumpPropagator trajectoryFollower_;
+  double runtime_;
   bool isInitialized_;
   LegGroup* legs_;
   TorsoBase* torso_;
