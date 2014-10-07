@@ -8,8 +8,13 @@
 #ifndef LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 #define LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 
-#include "loco/torso_control/TorsoControlDynamicGait.hpp"
+#include "loco/torso_control/TorsoControlBase.hpp"
 #include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
+
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
+#include "loco/common/LegGroup.hpp"
+#include "loco/common/TorsoBase.hpp"
+#include "loco/common/TerrainModelBase.hpp"
 
 namespace loco {
 
