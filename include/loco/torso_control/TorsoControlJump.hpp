@@ -1,86 +1,33 @@
-/*!
- * @file     BaseControlJump.hpp
- * @author   Christian Gehring
- * @date     Feb, 2014
- * @version  1.0
- * @ingroup
- * @brief
+/*
+ * TorsoControlJump.hpp
+ *
+ *  Created on: Oct 7, 2014
+ *      Author: gech
  */
 
-#pragma once
+#ifndef LOCO_TORSOCONTROLJUMP_HPP_
+#define LOCO_TORSOCONTROLJUMP_HPP_
 
 #include "loco/torso_control/TorsoControlBase.hpp"
-#include "loco/torso_control/CoMOverSupportPolygonControl.hpp"
-
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
-
-#include "kindr/rotations/RotationEigen.hpp"
-
 #include "loco/common/TerrainModelBase.hpp"
-
-#include "GaussianKernelJumpPropagator.hpp"
-#include <stdio.h>
-#include <Eigen/Core>
-#include <memory>
 
 namespace loco {
 
-enum Leg {
-  FRONT_LEFT = 0,
-  FRONT_RIGHT,
-  HIND_RIGHT,
-  HIND_LEFT,
-};
-
-enum State {
-  INIT = 0,
-  LIFTOFF,
-  APEX,
-  TOUCHDOWN,
-  NUMBER_OF_STATES,
-};
-
-class TorsoControlJump : public TorsoControlBase {
+class TorsoControlJump: public TorsoControlBase
+{
  public:
-  TorsoControlJump(LegGroup* legs, TorsoBase* torso,
-                   loco::TerrainModelBase* terrain);
+  TorsoControlJump(LegGroup* legs, TorsoBase* torso,  TerrainModelBase* terrain);
   virtual ~TorsoControlJump();
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
-
-  virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat,
-                                            const Vector& axis);
-  RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA,
-                                       const Vector& vB);
-  CoMOverSupportPolygonControl* getCoMControl();
-  virtual bool loadParameters(const TiXmlHandle& handle);
-
-  void setInTorsoPositionMode (bool isInTorsoPositionMode);
-  void setTrajectoryFollower(GaussianKernelJumpPropagator trajectoryFollower);
-  void addMeasuresToTrajectory(double baseHeight);
-  std::vector<double> getMeasuredTrajectory();
-  std::vector<bool> getMeasuredContactFlags(Leg leg);
-  State getState();
-
- private:
+ protected:
   LegGroup* legs_;
   TorsoBase* torso_;
-  loco::TerrainModelBase* terrain_;
-  CoMOverSupportPolygonControl comControl_;
-  GaussianKernelJumpPropagator trajectoryFollower_;
-  State state_;
-  bool inTorsoPositionMode_;
-
-  void updateState();
-  double headingDistanceFromForeToHindInBaseFrame_;
-
-  std::vector<double> measuredHeightTrajectory_;
-  std::vector<bool> leftFrontContactFlagTrajectory_;
-  std::vector<bool> rightFrontContactFlagTrajectory_;
-  std::vector<bool> leftHindContactFlagTrajectory_;
-  std::vector<bool> rightHindContactFlagTrajectory_;
+  TerrainModelBase* terrain_;
 };
 
-}
-/* namespace loco */
+} /* namespace loco */
+
+#endif /* TORSOCONTROLJUMP_HPP_ */

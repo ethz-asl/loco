@@ -14,7 +14,6 @@ LocomotionControllerJump::LocomotionControllerJump(
     LegGroup* legs, TorsoBase* torso, TerrainPerceptionBase* terrainPerception,
     ContactDetectorBase* contactDetector, LimbCoordinatorBase* limbCoordinator,
     FootPlacementStrategyBase* footPlacementStrategy,
-    MotorVelocityController* motorVelocityController,
     TorsoControlBase* baseController,
     VirtualModelController* virtualModelController,
     ContactForceDistributionBase* contactForceDistribution,
@@ -28,7 +27,6 @@ LocomotionControllerJump::LocomotionControllerJump(
       contactDetector_(contactDetector),
       limbCoordinator_(limbCoordinator),
       footPlacementStrategy_(footPlacementStrategy),
-      motorVelocityController_(motorVelocityController),
       torsoController_(baseController),
       virtualModelController_(virtualModelController),
       contactForceDistribution_(contactForceDistribution),
@@ -92,27 +90,6 @@ bool LocomotionControllerJump::initialize(double dt) {
   }
   if (!torsoController_->initialize(dt)) {
     return false;
-  }
-
-  if (!motorVelocityController_->loadParameters(hLoco)) {
-    return false;
-  }
-
-  if (!motorVelocityController_->initialize(dt)) {
-    return false;
-  }
-
-  if (!trajectoryFollower_.inVelocityMode()) {
-    motorVelocityController_->setInVelocityMode(false);
-    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(
-        true);
-    dynamic_cast<TorsoControlJump*>(torsoController_)->setTrajectoryFollower(
-        trajectoryFollower_);
-  } else {
-    motorVelocityController_->setInVelocityMode(true);
-    dynamic_cast<TorsoControlJump*>(torsoController_)->setInTorsoPositionMode(
-        false);
-    motorVelocityController_->setTrajectoryFollower(trajectoryFollower_);
   }
 
   if (!contactForceDistribution_->loadParameters(hLoco)) {
@@ -208,21 +185,7 @@ bool LocomotionControllerJump::advanceSetPoints(double dt) {
   return true;
 }
 
-/**
- * Evaluates whether the robot has jumped or not.
- */
-bool LocomotionControllerJump::hasJumped() {
-  if (trajectoryFollower_.inVelocityMode()) {
-    return (motorVelocityController_->getState() == State::APEX
-        || motorVelocityController_->getState() == State::TOUCHDOWN);
-  } else {
-    return (static_cast<TorsoControlJump*>(torsoController_)->getState()
-        == State::APEX
-        || static_cast<TorsoControlJump*>(torsoController_)->getState()
-            == State::TOUCHDOWN);
-  }
-  return false;
-}
+
 
 TorsoBase* LocomotionControllerJump::getTorso() {
   return torso_;

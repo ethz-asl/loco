@@ -14,8 +14,7 @@
 #include "loco/contact_detection/ContactDetectorBase.hpp"
 #include "loco/terrain_perception/TerrainPerceptionBase.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
-#include "loco/motor_velocity_controller/MotorVelocityController.hpp"
-#include "loco/torso_control/TorsoControlJump.hpp"
+#include "loco/torso_control/TorsoControlBase.hpp"
 #include "loco/contact_force_distribution/ContactForceDistributionBase.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorBase.hpp"
@@ -25,6 +24,7 @@
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/ParameterSet.hpp"
 
+#include "GaussianKernelJumpPropagator.hpp"
 
 namespace loco {
 
@@ -34,7 +34,8 @@ class LocomotionControllerJump: public LocomotionControllerBase {
                                   TerrainPerceptionBase* terrainPerception,
                                   ContactDetectorBase* contactDetector,
                                   LimbCoordinatorBase* limbCoordinator,
-                                  FootPlacementStrategyBase* footPlacementStrategy, MotorVelocityController* motorVelocityController, TorsoControlBase* baseController,
+                                  FootPlacementStrategyBase* footPlacementStrategy,
+                                  TorsoControlBase* baseController,
                                   VirtualModelController* virtualModelController, ContactForceDistributionBase* contactForceDistribution,
                                   ParameterSet* parameterSet,
                                   TerrainModelBase* terrainModel);
@@ -43,7 +44,7 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   /*!
    * Initializes locomotion controller
    * @param dt the time step [s]
-   * @return true if successfull.
+   * @return true if successful.
    */
   virtual bool initialize(double dt);
 
@@ -65,14 +66,12 @@ class LocomotionControllerJump: public LocomotionControllerBase {
   ContactForceDistributionBase* getContactForceDistribution();
   LimbCoordinatorBase* getLimbCoordinator();
   TerrainPerceptionBase* getTerrainPerception();
-  bool hasJumped();
 
  protected:
-  State state_;  GaussianKernelJumpPropagator trajectoryFollower_;
+  GaussianKernelJumpPropagator trajectoryFollower_;
   bool isInitialized_;
   LegGroup* legs_;
   TorsoBase* torso_;
-  MotorVelocityController* motorVelocityController_;
   LimbCoordinatorBase* limbCoordinator_;
   TerrainPerceptionBase* terrainPerception_;
   ContactDetectorBase* contactDetector_;
