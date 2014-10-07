@@ -129,6 +129,10 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
   Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
   terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
+  // Add offset from xml parameter file
+  Position defaultHipToFootInWorldFrame = orientationWorldToControl.inverseRotate(leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame());
+  positionWorldToHipOnPlaneAlongNormalInWorldFrame += defaultHipToFootInWorldFrame;
+
   // Get offset to change between telescopic and lever configuration
   Position positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame = getPositionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame(*leg);
 
@@ -376,12 +380,6 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
                                                                                   );
 
   return positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame;
-}
-
-
-// Interface with best foothold service
-bool FootPlacementStrategyFreePlane::getBestFootholdsFromCurrentFootholdInWorldFrame(loco::Position& positionWorldToFootInWorldFrame) {
-  return true;
 }
 
 

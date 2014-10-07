@@ -54,15 +54,13 @@ namespace loco {
      */
     virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
 
-    /*! Method to interface with best foothold service.
-     */
-    virtual bool getBestFootholdsFromCurrentFootholdInWorldFrame(loco::Position& positionWorldToFootInWorldFrame);
 
     /*! Project a point on a plane along the plane's normal.
      * @params[in] position The coordinates of the point that has to be projected.
      * @returns The coordinates of the point projected on the terrain along the surface normal.
      */
     virtual Position getPositionProjectedOnPlaneAlongSurfaceNormal(const Position& position);
+
 
     virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
 

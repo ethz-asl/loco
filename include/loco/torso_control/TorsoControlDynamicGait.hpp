@@ -10,7 +10,7 @@
 #define LOCO_BASECONTROLDYNAMICGAIT_HPP_
 
 #include "loco/torso_control/TorsoControlBase.hpp"
-#include "loco/torso_control/CoMOverSupportPolygonControl.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
 
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
@@ -33,8 +33,8 @@ class TorsoControlDynamicGait: public TorsoControlBase {
 
   virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Vector& axis);
   RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Vector& vB);
-  CoMOverSupportPolygonControl* getCoMControl();
-  const CoMOverSupportPolygonControl& getCoMControl() const;
+  CoMOverSupportPolygonControlDynamicGait* getCoMControl();
+  const CoMOverSupportPolygonControlDynamicGait& getCoMControl() const;
   virtual bool loadParameters(const TiXmlHandle& handle);
 
   double getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const;
@@ -52,13 +52,13 @@ class TorsoControlDynamicGait: public TorsoControlBase {
    */
   virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
 
-  virtual CoMOverSupportPolygonControl* getCoMOverSupportPolygonControl();
+  virtual CoMOverSupportPolygonControlDynamicGait* getCoMOverSupportPolygonControl();
 
  protected:
   LegGroup* legs_;
   TorsoBase* torso_;
   loco::TerrainModelBase* terrain_;
-  CoMOverSupportPolygonControl comControl_;
+  CoMOverSupportPolygonControlDynamicGait comControl_;
 
   double headingDistanceFromForeToHindInBaseFrame_;
   double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;

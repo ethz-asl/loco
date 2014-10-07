@@ -13,17 +13,16 @@ find_package(Kindr REQUIRED)
 set(LOCO_INCL ${LOCO_INCL} 
 	${EIGEN_INCLUDE_DIRS}
 	${Kindr_INCLUDE_DIRS}
-	../../../robotBase/robotUtils/function_approximators/dynamicMovementPrimitive
 PARENT_SCOPE)
 
 ###############
 ### SOURCES ###
 ###############
-set(LOCO_SRCS ${LOCO_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGait.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGaitFreePlane.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlJump.cpp
+set(LOCO_SRCS ${LOCO_SRCS}
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlDynamicGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlStaticGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlLeverConfiguration.cpp
 PARENT_SCOPE)
 
 #################
@@ -35,4 +34,3 @@ PARENT_SCOPE)
 
 set(USE_UTIL_XMLPARAMETERS ON CACHE BOOL "xml")
 set(USE_UTIL_POLYHARMONICSPLINES ON CACHE BOOL "polyharmonic splines")
-set(USE_UTIL_DYNAMICMOVEMENTPRIMITIVE ON CACHE BOOL "dynamic movement primitive")
