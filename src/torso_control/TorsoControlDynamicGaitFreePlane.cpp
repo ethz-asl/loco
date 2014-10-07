@@ -38,9 +38,9 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
   firstOrderFilter_->initialize(0.0, 1.0, 1.0);
-
-  comControl_.setTorso(torso_);
-  comControl_.setTerrainModel(terrain_);
+//
+//  comControl_.setTorso(torso_);
+//  comControl_.setTerrainModel(terrain_);
 
 
   return true;

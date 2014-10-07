@@ -34,19 +34,8 @@ class CoMOverSupportPolygonControlDynamicGait: public CoMOverSupportPolygonContr
     virtual const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
 
     virtual void advance(double dt);
-    void advanceLeverConfiguration(double dt);
-
-    void setTorso(TorsoBase* torso);
-    void setTerrainModel(TerrainModelBase* terrainModel);
-
-    //--- DEBUG
-    Position positionCenterToForeHindSupportFeetInControlFrame_[2];
-    Position positionWorldToCenterInWorldFrame_;
-    //---
 
 protected:
-    TorsoBase* torso_;
-    TerrainModelBase* terrainModel_;
 
 };
 
