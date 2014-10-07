@@ -20,8 +20,9 @@ PARENT_SCOPE)
 ###############
 set(LOCO_SRCS ${LOCO_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlDynamicGait.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlStaticGait.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlLeverConfiguration.cpp
 PARENT_SCOPE)
 
 #################

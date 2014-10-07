@@ -8,11 +8,11 @@
 #ifndef LOCO_COMOVERSUPPORTPOLYGONCONTROLSTATICGAIT_HPP_
 #define LOCO_COMOVERSUPPORTPOLYGONCONTROLSTATICGAIT_HPP_
 
-#include "loco/com_over_support_polygon/CoMOverSupportPolygonControl.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
 
 namespace loco {
 
-class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonControl {
+class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonControlDynamicGait {
  public:
   CoMOverSupportPolygonControlStaticGait(LegGroup* legs);
   virtual ~CoMOverSupportPolygonControlStaticGait();

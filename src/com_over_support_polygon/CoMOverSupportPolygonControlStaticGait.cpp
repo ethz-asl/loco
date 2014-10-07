@@ -10,7 +10,7 @@
 namespace loco {
 
 CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(LegGroup *legs):
-    CoMOverSupportPolygonControl(legs),
+    CoMOverSupportPolygonControlDynamicGait(legs),
     swingOrder_(legs_->size()),
     positionWorldToHorizontalDesiredBaseInWorldFrame_()
 {

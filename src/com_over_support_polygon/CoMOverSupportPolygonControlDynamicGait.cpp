@@ -7,10 +7,8 @@
  * @brief
  */
 
-#include "loco/com_over_support_polygon/CoMOverSupportPolygonControl.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
 #include "loco/common/TerrainModelFreePlane.hpp"
-#include <stdio.h>
-#include <Eigen/Dense>
 #include "loco/temp_helpers/math.hpp"
 
 using namespace std;
@@ -18,10 +16,10 @@ using namespace std;
 namespace loco {
 
 
-CoMOverSupportPolygonControl::CoMOverSupportPolygonControl(LegGroup* legs) :
-legs_(legs),
-torso_(),
-terrainModel_()
+CoMOverSupportPolygonControlDynamicGait::CoMOverSupportPolygonControlDynamicGait(LegGroup* legs) :
+    CoMOverSupportPolygonControlBase(legs),
+    torso_(),
+    terrainModel_()
 {
 
 	// trot
@@ -39,16 +37,16 @@ terrainModel_()
 }
 
 
-CoMOverSupportPolygonControl::~CoMOverSupportPolygonControl() {
+CoMOverSupportPolygonControlDynamicGait::~CoMOverSupportPolygonControlDynamicGait() {
 
 }
 
 
-void CoMOverSupportPolygonControl::setTorso(TorsoBase* torso) { torso_ = torso; }
-void CoMOverSupportPolygonControl::setTerrainModel(TerrainModelBase* terrainModel) { terrainModel_ = terrainModel;}
+void CoMOverSupportPolygonControlDynamicGait::setTorso(TorsoBase* torso) { torso_ = torso; }
+void CoMOverSupportPolygonControlDynamicGait::setTerrainModel(TerrainModelBase* terrainModel) { terrainModel_ = terrainModel;}
 
 
-void CoMOverSupportPolygonControl::advance(double dt) {
+void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
   const int nLegs = legs_->size();
   double legWeights[nLegs];
   for (int i=0;i<nLegs;i++) {
@@ -98,7 +96,7 @@ void CoMOverSupportPolygonControl::advance(double dt) {
 
 }
 
-void CoMOverSupportPolygonControl::advanceLeverConfiguration(double dt) {
+void CoMOverSupportPolygonControlDynamicGait::advanceLeverConfiguration(double dt) {
 
   Position comTarget;
 
@@ -195,101 +193,7 @@ void CoMOverSupportPolygonControl::advanceLeverConfiguration(double dt) {
 }
 
 
-bool CoMOverSupportPolygonControl::loadParameters(TiXmlHandle &hParameterSet) {
-
-	TiXmlElement* pElem;
-	TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
-
-
-
-	pElem = handle.FirstChild("Weight").Element();
-	if (!pElem) {
-		printf("Could not find CoMOverSupportPolygonControl:Weight\n");
-		return false;
-	}
-
-	if (pElem->QueryDoubleAttribute("minSwingLegWeight", &this->minSwingLegWeight_)
-			!= TIXML_SUCCESS) {
-		printf("Could not find CoMOverSupportPolygonControl:Weight:minSwingLegWeight!\n");
-		return false;
-	}
-
-  pElem = handle.FirstChild("Timing").Element();
-	if (pElem->QueryDoubleAttribute("startShiftAwayFromLegAtStancePhase",
-			&this->startShiftAwayFromLegAtStancePhase_) != TIXML_SUCCESS) {
-		printf("Could not find CoMOverSupportPolygonControl:Timing:startShiftAwayFromLegAtStancePhase!\n");
-		return false;
-	}
-
-	if (pElem->QueryDoubleAttribute("startShiftTowardsLegAtSwingPhase",
-			&this->startShiftTowardsLegAtSwingPhase_) != TIXML_SUCCESS) {
-		printf("Could not find SupportPolygon:startShiftTowardsLegAtSwingPhase!\n");
-		return false;
-	}
-//	pElem = hParameterSet.FirstChild("SupportPolygon").FirstChild("Offset").Element();
-//	if (pElem) {
-//		if (pElem->QueryDoubleAttribute("sagittalOffset",
-//				&this->sagittalOffset) != TIXML_SUCCESS) {
-//			sagittalOffset = 0.0;
-//		}
-//
-//		if (pElem->QueryDoubleAttribute("coronalOffset",
-//				&this->coronalOffset) != TIXML_SUCCESS) {
-//			coronalOffset = 0.0;
-//		}
-//
-//	}
-
-	return true;
-
-}
-
-bool CoMOverSupportPolygonControl::saveParameters(TiXmlHandle &hParameterSet) {
-
-//	double value;
-//	TiXmlElement* pElem;
-//
-//	pElem = hParameterSet.FirstChild("SupportPolygon").Element();
-//	if (!pElem) {
-//		printf("Could not find SupportPolygon\n");
-//		return false;
-//	}
-//	pElem->SetDoubleAttribute("minLegWeight", this->spMinLegWeight);
-//	pElem->SetDoubleAttribute("stPShiftAwayFromLegStart",
-//			this->spStPShiftAwayFromLegStart);
-//	pElem->SetDoubleAttribute("swPShiftTowardsLegStart",
-//			this->spSwPShiftTowardsLegStart);
-
-	return false;
-
-}
-
-
-bool CoMOverSupportPolygonControl::setToInterpolated(const CoMOverSupportPolygonControl& supportPolygon1,
-		const CoMOverSupportPolygonControl& supportPolygon2, double t) {
-	this->minSwingLegWeight_ = linearlyInterpolate(supportPolygon1.minSwingLegWeight_,
-			supportPolygon2.minSwingLegWeight_, 0, 1, t);
-	this->startShiftAwayFromLegAtStancePhase_ = linearlyInterpolate(
-			supportPolygon1.startShiftAwayFromLegAtStancePhase_,
-			supportPolygon2.startShiftAwayFromLegAtStancePhase_, 0, 1, t);
-	this->startShiftTowardsLegAtSwingPhase_ = linearlyInterpolate(
-			supportPolygon1.startShiftTowardsLegAtSwingPhase_,
-			supportPolygon2.startShiftTowardsLegAtSwingPhase_, 0, 1, t);
-
-	this->headingOffset_ = linearlyInterpolate(
-			supportPolygon1.headingOffset_,
-			supportPolygon2.headingOffset_, 0, 1, t);
-
-	this->lateralOffset_ = linearlyInterpolate(
-			supportPolygon1.lateralOffset_,
-			supportPolygon2.lateralOffset_, 0, 1, t);
-
-	return true;
-}
-
-
-
-const Position& CoMOverSupportPolygonControl::getDesiredWorldToCoMPositionInWorldFrame() const {
+const Position& CoMOverSupportPolygonControlDynamicGait::getDesiredWorldToCoMPositionInWorldFrame() const {
   return positionWorldToHorizontalDesiredBaseInWorldFrame_;
 }
 

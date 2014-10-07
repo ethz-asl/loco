@@ -46,7 +46,7 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 }
 
 
-CoMOverSupportPolygonControl* TorsoControlDynamicGait::getCoMOverSupportPolygonControl() {
+CoMOverSupportPolygonControlDynamicGait* TorsoControlDynamicGait::getCoMOverSupportPolygonControl() {
   return &comControl_;
 }
 
@@ -192,10 +192,10 @@ RotationQuaternion TorsoControlDynamicGait::computeHeading(const RotationQuatern
 }
 
 
-CoMOverSupportPolygonControl* TorsoControlDynamicGait::getCoMControl() {
+CoMOverSupportPolygonControlDynamicGait* TorsoControlDynamicGait::getCoMControl() {
   return &comControl_;
 }
-const CoMOverSupportPolygonControl& TorsoControlDynamicGait::getCoMControl() const {
+const CoMOverSupportPolygonControlDynamicGait& TorsoControlDynamicGait::getCoMControl() const {
   return comControl_;
 }
 
