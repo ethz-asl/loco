@@ -7,8 +7,8 @@
 
 #include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
 #include "loco/temp_helpers/math.hpp"
-
 #include <exception>
+
 namespace loco {
 
 TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
@@ -22,7 +22,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   const double defaultHeight = 0.41;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
-  firstOrderFilter_ = new loco::FirstOrderFilter();
+  firstOrderFilter_ = new robotUtils::FirstOrderFilter();
 
 }
 
@@ -254,36 +254,37 @@ RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationHeadingToDesi
 
 
   //--- Get desired heading direction with respect to the current feet
-   const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())*0.5;
-   const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())*0.5;
+  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())*0.5;
+  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())*0.5;
 
-   Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;
-   Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;
+  Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;
+  Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;
 
-   Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
-   desiredHeadingDirectionInWorldFrame.z() = 0.0;
-   //---
+  Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
+  desiredHeadingDirectionInWorldFrame.z() = 0.0;
+  //---
 
-   //--- Get current heading direction defined by the mid hip points
-   const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
-   const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
-   Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
-   currentHeadingDirectionInWorldFrame.z() = 0.0;
-   //---
+  //--- Get current heading direction defined by the mid hip points
+  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+  Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
+  currentHeadingDirectionInWorldFrame.z() = 0.0;
+  //---
 
-   // Yaw angle in world frame
-   RotationQuaternion orientationCurrentHeadingToDesiredHeading;
+  // Yaw angle in world frame
+  RotationQuaternion orientationCurrentHeadingToDesiredHeading;
 
-   try {
-     orientationCurrentHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(),
-                                                       desiredHeadingDirectionInWorldFrame.toImplementation());
-   } catch (std::exception& e) {
-     std::cout << e.what() << '\n';
-     std::cout << "currentHeadingDirectionInWorldFrame: " << currentHeadingDirectionInWorldFrame <<std::endl;
-     std::cout << "desiredHeadingDirectionInWorldFrame: " << desiredHeadingDirectionInWorldFrame <<std::endl;
-     orientationCurrentHeadingToDesiredHeading.setIdentity();
-   }
-   return orientationCurrentHeadingToDesiredHeading;
+  try {
+    orientationCurrentHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(),
+                                                             desiredHeadingDirectionInWorldFrame.toImplementation());
+  } catch (std::exception& e) {
+    std::cout << e.what() << '\n';
+    std::cout << "currentHeadingDirectionInWorldFrame: " << currentHeadingDirectionInWorldFrame <<std::endl;
+    std::cout << "desiredHeadingDirectionInWorldFrame: " << desiredHeadingDirectionInWorldFrame <<std::endl;
+    orientationCurrentHeadingToDesiredHeading.setIdentity();
+  }
+
+  return orientationCurrentHeadingToDesiredHeading;
 }
 
 

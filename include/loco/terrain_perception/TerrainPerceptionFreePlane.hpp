@@ -13,7 +13,7 @@
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
 
-#include "loco/dynamic_systems_utils/FirstOrderFilter.hpp"
+#include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
 
 namespace loco {
 
@@ -80,12 +80,12 @@ namespace loco {
      TerrainPerceptionFreePlane::EstimatePlaneInFrame estimatePlaneInFrame_;
 
      //--- First order filters
-     FirstOrderFilter filterNormalX_;
-     FirstOrderFilter filterNormalY_;
-     FirstOrderFilter filterNormalZ_;
-     FirstOrderFilter filterPositionX_;
-     FirstOrderFilter filterPositionY_;
-     FirstOrderFilter filterPositionZ_;
+     robotUtils::FirstOrderFilter filterNormalX_;
+     robotUtils::FirstOrderFilter filterNormalY_;
+     robotUtils::FirstOrderFilter filterNormalZ_;
+     robotUtils::FirstOrderFilter filterPositionX_;
+     robotUtils::FirstOrderFilter filterPositionY_;
+     robotUtils::FirstOrderFilter filterPositionZ_;
 
      double filterNormalTimeConstant_;
      double filterPositionTimeConstant_;

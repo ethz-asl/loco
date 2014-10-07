@@ -42,12 +42,12 @@ namespace loco {
     	planeParameters_[k] = 0.0;
     }
 
-    filterNormalX_ = FirstOrderFilter();
-    filterNormalY_ = FirstOrderFilter();
-    filterNormalZ_ = FirstOrderFilter();
-    filterPositionX_ = FirstOrderFilter();
-    filterPositionY_ = FirstOrderFilter();
-    filterPositionZ_ = FirstOrderFilter();
+    filterNormalX_ = robotUtils::FirstOrderFilter();
+    filterNormalY_ = robotUtils::FirstOrderFilter();
+    filterNormalZ_ = robotUtils::FirstOrderFilter();
+    filterPositionX_ = robotUtils::FirstOrderFilter();
+    filterPositionY_ = robotUtils::FirstOrderFilter();
+    filterPositionZ_ = robotUtils::FirstOrderFilter();
   } // constructor
 
 

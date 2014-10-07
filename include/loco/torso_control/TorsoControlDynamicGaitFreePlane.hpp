@@ -9,7 +9,7 @@
 #define LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 
 #include "loco/torso_control/TorsoControlDynamicGait.hpp"
-#include "loco/dynamic_systems_utils/FirstOrderFilter.hpp"
+#include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
 
 namespace loco {
 
@@ -36,7 +36,7 @@ namespace loco {
 
     //--- Height offset parameters
     //double maxHeightOffset_;
-    FirstOrderFilter* firstOrderFilter_;
+    robotUtils:: FirstOrderFilter* firstOrderFilter_;
     //---
 
     template <typename T> int sgn(T val);
