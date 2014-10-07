@@ -132,7 +132,6 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
   // Add offset from xml parameter file
   Position defaultHipToFootInWorldFrame = orientationWorldToControl.inverseRotate(leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame());
   positionWorldToHipOnPlaneAlongNormalInWorldFrame += defaultHipToFootInWorldFrame;
-  std::cout << "hip offset: " << leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame() << std::endl;
 
   // Get offset to change between telescopic and lever configuration
   Position positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame = getPositionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame(*leg);

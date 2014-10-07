@@ -15,7 +15,6 @@ LegPropertiesBase::LegPropertiesBase()
       positionBaseToCenterOfMassInBaseFrame_(),
       desiredDefaultSteppingPositionHipToFootInControlFrame_(0.2, 0.3, 0.4)
 {
-
 }
 
 LegPropertiesBase::~LegPropertiesBase()
