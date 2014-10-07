@@ -14,18 +14,28 @@ namespace loco {
 
 class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonControlBase {
  public:
+
+  typedef Eigen::Matrix<double,3,4> FeetConfiguration;
+  typedef Eigen::Matrix<double,2,2> Line;
+
   CoMOverSupportPolygonControlStaticGait(LegGroup* legs);
   virtual ~CoMOverSupportPolygonControlStaticGait();
 
   virtual void advance(double dt);
+  virtual bool initialize();
+
   virtual const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
 
  protected:
+
   std::vector<int> swingOrder_;
+
+  FeetConfiguration homePos_;
+
   Position positionWorldToHorizontalDesiredBaseInWorldFrame_;
   Eigen::Matrix<double,3,4> getNextStanceConfig(Eigen::Matrix<double,3,4> currentStanceConfig, int steppingFoot);
   int getNextSwingFoot(int currentSwingFoot);
-  Position lineIntersect(Eigen::Matrix<double,3,2> l1, Eigen::Matrix<double,3,2> l2);
+  Position lineIntersect(Line l1, Line l2);
 };
 
 } /* namespace loco */

@@ -7,6 +7,7 @@
 
 #include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlStaticGait.hpp"
 #include "loco/temp_helpers/math.hpp"
 #include <exception>
 
@@ -21,20 +22,23 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   desiredPitchSlope_(1.0),
   maxDesiredRollRadians_(5.0*M_PI/180.0),
   desiredRollSlope_(1.0),
-  adaptToTerrain_(CompleteAdaption)
+  adaptToTerrain_(CompleteAdaption),
+  comControl_(nullptr)
 {
   const double defaultHeight = 0.41;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
-  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs);
+
+  //  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
+  comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_);
 
 }
 
 
 TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
   delete firstOrderFilter_;
-  delete comControl_;
+  if (comControl_) delete comControl_;
 }
 
 
@@ -44,10 +48,9 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
   firstOrderFilter_->initialize(0.0, 1.0, 1.0);
-//
-//  comControl_.setTorso(torso_);
-//  comControl_.setTerrainModel(terrain_);
 
+  CoMOverSupportPolygonControlStaticGait* comStatic = (CoMOverSupportPolygonControlStaticGait*)comControl_;
+  comStatic->initialize();
 
   return true;
 }
