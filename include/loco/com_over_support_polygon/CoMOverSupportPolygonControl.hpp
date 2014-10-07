@@ -41,7 +41,7 @@ public:
 	 * @return error vector expressed in world frame
 	 */
 
-	const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
+	virtual const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
 
 	/*! Loads the parameters from the XML object
 	 * @param hParameterSet		handle
@@ -66,7 +66,7 @@ public:
 	bool setToInterpolated(const CoMOverSupportPolygonControl& supportPolygon1, const CoMOverSupportPolygonControl& supportPolygon2, double t);
 
 
-  void advance(double dt);
+  virtual void advance(double dt);
   void advanceLeverConfiguration(double dt);
 
   void setTorso(TorsoBase* torso);

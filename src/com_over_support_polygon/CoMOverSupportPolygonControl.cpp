@@ -7,7 +7,7 @@
  * @brief
  */
 
-#include "loco/torso_control/CoMOverSupportPolygonControl.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControl.hpp"
 #include "loco/common/TerrainModelFreePlane.hpp"
 #include <stdio.h>
 #include <Eigen/Dense>

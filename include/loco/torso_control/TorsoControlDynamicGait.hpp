@@ -10,7 +10,7 @@
 #define LOCO_BASECONTROLDYNAMICGAIT_HPP_
 
 #include "loco/torso_control/TorsoControlBase.hpp"
-#include "loco/torso_control/CoMOverSupportPolygonControl.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControl.hpp"
 
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"

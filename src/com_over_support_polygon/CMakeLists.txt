@@ -18,10 +18,10 @@ PARENT_SCOPE)
 ###############
 ### SOURCES ###
 ###############
-set(LOCO_SRCS ${LOCO_SRCS} 
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlBase.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGait.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGaitFreePlane.cpp
+set(LOCO_SRCS ${LOCO_SRCS}
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlBase.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControl.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CoMOverSupportPolygonControlStaticGait.cpp
 PARENT_SCOPE)
 
 #################
