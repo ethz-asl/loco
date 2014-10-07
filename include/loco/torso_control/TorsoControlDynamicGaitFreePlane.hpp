@@ -11,7 +11,7 @@
 #include "loco/torso_control/TorsoControlBase.hpp"
 #include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
 
-#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlBase.hpp"
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/TerrainModelBase.hpp"
@@ -29,14 +29,13 @@ namespace loco {
 
     virtual bool loadParameters(const TiXmlHandle& handle);
 
-    CoMOverSupportPolygonControlDynamicGait* getCoMControl();
-    const CoMOverSupportPolygonControlDynamicGait& getCoMControl() const;
+    const CoMOverSupportPolygonControlBase& getCoMOverSupportPolygonControl() const;
 
    protected:
     LegGroup* legs_;
     TorsoBase* torso_;
     loco::TerrainModelBase* terrain_;
-    CoMOverSupportPolygonControlDynamicGait comControl_;
+    CoMOverSupportPolygonControlBase* comControl_;
 
     double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
 

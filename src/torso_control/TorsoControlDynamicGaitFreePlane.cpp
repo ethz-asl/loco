@@ -6,6 +6,7 @@
  */
 
 #include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
 #include "loco/temp_helpers/math.hpp"
 #include <exception>
 
@@ -16,7 +17,6 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   legs_(legs),
   torso_(torso),
   terrain_(terrain),
-  comControl_(legs),
   maxDesiredPitchRadians_(5.0*M_PI/180.0),
   desiredPitchSlope_(1.0),
   maxDesiredRollRadians_(5.0*M_PI/180.0),
@@ -27,12 +27,14 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
+  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs);
 
 }
 
 
 TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
   delete firstOrderFilter_;
+  delete comControl_;
 }
 
 
@@ -53,7 +55,7 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
 
 bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 
-  comControl_.advance(dt);
+  comControl_->advance(dt);
 
   // Get measured orientation
   const RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl(); // --> current heading orientation
@@ -70,7 +72,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
    *  evaluate desired CoM position in control frame
    */
 
-  Position positionWorldToDesiredHorizontalBaseInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
+  Position positionWorldToDesiredHorizontalBaseInWorldFrame = comControl_->getDesiredWorldToCoMPositionInWorldFrame();
 
   // this is the desired location of the base location relative to the origin of the control frame projected on the x-y plane of the world frame and expressed in the world frame
   Position positionHorizontalControlToHorizontalBaseInWorldFrame = positionWorldToDesiredHorizontalBaseInWorldFrame
@@ -341,7 +343,7 @@ void TorsoControlDynamicGaitFreePlane::getDesiredBaseRollFromTerrainRoll(const d
 
 bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle) {
   TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
-  if (!comControl_.loadParameters(hDynGait)) {
+  if (!comControl_->loadParameters(hDynGait)) {
     return false;
   }
   if (!loadParametersHipConfiguration(hDynGait)) {
@@ -351,14 +353,16 @@ bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle)
   return true;
 }
 
+//CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMOverSupportPolygonControl() {
+//  return comControl_;
+//}
+//
+//CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMControl() {
+//  return comControl_;
+//}
 
-CoMOverSupportPolygonControlDynamicGait* TorsoControlDynamicGaitFreePlane::getCoMControl() {
-  return &comControl_;
-}
-
-
-const CoMOverSupportPolygonControlDynamicGait& TorsoControlDynamicGaitFreePlane::getCoMControl() const {
-  return comControl_;
+const CoMOverSupportPolygonControlBase& TorsoControlDynamicGaitFreePlane::getCoMOverSupportPolygonControl() const {
+  return *comControl_;
 }
 
 
