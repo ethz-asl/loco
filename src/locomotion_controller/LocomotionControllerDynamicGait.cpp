@@ -76,6 +76,10 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
   if (!torso_->initialize(dt)) { return false; }
   TiXmlHandle hLoco(parameterSet_->getHandle().FirstChild("LocomotionController"));
 
+  if (!terrainModel_->initialize(dt)) {
+    return false;
+  }
+
   if (!terrainPerception_->initialize(dt)) {
     return false;
   }
@@ -126,12 +130,8 @@ bool LocomotionControllerDynamicGait::initialize(double dt)
 	return false;
   }
 
-  if (!terrainModel_->initialize(dt)) {
-  }
-
   runtime_ = 0.0;
   
-
   isInitialized_ = true;
   return isInitialized_;
 }

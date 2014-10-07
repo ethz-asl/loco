@@ -315,8 +315,8 @@ bool FootPlacementStrategyInvertedPendulum::loadParameters(const TiXmlHandle& ha
     }
     Position leftOffset(offsetHeading, offsetLateral, 0.0);
     Position rightOffset(offsetHeading, -offsetLateral, 0.0);
-    legs_->getLeftForeLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(leftOffset);
-    legs_->getRightForeLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(rightOffset);
+    legs_->getLeftForeLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInControlFrame(leftOffset);
+    legs_->getRightForeLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInControlFrame(rightOffset);
 
   }
 
@@ -339,8 +339,8 @@ bool FootPlacementStrategyInvertedPendulum::loadParameters(const TiXmlHandle& ha
     }
     Position leftOffset(offsetHeading, offsetLateral, 0.0);
     Position rightOffset(offsetHeading, -offsetLateral, 0.0);
-    legs_->getLeftHindLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(leftOffset);
-    legs_->getRightHindLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(rightOffset);
+    legs_->getLeftHindLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInControlFrame(leftOffset);
+    legs_->getRightHindLeg()->getProperties().setDesiredDefaultSteppingPositionHipToFootInControlFrame(rightOffset);
   }
 
 
@@ -477,7 +477,7 @@ bool FootPlacementStrategyInvertedPendulum::setToInterpolated(const FootPlacemen
 
   int iLeg = 0;
   for (auto leg : *legs_) {
-    leg->getProperties().setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(linearlyInterpolate(
+    leg->getProperties().setDesiredDefaultSteppingPositionHipToFootInControlFrame(linearlyInterpolate(
       footPlacement1.getLegs().getLeg(iLeg)->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame(),
       footPlacement2.getLegs().getLeg(iLeg)->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame(),
       0.0,

@@ -27,7 +27,7 @@ class LegPropertiesBase
 
   virtual const Position& getDesiredDefaultSteppingPositionHipToFootInControlFrame() const;
   virtual Position& getDesiredDefaultSteppingPositionHipToFootInControlFrame();
-  virtual void setDesiredDefaultSteppingPositionHipToFootInHeadingFrame(const Position& position);
+  virtual void setDesiredDefaultSteppingPositionHipToFootInControlFrame(const Position& position);
   virtual double getLegLength() = 0;
  private:
 
@@ -38,7 +38,7 @@ class LegPropertiesBase
   Position positionBaseToCenterOfMassInBaseFrame_;
 
   //! default stepping offset with respect to the hip
-  Position desiredDefaultSteppingPositionHipToFootInHeadingFrame_;
+  Position desiredDefaultSteppingPositionHipToFootInControlFrame_;
 };
 
 } /* namespace loco */
