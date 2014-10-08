@@ -14,6 +14,9 @@ namespace loco {
 TorsoPropertiesStarlETH::TorsoPropertiesStarlETH(robotModel::RobotModel* robotModel)
     : robotModel_(robotModel)
 {
+  setHeadingAxisInBaseFrame(Vector(1.0, 0.0, 0.0));
+  setLateralAxisInBaseFrame(Vector(0.0, 1.0, 0.0));
+  setVerticalAxisInBaseFrame(Vector(0.0, 0.0, 1.0));
 
 }
 
@@ -23,10 +26,9 @@ TorsoPropertiesStarlETH::~TorsoPropertiesStarlETH()
 }
 
 bool TorsoPropertiesStarlETH::initialize(double dt) {
-  setHeadingAxisInBaseFrame(Vector(1.0, 0.0, 0.0));
-  setLateralAxisInBaseFrame(Vector(0.0, 1.0, 0.0));
-  setVerticalAxisInBaseFrame(Vector(0.0, 0.0, 1.0));
-
+  setGravity(LinearAcceleration(0.0, 0.0, -robotModel_->params().gravity_));
+  setMass(robotModel_->params().mainbody_.m);
+  setBaseToCenterOfMassPositionInBaseFrame(Position(0.0, 0.0, robotModel_->params().mainbody_.s));
   return true;
 }
 
