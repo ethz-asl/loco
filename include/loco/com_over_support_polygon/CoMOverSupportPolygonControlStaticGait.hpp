@@ -9,6 +9,7 @@
 #define LOCO_COMOVERSUPPORTPOLYGONCONTROLSTATICGAIT_HPP_
 
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlBase.hpp"
+#include "loco/common/TorsoBase.hpp"
 
 namespace loco {
 
@@ -18,7 +19,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   typedef Eigen::Matrix<double,3,4> FeetConfiguration;
   typedef Eigen::Matrix<double,2,2> Line;
 
-  CoMOverSupportPolygonControlStaticGait(LegGroup* legs);
+  CoMOverSupportPolygonControlStaticGait(LegGroup* legs, TorsoBase* torso);
   virtual ~CoMOverSupportPolygonControlStaticGait();
 
   virtual void advance(double dt);
@@ -27,6 +28,13 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual const Position& getPositionWorldToDesiredCoMInWorldFrame() const;
 
  protected:
+
+  TorsoBase* torso_;
+
+  int swingLegIndexNow_;
+  int swingLegIndexNext_;
+  int swingLegIndexLast_;
+  int swingLegIndexOverNext_;
 
   //! The swing sequence based on the gait plan
   std::vector<int> swingOrder_;
@@ -43,14 +51,22 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   //! Get the next stance feet positions based on the gait planner
   Eigen::Matrix<double,3,4> getNextStanceConfig(Eigen::Matrix<double,3,4> currentStanceConfig, int steppingFoot);
 
+
+  Eigen::Matrix<double,2,3> getSafeTriangle(const Eigen::Matrix<double,2,3>& supportTriangle);
+
   //! Get the next swing foot based on the gait sequence
-  int getNextSwingFoot(int currentSwingFoot);
+  int getNextSwingFoot(const int currentSwingFoot);
 
   //! Find the intersection (if it exists) between two lines
   bool lineIntersect(const Line& l1, const Line& l2, Eigen::Vector2d& intersection);
 
   //! Get the index of the current swing leg
   int getIndexOfSwingLeg();
+
+  std::vector<int> getDiagonalElements(int swingLeg);
+
+  void updateSwingLegsIndexes();
+
 };
 
 } /* namespace loco */

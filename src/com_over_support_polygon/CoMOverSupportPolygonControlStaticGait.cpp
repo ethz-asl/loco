@@ -10,13 +10,27 @@
 
 namespace loco {
 
-CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(LegGroup *legs):
+CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(LegGroup *legs, TorsoBase* torso):
     CoMOverSupportPolygonControlBase(legs),
+    torso_(torso),
     swingOrder_(legs_->size()),
     delta_(0.0),
-    positionWorldToDesiredCoMInWorldFrame_()
+    positionWorldToDesiredCoMInWorldFrame_(),
+    swingLegIndexNow_(-1),
+    swingLegIndexNext_(-1),
+    swingLegIndexLast_(-1),
+    swingLegIndexOverNext_(-1)
 {
   homePos_.setZero();
+
+  // Leg swing order
+  swingOrder_[0] = 0;
+  swingOrder_[1] = 3;
+  swingOrder_[2] = 1;
+  swingOrder_[3] = 2;
+
+  delta_ = 0.1;
+
 }
 
 
@@ -42,7 +56,7 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
   //  obj.cFP2 = obj.getNextStanceConfig(cFPl,obj.swing1);
 
 
-//    getIndexOfSwingLeg();
+    updateSwingLegsIndexes();
 
 //  Eigen::Vector2d p1_1;
 //  p1_1 << -1.0, 0.0;
@@ -70,6 +84,13 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 //    std::cout << "no intersection." << std::endl;
 //  }
 
+    Eigen::Matrix<double,2,3> triangle;
+    triangle << 0.0, 1.0, 0.0,
+                0.0, 0.0, 1.0;
+
+    Eigen::Matrix<double,2,3> safetriangle = getSafeTriangle(triangle);
+    std::cout << "safe: " << safetriangle << std::endl;
+
 }
 
 
@@ -83,11 +104,6 @@ Eigen::Matrix<double,3,4> CoMOverSupportPolygonControlStaticGait::getNextStanceC
   Eigen::Matrix<double,3,4> mat;
   mat.setZero();
   return mat;
-}
-
-
-int CoMOverSupportPolygonControlStaticGait::getNextSwingFoot(int currentSwingFoot) {
-  return 0;
 }
 
 
@@ -122,8 +138,57 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
 }
 
 
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangle(const Eigen::Matrix<double,2,3>& supportTriangle) {
+  Eigen::Matrix<double,2,3> safeTriangle;
+  safeTriangle.setZero();
+
+  Eigen::Vector2d v1, v2;
+
+  for (int k=0; k<3; k++) {
+    Eigen::Vector2d v1, v2;
+
+    int vertex1, vertex2;
+    if (k==0) {
+      vertex1 = 1;
+      vertex2 = 2;
+    } else if (k==1) {
+      vertex1 = 2;
+      vertex2 = 0;
+    } else if (k==2) {
+      vertex1 = 0;
+      vertex2 = 1;
+    }
+
+    v1 = supportTriangle.col(vertex1) - supportTriangle.col(k); v1 = v1/v1.norm();
+    v2 = supportTriangle.col(vertex2) - supportTriangle.col(k); v2 = v2/v2.norm();
+
+    double phiv1v2 = acos(v1.dot(v2));
+    safeTriangle.col(k) = supportTriangle.col(k)+delta_/sin(phiv1v2)*(v1+v2);
+  }
+
+  return safeTriangle;
+}
+
+
 const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
   return positionWorldToDesiredCoMInWorldFrame_;
+}
+
+
+void CoMOverSupportPolygonControlStaticGait::updateSwingLegsIndexes() {
+  swingLegIndexNow_ = getIndexOfSwingLeg();
+
+  if (swingLegIndexNow_ != -1) {
+    swingLegIndexLast_ = swingLegIndexNow_;
+    swingLegIndexNext_ = getNextSwingFoot(swingLegIndexNow_);
+  }
+
+  swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
+
+//  std::cout << "last:  " << swingLegIndexLast_ << std::endl;
+//  std::cout << "now:   " << swingLegIndexNow_ << std::endl;
+//  std::cout << "next:  " << swingLegIndexNext_ << std::endl;
+//  std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
 }
 
 
@@ -131,11 +196,43 @@ int CoMOverSupportPolygonControlStaticGait::getIndexOfSwingLeg() {
   int swingLeg = -1;
   for (auto leg: *legs_) {
     if (leg->getSwingPhase() != -1) {
-      std::cout << "swing leg nr: " << leg->getId() << std::endl;
       swingLeg = leg->getId();
     }
   }
   return swingLeg;
+}
+
+
+int CoMOverSupportPolygonControlStaticGait::getNextSwingFoot(const int currentSwingFoot) {
+  int nextSwingFoot = -1;
+
+  int currentSwingFootVectorIndex = std::find(swingOrder_.begin(), swingOrder_.end(), currentSwingFoot) - swingOrder_.begin();
+
+  if (currentSwingFootVectorIndex == 3) nextSwingFoot = swingOrder_[0];
+  else nextSwingFoot = swingOrder_[currentSwingFootVectorIndex+1];
+
+  return nextSwingFoot;
+}
+
+
+std::vector<int> CoMOverSupportPolygonControlStaticGait::getDiagonalElements(int swingLeg) {
+  std::vector<int> diagonalSwingLegs(2);
+
+  switch(swingLeg) {
+    case(0):
+    case(3):
+      diagonalSwingLegs[0] = 0;
+      diagonalSwingLegs[1] = 3;
+      break;
+    case(1):
+    case(2):
+      diagonalSwingLegs[0] = 1;
+      diagonalSwingLegs[1] = 2;
+      break;
+    default:
+      break;
+  }
+  return diagonalSwingLegs;
 }
 
 
