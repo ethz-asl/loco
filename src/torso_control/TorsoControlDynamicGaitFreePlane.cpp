@@ -31,7 +31,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
 
   //  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
-  comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_);
+  comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_, torso_);
 
 }
 
