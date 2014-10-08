@@ -65,13 +65,13 @@ void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
     iLeg=0;
     for (auto leg : *legs_) {
       //	            tprintf("leg %d(%s): stanceMode: %lf, swingMode: %lf. Weight:%lf\n", i, leg->getName(), leg->getStancePhase(),leg->getSwingPhase(), legWeights[i]);
-      comTarget += leg->getWorldToFootPositionInWorldFrame()*legWeights[iLeg];
+      comTarget += leg->getPositionWorldToFootInWorldFrame()*legWeights[iLeg];
       iLeg++;
     }
     comTarget /= sumWeights;
   } else {
     for (auto leg : *legs_) {
-      comTarget += leg->getWorldToFootPositionInWorldFrame();
+      comTarget += leg->getPositionWorldToFootInWorldFrame();
     }
     comTarget /= legs_->size();
   }

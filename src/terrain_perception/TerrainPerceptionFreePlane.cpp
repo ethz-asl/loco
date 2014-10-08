@@ -131,8 +131,8 @@ namespace loco {
     terrainModel_->getNormal(loco::Position::Zero(), normalInWorldFrame);
 
     //--- Get current heading direction
-    const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
-    const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+    const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToHipInWorldFrame())*0.5;
+    const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToHipInWorldFrame())*0.5;
     Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
     currentHeadingDirectionInWorldFrame.z() = 0.0;
 
@@ -235,7 +235,7 @@ namespace loco {
       } break;
 
       case(EstimatePlaneInFrame::Base): {
-        mostRecentPositionOfFoot_[legID] = leg.getBaseToFootPositionInBaseFrame();
+        mostRecentPositionOfFoot_[legID] = leg.getPositionBaseToFootInBaseFrame();
         lastWorldToBasePositionInWorldFrameForFoot_[legID] = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
         lastWorldToBaseOrientationForFoot_[legID] = torso_->getMeasuredState().getOrientationWorldToBase();
       } break;

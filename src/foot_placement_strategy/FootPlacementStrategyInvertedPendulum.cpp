@@ -63,10 +63,10 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 
 	/* inverted pendulum stepping offset */
-	const Position refPositionWorldToHipInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
+	const Position refPositionWorldToHipInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
 
 	//--- i_v_ref = 0.5*(i_v_h+i_v_com)
-	LinearVelocity refLinearVelocityAtHipInWorldFrame = (leg->getHipLinearVelocityInWorldFrame()
+	LinearVelocity refLinearVelocityAtHipInWorldFrame = (leg->getLinearVelocityHipInWorldFrame()
 	                                                     + orientationWorldToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame())
 	                                                     )/2.0;
 	//---
@@ -146,9 +146,9 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 	//---
 
 	//--- Offset contribution from terrain slope
-	loco::Position positionWorldToHipOnTerrain = leg->getWorldToHipPositionInWorldFrame();
+	loco::Position positionWorldToHipOnTerrain = leg->getPositionWorldToHipInWorldFrame();
 	terrain_->getHeight(positionWorldToHipOnTerrain);
-	double distanceHipToTerrain = (leg->getWorldToHipPositionInWorldFrame() - positionWorldToHipOnTerrain).dot(surfaceNormalInWorldFrame);
+	double distanceHipToTerrain = (leg->getPositionWorldToHipInWorldFrame() - positionWorldToHipOnTerrain).dot(surfaceNormalInWorldFrame);
 	positionHipToDesiredFootholdInWorldFrame -= (loco::Position)surfaceNormalInWorldFrame*distanceHipToTerrain;
 	//---
 
@@ -166,7 +166,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	positionOffsetFromHipProjectedOnTerrainToDesiredFoot += defaultHipToFoot;
 
-	Position positionWorldToDesiredFootInWorldFrame = leg->getWorldToHipPositionInWorldFrame()
+	Position positionWorldToDesiredFootInWorldFrame = leg->getPositionWorldToHipInWorldFrame()
 	                                                  - (loco::Position)surfaceNormalInWorldFrame*distanceHipToTerrain
 	                                                  + positionOffsetFromHipProjectedOnTerrainToDesiredFoot;
 
@@ -202,7 +202,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
   // to avoid slippage, do not move the foot in the horizontal plane when the leg is still grounded
 	if (leg->isGrounded()) {
-	  positionWorldToDesiredFootInWorldFrame = leg->getWorldToFootPositionInWorldFrame();
+	  positionWorldToDesiredFootInWorldFrame = leg->getPositionWorldToFootInWorldFrame();
 	}
 
 	//positionWorldToDesiredFootInWorldFrame.z() = 0.0;
@@ -432,7 +432,7 @@ bool FootPlacementStrategyInvertedPendulum::advance(double dt)
 }
 
 void FootPlacementStrategyInvertedPendulum::regainContact(LegBase* leg, double dt) {
-	Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
+	Position positionWorldToFootInWorldFrame =  leg->getPositionWorldToFootInWorldFrame();
 	double loweringSpeed = 0.05;
 
 	        	loco::Vector normalInWorldFrame;
@@ -448,7 +448,7 @@ void FootPlacementStrategyInvertedPendulum::regainContact(LegBase* leg, double d
 	        const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
 	        const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
 	        const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
-	        leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+	        leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
 
 }
 
@@ -458,7 +458,7 @@ void FootPlacementStrategyInvertedPendulum::setFootTrajectory(LegBase* leg) {
     const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
     const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
 
-    leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+    leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
 }
 
 

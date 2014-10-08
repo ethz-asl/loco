@@ -101,7 +101,7 @@ namespace loco {
         	leg->setDidTouchDownAtLeastOnceDuringStance(true);
         }
 
-        leg->getStateTouchDown()->setTouchdownFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
+        leg->getStateTouchDown()->setTouchdownFootPositionInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
         leg->getStateTouchDown()->setStateChangedAtTime(timeSinceInit_);
         // A touchdown was detected, now check if it is earlier or later than expected
         if ( !leg->shouldBeGrounded() && (swingPhase < (1-toleratedDelay_)) ) {
@@ -143,8 +143,8 @@ namespace loco {
          * than a default minimum. Slipping stops when the linear velocity drops in norm under
          * a default minimum.
          */
-        loco::LinearVelocity footVelocityInWorldFrame = leg->getFootLinearVelocityInWorldFrame();
-        loco::Position distanceFromTouchdown = leg->getWorldToFootPositionInWorldFrame()
+        loco::LinearVelocity footVelocityInWorldFrame = leg->getLinearVelocityFootInWorldFrame();
+        loco::Position distanceFromTouchdown = leg->getPositionWorldToFootInWorldFrame()
                                                - leg->getStateTouchDown()->getFootPositionInWorldFrame();
 
         //if ( (distanceFromTouchdown.norm() > minimumDistanceForSlipDetection_) ) {

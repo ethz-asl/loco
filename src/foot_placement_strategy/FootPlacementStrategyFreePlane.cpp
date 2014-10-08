@@ -57,7 +57,7 @@ bool FootPlacementStrategyFreePlane::advance(double dt) {
     if (leg->shouldBeGrounded() ||
         (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
     ) {
-      Position positionWorldToHipAtLiftOffInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
+      Position positionWorldToHipAtLiftOffInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
       positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
       Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
 
@@ -68,8 +68,8 @@ bool FootPlacementStrategyFreePlane::advance(double dt) {
        * WARNING: these were also updated by the event detector
        */
       leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
-      leg->getStateLiftOff()->setWorldToFootPositionInWorldFrame(leg->getWorldToFootPositionInWorldFrame());
-      leg->getStateLiftOff()->setWorldToHipPositionInWorldFrame(leg->getWorldToHipPositionInWorldFrame());
+      leg->getStateLiftOff()->setWorldToFootPositionInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
+      leg->getStateLiftOff()->setWorldToHipPositionInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
       leg->setSwingPhase(leg->getSwingPhase());
     }
 
@@ -107,11 +107,11 @@ Position FootPlacementStrategyFreePlane::getPositionVerticalHeightOnTerrainToLev
   Position positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame;
 
   // Project hip on terrain along world frame z axis
-  Position positionWorldToHipOnPlaneAlongWorldNormalInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
+  Position positionWorldToHipOnPlaneAlongWorldNormalInWorldFrame = leg.getPositionWorldToHipInWorldFrame();
   terrain_->getHeight(positionWorldToHipOnPlaneAlongWorldNormalInWorldFrame);
 
   // Project hip on terrain along surface normal
-  Position positionWorldToHipOnPlaneAlongSurfaceNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
+  Position positionWorldToHipOnPlaneAlongSurfaceNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getPositionWorldToHipInWorldFrame());
 
   positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame = (positionWorldToHipOnPlaneAlongSurfaceNormalInWorldFrame
                                                                               - positionWorldToHipOnPlaneAlongWorldNormalInWorldFrame)*telescopicLeverConfiguration_;
@@ -126,7 +126,7 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
 
   // Find starting point: hip projected vertically on ground
-  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getWorldToHipPositionInWorldFrame();
+  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
   terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
   // Add offset from xml parameter file
@@ -204,11 +204,11 @@ Position FootPlacementStrategyFreePlane::getOffsetDesiredFootOnTerrainToCorrecte
   u_des = u_des.normalize();
 
   //--- Get geometric dimensions
-  double hipToHipX = orientationWorldToControl.inverseRotate(legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()).x()
-                     - orientationWorldToControl.inverseRotate(legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame()).x();
+  double hipToHipX = orientationWorldToControl.inverseRotate(legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame()).x()
+                     - orientationWorldToControl.inverseRotate(legs_->getLeftHindLeg()->getPositionWorldToHipInWorldFrame()).x();
 
-  double hipToHipY = orientationWorldToControl.inverseRotate(legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()).y()
-                       - orientationWorldToControl.inverseRotate(legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame()).y();
+  double hipToHipY = orientationWorldToControl.inverseRotate(legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame()).y()
+                       - orientationWorldToControl.inverseRotate(legs_->getRightForeLeg()->getPositionWorldToHipInWorldFrame()).y();
   //---
 
   double alpha = atan2( hipToHipY/2 - r_com.y(),
@@ -216,7 +216,7 @@ Position FootPlacementStrategyFreePlane::getOffsetDesiredFootOnTerrainToCorrecte
 
   Position r_lf_rh_star = Position(u_des)*hipToHipX/cos(alpha);
 
-  Position r_leghip = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame())
+  Position r_leghip = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getPositionWorldToHipInWorldFrame())
                      - positionWorldToGeometricCenterInWorldFrame;
 
   Position delta = r_leghip - (r_hip + r_lf_rh_star);
@@ -271,7 +271,7 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
   //---
 
   //--- Get reference velocity estimation
-  LinearVelocity linearVeloctyReferenceInWorldFrame = (leg.getHipLinearVelocityInWorldFrame()
+  LinearVelocity linearVeloctyReferenceInWorldFrame = (leg.getLinearVelocityHipInWorldFrame()
                                                       + orientationWorldToBase.inverseRotate(torso_->getMeasuredState().getLinearVelocityBaseInBaseFrame())
                                                       )/2.0;
   //---
@@ -288,8 +288,8 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
    * Method I: project pendulum along z axis in world frame *
    **********************************************************/
   double terrainHeightAtHipInWorldFrame;
-  terrain_->getHeight(leg.getWorldToHipPositionInWorldFrame(), terrainHeightAtHipInWorldFrame);
-  const double heightInvertedPendulum = fabs(leg.getWorldToHipPositionInWorldFrame().z() - terrainHeightAtHipInWorldFrame);
+  terrain_->getHeight(leg.getPositionWorldToHipInWorldFrame(), terrainHeightAtHipInWorldFrame);
+  const double heightInvertedPendulum = fabs(leg.getPositionWorldToHipInWorldFrame().z() - terrainHeightAtHipInWorldFrame);
   /****************
    * End Method I *
    ****************/

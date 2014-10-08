@@ -152,18 +152,18 @@ class LegBase {
   LegStateLiftOff* getStateLiftOff();
   const LegStateLiftOff& getStateLiftOff() const;
 
-  virtual const Position& getWorldToFootPositionInWorldFrame() const = 0;
-  virtual const Position& getWorldToHipPositionInWorldFrame() const  = 0;
+  virtual const Position& getPositionWorldToFootInWorldFrame() const = 0;
+  virtual const Position& getPositionWorldToHipInWorldFrame() const  = 0;
 
-  virtual const Position& getWorldToFootPositionInBaseFrame() const = 0;
-  virtual const Position& getWorldToHipPositionInBaseFrame() const  = 0;
+  virtual const Position& getPositionWorldToFootInBaseFrame() const = 0;
+  virtual const Position& getPositionWorldToHipInBaseFrame() const  = 0;
 
-  virtual const Position& getBaseToFootPositionInBaseFrame() const = 0;
-  virtual const Position& getBaseToHipPositionInBaseFrame() const = 0;
+  virtual const Position& getPositionBaseToFootInBaseFrame() const = 0;
+  virtual const Position& getPositionBaseToHipInBaseFrame() const = 0;
 
-  virtual const LinearVelocity& getFootLinearVelocityInWorldFrame() const  = 0;
-  virtual const LinearVelocity& getHipLinearVelocityInWorldFrame() const  = 0;
-  virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
+  virtual const LinearVelocity& getLinearVelocityFootInWorldFrame() const  = 0;
+  virtual const LinearVelocity& getLinearVelocityHipInWorldFrame() const  = 0;
+  virtual JointPositions getJointPositionsFromPositionBaseToFootInBaseFrame(const Position& positionBaseToFootInBaseFrame) = 0;
 
   virtual const TranslationJacobian& getTranslationJacobianFromBaseToFootInBaseFrame() const = 0;
 

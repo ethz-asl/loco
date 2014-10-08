@@ -43,8 +43,8 @@ TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
 
 
 bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
-  const Position foreHipPosition = legs_->getLeg(0)->getWorldToHipPositionInBaseFrame();
-  const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
+  const Position foreHipPosition = legs_->getLeg(0)->getPositionWorldToHipInBaseFrame();
+  const Position hindHipPosition = legs_->getLeg(2)->getPositionWorldToHipInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
   firstOrderFilter_->initialize(0.0, 1.0, 1.0);
@@ -235,8 +235,8 @@ RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationWorldToHeadin
 
 RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationWorldToHeadingBasedOnHipLocations() const {
   //--- Get current heading direction
-  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
-  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToHipInWorldFrame())*0.5;
+  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToHipInWorldFrame())*0.5;
   Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
   currentHeadingDirectionInWorldFrame.z() = 0.0;
 
@@ -274,8 +274,8 @@ RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationHeadingToDesi
   //---
 
   //--- Get current heading direction defined by the mid hip points
-  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())*0.5;
-  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())*0.5;
+  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToHipInWorldFrame())*0.5;
+  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToHipInWorldFrame())*0.5;
   Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
   currentHeadingDirectionInWorldFrame.z() = 0.0;
   //---

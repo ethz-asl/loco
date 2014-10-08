@@ -222,7 +222,7 @@ void VisualizerSC::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, 
 
   GLUtilsKindr::drawArrow(GLUtilsKindr::Vector(virtualForceInWorldFrame), positionWorldToBaseInWorldFrame, 0.01, false);
 
-  double lengthHipToHip = legs->getLeftForeLeg()->getBaseToHipPositionInBaseFrame().x()-legs->getLeftHindLeg()->getBaseToHipPositionInBaseFrame().x();
+  double lengthHipToHip = legs->getLeftForeLeg()->getPositionBaseToHipInBaseFrame().x()-legs->getLeftHindLeg()->getPositionBaseToHipInBaseFrame().x();
   const Force forceYawInBaseFrame(0.0, lengthHipToHip*virtualTorqueInBaseFrame.z(), 0.0);
   const Force forceYawInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forceYawInBaseFrame.toImplementation()));
 
@@ -232,10 +232,10 @@ void VisualizerSC::drawForceAndTorqueInBaseFrame(const Force& forceInBaseFrame, 
   const Force forceRollInWorldBase(0.0, 0.0 , lengthHipToHip*virtualTorqueInBaseFrame.x());
   const Force forceRollInWorldFrame = forceScale*Force(torso->getMeasuredState().getOrientationWorldToBase().inverseRotate(forceRollInWorldBase.toImplementation()));
 
-  const Position foreMidHipInWorldFrame =  Position((legs->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);
-  const Position hindMidHipInWorldFrame =  Position((legs->getLeftHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightHindLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()*0.5);
-  const Position leftMidHipInWorldFrame =  Position( positionWorldToBaseInWorldFrame.x(), ((legs->getLeftHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getLeftForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()).y()*0.5, positionWorldToBaseInWorldFrame.z());
-  const Position rightMidHipInWorldFrame = Position( positionWorldToBaseInWorldFrame.x(), ((legs->getRightHindLeg()->getWorldToHipPositionInWorldFrame()+ legs->getRightForeLeg()->getWorldToHipPositionInWorldFrame()).toImplementation()).y()*0.5, positionWorldToBaseInWorldFrame.z());
+  const Position foreMidHipInWorldFrame =  Position((legs->getLeftForeLeg()->getPositionWorldToHipInWorldFrame()+ legs->getRightForeLeg()->getPositionWorldToHipInWorldFrame()).toImplementation()*0.5);
+  const Position hindMidHipInWorldFrame =  Position((legs->getLeftHindLeg()->getPositionWorldToHipInWorldFrame()+ legs->getRightHindLeg()->getPositionWorldToHipInWorldFrame()).toImplementation()*0.5);
+  const Position leftMidHipInWorldFrame =  Position( positionWorldToBaseInWorldFrame.x(), ((legs->getLeftHindLeg()->getPositionWorldToHipInWorldFrame()+ legs->getLeftForeLeg()->getPositionWorldToHipInWorldFrame()).toImplementation()).y()*0.5, positionWorldToBaseInWorldFrame.z());
+  const Position rightMidHipInWorldFrame = Position( positionWorldToBaseInWorldFrame.x(), ((legs->getRightHindLeg()->getPositionWorldToHipInWorldFrame()+ legs->getRightForeLeg()->getPositionWorldToHipInWorldFrame()).toImplementation()).y()*0.5, positionWorldToBaseInWorldFrame.z());
 
   // yaw
   GLUtilsKindr::drawArrow(GLUtilsKindr::Vector(forceYawInWorldFrame), foreMidHipInWorldFrame, 0.01, false);
