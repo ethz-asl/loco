@@ -84,7 +84,7 @@ void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
 }
 
 
-const Position& CoMOverSupportPolygonControlDynamicGait::getDesiredWorldToCoMPositionInWorldFrame() const {
+const Position& CoMOverSupportPolygonControlDynamicGait::getPositionWorldToDesiredCoMInWorldFrame() const {
   return positionWorldToHorizontalDesiredBaseInWorldFrame_;
 }
 

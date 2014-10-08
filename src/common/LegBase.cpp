@@ -295,11 +295,11 @@ std::ostream& operator << (std::ostream& out, const LegBase& leg) {
 }
 
 const Position& LegBase::getDesiredWorldToFootPositionInWorldFrame() const {
-  return desiredWorldToFootPositionInWorldFrame_;
+  return positionWorldToDesiredFootInWorldFrame_;
 }
 
 void LegBase::setDesireWorldToFootPositionInWorldFrame(const Position& position) {
-  desiredWorldToFootPositionInWorldFrame_ = position;
+  positionWorldToDesiredFootInWorldFrame_ = position;
 }
 
 
