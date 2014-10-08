@@ -47,7 +47,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
 
   const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getOrientationWorldToControl();
 
-  Position lateralAndHeadingPositionInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
+  Position lateralAndHeadingPositionInWorldFrame = comControl_.getPositionWorldToDesiredCoMInWorldFrame();
 
   const double desiredForeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredHindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
@@ -70,7 +70,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
   const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())/0.5;
   const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())/0.5;
 
-  Position positionError = comControl_.getDesiredWorldToCoMPositionInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
+  Position positionError = comControl_.getPositionWorldToDesiredCoMInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
 
   Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+ positionError;
   Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+ positionError;

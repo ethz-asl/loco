@@ -31,7 +31,7 @@ class CoMOverSupportPolygonControlDynamicGait: public CoMOverSupportPolygonContr
      * @param legs	references to the legs
      * @return error vector expressed in world frame
      */
-    virtual const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
+    virtual const Position& getPositionWorldToDesiredCoMInWorldFrame() const;
 
     virtual void advance(double dt);
 

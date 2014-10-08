@@ -96,7 +96,7 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
 }
 
 
-const Position& CoMOverSupportPolygonControlStaticGait::getDesiredWorldToCoMPositionInWorldFrame() const {
+const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
   return positionWorldToHorizontalDesiredBaseInWorldFrame_;
 }
 

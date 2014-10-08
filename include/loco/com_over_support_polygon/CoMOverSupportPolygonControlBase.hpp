@@ -31,7 +31,7 @@ class CoMOverSupportPolygonControlBase {
    * @param legs  references to the legs
    * @return error vector expressed in world frame
    */
-  virtual const loco::Position& getDesiredWorldToCoMPositionInWorldFrame() const = 0;
+  virtual const loco::Position& getPositionWorldToDesiredCoMInWorldFrame() const = 0;
 
   /*! Loads the parameters from the XML object
    * @param hParameterSet   handle

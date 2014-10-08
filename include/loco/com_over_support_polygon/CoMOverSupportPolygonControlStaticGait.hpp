@@ -24,7 +24,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual void advance(double dt);
   virtual bool initialize();
 
-  virtual const Position& getDesiredWorldToCoMPositionInWorldFrame() const;
+  virtual const Position& getPositionWorldToDesiredCoMInWorldFrame() const;
 
  protected:
 
