@@ -8,12 +8,17 @@
 #ifndef LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 #define LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 
-#include "loco/torso_control/TorsoControlDynamicGait.hpp"
+#include "loco/torso_control/TorsoControlBase.hpp"
 #include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
+
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlBase.hpp"
+#include "loco/common/LegGroup.hpp"
+#include "loco/common/TorsoBase.hpp"
+#include "loco/common/TerrainModelBase.hpp"
 
 namespace loco {
 
-  class TorsoControlDynamicGaitFreePlane: public TorsoControlDynamicGait {
+  class TorsoControlDynamicGaitFreePlane: public TorsoControlBase {
    public:
     enum AdaptToTerrain {CompleteAdaption, SaturatedLinearAdaption};
     TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
@@ -22,7 +27,15 @@ namespace loco {
     virtual bool initialize(double dt);
     virtual bool advance(double dt);
 
+    virtual bool loadParameters(const TiXmlHandle& handle);
+
+    const CoMOverSupportPolygonControlBase& getCoMOverSupportPolygonControl() const;
+
    protected:
+    LegGroup* legs_;
+    TorsoBase* torso_;
+    loco::TerrainModelBase* terrain_;
+    CoMOverSupportPolygonControlBase* comControl_;
 
     double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
 

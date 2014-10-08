@@ -6,29 +6,39 @@
  */
 
 #include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlStaticGait.hpp"
 #include "loco/temp_helpers/math.hpp"
 #include <exception>
 
 namespace loco {
 
 TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
-  TorsoControlDynamicGait(legs, torso, terrain),
+  TorsoControlBase(),
+  legs_(legs),
+  torso_(torso),
+  terrain_(terrain),
   maxDesiredPitchRadians_(5.0*M_PI/180.0),
   desiredPitchSlope_(1.0),
   maxDesiredRollRadians_(5.0*M_PI/180.0),
   desiredRollSlope_(1.0),
-  adaptToTerrain_(CompleteAdaption)
+  adaptToTerrain_(CompleteAdaption),
+  comControl_(nullptr)
 {
   const double defaultHeight = 0.41;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
 
+  //  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
+  comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_);
+
 }
 
 
 TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
   delete firstOrderFilter_;
+  if (comControl_) delete comControl_;
 }
 
 
@@ -38,10 +48,9 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
   firstOrderFilter_->initialize(0.0, 1.0, 1.0);
-//
-//  comControl_.setTorso(torso_);
-//  comControl_.setTerrainModel(terrain_);
 
+  CoMOverSupportPolygonControlStaticGait* comStatic = (CoMOverSupportPolygonControlStaticGait*)comControl_;
+  comStatic->initialize();
 
   return true;
 }
@@ -49,7 +58,7 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
 
 bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 
-  comControl_.advance(dt);
+  comControl_->advance(dt);
 
   // Get measured orientation
   const RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl(); // --> current heading orientation
@@ -66,7 +75,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
    *  evaluate desired CoM position in control frame
    */
 
-  Position positionWorldToDesiredHorizontalBaseInWorldFrame = comControl_.getDesiredWorldToCoMPositionInWorldFrame();
+  Position positionWorldToDesiredHorizontalBaseInWorldFrame = comControl_->getDesiredWorldToCoMPositionInWorldFrame();
 
   // this is the desired location of the base location relative to the origin of the control frame projected on the x-y plane of the world frame and expressed in the world frame
   Position positionHorizontalControlToHorizontalBaseInWorldFrame = positionWorldToDesiredHorizontalBaseInWorldFrame
@@ -333,5 +342,31 @@ void TorsoControlDynamicGaitFreePlane::getDesiredBaseRollFromTerrainRoll(const d
       desiredBaseRoll = terrainRoll;
     }
 }
+
+
+bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle) {
+  TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
+  if (!comControl_->loadParameters(hDynGait)) {
+    return false;
+  }
+  if (!loadParametersHipConfiguration(hDynGait)) {
+    return false;
+  }
+
+  return true;
+}
+
+//CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMOverSupportPolygonControl() {
+//  return comControl_;
+//}
+//
+//CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMControl() {
+//  return comControl_;
+//}
+
+const CoMOverSupportPolygonControlBase& TorsoControlDynamicGaitFreePlane::getCoMOverSupportPolygonControl() const {
+  return *comControl_;
+}
+
 
 } /* namespace loco */
