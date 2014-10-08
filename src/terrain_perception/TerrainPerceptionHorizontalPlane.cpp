@@ -37,7 +37,7 @@ bool TerrainPerceptionHorizontalPlane::advance(double dt) {
   for (auto leg : *legs_) {
     if (leg->isAndShouldBeGrounded()){
       groundedLimbCount++;
-      gHeight += leg->getWorldToFootPositionInWorldFrame().z();
+      gHeight += leg->getPositionWorldToFootInWorldFrame().z();
     }
   }
 

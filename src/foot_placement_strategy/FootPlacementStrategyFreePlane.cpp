@@ -40,7 +40,7 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
 
   for (auto leg : *legs_) {
     // save the hip position at lift off for trajectory generation
-    Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getWorldToHipPositionInWorldFrame();
+    Position positionWorldToHipAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToHipInWorldFrame();
     positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
     Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
     leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
@@ -68,8 +68,8 @@ bool FootPlacementStrategyFreePlane::advance(double dt) {
        * WARNING: these were also updated by the event detector
        */
       leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
-      leg->getStateLiftOff()->setWorldToFootPositionInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
-      leg->getStateLiftOff()->setWorldToHipPositionInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
+      leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
+      leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
       leg->setSwingPhase(leg->getSwingPhase());
     }
 
@@ -348,7 +348,7 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
   //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
 
 //  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
-  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getWorldToHipPositionInWorldFrame();
+  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getPositionWorldToHipInWorldFrame();
 
   terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
 
@@ -357,7 +357,7 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
   //---
 
   //--- starting point for trajectory interpolation
-  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame = leg.getStateLiftOff().getFootPositionInWorldFrame()
+  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame = leg.getStateLiftOff().getPositionWorldToFootInWorldFrame()
                                                                               -leg.getStateLiftOff().getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame();
   const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame = orientationWorldToControl.rotate(positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame);
   //---

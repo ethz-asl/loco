@@ -252,7 +252,7 @@ RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationHeadingToDesi
   // this is the center of the feet projected on the x-y plane of the world frame
   loco::Position positionWorldToMiddleOfFeetInWorldFrame;
   for (auto leg : *legs_) {
-    positionWorldToMiddleOfFeetInWorldFrame += leg->getWorldToFootPositionInWorldFrame();
+    positionWorldToMiddleOfFeetInWorldFrame += leg->getPositionWorldToFootInWorldFrame();
   }
   positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
   positionWorldToMiddleOfFeetInWorldFrame.z() = 0.0;
@@ -263,8 +263,8 @@ RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationHeadingToDesi
 
 
   //--- Get desired heading direction with respect to the current feet
-  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())*0.5;
-  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())*0.5;
+  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToFootInWorldFrame())*0.5;
+  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToFootInWorldFrame())*0.5;
 
   Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;
   Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;

@@ -154,7 +154,7 @@ Position FootPlacementStrategyInvertedPendulum::getDesiredWorldToFootPositionInW
 
 	testingHipToDesiredFootHold_[leg->getId()] = positionHipToDesiredFootholdInWorldFrame;
 
-	const Position positionHipToFootInWorldFrameAtLiftOff = leg->getStateLiftOff()->getFootPositionInWorldFrame()-leg->getStateLiftOff()->getWorldToHipPositionInWorldFrame();
+	const Position positionHipToFootInWorldFrameAtLiftOff = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame()-leg->getStateLiftOff()->getPositionWorldToHipInWorldFrame();
 	Position positionOffsetFromHipProjectedOnTerrainToDesiredFoot = getCurrentFootPositionFromPredictedFootHoldLocationInWorldFrame(std::min(swingPhase + tinyTimeStep, 1.0),  positionHipToFootInWorldFrameAtLiftOff, positionHipToDesiredFootholdInWorldFrame, leg);
 //
 //	defaultPositionHipToFootHoldInWorldFrame = orientationWorldToControl.rotate(defaultPositionHipToFootHoldInWorldFrame);

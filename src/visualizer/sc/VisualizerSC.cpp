@@ -58,7 +58,7 @@ void VisualizerSC::drawHistoryOfFootPositions(loco::LegGroup* legs) {
     if (isSimulationRunning_) {
       const loco::LegBase* leg = legs->getLeg(iLeg);
       footTrajectories_[iLeg].removeKnot(0);
-      footTrajectories_[iLeg].addKnot(footTrajectories_[iLeg].getKnotPosition(footTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getWorldToFootPositionInWorldFrame());
+      footTrajectories_[iLeg].addKnot(footTrajectories_[iLeg].getKnotPosition(footTrajectories_[iLeg].getKnotCount()-1)+dt, leg->getPositionWorldToFootInWorldFrame());
     }
     drawTrajectoryCatMullRomPosition(footTrajectories_[iLeg], dt, 2.0);
   }
@@ -256,33 +256,33 @@ void VisualizerSC::drawSupportPolygon(loco::LegGroup* legs, double lineWidth) {
   glLineWidth(lineWidth);
 
   if (legs->getLeftForeLeg()->isGrounded() && legs->getLeftHindLeg()->isGrounded()) {
-    const loco::Position start = legs->getLeftForeLeg()->getWorldToFootPositionInWorldFrame();
-    const loco::Position end = legs->getLeftHindLeg()->getWorldToFootPositionInWorldFrame();
+    const loco::Position start = legs->getLeftForeLeg()->getPositionWorldToFootInWorldFrame();
+    const loco::Position end = legs->getLeftHindLeg()->getPositionWorldToFootInWorldFrame();
     GLUtilsKindr::drawLine(start, end);
   }
   if (legs->getLeftForeLeg()->isGrounded() && legs->getRightHindLeg()->isGrounded()) {
-    const loco::Position start = legs->getLeftForeLeg()->getWorldToFootPositionInWorldFrame();
-    const loco::Position end = legs->getRightHindLeg()->getWorldToFootPositionInWorldFrame();
+    const loco::Position start = legs->getLeftForeLeg()->getPositionWorldToFootInWorldFrame();
+    const loco::Position end = legs->getRightHindLeg()->getPositionWorldToFootInWorldFrame();
     GLUtilsKindr::drawLine(start, end);
   }
   if (legs->getLeftForeLeg()->isGrounded() && legs->getRightForeLeg()->isGrounded()) {
-    const loco::Position start = legs->getLeftForeLeg()->getWorldToFootPositionInWorldFrame();
-    const loco::Position end = legs->getRightForeLeg()->getWorldToFootPositionInWorldFrame();
+    const loco::Position start = legs->getLeftForeLeg()->getPositionWorldToFootInWorldFrame();
+    const loco::Position end = legs->getRightForeLeg()->getPositionWorldToFootInWorldFrame();
     GLUtilsKindr::drawLine(start, end);
   }
   if (legs->getRightForeLeg()->isGrounded() && legs->getRightHindLeg()->isGrounded()) {
-    const loco::Position start = legs->getRightForeLeg()->getWorldToFootPositionInWorldFrame();
-    const loco::Position end = legs->getRightHindLeg()->getWorldToFootPositionInWorldFrame();
+    const loco::Position start = legs->getRightForeLeg()->getPositionWorldToFootInWorldFrame();
+    const loco::Position end = legs->getRightHindLeg()->getPositionWorldToFootInWorldFrame();
     GLUtilsKindr::drawLine(start, end);
   }
   if (legs->getRightForeLeg()->isGrounded() && legs->getLeftHindLeg()->isGrounded()) {
-    const loco::Position start = legs->getRightForeLeg()->getWorldToFootPositionInWorldFrame();
-    const loco::Position end = legs->getLeftHindLeg()->getWorldToFootPositionInWorldFrame();
+    const loco::Position start = legs->getRightForeLeg()->getPositionWorldToFootInWorldFrame();
+    const loco::Position end = legs->getLeftHindLeg()->getPositionWorldToFootInWorldFrame();
     GLUtilsKindr::drawLine(start, end);
   }
   if (legs->getRightHindLeg()->isGrounded() && legs->getLeftHindLeg()->isGrounded()) {
-    const loco::Position start = legs->getRightHindLeg()->getWorldToFootPositionInWorldFrame();
-    const loco::Position end = legs->getLeftHindLeg()->getWorldToFootPositionInWorldFrame();
+    const loco::Position start = legs->getRightHindLeg()->getPositionWorldToFootInWorldFrame();
+    const loco::Position end = legs->getLeftHindLeg()->getPositionWorldToFootInWorldFrame();
     GLUtilsKindr::drawLine(start, end);
   }
 }
@@ -534,7 +534,7 @@ void VisualizerSC::drawFrictionPyramidOfContactForceDistribution(loco::LegGroup*
       const loco::Vector tangential2 = contactForceDistribution->getSecondDirectionOfFrictionPyramidInWorldFrame(leg);
 
 
-      const Position originOfFrictionPyramid = leg->getWorldToFootPositionInWorldFrame()-loco::Position(normaltoGround);
+      const Position originOfFrictionPyramid = leg->getPositionWorldToFootInWorldFrame()-loco::Position(normaltoGround);
 
 
       // set color from outside of the method

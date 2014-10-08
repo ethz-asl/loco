@@ -98,8 +98,8 @@ bool LegStarlETH::initialize(double dt) {
   if(!this->advance(dt)) {
     return false;
   }
-  stateLiftOff_.setWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
-  stateLiftOff_.setWorldToHipPositionInWorldFrame(positionWorldToHipInWorldFrame_);
+  stateLiftOff_.setPositionWorldToFootInWorldFrame(positionWorldToFootInWorldFrame_);
+  stateLiftOff_.setPositionWorldToHipInWorldFrame(positionWorldToHipInWorldFrame_);
 
   stateTouchDown_.setTouchdownFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
 

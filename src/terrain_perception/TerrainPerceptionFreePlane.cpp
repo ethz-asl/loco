@@ -231,7 +231,7 @@ namespace loco {
     switch (estimatePlaneInFrame_) {
 
       case(EstimatePlaneInFrame::World): {
-        mostRecentPositionOfFoot_[legID] = leg.getWorldToFootPositionInWorldFrame();
+        mostRecentPositionOfFoot_[legID] = leg.getPositionWorldToFootInWorldFrame();
       } break;
 
       case(EstimatePlaneInFrame::Base): {
