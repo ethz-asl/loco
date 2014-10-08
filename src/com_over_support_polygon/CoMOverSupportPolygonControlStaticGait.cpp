@@ -13,6 +13,7 @@ namespace loco {
 CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(LegGroup *legs):
     CoMOverSupportPolygonControlBase(legs),
     swingOrder_(legs_->size()),
+    delta_(0.0),
     positionWorldToHorizontalDesiredBaseInWorldFrame_()
 {
   homePos_.setZero();
@@ -63,13 +64,17 @@ int CoMOverSupportPolygonControlStaticGait::getNextSwingFoot(int currentSwingFoo
 }
 
 
-Position CoMOverSupportPolygonControlStaticGait::lineIntersect(Eigen::Matrix<double,2,2> l1, Eigen::Matrix<double,2,2> l2) {
-
+bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const Line& l2, Eigen::Vector2d intersection) {
   Eigen::Vector2d l1_1 = l1.col(0);
   Eigen::Vector2d l1_2 = l1.col(1);
 
   Eigen::Vector2d l2_1 = l2.col(0);
   Eigen::Vector2d l2_2 = l2.col(1);
+
+  // Check if line length is zero
+  if ( (l1_1-l1_2).isZero() || (l2_1-l2_2).isZero() ) {
+    return false;
+  }
 
   Eigen::Vector2d v1 = l1_2-l1_1;
   v1 = v1/v1.norm();
@@ -77,15 +82,17 @@ Position CoMOverSupportPolygonControlStaticGait::lineIntersect(Eigen::Matrix<dou
   Eigen::Vector2d v2 = l1_2-l1_1;
   v2 = v2/v2.norm();
 
-  Eigen::Matrix2d A;
-  A << -v1, v2;
-  Eigen::Vector2d x = A.lu().solve(l1_1-l2_1);
+  // Check if v1 and v2 are parallel (matrix would not be invertible)
+  if ( ! (abs(v1.dot(v2)-1.0) < 1e-6) ) {
+    Eigen::Matrix2d A;
+    A << -v1, v2;
+    Eigen::Vector2d x = A.lu().solve(l1_1-l2_1);
+    intersection << l1_1(0) + x(0)*v1(0),
+                    l1_1(1) + x(1)*v1(1);
+    return true;
+  }
 
-  Position intersection = Position(l1_1(0) + x(0)*v1(0),
-                                   l1_1(1) + x(1)*v1(1),
-                                   0.0);
-
-  return intersection;
+  return false;
 }
 
 

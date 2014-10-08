@@ -47,7 +47,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int getNextSwingFoot(int currentSwingFoot);
 
   //! Find the intersection (if it exists) between two lines
-  Position lineIntersect(Line l1, Line l2);
+  bool lineIntersect(const Line& l1, const Line& l2, Eigen::Vector2d intersection);
 
   //! Get the index of the current swing leg
   int getIndexOfSwingLeg();
