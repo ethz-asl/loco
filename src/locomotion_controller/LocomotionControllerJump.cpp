@@ -138,6 +138,10 @@ bool LocomotionControllerJump::advanceSetPoints(double dt) {
   int iLeg =0;
   for (auto leg : *legs_) {
   //--- defined by the "planning" / timing
+    //-- NEEDS TO BE SET FOR TERRAINPERCEPTION
+//    leg->setShouldBeGrounded()
+
+
 //    leg->setShouldBeGrounded(gaitPattern_->shouldBeLegGrounded(iLeg));
 //    leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));
 //    leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));

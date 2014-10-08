@@ -33,9 +33,9 @@ bool TorsoControlJump::advance(double dt) {
       // this leg supports the torso, hence, it can be used to control the torso
     }
   }
-  Position positionWorldToDesiredBaseInWorldFrame(0.0, 0.0, 0.42);
+  Position positionWorldToDesiredBaseInControlFrame(0.0, 0.0, 0.42);
   RotationQuaternion orientationControlToDesiredBase;
-  torso_->getDesiredState().setPositionControlToBaseInControlFrame(positionWorldToDesiredBaseInWorldFrame);
+  torso_->getDesiredState().setPositionControlToBaseInControlFrame(positionWorldToDesiredBaseInControlFrame);
   torso_->getDesiredState().setOrientationControlToBase(orientationControlToDesiredBase);
   return true;
 }
