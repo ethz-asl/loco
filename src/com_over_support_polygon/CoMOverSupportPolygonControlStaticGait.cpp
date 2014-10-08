@@ -14,7 +14,7 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     CoMOverSupportPolygonControlBase(legs),
     swingOrder_(legs_->size()),
     delta_(0.0),
-    positionWorldToHorizontalDesiredBaseInWorldFrame_()
+    positionWorldToDesiredCoMInWorldFrame_()
 {
   homePos_.setZero();
 }
@@ -42,12 +42,39 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
   //  obj.cFP2 = obj.getNextStanceConfig(cFPl,obj.swing1);
 
 
-    getIndexOfSwingLeg();
+//    getIndexOfSwingLeg();
+
+//  Eigen::Vector2d p1_1;
+//  p1_1 << -1.0, 0.0;
+//  Eigen::Vector2d p1_2;
+//  p1_2 << 1.0, 0.0;
+//
+//  Eigen::Vector2d p2_1;
+//  p2_1 << 0.5, -1.0;
+//  Eigen::Vector2d p2_2;
+//  p2_2 << 0.5, 1.0;
+//
+//  Eigen::Matrix<double,2,2> l1;
+//  l1 << p1_1, p1_2;
+//
+//  Eigen::Matrix<double,2,2> l2;
+//  l2 << p2_1, p2_2;
+//
+//  Eigen::Vector2d inters;
+//  inters << 2.0, 2.0;
+//
+//  if ( lineIntersect(l1, l2, inters) ) {
+//    std::cout << "found intersection: " << inters << std::endl;
+//  }
+//  else {
+//    std::cout << "no intersection." << std::endl;
+//  }
+
 }
 
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
-  positionWorldToHorizontalDesiredBaseInWorldFrame_ = Position(0.0,0.0,0.0);
+  positionWorldToDesiredCoMInWorldFrame_ = Position(0.0,0.0,0.0);
   return true;
 }
 
@@ -64,7 +91,7 @@ int CoMOverSupportPolygonControlStaticGait::getNextSwingFoot(int currentSwingFoo
 }
 
 
-bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const Line& l2, Eigen::Vector2d intersection) {
+bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const Line& l2, Eigen::Vector2d& intersection) {
   Eigen::Vector2d l1_1 = l1.col(0);
   Eigen::Vector2d l1_2 = l1.col(1);
 
@@ -79,7 +106,7 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
   Eigen::Vector2d v1 = l1_2-l1_1;
   v1 = v1/v1.norm();
 
-  Eigen::Vector2d v2 = l1_2-l1_1;
+  Eigen::Vector2d v2 = l2_2-l2_1;
   v2 = v2/v2.norm();
 
   // Check if v1 and v2 are parallel (matrix would not be invertible)
@@ -91,13 +118,12 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
                     l1_1(1) + x(1)*v1(1);
     return true;
   }
-
   return false;
 }
 
 
 const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
-  return positionWorldToHorizontalDesiredBaseInWorldFrame_;
+  return positionWorldToDesiredCoMInWorldFrame_;
 }
 
 

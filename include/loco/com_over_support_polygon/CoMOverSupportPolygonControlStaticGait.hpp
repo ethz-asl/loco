@@ -38,7 +38,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   FeetConfiguration homePos_;
 
   //! The desired CoM position in world frame
-  Position positionWorldToHorizontalDesiredBaseInWorldFrame_;
+  Position positionWorldToDesiredCoMInWorldFrame_;
 
   //! Get the next stance feet positions based on the gait planner
   Eigen::Matrix<double,3,4> getNextStanceConfig(Eigen::Matrix<double,3,4> currentStanceConfig, int steppingFoot);
@@ -47,7 +47,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int getNextSwingFoot(int currentSwingFoot);
 
   //! Find the intersection (if it exists) between two lines
-  bool lineIntersect(const Line& l1, const Line& l2, Eigen::Vector2d intersection);
+  bool lineIntersect(const Line& l1, const Line& l2, Eigen::Vector2d& intersection);
 
   //! Get the index of the current swing leg
   int getIndexOfSwingLeg();
