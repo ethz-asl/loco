@@ -54,25 +54,71 @@ class LegBase {
 
   virtual const std::string& getName() const ;
 
+  /*!@returns list of links.
+   */
   LegLinkGroup* getLinks();
 
+  /*! @returns the stance phase. The phase is -1 if the leg is in swing mode,
+   * otherwise it is between 0 (start) and 1 (end).
+   */
   virtual double getStancePhase() const;
+
+  /*! @returns the swing phase. The phase is -1 if the leg is in stance mode,
+   * otherwise it is between 0 (start) and 1 (end).
+   */
   virtual double getSwingPhase() const;
 
+  /*! @returns the duration of the stance phase in seconds.
+   * The leg should be grounded during the stance phase.
+   */
   virtual double getStanceDuration() const;
+
+  /*! @returns the duration of the swing phase in seconds.
+   * The leg should be in the air during the swing phase.
+   */
   virtual double getSwingDuration() const;
 
+  /*! @returns true if the leg is in contact with the ground according to sensor measurements.
+   */
   virtual bool isGrounded() const;
+
+  /*! @returns true if the leg was in contact with the ground according to sensor measurements
+   * during the previous control update.
+   */
   virtual bool wasGrounded() const;
+
+  /*! @returns true if the leg should be in contact with the ground
+   *  according to the plan (timing).
+   */
   virtual bool shouldBeGrounded() const;
+
+  /*! @returns true if the leg is grounded according to sensor measurements and should be grounded
+   *  according to the plan (timing).
+   *  @see isGrounded, shouldBeGrounded
+   */
   virtual bool isAndShouldBeGrounded() const;
+
+  /*! @returns true if the leg is slipping, i.e it is grounded according to sensor measurements,
+   * but the foot still moves.
+   */
   virtual bool isSlipping() const;
 
-  virtual double getDesiredLoadFactor() const;
-
+  /*! @returns true if this leg is supposed to be used as a support leg.
+   * This means that this leg is grounded and can be safely used to control the pose of the torso.
+   */
   virtual bool isSupportLeg() const;
+
+  /*! @returns true if the leg is supposed to be grounded, but lost contact according to sensor measurements.
+   */
   virtual bool isLosingContact() const;
 
+  /*! @returns the load factor between 0 and 1, which indicates how much the leg can/should be loaded.
+   *  If it is one, the leg can/should be fully loaded.
+   *  If it is zero, the leg cannot/shouldn't be loaded at all.
+   */
+  virtual double getDesiredLoadFactor() const;
+
+  virtual void setIsLosingContact(bool isLosingContact);
 
   virtual void setStancePhase(double phase);
   virtual void setSwingPhase(double phase);
@@ -87,10 +133,9 @@ class LegBase {
 
   virtual void setIsSupportLeg(bool isSupportLeg);
 
-  virtual void setIsLosingContact(bool isLosingContact);
-
   virtual bool didTouchDownAtLeastOnceDuringStance() const;
   virtual void setDidTouchDownAtLeastOnceDuringStance(bool didTouchDownAtLeastOnceDuringStance);
+
 
   /*!
    * Change how much a leg should be loaded.
@@ -159,41 +204,114 @@ class LegBase {
 	virtual StateSwitcher* getStateSwitcher() const;
 
 protected:
+	/*! This is the name of the leg.
+	 */
   std::string name_;
 
+  /*! This is a list of links.
+   */
   LegLinkGroup* links_;
 
+  /*! The stance phase is -1 if the leg is in swing mode,
+   * otherwise it is between 0 (start) and 1 (end).
+   */
   double stancePhase_;
+
+  /*! The stance phase during the previous control update.
+   */
   double previousStancePhase_;
 
+  /*! The swing phase is -1 if the leg is in stance mode,
+   * otherwise it is between 0 (start) and 1 (end).
+   */
   double swingPhase_;
+
+  /*! The swing phase during the previous control update.
+   */
   double previousSwingPhase_;
 
+  /*! The duration of the stance phase in seconds.
+   * The leg should be grounded during the stance phase.
+   */
   double stanceDuration_;
+
+  /*! The duration of the swing phase in seconds.
+   * The leg should be in the air during the swing phase.
+   */
   double swingDuration_;
 
+  /*! Indicates if the leg is in contact with the ground according to sensor measurements.
+   */
   bool isGrounded_;
+
+  /*! Indicates if the leg was in contact with the ground according to sensor measurements
+   * during the previous control update.
+   */
   bool wasGrounded_;
+
+  /*! Indicates if the leg should be in contact with the ground according to the plan (timing).
+   */
   bool shouldBeGrounded_;
+
+  /*! Indicates if the leg is slipping, i.e. it is in contact with the ground according to sensor measurements,
+   * but its foot is moving.
+   */
   bool isSlipping_;
+
+  /*! Indicates if this leg is supposed to be used as a support leg.
+   * This means that this leg is grounded and can be safely used
+   * to control the pose of the torso.
+   */
   bool isSupportLeg_;
+
+  /*! Indicates if the leg is supposed to be grounded, but lost contact according to sensor measurements.
+   */
   bool isLosingContact_;
+
+  /*! Indicates if the leg touched-down at least once during the current stance phase.
+   */
   bool didTouchDownAtLeastOnceDuringStance_;
 
+  /*! This leg should be loaded only by this factor, which is between 0 and 1.
+   *  If it is 1, the leg can/should be fully loaded.
+   *  If it is 0, the leg cannot/shouldn't be loaded at all.
+   */
   double loadFactor_;
 
+  /*! This is the state of the leg at touch-down event.
+   */
   LegStateTouchDown stateTouchDown_;
 
+  /*! This is the state of the leg at lift-off event.
+   */
   LegStateLiftOff stateLiftOff_;
 
+  /*! These are the control modes of all joints.
+   */
   JointControlModes desiredJointControlModes_;
+
+  /*! These are the desired joint angles.
+   */
   JointPositions desiredJointPositions_;
+
+  /*! These are the measured joint angles.
+    */
   JointPositions measuredJointPositions_;
+
+  /*! These are the measured joint velocities.
+    */
   JointVelocities measuredJointVelocities_;
+
+  /*! These are the desired joint torques.
+    */
   JointTorques desiredJointTorques_;
 
-  Position desiredWorldToFootPositionInWorldFrame_;
+  /*! This is the desired foot position expressed in world frame.
+   */
+  Position positionWorldToDesiredFootInWorldFrame_;
 
+  /*! Reference to the state switcher.
+   */
   StateSwitcher* stateSwitcher_;
 
 };
