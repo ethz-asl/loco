@@ -51,6 +51,9 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   //! Get the next stance feet positions based on the gait planner
   Eigen::Matrix<double,3,4> getNextStanceConfig(Eigen::Matrix<double,3,4> currentStanceConfig, int steppingFoot);
 
+
+  Eigen::Matrix<double,2,3> getSafeTriangle(const Eigen::Matrix<double,2,3>& supportTriangle);
+
   //! Get the next swing foot based on the gait sequence
   int getNextSwingFoot(const int currentSwingFoot);
 

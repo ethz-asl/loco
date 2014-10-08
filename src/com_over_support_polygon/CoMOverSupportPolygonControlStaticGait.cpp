@@ -29,6 +29,8 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   swingOrder_[2] = 1;
   swingOrder_[3] = 2;
 
+  delta_ = 0.1;
+
 }
 
 
@@ -82,7 +84,12 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 //    std::cout << "no intersection." << std::endl;
 //  }
 
+    Eigen::Matrix<double,2,3> triangle;
+    triangle << 0.0, 1.0, 0.0,
+                0.0, 0.0, 1.0;
 
+    Eigen::Matrix<double,2,3> safetriangle = getSafeTriangle(triangle);
+    std::cout << "safe: " << safetriangle << std::endl;
 
 }
 
@@ -128,6 +135,38 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
     return true;
   }
   return false;
+}
+
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangle(const Eigen::Matrix<double,2,3>& supportTriangle) {
+  Eigen::Matrix<double,2,3> safeTriangle;
+  safeTriangle.setZero();
+
+  Eigen::Vector2d v1, v2;
+
+  for (int k=0; k<3; k++) {
+    Eigen::Vector2d v1, v2;
+
+    int vertex1, vertex2;
+    if (k==0) {
+      vertex1 = 1;
+      vertex2 = 2;
+    } else if (k==1) {
+      vertex1 = 2;
+      vertex2 = 0;
+    } else if (k==2) {
+      vertex1 = 0;
+      vertex2 = 1;
+    }
+
+    v1 = supportTriangle.col(vertex1) - supportTriangle.col(k); v1 = v1/v1.norm();
+    v2 = supportTriangle.col(vertex2) - supportTriangle.col(k); v2 = v2/v2.norm();
+
+    double phiv1v2 = acos(v1.dot(v2));
+    safeTriangle.col(k) = supportTriangle.col(k)+delta_/sin(phiv1v2)*(v1+v2);
+  }
+
+  return safeTriangle;
 }
 
 
