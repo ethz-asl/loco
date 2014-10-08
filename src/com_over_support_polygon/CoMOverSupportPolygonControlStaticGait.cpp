@@ -25,12 +25,28 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 
 
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
+  //  % cFPl = matrix with all foot points at landing
+  //  % fnrl = foot number of foot that just landed
+  //  % rmbl = main body position at landing
+  //
+  //  % using the feet position and swing leg number, we update the 3
+  //  % steps (last, next, and overnext)
+  //  obj.swing0 = fnrl;
+  //  obj.swing1 = obj.getNextSwingFoot(obj.swing0);
+  //  obj.swing2 = obj.getNextSwingFoot(obj.swing1);
+  //
+  //  % update the foot points at landing
+  //  obj.cFP1 = cFPl;
+  //  % after one step, we would be at the current position
+  //  obj.cFP2 = obj.getNextStanceConfig(cFPl,obj.swing1);
 
+
+    getIndexOfSwingLeg();
 }
 
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
-  positionWorldToHorizontalDesiredBaseInWorldFrame_ = Position(0.1,0.0,0.0);
+  positionWorldToHorizontalDesiredBaseInWorldFrame_ = Position(0.0,0.0,0.0);
   return true;
 }
 
@@ -76,5 +92,18 @@ Position CoMOverSupportPolygonControlStaticGait::lineIntersect(Eigen::Matrix<dou
 const Position& CoMOverSupportPolygonControlStaticGait::getDesiredWorldToCoMPositionInWorldFrame() const {
   return positionWorldToHorizontalDesiredBaseInWorldFrame_;
 }
+
+
+int CoMOverSupportPolygonControlStaticGait::getIndexOfSwingLeg() {
+  int swingLeg = -1;
+  for (auto leg: *legs_) {
+    if (leg->getSwingPhase() != -1) {
+      std::cout << "swing leg nr: " << leg->getId() << std::endl;
+      swingLeg = leg->getId();
+    }
+  }
+  return swingLeg;
+}
+
 
 } /* namespace loco */
