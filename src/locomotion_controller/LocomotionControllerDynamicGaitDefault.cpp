@@ -11,6 +11,7 @@
 #include "loco/common/LegLinkGroup.hpp"
 
 #include "loco/contact_detection/ContactDetectorConstantDuringStance.hpp"
+#include "loco/contact_detection/ContactDetectorFeedThrough.hpp"
 #include "loco/mission_control/MissionControlSpeedFilter.hpp"
 
 namespace loco {
@@ -47,7 +48,7 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
     terrainPerception_.reset(new loco::TerrainPerceptionHorizontalPlane((loco::TerrainModelHorizontalPlane*)terrainModel_.get(), legs_.get(), torso_.get()));
 
     /* create locomotion controller */
-    contactDetector_.reset(new loco::ContactDetectorConstantDuringStance(legs_.get()));
+    contactDetector_.reset(new loco::ContactDetectorFeedThrough());
     gaitPatternAPS_.reset(new loco::GaitPatternAPS);
     gaitPatternFlightPhases_.reset(new loco::GaitPatternFlightPhases);
     limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPatternFlightPhases_.get()));
