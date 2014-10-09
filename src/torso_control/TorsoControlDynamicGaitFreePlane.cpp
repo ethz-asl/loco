@@ -22,16 +22,15 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   desiredPitchSlope_(1.0),
   maxDesiredRollRadians_(5.0*M_PI/180.0),
   desiredRollSlope_(1.0),
-  adaptToTerrain_(CompleteAdaption),
-  comControl_(nullptr)
+  adaptToTerrain_(CompleteAdaption)
 {
   const double defaultHeight = 0.41;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
 
-//    comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
-  comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_, torso_);
+  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
+//  comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_, torso_);
 
 }
 
@@ -49,8 +48,8 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
 
   firstOrderFilter_->initialize(0.0, 1.0, 1.0);
 
-  CoMOverSupportPolygonControlStaticGait* comStatic = (CoMOverSupportPolygonControlStaticGait*)comControl_;
-  comStatic->initialize();
+//  CoMOverSupportPolygonControlStaticGait* comStatic = (CoMOverSupportPolygonControlStaticGait*)comControl_;
+//  comStatic->initialize();
 
   return true;
 }

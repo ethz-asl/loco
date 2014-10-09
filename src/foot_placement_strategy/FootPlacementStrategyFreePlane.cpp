@@ -314,7 +314,6 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
   Position positionDesiredFootHoldOnTerrainFeedBackInControlFrame = orientationWorldToControl.rotate(positionDesiredFootHoldOnTerrainFeedBackInWorldFrame);
   positionDesiredFootHoldOnTerrainFeedBackInControlFrame.z() = 0.0; // project on terrain
   return positionDesiredFootHoldOnTerrainFeedBackInControlFrame;
-
 }
 
 
@@ -347,8 +346,7 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
   //--- save for debug
   //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
 
-//  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
-  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getWorldToHipPositionInWorldFrame();
+  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
 
   terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
 

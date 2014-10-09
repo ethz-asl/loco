@@ -21,7 +21,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   FootPlacementStrategyStaticGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
   virtual ~FootPlacementStrategyStaticGait();
 
-  Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
+  virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
+  virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
 
  protected:
 

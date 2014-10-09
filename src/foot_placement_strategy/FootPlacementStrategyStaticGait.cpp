@@ -63,5 +63,60 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
 }
 
 
+Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg) {
+  const RotationQuaternion& orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+
+  positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg.getId()] = getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(leg);
+  positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()] = getPositionDesiredFootHoldOnTerrainFeedBackInControlFrame(leg);
+
+  Position positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame = positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg.getId()]
+                                                                                     + positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()];
+
+  /* TESTING */
+  //--- add offset
+//  Position offset = getOffsetDesiredFootOnTerrainToCorrectedFootOnTerrainInControlFrame(leg);
+//  std::cout << "offset: " << offset << std::endl;
+//  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame -= offset;
+  //---
+
+  //--- save for debug
+  //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
+
+  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getWorldToHipPositionInWorldFrame();
+
+  terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
+
+  positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame
+                                                      + orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame);
+  //---
+
+  //--- starting point for trajectory interpolation
+  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame = leg.getStateLiftOff().getFootPositionInWorldFrame()
+                                                                              -leg.getStateLiftOff().getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame();
+  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame = orientationWorldToControl.rotate(positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame);
+  //---
+
+  double interpolationParameter = getInterpolationPhase(leg);
+
+  Position positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame = Position(
+                                                                                  // x
+                                                                                  getHeadingComponentOfFootStep(interpolationParameter,
+                                                                                  positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame.x(),
+                                                                                  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame.x(),
+                                                                                  const_cast<LegBase*>(&leg)),
+                                                                                  // y
+                                                                                  getLateralComponentOfFootStep(interpolationParameter,
+                                                                                  positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame.y(),
+                                                                                  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame.y(),
+                                                                                  const_cast<LegBase*>(&leg)),
+                                                                                  // z
+                                                                                  0.0
+                                                                                  );
+
+  return positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame;
+}
+
+
+
 } /* namespace loco */
 
