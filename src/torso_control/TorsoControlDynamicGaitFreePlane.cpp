@@ -30,7 +30,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
 
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
 
-  //  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
+//    comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
   comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_, torso_);
 
 }
@@ -195,7 +195,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
    *******************************/
 
 
-
+//  std::cout << "desired torso pos: " << positionControlToTargetBaseInControlFrame << std::endl;
   torso_->getDesiredState().setPositionControlToBaseInControlFrame(positionControlToTargetBaseInControlFrame);
   torso_->getDesiredState().setOrientationControlToBase(orientationControlToDesiredBase);
 

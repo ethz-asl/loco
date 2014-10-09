@@ -58,7 +58,8 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
-  positionWorldToDesiredCoMInWorldFrame_ = Position(0.0,0.0,0.0);
+  positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+  positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
 
   feetConfigurationCurrent_.setZero();
   feetConfigurationNext_.setZero();
@@ -174,10 +175,11 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
                                                   intersection[1],
                                                   0.0;
       } else {
-        std::cout << "no intersectrion!" << std::endl;
+
+        std::cout << "no intersection!" << std::endl;
       }
 
-//      std::cout << "des pos: " << positionWorldToDesiredCoMInWorldFrame_ << std::endl;
+      std::cout << "des pos: " << positionWorldToDesiredCoMInWorldFrame_ << std::endl;
 
     }
 
@@ -299,23 +301,37 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
   }
 
   Pos2d v1 = l1_2-l1_1;
+//  std::cout << "v1 norm: " << v1.norm();
   v1 = v1/v1.norm();
 
   Pos2d v2 = l2_2-l2_1;
+//  std::cout << "v2 norm: " << v2.norm();
   v2 = v2/v2.norm();
 
   // Check if v1 and v2 are parallel (matrix would not be invertible)
   Eigen::Matrix2d A;
+  Pos2d x;
+  x(0) = -1; x(1) = -1;
   A << -v1, v2;
   Eigen::FullPivLU<Eigen::Matrix2d> Apiv(A);
   if (Apiv.rank() == 2) {
+    std::cout << "solving A-b" << std::endl;
+    x = A.lu().solve(l1_1-l2_1);
+    std::cout << "solution: " << x << std::endl;
+  }
 
-    Pos2d x = A.lu().solve(l1_1-l2_1);
+  if (x(0)>=0.0 && x(0)<=1.0) {
     intersection << l1_1(0) + x(0)*v1(0),
                     l1_1(1) + x(0)*v1(1);
+
+    std::cout << std::endl
+              << "intersection: " << intersection << std::endl
+              << "A: " << A << std::endl
+              << "x: " << x << std::endl
+              << "l1_1: " << l1_1 << std::endl;
+
     return true;
-  }
-  else {
+  } else {
 //    std::cout << "v1 and v2 are parallel" << std::endl;
     return false;
   }
