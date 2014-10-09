@@ -78,6 +78,16 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     updateSwingLegsIndexes();
 
+    RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+    LinearVelocity desiredLinearVelocityInWorldFrame = orientationWorldToControl.inverseRotate(torso_->getDesiredState().getLinearVelocityBaseInControlFrame());
+    Eigen::Vector2d desiredLinearVelocity;
+    desiredLinearVelocity << desiredLinearVelocityInWorldFrame.x(),
+                             desiredLinearVelocityInWorldFrame.y();
+
+    comStep_ = 0.5*desiredLinearVelocity*legs_->getLeftForeLeg()->getStanceDuration();
+
+    std::cout << "com step: " << comStep_ << std::endl;
+
     if (1+0*swingFootChanged_) {
       // reset flag
       swingFootChanged_ = false;
@@ -315,20 +325,20 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
   A << -v1, v2;
   Eigen::FullPivLU<Eigen::Matrix2d> Apiv(A);
   if (Apiv.rank() == 2) {
-    std::cout << "solving A-b" << std::endl;
+//    std::cout << "solving A-b" << std::endl;
     x = A.lu().solve(l1_1-l2_1);
-    std::cout << "solution: " << x << std::endl;
+//    std::cout << "solution: " << x << std::endl;
   }
 
   if (x(0)>=0.0 && x(0)<=1.0) {
     intersection << l1_1(0) + x(0)*v1(0),
                     l1_1(1) + x(0)*v1(1);
 
-    std::cout << std::endl
-              << "intersection: " << intersection << std::endl
-              << "A: " << A << std::endl
-              << "x: " << x << std::endl
-              << "l1_1: " << l1_1 << std::endl;
+//    std::cout << std::endl
+//              << "intersection: " << intersection << std::endl
+//              << "A: " << A << std::endl
+//              << "x: " << x << std::endl
+//              << "l1_1: " << l1_1 << std::endl;
 
     return true;
   } else {
