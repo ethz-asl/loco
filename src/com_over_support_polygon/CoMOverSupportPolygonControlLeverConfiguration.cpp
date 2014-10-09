@@ -117,8 +117,8 @@ void CoMOverSupportPolygonControlLeverConfiguration::advance(double dt) {
 //            << "com: " << comTarget << std::endl
 //            << "fore support" << positionBaseOnTerrainToForeSupportLegInControlFrame << std::endl;
 
-  positionWorldToHorizontalDesiredBaseInWorldFrame_ = comTarget + Position(headingOffset_, lateralOffset_, 0.0);
-  positionWorldToHorizontalDesiredBaseInWorldFrame_.z() = 0.0;
+  positionWorldToDesiredCoMInWorldFrame_ = comTarget + Position(headingOffset_, lateralOffset_, 0.0);
+  positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
 
 }
 

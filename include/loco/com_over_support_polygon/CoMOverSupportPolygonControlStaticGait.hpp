@@ -17,7 +17,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
  public:
 
   typedef Eigen::Matrix<double,2,4> FeetConfiguration;
-  typedef Eigen::Matrix<double,2,4> SupportTriangle;
+  typedef Eigen::Matrix<double,2,3> SupportTriangle;
   typedef Eigen::Matrix<double,2,2> Line;
   typedef Eigen::Vector2d Pos2d;
 
@@ -29,6 +29,14 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual const Position& getPositionWorldToDesiredCoMInWorldFrame() const;
 
+  Eigen::Matrix<double,2,3> getSupportTriangleCurrent() const;
+  Eigen::Matrix<double,2,3> getSupportTriangleNext() const;
+  Eigen::Matrix<double,2,3> getSupportTriangleOverNext() const;
+
+  Eigen::Matrix<double,2,3> getSafeTriangleCurrent() const;
+  Eigen::Matrix<double,2,3> getSafeTriangleNext() const;
+  Eigen::Matrix<double,2,3> getSafeTriangleOverNext() const;
+
  protected:
 
   TorsoBase* torso_;
@@ -37,9 +45,13 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int swingLegIndexNext_;
   int swingLegIndexLast_;
   int swingLegIndexOverNext_;
+
+  Eigen::Matrix<double,2,3> supportTriangleCurrent_, supportTriangleNext_, supportTriangleOverNext_;
+  Eigen::Matrix<double,2,3> safeTriangleCurrent_, safeTriangleNext_, safeTriangleOverNext_;
+
   Eigen::Vector2d comStep_;
   double maxComStep_;
-  FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_, feetConfigurationOnverNext_, homePos_;
+  FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_, feetConfigurationOverNext_, homePos_;
 
   bool swingFootChanged_;
 
@@ -50,7 +62,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   double delta_;
 
   //! The desired CoM position in world frame
-  Position positionWorldToDesiredCoMInWorldFrame_;
+//  Position positionWorldToDesiredCoMInWorldFrame_;
 
   //! Get the next stance feet positions based on the gait planner
   Eigen::Matrix<double,2,4> getNextStanceConfig(const FeetConfiguration& currentStanceConfig, int steppingFoot);

@@ -56,7 +56,7 @@ class CoMOverSupportPolygonControlBase {
   bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
 
  protected:
-  Position positionWorldToHorizontalDesiredBaseInWorldFrame_;
+  Position positionWorldToDesiredCoMInWorldFrame_;
 
   LegGroup* legs_;
   //! this is the minimum weight any leg can have... if this is zero,then the COM will try to be right at center of the support polygon [0,1]

@@ -76,8 +76,8 @@ void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
     comTarget /= legs_->size();
   }
 
-  positionWorldToHorizontalDesiredBaseInWorldFrame_ = comTarget;//; + Position(headingOffset_, lateralOffset_, 0.0);
-  positionWorldToHorizontalDesiredBaseInWorldFrame_.z() = 0.0;
+  positionWorldToDesiredCoMInWorldFrame_ = comTarget;//; + Position(headingOffset_, lateralOffset_, 0.0);
+  positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
 
 //  std::cout << "desired world to foot pos: " << positionWorldToHorizontalDesiredBaseInWorldFrame_ << std::endl;
 
@@ -85,7 +85,7 @@ void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
 
 
 const Position& CoMOverSupportPolygonControlDynamicGait::getPositionWorldToDesiredCoMInWorldFrame() const {
-  return positionWorldToHorizontalDesiredBaseInWorldFrame_;
+  return positionWorldToDesiredCoMInWorldFrame_;
 }
 
 

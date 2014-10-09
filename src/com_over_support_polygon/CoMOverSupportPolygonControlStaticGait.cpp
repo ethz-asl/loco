@@ -17,7 +17,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingOrder_(legs_->size()),
     delta_(0.0),
     maxComStep_(0.0),
-    positionWorldToDesiredCoMInWorldFrame_(),
     swingLegIndexNow_(-1),
     swingLegIndexNext_(-1),
     swingLegIndexLast_(-1),
@@ -30,14 +29,26 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   swingOrder_[2] = 1;
   swingOrder_[3] = 2;
 
+  swingLegIndexLast_ = swingOrder_[2];
+  swingLegIndexNext_ = getNextSwingFoot(swingLegIndexLast_);
+  swingLegIndexOverNext_= getNextSwingFoot(swingLegIndexNext_);
+
   // Reset Eigen variables
   homePos_.setZero();
   comStep_.setZero();
   feetConfigurationCurrent_.setZero();
   feetConfigurationNext_.setZero();
-  feetConfigurationOnverNext_.setZero();
+  feetConfigurationOverNext_.setZero();
 
-  delta_ = 0.1;
+  supportTriangleCurrent_.setZero();
+  supportTriangleNext_.setZero();
+  supportTriangleOverNext_.setZero();
+
+  safeTriangleCurrent_.setZero();
+  safeTriangleNext_.setZero();
+  safeTriangleOverNext_.setZero();
+
+  delta_ = 0.05;
 }
 
 
@@ -51,7 +62,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   feetConfigurationCurrent_.setZero();
   feetConfigurationNext_.setZero();
-  feetConfigurationOnverNext_.setZero();
+  feetConfigurationOverNext_.setZero();
 
   // save home feet positions
   for (auto leg: *legs_) {
@@ -64,25 +75,9 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
 
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
-  //  % cFPl = matrix with all foot points at landing
-  //  % fnrl = foot number of foot that just landed
-  //  % rmbl = main body position at landing
-  //
-  //  % using the feet position and swing leg number, we update the 3
-  //  % steps (last, next, and overnext)
-  //  obj.swing0 = fnrl;
-  //  obj.swing1 = obj.getNextSwingFoot(obj.swing0);
-  //  obj.swing2 = obj.getNextSwingFoot(obj.swing1);
-  //
-  //  % update the foot points at landing
-  //  obj.cFP1 = cFPl;
-  //  % after one step, we would be at the current position
-  //  obj.cFP2 = obj.getNextStanceConfig(cFPl,obj.swing1);
-
-
     updateSwingLegsIndexes();
 
-    if (swingFootChanged_) {
+    if (1+0*swingFootChanged_) {
       // reset flag
       swingFootChanged_ = false;
 
@@ -93,23 +88,98 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       }
 
       feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexNext_);
-      feetConfigurationOnverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexOverNext_);
+      feetConfigurationOverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexOverNext_);
 
+//      std::cout << "*********************************************" << std::endl;
+//      std::cout << "current feet:  " << std::endl << feetConfigurationCurrent_ << std::endl;
+//      std::cout << "next feet:     " << std::endl << feetConfigurationNext_ << std::endl;
+//      std::cout << "overnext feet: " << std::endl << feetConfigurationOverNext_ << std::endl;
 
-
-
-//      std::cout << "support triangle will be edged at feet indexes:";
+      // Get support triangles
+//      std::cout << "*********************************************" << std::endl;
+//      std::cout << "current swing leg: " << swingLegIndexLast_ << std::endl;
+//      std::cout << "current support legs: ";
+      int j=0;
       for (int k=0; k<legs_->size(); k++) {
-        if (k != swingLegIndexNext_) {
+        if (k != swingLegIndexLast_) {
 //          std::cout << " " << k;
+          supportTriangleCurrent_.col(j) = feetConfigurationCurrent_.col(k);
+          j++;
         }
       }
 //      std::cout << std::endl;
 
+      safeTriangleCurrent_ = getSafeTriangle(supportTriangleCurrent_);
+//      std::cout << "current support: " << std::endl << supportTriangleCurrent_ << std::endl;
+//      std::cout << "current safe:    " << std::endl << safeTriangleCurrent_ << std::endl;
+
+
+//      std::cout << "*********************************************" << std::endl;
+//      std::cout << "next swing leg: " << swingLegIndexNext_ << std::endl;
+//      std::cout << "next support legs: ";
+      j=0;
+      for (int k=0; k<legs_->size(); k++) {
+        if (k != swingLegIndexNext_) {
+//          std::cout << " " << k;
+          supportTriangleNext_.col(j) = feetConfigurationNext_.col(k);
+          j++;
+        }
+      }
+//      std::cout << std::endl;
+      safeTriangleNext_ = getSafeTriangle(supportTriangleNext_);
+
+
+//      std::cout << "*********************************************" << std::endl;
+//      std::cout << "over next swing leg: " << swingLegIndexOverNext_ << std::endl;
+//      std::cout << "over next support legs: ";
+      j=0;
+      for (int k=0; k<legs_->size(); k++) {
+        if (k != swingLegIndexOverNext_) {
+//          std::cout << " " << k;
+          supportTriangleOverNext_.col(j) = feetConfigurationOverNext_.col(k);
+          j++;
+        }
+      }
+//      std::cout << std::endl;
+      safeTriangleOverNext_ = getSafeTriangle(supportTriangleOverNext_);
+
+
+      std::vector<int> diagonalSwingLegsLast(2), diagonalSwingLegsNext(2), diagonalSwingLegsOverNext(2);
+      diagonalSwingLegsLast = getDiagonalElements(swingLegIndexLast_);
+      diagonalSwingLegsNext = getDiagonalElements(swingLegIndexNext_);
+      diagonalSwingLegsOverNext = getDiagonalElements(swingLegIndexOverNext_);
+
+      Pos2d intersection;
+      intersection.setZero();
+
+      Line lineSafeLast, lineSafeNext, lineSafeOverNext;
+      lineSafeLast << safeTriangleCurrent_.col(diagonalSwingLegsLast[0]),
+                      safeTriangleCurrent_.col(diagonalSwingLegsLast[1]);
+
+      lineSafeNext << safeTriangleNext_.col(diagonalSwingLegsNext[0]),
+                      safeTriangleNext_.col(diagonalSwingLegsNext[1]);
+
+      lineSafeOverNext << safeTriangleOverNext_.col(diagonalSwingLegsOverNext[0]),
+                          safeTriangleOverNext_.col(diagonalSwingLegsOverNext[1]);
+
+
+      if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
+        std::cout << "intersection between current and next" << std::endl;
+        positionWorldToDesiredCoMInWorldFrame_ << intersection[0],
+                                                  intersection[1],
+                                                  0.0;
+      } else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
+        std::cout << "intersection between next and overnext" << std::endl;
+        positionWorldToDesiredCoMInWorldFrame_ << intersection[0],
+                                                  intersection[1],
+                                                  0.0;
+      } else {
+        std::cout << "no intersectrion!" << std::endl;
+      }
+
+//      std::cout << "des pos: " << positionWorldToDesiredCoMInWorldFrame_ << std::endl;
 
     }
-
-
 
 
     /*
@@ -154,7 +224,31 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 }
 
 
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleCurrent() const {
+  return supportTriangleCurrent_;
+}
 
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleNext() const {
+  return supportTriangleNext_;
+}
+
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleOverNext() const {
+  return supportTriangleOverNext_;
+}
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangleCurrent() const {
+  return safeTriangleCurrent_;
+}
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangleNext() const {
+  return safeTriangleNext_;
+}
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangleOverNext() const {
+  return safeTriangleOverNext_;
+}
 
 
 Eigen::Matrix<double,2,4> CoMOverSupportPolygonControlStaticGait::getNextStanceConfig(const FeetConfiguration& currentStanceConfig, int steppingFoot) {
@@ -165,8 +259,9 @@ Eigen::Matrix<double,2,4> CoMOverSupportPolygonControlStaticGait::getNextStanceC
   Pos2d currentFeetCenter;
   for (auto leg: *legs_) {
     Pos2d footPosition;
-    footPosition << leg->getWorldToFootPositionInWorldFrame().x(), leg->getWorldToFootPositionInWorldFrame().y();
-    currentFeetCenter += footPosition/legs_->size();
+//    footPosition << leg->getWorldToFootPositionInWorldFrame().x(), leg->getWorldToFootPositionInWorldFrame().y();
+//    currentFeetCenter += footPosition/legs_->size();
+    currentFeetCenter += currentStanceConfig.col(leg->getId())/legs_->size();
   }
 
   // Find new feet center (after step will be made)
@@ -199,6 +294,7 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
 
   // Check if line length is zero
   if ( (l1_1-l1_2).isZero() || (l2_1-l2_2).isZero() ) {
+//    std::cout << "line length is zero" << std::endl;
     return false;
   }
 
@@ -209,15 +305,20 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
   v2 = v2/v2.norm();
 
   // Check if v1 and v2 are parallel (matrix would not be invertible)
-  if ( ! (abs(v1.dot(v2)-1.0) < 1e-6) ) {
-    Eigen::Matrix2d A;
-    A << -v1, v2;
+  Eigen::Matrix2d A;
+  A << -v1, v2;
+  Eigen::FullPivLU<Eigen::Matrix2d> Apiv(A);
+  if (Apiv.rank() == 2) {
+
     Pos2d x = A.lu().solve(l1_1-l2_1);
     intersection << l1_1(0) + x(0)*v1(0),
-                    l1_1(1) + x(1)*v1(1);
+                    l1_1(1) + x(0)*v1(1);
     return true;
   }
-  return false;
+  else {
+//    std::cout << "v1 and v2 are parallel" << std::endl;
+    return false;
+  }
 }
 
 
@@ -271,6 +372,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSwingLegsIndexes() {
 
   swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 
+//  std::cout << "*******************" << std::endl;
 //  std::cout << "last:  " << swingLegIndexLast_ << std::endl;
 //  std::cout << "now:   " << swingLegIndexNow_ << std::endl;
 //  std::cout << "next:  " << swingLegIndexNext_ << std::endl;
@@ -304,20 +406,44 @@ int CoMOverSupportPolygonControlStaticGait::getNextSwingFoot(const int currentSw
 std::vector<int> CoMOverSupportPolygonControlStaticGait::getDiagonalElements(int swingLeg) {
   std::vector<int> diagonalSwingLegs(2);
 
+//  switch(swingLeg) {
+//    case(0):
+//    case(3):
+//      diagonalSwingLegs[0] = 0;
+//      diagonalSwingLegs[1] = 3;
+//      break;
+//    case(1):
+//    case(2):
+//      diagonalSwingLegs[0] = 1;
+//      diagonalSwingLegs[1] = 2;
+//      break;
+//    default:
+//      break;
   switch(swingLeg) {
     case(0):
-    case(3):
       diagonalSwingLegs[0] = 0;
-      diagonalSwingLegs[1] = 3;
+      diagonalSwingLegs[1] = 1;
       break;
     case(1):
+      diagonalSwingLegs[0] = 0;
+      diagonalSwingLegs[1] = 2;
+      break;
     case(2):
+      diagonalSwingLegs[0] = 0;
+      diagonalSwingLegs[1] = 2;
+      break;
+    case(3):
       diagonalSwingLegs[0] = 1;
       diagonalSwingLegs[1] = 2;
       break;
     default:
       break;
   }
+
+//  std::cout << "***********" << std::endl;
+//  std::cout << "swing leg: " << swingLeg << std::endl;
+//  std::cout << "diagonal elements: " <<diagonalSwingLegs[0] << " " << diagonalSwingLegs[1] << std::endl;
+
   return diagonalSwingLegs;
 }
 
