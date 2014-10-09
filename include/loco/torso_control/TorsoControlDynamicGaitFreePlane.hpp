@@ -22,6 +22,7 @@ namespace loco {
    public:
     enum AdaptToTerrain {CompleteAdaption, SaturatedLinearAdaption};
     TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
+    TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain, CoMOverSupportPolygonControlBase* comControl);
     virtual ~TorsoControlDynamicGaitFreePlane();
 
     virtual bool initialize(double dt);

@@ -83,6 +83,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   void updateSwingLegsIndexes();
 
+  void updateSafeSupportTriangles();
+
 };
 
 } /* namespace loco */

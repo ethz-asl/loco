@@ -19,6 +19,8 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
   stepInterpolationFunction_.addKnot(0, 0);
   stepInterpolationFunction_.addKnot(1.0, 1);
 
+  stepFeedbackScale_ = 0.0;
+
 }
 
 
@@ -36,7 +38,7 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
   // Get offset to change between telescopic and lever configuration
-  Position positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame = getPositionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame(*leg);
+//  Position positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame = getPositionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame(*leg);
 
   //--- Evaluate the interpolation contributions
   Position positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame = getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(*leg); //x-y
@@ -46,7 +48,7 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
 
   //--- Build the world to desired foot position and return it
   Position positionWorldToDesiredFootInWorldFrame = positionWorldToHipOnPlaneAlongNormalInWorldFrame // starting point, hip projected on the plane along world z axis
-                                                    + positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame  // lever || telescopic component
+//                                                    + positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame  // lever || telescopic component
                                                     + orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame) // x-y
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame); // z
   //---
@@ -62,6 +64,18 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
 
 }
 
+// Evaluate feed forward component
+Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(const LegBase& leg)   {
+  double stanceDuration = leg.getStanceDuration();
+
+  Position headingAxisOfControlFrame = Position::UnitX();
+  Position positionDesiredFootOnTerrainVelocityOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(headingAxisOfControlFrame.toImplementation()))
+                                                                      *stanceDuration*0.5;
+
+  Position positionDesiredFootOnTerrainFeedForwardInControlFrame = positionDesiredFootOnTerrainVelocityOffsetInControlFrame;
+  return positionDesiredFootOnTerrainFeedForwardInControlFrame;
+}
+
 
 Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg) {
   const RotationQuaternion& orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
@@ -70,20 +84,13 @@ Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDe
   positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()] = getPositionDesiredFootHoldOnTerrainFeedBackInControlFrame(leg);
 
   Position positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame = positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg.getId()]
-                                                                                     + positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()];
-
-  /* TESTING */
-  //--- add offset
-//  Position offset = getOffsetDesiredFootOnTerrainToCorrectedFootOnTerrainInControlFrame(leg);
-//  std::cout << "offset: " << offset << std::endl;
-//  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame -= offset;
-  //---
+                                                                                     /*+ positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()]*/;
 
   //--- save for debug
   //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
 
   Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getWorldToHipPositionInWorldFrame();
-
+//  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
   terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
 
   positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame

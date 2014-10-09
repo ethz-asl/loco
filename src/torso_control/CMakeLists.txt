@@ -23,6 +23,7 @@ set(LOCO_SRCS ${LOCO_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlBase.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGait.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlDynamicGaitFreePlane.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlStaticGait.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/TorsoControlJump.cpp
 PARENT_SCOPE)
 
