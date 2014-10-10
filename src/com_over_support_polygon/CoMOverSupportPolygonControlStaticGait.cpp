@@ -71,7 +71,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   // save home feet positions
   for (auto leg: *legs_) {
-    Position positionWorldToFootInFrame = leg->getWorldToFootPositionInWorldFrame();
+    Position positionWorldToFootInFrame = leg->getPositionWorldToFootInWorldFrame();
     homePos_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
   }
 
@@ -89,7 +89,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   // update current configuration
   for (auto leg: *legs_) {
-    Position positionWorldToFootInFrame = leg->getWorldToFootPositionInWorldFrame();
+    Position positionWorldToFootInFrame = leg->getPositionWorldToFootInWorldFrame();
     feetConfigurationCurrent_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
   }
 

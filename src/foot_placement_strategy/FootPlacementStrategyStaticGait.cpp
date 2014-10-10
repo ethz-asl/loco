@@ -89,7 +89,7 @@ Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDe
   //--- save for debug
   //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
 
-  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getWorldToHipPositionInWorldFrame();
+  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getPositionWorldToHipInWorldFrame();
 //  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
   terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
 
@@ -98,7 +98,7 @@ Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDe
   //---
 
   //--- starting point for trajectory interpolation
-  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame = leg.getStateLiftOff().getFootPositionInWorldFrame()
+  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame = leg.getStateLiftOff().getPositionWorldToFootInWorldFrame()
                                                                               -leg.getStateLiftOff().getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame();
   const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame = orientationWorldToControl.rotate(positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame);
   //---

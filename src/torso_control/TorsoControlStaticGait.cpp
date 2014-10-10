@@ -25,8 +25,8 @@ TorsoControlStaticGait::~TorsoControlStaticGait() {
 
 
 bool TorsoControlStaticGait::initialize(double dt) {
-  const Position foreHipPosition = legs_->getLeg(0)->getWorldToHipPositionInBaseFrame();
-  const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
+  const Position foreHipPosition = legs_->getLeg(0)->getPositionWorldToHipInBaseFrame();
+  const Position hindHipPosition = legs_->getLeg(2)->getPositionWorldToHipInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
   CoMOverSupportPolygonControlStaticGait* comStatic = (CoMOverSupportPolygonControlStaticGait*)comControl_;
