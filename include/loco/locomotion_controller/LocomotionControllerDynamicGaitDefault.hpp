@@ -18,7 +18,9 @@
 #include "loco/gait_pattern/GaitPatternFlightPhases.hpp"
 #include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyInvertedPendulum.hpp"
+#include "loco/foot_placement_strategy/FootPlacementStrategyFreePlane.hpp"
 #include "loco/torso_control/TorsoControlDynamicGait.hpp"
+#include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
 #include "loco/motion_control/VirtualModelController.hpp"
 #include "loco/contact_force_distribution/ContactForceDistribution.hpp"
 #include "loco/contact_detection/ContactDetectorBase.hpp"
@@ -99,8 +101,8 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   std::shared_ptr<GaitPatternAPS> gaitPatternAPS_;
   std::shared_ptr<GaitPatternFlightPhases> gaitPatternFlightPhases_;
   std::shared_ptr<LimbCoordinatorDynamicGait> limbCoordinator_;
-  std::shared_ptr<FootPlacementStrategyInvertedPendulum> footPlacementStrategy_;
-  std::shared_ptr<TorsoControlDynamicGait> torsoController_;
+  std::shared_ptr<FootPlacementStrategyFreePlane> footPlacementStrategy_;
+  std::shared_ptr<TorsoControlDynamicGaitFreePlane> torsoController_;
   std::shared_ptr<ContactForceDistribution> contactForceDistribution_;
   std::shared_ptr<VirtualModelController> virtualModelController_;
   std::shared_ptr<ContactDetectorBase> contactDetector_;

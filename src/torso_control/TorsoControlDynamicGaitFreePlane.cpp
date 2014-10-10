@@ -7,7 +7,6 @@
 
 #include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
-#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlStaticGait.hpp"
 #include "loco/temp_helpers/math.hpp"
 #include <exception>
 
@@ -30,15 +29,14 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
 
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
 
-  //  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
-  comControl_ = new CoMOverSupportPolygonControlStaticGait(legs_, torso_);
+  comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
 
 }
 
 
 TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
   delete firstOrderFilter_;
-  if (comControl_) delete comControl_;
+  delete comControl_;
 }
 
 
@@ -48,9 +46,6 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
   firstOrderFilter_->initialize(0.0, 1.0, 1.0);
-
-  CoMOverSupportPolygonControlStaticGait* comStatic = (CoMOverSupportPolygonControlStaticGait*)comControl_;
-  comStatic->initialize();
 
   return true;
 }
