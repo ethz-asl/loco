@@ -52,7 +52,6 @@ bool TorsoControlDynamicGaitFreePlane::initialize(double dt) {
 
 
 bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
-
   comControl_->advance(dt);
 
   // Get measured orientation
