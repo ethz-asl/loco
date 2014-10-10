@@ -33,18 +33,18 @@ class LegStarlETH : public loco::LegBase {
   LegStarlETH(const std::string& name, int iLeg, robotModel::RobotModel* robotModel);
 
   virtual ~LegStarlETH();
-  virtual const Position& getWorldToFootPositionInWorldFrame()  const;
-  virtual const Position& getWorldToHipPositionInWorldFrame()  const;
-  virtual const LinearVelocity& getHipLinearVelocityInWorldFrame()  const;
-  virtual const LinearVelocity& getFootLinearVelocityInWorldFrame()  const;
+  virtual const Position& getPositionWorldToFootInWorldFrame()  const;
+  virtual const Position& getPositionWorldToHipInWorldFrame()  const;
+  virtual const LinearVelocity& getLinearVelocityHipInWorldFrame()  const;
+  virtual const LinearVelocity& getLinearVelocityFootInWorldFrame()  const;
 
-  virtual const Position& getWorldToFootPositionInBaseFrame() const;
-  virtual const Position& getWorldToHipPositionInBaseFrame() const;
+  virtual const Position& getPositionWorldToFootInBaseFrame() const;
+  virtual const Position& getPositionWorldToHipInBaseFrame() const;
 
-  virtual const Position& getBaseToFootPositionInBaseFrame() const;
-  virtual const Position& getBaseToHipPositionInBaseFrame() const;
+  virtual const Position& getPositionBaseToFootInBaseFrame() const;
+  virtual const Position& getPositionBaseToHipInBaseFrame() const;
 
-  virtual JointPositions getJointPositionsFromBaseToFootPositionInBaseFrame(const Position& positionBaseToFootInBaseFrame);
+  virtual JointPositions getJointPositionsFromPositionBaseToFootInBaseFrame(const Position& positionBaseToFootInBaseFrame);
 
   virtual const Force& getFootContactForceInWorldFrame() const;
   virtual const Vector& getFootContactNormalInWorldFrame() const;

@@ -53,32 +53,32 @@ LegStarlETH::~LegStarlETH()
 
 }
 
-const Position& LegStarlETH::getWorldToFootPositionInWorldFrame() const
+const Position& LegStarlETH::getPositionWorldToFootInWorldFrame() const
 {
   return positionWorldToFootInWorldFrame_;
 }
 
-const Position& LegStarlETH::getWorldToHipPositionInWorldFrame() const
+const Position& LegStarlETH::getPositionWorldToHipInWorldFrame() const
 {
   return positionWorldToHipInWorldFrame_;
 }
 
-const Position& LegStarlETH::getWorldToFootPositionInBaseFrame() const
+const Position& LegStarlETH::getPositionWorldToFootInBaseFrame() const
 {
   return positionWorldToFootInBaseFrame_;
 }
 
-const Position& LegStarlETH::getWorldToHipPositionInBaseFrame() const
+const Position& LegStarlETH::getPositionWorldToHipInBaseFrame() const
 {
   return positionWorldToHipInBaseFrame_;
 }
 
-const LinearVelocity& LegStarlETH::getHipLinearVelocityInWorldFrame() const
+const LinearVelocity& LegStarlETH::getLinearVelocityHipInWorldFrame() const
 {
   return linearVelocityHipInWorldFrame_;
 }
 
-const LinearVelocity& LegStarlETH::getFootLinearVelocityInWorldFrame() const
+const LinearVelocity& LegStarlETH::getLinearVelocityFootInWorldFrame() const
 {
   return linearVelocityFootInWorldFrame_;
 }
@@ -98,8 +98,8 @@ bool LegStarlETH::initialize(double dt) {
   if(!this->advance(dt)) {
     return false;
   }
-  stateLiftOff_.setWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
-  stateLiftOff_.setWorldToHipPositionInWorldFrame(positionWorldToHipInWorldFrame_);
+  stateLiftOff_.setPositionWorldToFootInWorldFrame(positionWorldToFootInWorldFrame_);
+  stateLiftOff_.setPositionWorldToHipInWorldFrame(positionWorldToHipInWorldFrame_);
 
   stateTouchDown_.setTouchdownFootPositionInWorldFrame(positionWorldToFootInWorldFrame_);
 
@@ -156,7 +156,7 @@ bool LegStarlETH::advance(double dt)
   return true;
 }
 
-LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromBaseToFootPositionInBaseFrame(
+LegStarlETH::JointPositions LegStarlETH::getJointPositionsFromPositionBaseToFootInBaseFrame(
     const Position& positionBaseToFootInBaseFrame)
 {
   return JointPositions(
@@ -174,12 +174,12 @@ const LegPropertiesBase& LegStarlETH::getProperties() const
   return properties_;
 }
 
-const Position& LegStarlETH::getBaseToFootPositionInBaseFrame() const
+const Position& LegStarlETH::getPositionBaseToFootInBaseFrame() const
 {
   return positionBaseToFootInBaseFrame_;
 }
 
-const Position& LegStarlETH::getBaseToHipPositionInBaseFrame() const {
+const Position& LegStarlETH::getPositionBaseToHipInBaseFrame() const {
   return positionBaseToHipInBaseFrame_;
 }
 

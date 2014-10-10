@@ -58,21 +58,21 @@ void CoMOverSupportPolygonControlLeverConfiguration::advance(double dt) {
 
   // Get contact points
   if (legs_->getLeftForeLeg()->isSupportLeg()) {
-    positionBaseOnTerrainToForeSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame());
+    positionBaseOnTerrainToForeSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getLeftForeLeg()->getPositionWorldToFootInWorldFrame());
     positionBaseOnTerrainToForeSupportLegInControlFrame = orientationWorldToControl.rotate(positionBaseOnTerrainToForeSupportLegInControlFrame-rb_onplane_controlvertical);
 
-    positionBaseOnTerrainToHindSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame());
+    positionBaseOnTerrainToHindSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getRightHindLeg()->getPositionWorldToFootInWorldFrame());
     positionBaseOnTerrainToHindSupportLegInControlFrame = orientationWorldToControl.rotate(positionBaseOnTerrainToHindSupportLegInControlFrame-rb_onplane_controlvertical);
 
     positionCenterToForeHindSupportFeetInControlFrame_[0] = positionBaseOnTerrainToForeSupportLegInControlFrame;
     positionCenterToForeHindSupportFeetInControlFrame_[1] = positionBaseOnTerrainToHindSupportLegInControlFrame;
   }
   else {
-    positionBaseOnTerrainToForeSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame());
+    positionBaseOnTerrainToForeSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getRightForeLeg()->getPositionWorldToFootInWorldFrame());
     positionBaseOnTerrainToForeSupportLegInControlFrame = orientationWorldToControl.rotate(positionBaseOnTerrainToForeSupportLegInControlFrame-rb_onplane_controlvertical);
 
-    positionBaseOnTerrainToHindSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame());
-    positionBaseOnTerrainToHindSupportLegInControlFrame = orientationWorldToControl.rotate(legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame()-rb_onplane_controlvertical);
+    positionBaseOnTerrainToHindSupportLegInControlFrame = terrainModel->getPositionProjectedOnPlaneAlongSurfaceNormalInWorldFrame(legs_->getLeftHindLeg()->getPositionWorldToFootInWorldFrame());
+    positionBaseOnTerrainToHindSupportLegInControlFrame = orientationWorldToControl.rotate(legs_->getLeftHindLeg()->getPositionWorldToFootInWorldFrame()-rb_onplane_controlvertical);
 
     positionCenterToForeHindSupportFeetInControlFrame_[0] = positionBaseOnTerrainToForeSupportLegInControlFrame;
     positionCenterToForeHindSupportFeetInControlFrame_[1] = positionBaseOnTerrainToHindSupportLegInControlFrame;

@@ -22,11 +22,11 @@ LegStateLiftOff::~LegStateLiftOff() {
 
 }
 
-const Position& LegStateLiftOff::getWorldToHipPositionInWorldFrame() const {
+const Position& LegStateLiftOff::getPositionWorldToHipInWorldFrame() const {
   return hipPositionInWorldFrame_;
 }
 
-const Position& LegStateLiftOff::getFootPositionInWorldFrame() const {
+const Position& LegStateLiftOff::getPositionWorldToFootInWorldFrame() const {
   return footPositionInWorldFrame_;
 }
 
@@ -34,11 +34,11 @@ const Position& LegStateLiftOff::getPositionWorldToHipOnTerrainAlongNormalToSurf
   return positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame_;
 }
 
-void LegStateLiftOff::setWorldToHipPositionInWorldFrame(const Position& hipPositionInWorldFrame)  {
+void LegStateLiftOff::setPositionWorldToHipInWorldFrame(const Position& hipPositionInWorldFrame)  {
   hipPositionInWorldFrame_ = hipPositionInWorldFrame;
 }
 
-void LegStateLiftOff::setWorldToFootPositionInWorldFrame(const Position& footPositionInWorldFrame)
+void LegStateLiftOff::setPositionWorldToFootInWorldFrame(const Position& footPositionInWorldFrame)
 {
   footPositionInWorldFrame_ = footPositionInWorldFrame;
 }

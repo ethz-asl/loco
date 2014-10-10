@@ -143,7 +143,7 @@ bool ContactForceDistribution::prepareOptimization(
   {
     if (legInfo.second.isPartOfForceDistribution_)
     {
-      const Vector3d& r = legInfo.first->getBaseToFootPositionInBaseFrame().toImplementation();
+      const Vector3d& r = legInfo.first->getPositionBaseToFootInBaseFrame().toImplementation();
       A_bottomMatrix.block(0, legInfo.second.indexInStanceLegList_ * r.size(), r.size(), r.size()) =
           getSkewMatrixFromVector(r);
     }
@@ -176,7 +176,7 @@ bool ContactForceDistribution::addMinimalForceConstraints()
   {
     if (legInfo.second.isPartOfForceDistribution_)
     {
-      Position positionWorldToFootInWorldFrame = legInfo.first->getWorldToFootPositionInWorldFrame();
+      Position positionWorldToFootInWorldFrame = legInfo.first->getPositionWorldToFootInWorldFrame();
       Vector footContactNormalInWorldFrame;
       terrain_->getNormal(positionWorldToFootInWorldFrame, footContactNormalInWorldFrame);
       Vector footContactNormalInBaseFrame = orientationWorldToBase.rotate(footContactNormalInWorldFrame);
@@ -222,7 +222,7 @@ bool ContactForceDistribution::addFrictionConstraints()
       MatrixXd D_rows = MatrixXd::Zero(nDirections, n_);
 
 
-      Position positionWorldToFootInWorldFrame = legInfo.first->getWorldToFootPositionInWorldFrame();
+      Position positionWorldToFootInWorldFrame = legInfo.first->getPositionWorldToFootInWorldFrame();
       Vector footContactNormalInWorldFrame;
       terrain_->getNormal(positionWorldToFootInWorldFrame, footContactNormalInWorldFrame);
       Vector footContactNormalInBaseFrame = orientationWorldToBase.rotate(footContactNormalInWorldFrame);

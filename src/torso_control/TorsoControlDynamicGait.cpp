@@ -28,8 +28,8 @@ TorsoControlDynamicGait::~TorsoControlDynamicGait() {
 
 
 bool TorsoControlDynamicGait::initialize(double dt) {
-  const Position foreHipPosition = legs_->getLeg(0)->getWorldToHipPositionInBaseFrame();
-  const Position hindHipPosition = legs_->getLeg(2)->getWorldToHipPositionInBaseFrame();
+  const Position foreHipPosition = legs_->getLeg(0)->getPositionWorldToHipInBaseFrame();
+  const Position hindHipPosition = legs_->getLeg(2)->getPositionWorldToHipInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 //  std::cout << "head dist: " << headingDistanceFromForeToHindInBaseFrame_ << std::endl;
 
@@ -67,8 +67,8 @@ bool TorsoControlDynamicGait::advance(double dt) {
   double pitchAngle = atan2(height,headingDistanceFromForeToHindInBaseFrame_);
   RotationQuaternion orientationControlDesiredHeadingToBase = RotationQuaternion(AngleAxis(pitchAngle, 0.0, 1.0, 0.0));
 
-  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToFootPositionInWorldFrame())/0.5;
-  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToFootPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToFootPositionInWorldFrame())/0.5;
+  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToFootInWorldFrame())/0.5;
+  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToFootInWorldFrame())/0.5;
 
   Position positionError = comControl_.getPositionWorldToDesiredCoMInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
 
@@ -78,8 +78,8 @@ bool TorsoControlDynamicGait::advance(double dt) {
   Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
   desiredHeadingDirectionInWorldFrame.z() = 0.0;
 
-  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightForeLeg()->getWorldToHipPositionInWorldFrame())/0.5;
-  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getWorldToHipPositionInWorldFrame() + legs_->getRightHindLeg()->getWorldToHipPositionInWorldFrame())/0.5;
+  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToHipInWorldFrame())/0.5;
+  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToHipInWorldFrame())/0.5;
 
 
   Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
@@ -114,7 +114,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
   for (auto leg : *legs_) {
 //    if (leg->isInStanceMode()) {
     if (leg->isSupportLeg()) {
-      Position positionWorldToFootInWorldFrame =  leg->getWorldToFootPositionInWorldFrame();
+      Position positionWorldToFootInWorldFrame =  leg->getPositionWorldToFootInWorldFrame();
 
       if (!leg->isGrounded()) {
         positionWorldToFootInWorldFrame.z() -= 0.01;
@@ -122,7 +122,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
       const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
       const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
       const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
-      leg->setDesiredJointPositions(leg->getJointPositionsFromBaseToFootPositionInBaseFrame(positionBaseToFootInBaseFrame));
+      leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
     }
   }
   return true;

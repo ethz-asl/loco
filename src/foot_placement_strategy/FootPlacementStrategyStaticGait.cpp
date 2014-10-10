@@ -34,7 +34,7 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
 
   // Find starting point: hip projected vertically on ground
-  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getStateLiftOff()->getWorldToHipPositionInWorldFrame();
+  Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getStateLiftOff()->getPositionWorldToHipInWorldFrame();
   terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
   // Get offset to change between telescopic and lever configuration

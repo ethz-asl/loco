@@ -23,13 +23,13 @@ class LegStateLiftOff : public loco::LegStateBase {
   LegStateLiftOff();
   virtual ~LegStateLiftOff();
 
-  const Position& getWorldToHipPositionInWorldFrame() const;
-  const Position& getFootPositionInWorldFrame() const;
+  const Position& getPositionWorldToHipInWorldFrame() const;
+  const Position& getPositionWorldToFootInWorldFrame() const;
   const Position& getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame() const;
 
 
-  void setWorldToHipPositionInWorldFrame(const Position& hipPositionInWorldFrame);
-  void setWorldToFootPositionInWorldFrame(const Position& footPositionInWorldFrame);
+  void setPositionWorldToHipInWorldFrame(const Position& hipPositionInWorldFrame);
+  void setPositionWorldToFootInWorldFrame(const Position& footPositionInWorldFrame);
   void setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(const Position& positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame);
 
 
