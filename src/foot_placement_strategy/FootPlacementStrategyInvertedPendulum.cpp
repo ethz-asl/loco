@@ -390,7 +390,30 @@ bool FootPlacementStrategyInvertedPendulum::initialize(double dt) {
 bool FootPlacementStrategyInvertedPendulum::advance(double dt)
 {
 
+
+
   for (auto leg : *legs_) {
+    // save the hip position at lift off for trajectory generation
+    if (leg->shouldBeGrounded() ||
+        (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
+    ) {
+      Position positionWorldToHipAtLiftOffInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
+      terrain_->getHeight(positionWorldToHipAtLiftOffInWorldFrame);
+      Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
+
+      Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
+      terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+
+      /*
+       * WARNING: these were also updated by the event detector
+       */
+      leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+      leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
+      leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
+      leg->setSwingPhase(leg->getSwingPhase());
+    }
+
+
 	  /* this default desired swing behaviour
 	   *
 	   */
