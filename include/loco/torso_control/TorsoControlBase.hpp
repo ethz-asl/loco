@@ -36,7 +36,7 @@ class TorsoControlBase {
    * @param t interpolation parameter
    * @returns true if successful
    */
-  virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
+  virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) = 0;
 
   double getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const;
   double getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const;

@@ -85,8 +85,34 @@ void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
 
 
 const Position& CoMOverSupportPolygonControlDynamicGait::getPositionWorldToDesiredCoMInWorldFrame() const {
-  std::cout << "pos: " << positionWorldToHorizontalDesiredBaseInWorldFrame_ << std::endl;
   return positionWorldToHorizontalDesiredBaseInWorldFrame_;
+}
+
+
+bool CoMOverSupportPolygonControlDynamicGait::setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1,
+                                                                const CoMOverSupportPolygonControlBase& supportPolygon2, double t) {
+
+  const CoMOverSupportPolygonControlDynamicGait& supportPolygon1_this = static_cast<const CoMOverSupportPolygonControlDynamicGait&>(supportPolygon1);
+  const CoMOverSupportPolygonControlDynamicGait& supportPolygon2_this = static_cast<const CoMOverSupportPolygonControlDynamicGait&>(supportPolygon2);
+
+  this->minSwingLegWeight_ = linearlyInterpolate(supportPolygon1.getMinSwingLegWeight(),
+      supportPolygon2_this.getMinSwingLegWeight(), 0, 1, t);
+  this->startShiftAwayFromLegAtStancePhase_ = linearlyInterpolate(
+      supportPolygon1_this.getStartShiftAwayFromLegAtStancePhase(),
+      supportPolygon2_this.getStartShiftAwayFromLegAtStancePhase(), 0, 1, t);
+  this->startShiftTowardsLegAtSwingPhase_ = linearlyInterpolate(
+      supportPolygon1_this.getStartShiftTowardsLegAtSwingPhase(),
+      supportPolygon2_this.getStartShiftTowardsLegAtSwingPhase(), 0, 1, t);
+
+  this->headingOffset_ = linearlyInterpolate(
+      supportPolygon1_this.getHeadingOffset(),
+      supportPolygon2_this.getHeadingOffset(), 0, 1, t);
+
+  this->lateralOffset_ = linearlyInterpolate(
+      supportPolygon1_this.getLateralOffset(),
+      supportPolygon2_this.getLateralOffset(), 0, 1, t);
+
+  return true;
 }
 
 

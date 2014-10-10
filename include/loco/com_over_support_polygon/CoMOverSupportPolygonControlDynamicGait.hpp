@@ -35,6 +35,8 @@ class CoMOverSupportPolygonControlDynamicGait: public CoMOverSupportPolygonContr
 
     virtual void advance(double dt);
 
+    virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
+
 protected:
 
 };

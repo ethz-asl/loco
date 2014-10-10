@@ -35,9 +35,9 @@ TorsoControlBase::~TorsoControlBase() {
 }
 
 
-bool TorsoControlBase::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
-  return false;
-}
+//bool TorsoControlBase::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
+//  return false;
+//}
 
 
 inline double safeACOS(double val){

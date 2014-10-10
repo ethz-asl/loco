@@ -25,6 +25,10 @@ CoMOverSupportPolygonControlLeverConfiguration::~CoMOverSupportPolygonControlLev
 
 }
 
+bool CoMOverSupportPolygonControlLeverConfiguration::setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t) {
+  return false;
+}
+
 
 void CoMOverSupportPolygonControlLeverConfiguration::advance(double dt) {
 

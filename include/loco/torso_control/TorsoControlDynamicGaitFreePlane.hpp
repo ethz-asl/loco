@@ -31,6 +31,8 @@ class TorsoControlDynamicGaitFreePlane: public TorsoControlBase {
 
   const CoMOverSupportPolygonControlBase& getCoMOverSupportPolygonControl() const;
 
+  virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
+
  protected:
   LegGroup* legs_;
   TorsoBase* torso_;

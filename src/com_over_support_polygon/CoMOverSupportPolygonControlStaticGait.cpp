@@ -39,6 +39,11 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 }
 
 
+bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t) {
+  return false;
+}
+
+
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
   //  % cFPl = matrix with all foot points at landing
   //  % fnrl = foot number of foot that just landed

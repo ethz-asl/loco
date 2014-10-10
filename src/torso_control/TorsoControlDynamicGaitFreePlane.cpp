@@ -366,5 +366,32 @@ const CoMOverSupportPolygonControlBase& TorsoControlDynamicGaitFreePlane::getCoM
   return *comControl_;
 }
 
+bool TorsoControlDynamicGaitFreePlane::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
+  const TorsoControlDynamicGaitFreePlane& controller1 = static_cast<const TorsoControlDynamicGaitFreePlane&>(torsoController1);
+  const TorsoControlDynamicGaitFreePlane& controller2 = static_cast<const TorsoControlDynamicGaitFreePlane&>(torsoController2);
+
+  this->comControl_->setToInterpolated(controller1.getCoMOverSupportPolygonControl(), controller2.getCoMOverSupportPolygonControl(), t);
+  desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
+                                                                             controller2.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
+                                                                             0.0,
+                                                                             1.0,
+                                                                             t);
+  desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
+                                                                             controller2.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
+                                                                             0.0,
+                                                                             1.0,
+                                                                             t);
+
+
+  if(!interpolateHeightTrajectory(desiredTorsoForeHeightAboveGroundInWorldFrame_, controller1.desiredTorsoForeHeightAboveGroundInWorldFrame_, controller2.desiredTorsoForeHeightAboveGroundInWorldFrame_, t)) {
+    return false;
+  }
+  if(!interpolateHeightTrajectory(desiredTorsoHindHeightAboveGroundInWorldFrame_, controller1.desiredTorsoHindHeightAboveGroundInWorldFrame_, controller2.desiredTorsoHindHeightAboveGroundInWorldFrame_, t)) {
+    return false;
+  }
+
+  return true;
+}
+
 
 } /* namespace loco */
