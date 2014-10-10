@@ -187,11 +187,16 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
    * End set desired orientation *
    *******************************/
 
-
-
   torso_->getDesiredState().setPositionControlToBaseInControlFrame(positionControlToTargetBaseInControlFrame);
   torso_->getDesiredState().setOrientationControlToBase(orientationControlToDesiredBase);
 
+//  EulerAnglesZyx torsoAttitude = EulerAnglesZyx(orientationControlToDesiredBase).getUnique();
+//  std::cout << "*******" << std::endl;
+//  std::cout << "Desired torso position in control frame: " << std::endl << positionControlToTargetBaseInControlFrame << std::endl;
+//  std::cout << "Desired torso attitude in control frame: " << std::endl << torsoAttitude.roll() << " "
+//                                                                        << torsoAttitude.pitch() << " "
+//                                                                        << torsoAttitude.yaw() << std::endl;
+//  std::cout << "*******" << std::endl << std::endl;
 
   /*************************************************************************
    * Method II - OLD
