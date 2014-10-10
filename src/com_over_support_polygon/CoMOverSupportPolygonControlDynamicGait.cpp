@@ -20,11 +20,11 @@ CoMOverSupportPolygonControlDynamicGait::CoMOverSupportPolygonControlDynamicGait
     CoMOverSupportPolygonControlBase(legs)
 {
 	// trot
-	minSwingLegWeight_ = 0.15;
-	startShiftAwayFromLegAtStancePhase_ = 0.7;
-	startShiftTowardsLegAtSwingPhase_ = 0.7;
-	headingOffset_ = 0;
-	lateralOffset_ = 0;
+//	minSwingLegWeight_ = 0.15;
+//	startShiftAwayFromLegAtStancePhase_ = 0.7;
+//	startShiftTowardsLegAtSwingPhase_ = 0.7;
+//	headingOffset_ = 0;
+//	lateralOffset_ = 0;
 }
 
 
@@ -85,6 +85,7 @@ void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
 
 
 const Position& CoMOverSupportPolygonControlDynamicGait::getPositionWorldToDesiredCoMInWorldFrame() const {
+  std::cout << "pos: " << positionWorldToHorizontalDesiredBaseInWorldFrame_ << std::endl;
   return positionWorldToHorizontalDesiredBaseInWorldFrame_;
 }
 
