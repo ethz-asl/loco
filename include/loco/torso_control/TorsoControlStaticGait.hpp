@@ -21,6 +21,9 @@ class TorsoControlStaticGait: public TorsoControlDynamicGaitFreePlane {
 
   virtual bool initialize(double dt);
 
+ protected:
+//  CoMOverSupportPolygonControlStaticGait* comControl_;
+
 };
 
 } /* namespace loco */

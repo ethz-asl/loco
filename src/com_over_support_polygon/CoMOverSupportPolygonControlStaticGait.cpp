@@ -23,7 +23,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingLegIndexOverNext_(-1),
     swingFootChanged_(false)
 {
-
   // Reset Eigen variables
   homePos_.setZero();
   comStep_.setZero();
@@ -39,9 +38,9 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   safeTriangleNext_.setZero();
   safeTriangleOverNext_.setZero();
 
-  maxComStep_ = 1.5;
+  maxComStep_ = 0.5;
+  delta_ = 0.05;
 
-  delta_ = 0.01;
 }
 
 
@@ -51,6 +50,9 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
+  maxComStep_ = 1.5;
+  delta_ = 0;//0.05;
+
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
 
@@ -280,6 +282,9 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangl
 
 
 Eigen::Matrix<double,2,4> CoMOverSupportPolygonControlStaticGait::getNextStanceConfig(const FeetConfiguration& currentStanceConfig, int steppingFoot) {
+
+  RotationQuaternion orientationWorldToHeading = torso_->getDesiredState().getOrientationWorldToControl();
+
   FeetConfiguration nextStanceConfig;
   nextStanceConfig.setZero();
 
@@ -301,15 +306,32 @@ Eigen::Matrix<double,2,4> CoMOverSupportPolygonControlStaticGait::getNextStanceC
 //            << "new center:     " << newFeetCenter << std::endl;
 
   // Find default feet positions in new stance config
+
+
+
+
+
+  Pos2d postion2dHomeToFootInControlFrame = homePos_.col(steppingFoot);
+  Position postionHomeToFootInControlFrame = Position(postion2dHomeToFootInControlFrame.x(),
+                                                      postion2dHomeToFootInControlFrame.y(),
+                                                      0.0);
+  Position postionHomeToFootInWorldFrame = orientationWorldToHeading.inverseRotate(postionHomeToFootInControlFrame);
+  Pos2d postion2dHomeToFootInWorldFrame = Pos2d(postionHomeToFootInWorldFrame.x(),postionHomeToFootInWorldFrame.y());
+
+
+
+
+
   nextStanceConfig = currentStanceConfig;
-  nextStanceConfig.col(steppingFoot) = newFeetCenter + homePos_.col(steppingFoot);
+//  nextStanceConfig.col(steppingFoot) = newFeetCenter + homePos_.col(steppingFoot);
+  nextStanceConfig.col(steppingFoot) = newFeetCenter + postion2dHomeToFootInWorldFrame;
 
   // Update swing foot position in new stance config and correct it if needed
   Pos2d newFootPos;
   Pos2d curFootPos;
   curFootPos = currentStanceConfig.col(steppingFoot);
   newFootPos = nextStanceConfig.col(steppingFoot);
-//  newFootPos = curFootPos + (newFootPos-curFootPos)/(newFootPos-curFootPos).norm()*std::min((newFootPos-curFootPos).norm(), maxComStep_);
+  newFootPos = curFootPos + (newFootPos-curFootPos)/(newFootPos-curFootPos).norm()*std::min((newFootPos-curFootPos).norm(), maxComStep_);
 
   nextStanceConfig.col(steppingFoot) = newFootPos;
 

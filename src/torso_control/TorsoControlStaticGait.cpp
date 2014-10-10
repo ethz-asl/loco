@@ -20,7 +20,6 @@ TorsoControlStaticGait::TorsoControlStaticGait(LegGroup* legs, TorsoBase* torso,
 
 
 TorsoControlStaticGait::~TorsoControlStaticGait() {
-
 }
 
 
