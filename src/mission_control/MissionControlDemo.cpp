@@ -84,18 +84,16 @@ bool MissionControlDemo::advance(double dt) {
     missionController.setUnfilteredDesiredOrientationOffset(RotationQuaternion());
     missionController.setUnfilteredDesiredPositionMiddleOfFeetToBaseInWorldFrame(Position());
 
-  } else if (gaitSwitcher_->getLocomotionController()->getGaitName() == "LateralStaticWalk") {
+  } else if (gaitSwitcher_->getLocomotionController()->getGaitName() == "StaticLateralWalk") {
 
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().x() = joyStick->getSagittal();
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = joyStick->getCoronal();
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().z() = 0.0;
     desiredBaseTwistInHeadingFrame.getRotationalVelocity().z() = joyStick->getYaw();
-
     missionController.setUnfilteredDesiredOrientationOffset(RotationQuaternion());
     missionController.setUnfilteredDesiredPositionMiddleOfFeetToBaseInWorldFrame(Position());
 
   }
-
 
 
   if (joyStick->getButtonOneClick(1)) {
@@ -124,6 +122,7 @@ bool MissionControlDemo::advance(double dt) {
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = robotModel_->sensors().getDesRobotVelocity()->getDesCoronalVelocity();
     desiredBaseTwistInHeadingFrame.getRotationalVelocity().z() = robotModel_->sensors().getDesRobotVelocity()->getDesTurningRate();
   }
+
 
   gaitSwitcher_->getLocomotionController()->setDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
 

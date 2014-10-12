@@ -106,6 +106,8 @@ bool LocomotionControllerDynamicGaitDefault::advanceMeasurements(double dt) {
   }
 
   loco::LinearVelocity desLinearVelocityBaseInControlFrame = missionController_->getDesiredBaseTwistInHeadingFrame().getTranslationalVelocity();
+
+
   loco::LocalAngularVelocity desAngularVelocityBaseInControlFrame = missionController_->getDesiredBaseTwistInHeadingFrame().getRotationalVelocity();
   torso_->getDesiredState().setLinearVelocityBaseInControlFrame(desLinearVelocityBaseInControlFrame);
   torso_->getDesiredState().setAngularVelocityBaseInControlFrame(desAngularVelocityBaseInControlFrame);
