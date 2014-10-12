@@ -190,6 +190,11 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
 }
 
 
+bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t) {
+  return false;
+}
+
+
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     updateSwingLegsIndexes();
 

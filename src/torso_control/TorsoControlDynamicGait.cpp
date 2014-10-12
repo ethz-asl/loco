@@ -15,10 +15,10 @@ TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* tors
   TorsoControlBase(),
   legs_(legs),
   torso_(torso),
-  terrain_(terrain),
-  comControl_(legs)
+  terrain_(terrain)
 {
 
+    comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs);
 
 }
 
@@ -38,16 +38,16 @@ bool TorsoControlDynamicGait::initialize(double dt) {
 
 
 CoMOverSupportPolygonControlDynamicGait* TorsoControlDynamicGait::getCoMOverSupportPolygonControl() {
-  return &comControl_;
+  return comControl_;
 }
 
 
 bool TorsoControlDynamicGait::advance(double dt) {
-  comControl_.advance(dt);
+  comControl_->advance(dt);
 
   const RotationQuaternion orientationWorldToHeading = torso_->getMeasuredState().getOrientationWorldToControl();
 
-  Position lateralAndHeadingPositionInWorldFrame = comControl_.getPositionWorldToDesiredCoMInWorldFrame();
+  Position lateralAndHeadingPositionInWorldFrame = comControl_->getPositionWorldToDesiredCoMInWorldFrame();
 
   const double desiredForeHeightAboveGroundInWorldFrame = desiredTorsoForeHeightAboveGroundInWorldFrameOffset_+desiredTorsoForeHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
   const double desiredHindHeightAboveGroundInWorldFrame = desiredTorsoHindHeightAboveGroundInWorldFrameOffset_+desiredTorsoHindHeightAboveGroundInWorldFrame_.evaluate(torso_->getStridePhase());
@@ -70,7 +70,7 @@ bool TorsoControlDynamicGait::advance(double dt) {
   const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToFootInWorldFrame())/0.5;
   const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToFootInWorldFrame())/0.5;
 
-  Position positionError = comControl_.getPositionWorldToDesiredCoMInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
+  Position positionError = comControl_->getPositionWorldToDesiredCoMInWorldFrame() - torso_->getMeasuredState().getPositionWorldToControlInWorldFrame();
 
   Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+ positionError;
   Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+ positionError;
@@ -130,18 +130,18 @@ bool TorsoControlDynamicGait::advance(double dt) {
 
 
 CoMOverSupportPolygonControlDynamicGait* TorsoControlDynamicGait::getCoMControl() {
-  return &comControl_;
+  return comControl_;
 }
 
 
 const CoMOverSupportPolygonControlDynamicGait& TorsoControlDynamicGait::getCoMControl() const {
-  return comControl_;
+  return *comControl_;
 }
 
 
 bool TorsoControlDynamicGait::loadParameters(const TiXmlHandle& handle) {
   TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
-  if (!comControl_.loadParameters(hDynGait)) {
+  if (!comControl_->loadParameters(hDynGait)) {
     return false;
   }
   if (!loadParametersHipConfiguration(hDynGait)) {
@@ -155,7 +155,7 @@ bool TorsoControlDynamicGait::loadParameters(const TiXmlHandle& handle) {
 bool TorsoControlDynamicGait::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
   const TorsoControlDynamicGait& controller1 = static_cast<const TorsoControlDynamicGait&>(torsoController1);
   const TorsoControlDynamicGait& controller2 = static_cast<const TorsoControlDynamicGait&>(torsoController2);
-  this->comControl_.setToInterpolated(controller1.getCoMControl(), controller2.getCoMControl(), t);
+  this->comControl_->setToInterpolated(controller1.getCoMControl(), controller2.getCoMControl(), t);
   desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
                                                                              controller2.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
                                                                              0.0,

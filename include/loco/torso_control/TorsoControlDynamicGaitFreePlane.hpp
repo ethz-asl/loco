@@ -25,45 +25,48 @@ namespace loco {
     TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain, CoMOverSupportPolygonControlBase* comControl);
     virtual ~TorsoControlDynamicGaitFreePlane();
 
-    virtual bool initialize(double dt);
-    virtual bool advance(double dt);
 
-    virtual bool loadParameters(const TiXmlHandle& handle);
+  virtual bool initialize(double dt);
+  virtual bool advance(double dt);
 
-    const CoMOverSupportPolygonControlBase& getCoMOverSupportPolygonControl() const;
+  virtual bool loadParameters(const TiXmlHandle& handle);
 
-   protected:
-    LegGroup* legs_;
-    TorsoBase* torso_;
-    loco::TerrainModelBase* terrain_;
-    CoMOverSupportPolygonControlBase* comControl_;
+  const CoMOverSupportPolygonControlBase& getCoMOverSupportPolygonControl() const;
 
-    double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
+  virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
 
-    //--- Terrain adaptation parameters
-    double maxDesiredPitchRadians_;
-    double desiredPitchSlope_;
-    double maxDesiredRollRadians_;
-    double desiredRollSlope_;
-    AdaptToTerrain adaptToTerrain_;
-    //---
+ protected:
+  LegGroup* legs_;
+  TorsoBase* torso_;
+  loco::TerrainModelBase* terrain_;
+  CoMOverSupportPolygonControlBase* comControl_;
 
-    //--- Height offset parameters
-    //double maxHeightOffset_;
-    robotUtils:: FirstOrderFilter* firstOrderFilter_;
-    //---
+  double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
 
-    template <typename T> int sgn(T val);
+  //--- Terrain adaptation parameters
+  double maxDesiredPitchRadians_;
+  double desiredPitchSlope_;
+  double maxDesiredRollRadians_;
+  double desiredRollSlope_;
+  AdaptToTerrain adaptToTerrain_;
+  //---
 
-    void getDesiredBasePitchFromTerrainPitch(const double terrainPitch, double& desiredBasePitch);
-    void getDesiredBaseRollFromTerrainRoll(const double terrainRoll, double& desiredBaseRoll);
+  //--- Height offset parameters
+  //double maxHeightOffset_;
+  robotUtils:: FirstOrderFilter* firstOrderFilter_;
+  //---
 
-    RotationQuaternion getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(const Position& positionWorldToDesiredHorizontalBaseInWorldFrame) const;
-    RotationQuaternion getOrientationWorldToHeadingOnTerrainSurface(const RotationQuaternion& orientationWorldToHeading) const;
-    RotationQuaternion getOrientationWorldToHeadingBasedOnHipLocations() const;
-    double heightOffsetFilterAdvance(double dt);
+  template <typename T> int sgn(T val);
 
-  };
+  void getDesiredBasePitchFromTerrainPitch(const double terrainPitch, double& desiredBasePitch);
+  void getDesiredBaseRollFromTerrainRoll(const double terrainRoll, double& desiredBaseRoll);
+
+  RotationQuaternion getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(const Position& positionWorldToDesiredHorizontalBaseInWorldFrame) const;
+  RotationQuaternion getOrientationWorldToHeadingOnTerrainSurface(const RotationQuaternion& orientationWorldToHeading) const;
+  RotationQuaternion getOrientationWorldToHeadingBasedOnHipLocations() const;
+  double heightOffsetFilterAdvance(double dt);
+
+};
 
 } /* namespace loco */
 

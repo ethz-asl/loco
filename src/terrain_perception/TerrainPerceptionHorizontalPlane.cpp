@@ -72,6 +72,23 @@ void TerrainPerceptionHorizontalPlane::updateControlFrameAttitude() {
 
   RotationQuaternion orientationWorldToBase = torso_->getMeasuredState().getOrientationWorldToBase();
   torso_->getMeasuredState().setOrientationControlToBase(orientationWorldToBase*orientationWorldToControl.inverted());
+
+
+
+
+//  EulerAnglesZyx worldToControlEuler = EulerAnglesZyx(orientationWorldToControl).getUnique();
+//  std::cout << "*******" << std::endl;
+//  std::cout << "orientation world to control: " << std::endl << worldToControlEuler.roll() << " "
+//                                                             << worldToControlEuler.pitch() << " "
+//                                                             << worldToControlEuler.yaw() << std::endl;
+//  std::cout << "*******" << std::endl << std::endl;
+//  EulerAnglesZyx worldToBaseEuler = EulerAnglesZyx(torso_->getMeasuredState().getOrientationWorldToBase()).getUnique();
+//  std::cout << "*******" << std::endl;
+//  std::cout << "orientation world to base: " << std::endl << worldToBaseEuler.roll() << " "
+//                                                             << worldToBaseEuler.pitch() << " "
+//                                                             << worldToBaseEuler.yaw() << std::endl;
+//  std::cout << "*******" << std::endl << std::endl;
+
 }
 
 

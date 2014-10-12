@@ -49,7 +49,7 @@ class TorsoControlDynamicGait: public TorsoControlBase {
   LegGroup* legs_;
   TorsoBase* torso_;
   loco::TerrainModelBase* terrain_;
-  CoMOverSupportPolygonControlDynamicGait comControl_;
+  CoMOverSupportPolygonControlDynamicGait* comControl_;
 
 };
 

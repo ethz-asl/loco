@@ -29,6 +29,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual const Position& getPositionWorldToDesiredCoMInWorldFrame() const;
 
+
   Eigen::Matrix<double,2,3> getSupportTriangleCurrent() const;
   Eigen::Matrix<double,2,3> getSupportTriangleNext() const;
   Eigen::Matrix<double,2,3> getSupportTriangleOverNext() const;
@@ -36,6 +37,9 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   Eigen::Matrix<double,2,3> getSafeTriangleCurrent() const;
   Eigen::Matrix<double,2,3> getSafeTriangleNext() const;
   Eigen::Matrix<double,2,3> getSafeTriangleOverNext() const;
+
+  virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
+
 
  protected:
 

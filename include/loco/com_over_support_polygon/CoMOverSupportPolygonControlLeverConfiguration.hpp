@@ -17,6 +17,8 @@ class CoMOverSupportPolygonControlLeverConfiguration: public CoMOverSupportPolyg
   CoMOverSupportPolygonControlLeverConfiguration(LegGroup* legs, TorsoBase* torso, TerrainModelBase* terrainModel);
   virtual ~CoMOverSupportPolygonControlLeverConfiguration();
 
+  virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
+
   virtual void advance(double dt);
 
  protected:

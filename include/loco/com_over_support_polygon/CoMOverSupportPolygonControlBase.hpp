@@ -37,13 +37,13 @@ class CoMOverSupportPolygonControlBase {
    * @param hParameterSet   handle
    * @return  true if all parameters could be loaded
    */
-  bool loadParameters(TiXmlHandle &hParameterSet);
+  virtual bool loadParameters(TiXmlHandle &hParameterSet);
 
   /*! Stores the current paramters in the XML object
    * @param hParameterSet   handle
    * @return  true if all parameters could be loaded
    */
-  bool saveParameters(TiXmlHandle &hParameterSet);
+  virtual bool saveParameters(TiXmlHandle &hParameterSet);
 
   /*! Computes an interpolated version of the two support polygon settings passed in as parameters.
    *  if t is 0, the current setting is set to supportPolygon1, 1 -> supportPolygon2, and values in between
@@ -53,7 +53,15 @@ class CoMOverSupportPolygonControlBase {
    * @param t   interpolation parameter
    * @return  true if successful
    */
-  bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
+  virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t) = 0;
+
+
+  double getMinSwingLegWeight() const;
+  double getStartShiftAwayFromLegAtStancePhase() const;
+  double getStartShiftTowardsLegAtSwingPhase() const;
+  double getLateralOffset() const;
+  double getHeadingOffset() const;
+
 
  protected:
   Position positionWorldToDesiredCoMInWorldFrame_;
