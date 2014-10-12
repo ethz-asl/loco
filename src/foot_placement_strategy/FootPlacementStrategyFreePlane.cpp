@@ -129,10 +129,6 @@ Position FootPlacementStrategyFreePlane::getDesiredWorldToFootPositionInWorldFra
   Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
   terrain_->getHeight(positionWorldToHipOnPlaneAlongNormalInWorldFrame);
 
-  // Add offset from xml parameter file
-  Position defaultHipToFootInWorldFrame = orientationWorldToControl.inverseRotate(leg->getProperties().getDesiredDefaultSteppingPositionHipToFootInControlFrame());
-  positionWorldToHipOnPlaneAlongNormalInWorldFrame += defaultHipToFootInWorldFrame;
-
   // Get offset to change between telescopic and lever configuration
   Position positionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame = getPositionVerticalHeightOnTerrainToLeverTelescopicConfigurationInWorldFrame(*leg);
 
@@ -242,7 +238,7 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootOnTerrainToDesire
 }
 
 
-// Evaluate feed forward component
+// Evaluate feed forward component and default offset
 Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(const LegBase& leg)   {
   double stanceDuration = leg.getStanceDuration();
 
@@ -305,7 +301,7 @@ Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeed
 
   const double gravitationalAccleration = torso_->getProperties().getGravity().norm();
   Position positionDesiredFootHoldOnTerrainFeedBackInWorldFrame = Position(linearVelocityErrorInWorldFrame
-                                                                  *(stepFeedbackScale_*1.0)
+                                                                  *stepFeedbackScale_
                                                                   *std::sqrt(heightInvertedPendulum/gravitationalAccleration));
   //--- hack
   //  positionDesiredFootHoldOnTerrainFeedBackInWorldFrame.z() = 0.0;
