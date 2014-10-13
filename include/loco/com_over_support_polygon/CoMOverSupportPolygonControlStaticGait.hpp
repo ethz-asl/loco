@@ -51,6 +51,9 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int swingLegIndexLast_;
   int swingLegIndexOverNext_;
 
+  bool makeShift_;
+  Pos2d comTarget_;
+
   Eigen::Matrix<double,2,3> supportTriangleCurrent_, supportTriangleNext_, supportTriangleOverNext_;
   Eigen::Matrix<double,2,3> safeTriangleCurrent_, safeTriangleNext_, safeTriangleOverNext_;
 

@@ -27,11 +27,13 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     filterInputCoMZ_(0),
     filterOutputCoMX_(0),
     filterOutputCoMY_(0),
-    filterOutputCoMZ_(0)
+    filterOutputCoMZ_(0),
+    makeShift_(false)
 {
   // Reset Eigen variables
   homePos_.setZero();
   comStep_.setZero();
+
   feetConfigurationCurrent_.setZero();
   feetConfigurationNext_.setZero();
   feetConfigurationOverNext_.setZero();
@@ -45,7 +47,9 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   safeTriangleOverNext_.setZero();
 
   maxComStep_ = 0.5;
-  delta_ = 0.05;
+  delta_ = 0.04;
+
+  comTarget_.setZero();
 
   filterCoMX_ = new robotUtils::FirstOrderFilter();
   filterCoMY_ = new robotUtils::FirstOrderFilter();
@@ -63,12 +67,19 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
-  filterCoMX_->initialize(filterInputCoMX_, 0.1, 1.0);
-  filterCoMY_->initialize(filterInputCoMY_, 0.1, 1.0);
-  filterCoMZ_->initialize(filterInputCoMZ_, 0.1, 1.0);
+  makeShift_ = false;
+
+  comTarget_.setZero();
+
+  double filterTimeConstant = 0.0005;
+  double filterGain = 1.0;
+
+  filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
+  filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
+  filterCoMZ_->initialize(filterInputCoMZ_, filterTimeConstant, filterGain);
 
   maxComStep_ = 0.5;
-  delta_ = 0.035;
+  delta_ = 0;//0.04;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
@@ -94,12 +105,10 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
     homePos_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
   }
 
-//  feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexNext_);
-//  feetConfigurationOverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexOverNext_);
+  feetConfigurationCurrent_ = homePos_;
+  feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexNext_);
+  feetConfigurationOverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexOverNext_);
 
-//  feetConfigurationCurrent_ = homePos_;
-
-//  comStep_ << 0.25, 0.0;
   updateSafeSupportTriangles();
 
   return true;
@@ -112,66 +121,48 @@ const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesire
 
 
 void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
+  RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+  LinearVelocity desiredLinearVelocityInWorldFrame = orientationWorldToControl.inverseRotate(torso_->getDesiredState().getLinearVelocityBaseInControlFrame());
+  Eigen::Vector2d desiredLinearVelocity;
+  desiredLinearVelocity << desiredLinearVelocityInWorldFrame.x(),
+                           desiredLinearVelocityInWorldFrame.y();
+  comStep_ = desiredLinearVelocity*legs_->getLeftForeLeg()->getStanceDuration();
+
   // update current configuration
   for (auto leg: *legs_) {
-    Position positionWorldToFootInFrame = leg->getPositionWorldToFootInWorldFrame();
-    feetConfigurationCurrent_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
+    Position positionWorldToFootInWorldFrame = leg->getPositionWorldToFootInWorldFrame();
+    feetConfigurationCurrent_.col(leg->getId()) << positionWorldToFootInWorldFrame.x(), positionWorldToFootInWorldFrame.y();
   }
 
   feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexLast_);
   feetConfigurationOverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexNext_);
 
-//      std::cout << "*********************************************" << std::endl;
-//      std::cout << "current feet:  " << std::endl << feetConfigurationCurrent_ << std::endl;
-//      std::cout << "next feet:     " << std::endl << feetConfigurationNext_ << std::endl;
-//      std::cout << "overnext feet: " << std::endl << feetConfigurationOverNext_ << std::endl;
-
-//       Get support triangles
-  std::cout << "*********************************************" << std::endl;
-  std::cout << "current swing leg: " << swingLegIndexLast_ << std::endl;
-  std::cout << "current support legs: ";
+  // Get support triangles
   int j=0;
   for (int k=0; k<legs_->size(); k++) {
     if (k != swingLegIndexLast_) {
-      std::cout << " " << k;
       supportTriangleCurrent_.col(j) = feetConfigurationCurrent_.col(k);
       j++;
     }
   }
-  std::cout << std::endl;
-
   safeTriangleCurrent_ = getSafeTriangle(supportTriangleCurrent_);
-//      std::cout << "current support: " << std::endl << supportTriangleCurrent_ << std::endl;
-//      std::cout << "current safe:    " << std::endl << safeTriangleCurrent_ << std::endl;
 
-
-  std::cout << "*********************************************" << std::endl;
-  std::cout << "next swing leg: " << swingLegIndexNext_ << std::endl;
-  std::cout << "next support legs: ";
   j=0;
   for (int k=0; k<legs_->size(); k++) {
     if (k != swingLegIndexNext_) {
-      std::cout << " " << k;
       supportTriangleNext_.col(j) = feetConfigurationNext_.col(k);
       j++;
     }
   }
-  std::cout << std::endl;
   safeTriangleNext_ = getSafeTriangle(supportTriangleNext_);
 
-
-  std::cout << "*********************************************" << std::endl;
-  std::cout << "over next swing leg: " << swingLegIndexOverNext_ << std::endl;
-  std::cout << "over next support legs: ";
   j=0;
   for (int k=0; k<legs_->size(); k++) {
     if (k != swingLegIndexOverNext_) {
-      std::cout << " " << k;
       supportTriangleOverNext_.col(j) = feetConfigurationOverNext_.col(k);
       j++;
     }
   }
-  std::cout << std::endl;
   safeTriangleOverNext_ = getSafeTriangle(supportTriangleOverNext_);
 
 
@@ -193,23 +184,23 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   lineSafeOverNext << safeTriangleOverNext_.col(diagonalSwingLegsOverNext[0]),
                       safeTriangleOverNext_.col(diagonalSwingLegsOverNext[1]);
 
-
   if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
-//        std::cout << "intersection between current and next" << std::endl;
-    positionWorldToDesiredCoMInWorldFrame_ << intersection[0],
-                                              intersection[1],
-                                              0.0;
-  } else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
-//        std::cout << "intersection between next and overnext" << std::endl;
-    positionWorldToDesiredCoMInWorldFrame_ << intersection[0],
-                                              intersection[1],
-                                              0.0;
-  } else {
-
-//        std::cout << "no intersection!" << std::endl;
+    comTarget_ = intersection;
+    makeShift_ = false;
+  }
+  else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
+    comTarget_ = intersection;
+    makeShift_ = true;
+  }
+//  else if (lineIntersect(lineSafeLast, lineSafeOverNext, intersection)) {
+//        positionWorldToDesiredCoMInWorldFrame_ << intersection[0],
+//                                                  intersection[1],
+//                                                  0.0;
+//  }
+  else {
+    comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
   }
 
-//      std::cout << "des pos: " << positionWorldToDesiredCoMInWorldFrame_ << std::endl;
 }
 
 
@@ -221,74 +212,23 @@ bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupp
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     updateSwingLegsIndexes();
 
-    RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
-//    LinearVelocity desiredLinearVelocityInWorldFrame = orientationWorldToControl.inverseRotate(torso_->getDesiredState().getLinearVelocityBaseInControlFrame());
-    LinearVelocity desiredLinearVelocityInWorldFrame = torso_->getDesiredState().getLinearVelocityBaseInControlFrame();
-    Eigen::Vector2d desiredLinearVelocity;
-    desiredLinearVelocity << desiredLinearVelocityInWorldFrame.x(),
-                             desiredLinearVelocityInWorldFrame.y();
-
-    comStep_ = 0.5*desiredLinearVelocity*legs_->getLeftForeLeg()->getStanceDuration();
-//    comStep_ << 0.5, 0.0;
-
-    std::cout << "com step: " << comStep_ << std::endl;
-
     if (swingFootChanged_) {
       // reset flag
       swingFootChanged_ = false;
       updateSafeSupportTriangles();
     }
 
-    filterInputCoMX_ = positionWorldToDesiredCoMInWorldFrame_.x();
-    filterInputCoMY_ = positionWorldToDesiredCoMInWorldFrame_.y();
-    filterInputCoMZ_ = positionWorldToDesiredCoMInWorldFrame_.z();
+    filterInputCoMX_ = comTarget_.x();
+    filterInputCoMY_ = comTarget_.y();
 
     filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);
     filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
-    filterOutputCoMZ_ = filterCoMZ_->advance(dt,filterInputCoMZ_);
 
-    positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,filterOutputCoMY_,filterOutputCoMZ_);
-
-
-    /*
-     * TEST LINE INTERSECTION
-     */
-//  Eigen::Vector2d p1_1;
-//  p1_1 << -1.0, 0.0;
-//  Eigen::Vector2d p1_2;
-//  p1_2 << 1.0, 0.0;
-//
-//  Eigen::Vector2d p2_1;
-//  p2_1 << 0.5, -1.0;
-//  Eigen::Vector2d p2_2;
-//  p2_2 << 0.5, 1.0;
-//
-//  Eigen::Matrix<double,2,2> l1;
-//  l1 << p1_1, p1_2;
-//
-//  Eigen::Matrix<double,2,2> l2;
-//  l2 << p2_1, p2_2;
-//
-//  Eigen::Vector2d inters;
-//  inters << 2.0, 2.0;
-//
-//  if ( lineIntersect(l1, l2, inters) ) {
-//    std::cout << "found intersection: " << inters << std::endl;
-//  }
-//  else {
-//    std::cout << "no intersection." << std::endl;
-//  }
-
-    /*
-     * TEST SAFE TRIANGLE
-     */
-//    Eigen::Matrix<double,2,3> triangle;
-//    triangle << 0.0, 1.0, 0.0,
-//                0.0, 0.0, 1.0;
-//
-//    Eigen::Matrix<double,2,3> safetriangle = getSafeTriangle(triangle);
-//    std::cout << "safe: " << safetriangle << std::endl;
-
+    if (1+0*makeShift_) {
+      positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
+                                                        filterOutputCoMY_,
+                                                        0.0);
+    }
 }
 
 
@@ -321,57 +261,8 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangl
 
 Eigen::Matrix<double,2,4> CoMOverSupportPolygonControlStaticGait::getNextStanceConfig(const FeetConfiguration& currentStanceConfig, int steppingFoot) {
 
-  RotationQuaternion orientationWorldToHeading = torso_->getDesiredState().getOrientationWorldToControl();
-
-  FeetConfiguration nextStanceConfig;
-  nextStanceConfig.setZero();
-
-  // Find center of stance feet
-  Pos2d currentFeetCenter;
-  currentFeetCenter.setZero();
-  for (auto leg: *legs_) {
-    Pos2d footPosition;
-//    footPosition << leg->getWorldToFootPositionInWorldFrame().x(), leg->getWorldToFootPositionInWorldFrame().y();
-//    currentFeetCenter += footPosition/legs_->size();
-    currentFeetCenter += currentStanceConfig.col(leg->getId())/legs_->size();
-  }
-
-  // Find new feet center (after step will be made)
-  Pos2d newFeetCenter;
-  newFeetCenter = currentFeetCenter + comStep_;
-
-//  std::cout << "current center: " << currentFeetCenter << std::endl
-//            << "new center:     " << newFeetCenter << std::endl;
-
-  // Find default feet positions in new stance config
-
-
-
-
-
-  Pos2d postion2dHomeToFootInControlFrame = homePos_.col(steppingFoot);
-  Position postionHomeToFootInControlFrame = Position(postion2dHomeToFootInControlFrame.x(),
-                                                      postion2dHomeToFootInControlFrame.y(),
-                                                      0.0);
-  Position postionHomeToFootInWorldFrame = orientationWorldToHeading.inverseRotate(postionHomeToFootInControlFrame);
-  Pos2d postion2dHomeToFootInWorldFrame = Pos2d(postionHomeToFootInWorldFrame.x(),postionHomeToFootInWorldFrame.y());
-
-
-
-
-
-  nextStanceConfig = currentStanceConfig;
-//  nextStanceConfig.col(steppingFoot) = newFeetCenter + homePos_.col(steppingFoot);
-  nextStanceConfig.col(steppingFoot) = newFeetCenter + postion2dHomeToFootInWorldFrame;
-
-  // Update swing foot position in new stance config and correct it if needed
-  Pos2d newFootPos;
-  Pos2d curFootPos;
-  curFootPos = currentStanceConfig.col(steppingFoot);
-  newFootPos = nextStanceConfig.col(steppingFoot);
-  newFootPos = curFootPos + (newFootPos-curFootPos)/(newFootPos-curFootPos).norm()*std::min((newFootPos-curFootPos).norm(), maxComStep_);
-
-  nextStanceConfig.col(steppingFoot) = newFootPos;
+  FeetConfiguration nextStanceConfig = currentStanceConfig;
+  nextStanceConfig.col(steppingFoot) += comStep_;
 
   return nextStanceConfig;
 }
@@ -477,12 +368,13 @@ void CoMOverSupportPolygonControlStaticGait::updateSwingLegsIndexes() {
 
   swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 
-//  std::cout << "*******************" << std::endl;
-//  std::cout << "last:  " << swingLegIndexLast_ << std::endl;
-//  std::cout << "now:   " << swingLegIndexNow_ << std::endl;
-//  std::cout << "next:  " << swingLegIndexNext_ << std::endl;
-//  std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
+  std::cout << "*******************" << std::endl;
+  std::cout << "last:  " << swingLegIndexLast_ << std::endl;
+  std::cout << "now:   " << swingLegIndexNow_ << std::endl;
+  std::cout << "next:  " << swingLegIndexNext_ << std::endl;
+  std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
 }
+
 
 
 int CoMOverSupportPolygonControlStaticGait::getIndexOfSwingLeg() {
