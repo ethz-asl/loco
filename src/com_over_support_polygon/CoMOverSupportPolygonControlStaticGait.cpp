@@ -17,6 +17,7 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingOrder_(legs_->size()),
     delta_(0.0),
     maxComStep_(0.0),
+    swingLegIndexOld_(-1),
     swingLegIndexNow_(-1),
     swingLegIndexNext_(-1),
     swingLegIndexLast_(-1),
@@ -38,10 +39,12 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   feetConfigurationNext_.setZero();
   feetConfigurationOverNext_.setZero();
 
+  supportTriangleOld_.setZero();
   supportTriangleCurrent_.setZero();
   supportTriangleNext_.setZero();
   supportTriangleOverNext_.setZero();
 
+  safeTriangleOld_.setZero();
   safeTriangleCurrent_.setZero();
   safeTriangleNext_.setZero();
   safeTriangleOverNext_.setZero();
@@ -79,7 +82,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   filterCoMZ_->initialize(filterInputCoMZ_, filterTimeConstant, filterGain);
 
   maxComStep_ = 0.5;
-  delta_ = 0;//0.04;
+  delta_ = 0.04;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
@@ -137,8 +140,28 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexLast_);
   feetConfigurationOverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexNext_);
 
-  // Get support triangles
   int j=0;
+
+  //---
+  FeetConfiguration oldStanceConfig;
+  int oldSwingLed = getNextSwingFoot(swingLegIndexOverNext_);
+  oldStanceConfig = feetConfigurationCurrent_;
+  oldStanceConfig.col(oldSwingLed) -= comStep_;
+  for (int k=0; k<legs_->size(); k++) {
+    if (k != oldSwingLed) {
+      supportTriangleOld_.col(j) = oldStanceConfig.col(k);
+      j++;
+    }
+  }
+  safeTriangleOld_ = getSafeTriangle(supportTriangleOld_);
+  //---
+
+
+
+
+
+  // Get support triangles
+  j=0;
   for (int k=0; k<legs_->size(); k++) {
     if (k != swingLegIndexLast_) {
       supportTriangleCurrent_.col(j) = feetConfigurationCurrent_.col(k);
@@ -166,7 +189,8 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   safeTriangleOverNext_ = getSafeTriangle(supportTriangleOverNext_);
 
 
-  std::vector<int> diagonalSwingLegsLast(2), diagonalSwingLegsNext(2), diagonalSwingLegsOverNext(2);
+  std::vector<int> diagonalSwingLegsOld(2), diagonalSwingLegsLast(2), diagonalSwingLegsNext(2), diagonalSwingLegsOverNext(2);
+  diagonalSwingLegsOld = getDiagonalElements(oldSwingLed);
   diagonalSwingLegsLast = getDiagonalElements(swingLegIndexLast_);
   diagonalSwingLegsNext = getDiagonalElements(swingLegIndexNext_);
   diagonalSwingLegsOverNext = getDiagonalElements(swingLegIndexOverNext_);
@@ -174,7 +198,10 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   Pos2d intersection;
   intersection.setZero();
 
-  Line lineSafeLast, lineSafeNext, lineSafeOverNext;
+  Line lineSafeOld, lineSafeLast, lineSafeNext, lineSafeOverNext;
+  lineSafeOld << safeTriangleOld_.col(diagonalSwingLegsOld[0]),
+                 safeTriangleOld_.col(diagonalSwingLegsOld[1]);
+
   lineSafeLast << safeTriangleCurrent_.col(diagonalSwingLegsLast[0]),
                   safeTriangleCurrent_.col(diagonalSwingLegsLast[1]);
 
@@ -184,14 +211,24 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   lineSafeOverNext << safeTriangleOverNext_.col(diagonalSwingLegsOverNext[0]),
                       safeTriangleOverNext_.col(diagonalSwingLegsOverNext[1]);
 
-  if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
+//  if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
+//    comTarget_ = intersection;
+//    makeShift_ = false;
+//  }
+//  else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
+//    comTarget_ = intersection;
+//    makeShift_ = true;
+//  }
+
+  if (lineIntersect(lineSafeOld, lineSafeLast, intersection)) {
     comTarget_ = intersection;
     makeShift_ = false;
   }
-  else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
+  else if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
     comTarget_ = intersection;
     makeShift_ = true;
   }
+
 //  else if (lineIntersect(lineSafeLast, lineSafeOverNext, intersection)) {
 //        positionWorldToDesiredCoMInWorldFrame_ << intersection[0],
 //                                                  intersection[1],
@@ -224,11 +261,16 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);
     filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
 
-    if (1+0*makeShift_) {
+    if (makeShift_) {
       positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
                                                         filterOutputCoMY_,
                                                         0.0);
     }
+}
+
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleOld() const {
+  return supportTriangleOld_;
 }
 
 
@@ -244,6 +286,11 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTria
 
 Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleOverNext() const {
   return supportTriangleOverNext_;
+}
+
+
+Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangleOld() const {
+  return safeTriangleOld_;
 }
 
 Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangleCurrent() const {
