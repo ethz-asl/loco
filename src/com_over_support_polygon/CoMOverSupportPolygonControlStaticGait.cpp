@@ -21,7 +21,13 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingLegIndexNext_(-1),
     swingLegIndexLast_(-1),
     swingLegIndexOverNext_(-1),
-    swingFootChanged_(false)
+    swingFootChanged_(false),
+    filterInputCoMX_(0),
+    filterInputCoMY_(0),
+    filterInputCoMZ_(0),
+    filterOutputCoMX_(0),
+    filterOutputCoMY_(0),
+    filterOutputCoMZ_(0)
 {
   // Reset Eigen variables
   homePos_.setZero();
@@ -41,17 +47,28 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   maxComStep_ = 0.5;
   delta_ = 0.05;
 
+  filterCoMX_ = new robotUtils::FirstOrderFilter();
+  filterCoMY_ = new robotUtils::FirstOrderFilter();
+  filterCoMZ_ = new robotUtils::FirstOrderFilter();
+
 }
 
 
 CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait() {
-
+  delete filterCoMX_;
+  delete filterCoMY_;
+  delete filterCoMZ_;
 }
 
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
-  maxComStep_ = 1.5;
-  delta_ = 0;//0.05;
+
+  filterCoMX_->initialize(filterInputCoMX_, 0.1, 1.0);
+  filterCoMY_->initialize(filterInputCoMY_, 0.1, 1.0);
+  filterCoMZ_->initialize(filterInputCoMZ_, 0.1, 1.0);
+
+  maxComStep_ = 0.5;
+  delta_ = 0.035;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
@@ -87,6 +104,12 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   return true;
 }
+
+
+const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
+  return positionWorldToDesiredCoMInWorldFrame_;
+}
+
 
 void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   // update current configuration
@@ -215,6 +238,16 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       swingFootChanged_ = false;
       updateSafeSupportTriangles();
     }
+
+    filterInputCoMX_ = positionWorldToDesiredCoMInWorldFrame_.x();
+    filterInputCoMY_ = positionWorldToDesiredCoMInWorldFrame_.y();
+    filterInputCoMZ_ = positionWorldToDesiredCoMInWorldFrame_.z();
+
+    filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);
+    filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
+    filterOutputCoMZ_ = filterCoMZ_->advance(dt,filterInputCoMZ_);
+
+    positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,filterOutputCoMY_,filterOutputCoMZ_);
 
 
     /*
@@ -424,11 +457,6 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangl
   }
 
   return safeTriangle;
-}
-
-
-const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
-  return positionWorldToDesiredCoMInWorldFrame_;
 }
 
 

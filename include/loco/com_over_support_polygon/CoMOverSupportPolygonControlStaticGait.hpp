@@ -10,6 +10,7 @@
 
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlBase.hpp"
 #include "loco/common/TorsoBase.hpp"
+#include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
 
 namespace loco {
 
@@ -88,6 +89,10 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   void updateSwingLegsIndexes();
 
   void updateSafeSupportTriangles();
+
+  robotUtils::FirstOrderFilter *filterCoMX_, *filterCoMY_, *filterCoMZ_;
+  double filterInputCoMX_, filterInputCoMY_, filterInputCoMZ_;
+  double filterOutputCoMX_, filterOutputCoMY_, filterOutputCoMZ_;
 
 };
 
