@@ -50,7 +50,7 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   safeTriangleOverNext_.setZero();
 
   maxComStep_ = 0.5;
-  delta_ = 0.04;
+  delta_ = 0.01;
 
   comTarget_.setZero();
 
@@ -74,7 +74,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   comTarget_.setZero();
 
-  double filterTimeConstant = 0.0005;
+  double filterTimeConstant = 0.05;
   double filterGain = 1.0;
 
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
@@ -82,7 +82,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   filterCoMZ_->initialize(filterInputCoMZ_, filterTimeConstant, filterGain);
 
   maxComStep_ = 0.5;
-  delta_ = 0.04;
+  delta_ = 0.05;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
@@ -234,9 +234,9 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
 //                                                  intersection[1],
 //                                                  0.0;
 //  }
-  else {
-    comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
-  }
+//  else {
+//    comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
+//  }
 
 }
 
@@ -324,16 +324,13 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
 
   // Check if line length is zero
   if ( (l1_1-l1_2).isZero() || (l2_1-l2_2).isZero() ) {
-//    std::cout << "line length is zero" << std::endl;
     return false;
   }
 
   Pos2d v1 = l1_2-l1_1;
-//  std::cout << "v1 norm: " << v1.norm();
   v1 = v1/v1.norm();
 
   Pos2d v2 = l2_2-l2_1;
-//  std::cout << "v2 norm: " << v2.norm();
   v2 = v2/v2.norm();
 
   // Check if v1 and v2 are parallel (matrix would not be invertible)
@@ -343,24 +340,14 @@ bool CoMOverSupportPolygonControlStaticGait::lineIntersect(const Line& l1, const
   A << -v1, v2;
   Eigen::FullPivLU<Eigen::Matrix2d> Apiv(A);
   if (Apiv.rank() == 2) {
-//    std::cout << "solving A-b" << std::endl;
     x = A.lu().solve(l1_1-l2_1);
-//    std::cout << "solution: " << x << std::endl;
   }
 
   if (x(0)>=0.0 && x(0)<=1.0) {
     intersection << l1_1(0) + x(0)*v1(0),
                     l1_1(1) + x(0)*v1(1);
-
-//    std::cout << std::endl
-//              << "intersection: " << intersection << std::endl
-//              << "A: " << A << std::endl
-//              << "x: " << x << std::endl
-//              << "l1_1: " << l1_1 << std::endl;
-
     return true;
   } else {
-//    std::cout << "v1 and v2 are parallel" << std::endl;
     return false;
   }
 }
@@ -415,11 +402,11 @@ void CoMOverSupportPolygonControlStaticGait::updateSwingLegsIndexes() {
 
   swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 
-  std::cout << "*******************" << std::endl;
-  std::cout << "last:  " << swingLegIndexLast_ << std::endl;
-  std::cout << "now:   " << swingLegIndexNow_ << std::endl;
-  std::cout << "next:  " << swingLegIndexNext_ << std::endl;
-  std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
+//  std::cout << "*******************" << std::endl;
+//  std::cout << "last:  " << swingLegIndexLast_ << std::endl;
+//  std::cout << "now:   " << swingLegIndexNow_ << std::endl;
+//  std::cout << "next:  " << swingLegIndexNext_ << std::endl;
+//  std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
 }
 
 

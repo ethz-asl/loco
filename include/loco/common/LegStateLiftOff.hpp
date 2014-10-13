@@ -30,7 +30,7 @@ class LegStateLiftOff : public loco::LegStateBase {
 
   void setPositionWorldToHipInWorldFrame(const Position& hipPositionInWorldFrame);
   void setPositionWorldToFootInWorldFrame(const Position& footPositionInWorldFrame);
-  void setPositionWorldToHipOnTerrainAlongWorldZToSurfaceAtLiftOffInWorldFrame(const Position& positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame);
+  void setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(const Position& positionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame);
 
 
  protected:
