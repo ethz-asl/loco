@@ -98,9 +98,9 @@ Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDe
   positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame
                                                       + orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame);
 
-  std::cout << "foothold components for leg: " << leg.getId() << std::endl
-            << "world to hip on t: " << positionWorldToHipVerticalOnPlaneInWorldFrame << std::endl
-            << "hip on t to foot: " << orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame) << std::endl;
+//  std::cout << "foothold components for leg: " << leg.getId() << std::endl
+//            << "world to hip on t: " << positionWorldToHipVerticalOnPlaneInWorldFrame << std::endl
+//            << "hip on t to foot: " << orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame) << std::endl;
   //---
 
   //--- starting point for trajectory interpolation

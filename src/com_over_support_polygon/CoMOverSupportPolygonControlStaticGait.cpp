@@ -48,7 +48,7 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   safeTriangleOverNext_.setZero();
 
   maxComStep_ = 0.5;
-  delta_ = 0.01;
+  delta_ = 0.05;
 
   comTarget_.setZero();
 
@@ -70,7 +70,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   comTarget_.setZero();
 
-  double filterTimeConstant = 0.0005;
+  double filterTimeConstant = 0.01;
   double filterGain = 1.0;
 
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
