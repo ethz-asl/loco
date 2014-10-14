@@ -25,10 +25,8 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingFootChanged_(false),
     filterInputCoMX_(0),
     filterInputCoMY_(0),
-    filterInputCoMZ_(0),
     filterOutputCoMX_(0),
     filterOutputCoMY_(0),
-    filterOutputCoMZ_(0),
     makeShift_(false)
 {
   // Reset Eigen variables
@@ -56,7 +54,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
 
   filterCoMX_ = new robotUtils::FirstOrderFilter();
   filterCoMY_ = new robotUtils::FirstOrderFilter();
-  filterCoMZ_ = new robotUtils::FirstOrderFilter();
 
 }
 
@@ -64,7 +61,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
 CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait() {
   delete filterCoMX_;
   delete filterCoMY_;
-  delete filterCoMZ_;
 }
 
 
@@ -74,15 +70,14 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   comTarget_.setZero();
 
-  double filterTimeConstant = 0.05;
+  double filterTimeConstant = 0.0005;
   double filterGain = 1.0;
 
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
   filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
-  filterCoMZ_->initialize(filterInputCoMZ_, filterTimeConstant, filterGain);
 
   maxComStep_ = 0.5;
-  delta_ = 0.05;
+  delta_ = 0.03;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
@@ -234,9 +229,9 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
 //                                                  intersection[1],
 //                                                  0.0;
 //  }
-//  else {
-//    comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
-//  }
+  else {
+    comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
+  }
 
 }
 
