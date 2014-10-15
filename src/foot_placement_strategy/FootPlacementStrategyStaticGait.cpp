@@ -113,7 +113,6 @@ Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOnTerrainFee
 //  Position positionWorldToHipOnTerrainInWorldFrame = leg.getPositionWorldToHipInWorldFrame();
 //  terrain_->getHeight(positionWorldToHipOnTerrainInWorldFrame);
 
-
   Position positionWorldToHipOnTerrainInWorldFrame;
   switch (leg.getId()) {
     case (0):
@@ -143,14 +142,15 @@ Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOnTerrainFee
   Position positionFootAtLiftOffToHipOnTerrainInControlFrame = orientationWorldToControl.rotate(positionFootAtLiftOffToHipOnTerrainInWorldFrame);
 
   Position headingAxisOfControlFrame = Position::UnitX();
-  Position positionDesiredFootOnTerrainVelocityOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(headingAxisOfControlFrame.toImplementation()))
+  Position positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(headingAxisOfControlFrame.toImplementation()))
                                                                       *stanceDuration*0.5;
 
-//  Position headingAxisOfControlFrame = Position::UnitY();
-//  Position positionDesiredFootOnTerrainVelocityOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(headingAxisOfControlFrame.toImplementation()))
-//                                                                      *stanceDuration*0.5;
+  Position lateralAxisOfControlFrame = Position::UnitY();
+  Position positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(lateralAxisOfControlFrame.toImplementation()))
+                                                                      *stanceDuration*0.5;
 
-  Position positionDesiredFootOnTerrainFeedForwardInControlFrame = positionDesiredFootOnTerrainVelocityOffsetInControlFrame
+  Position positionDesiredFootOnTerrainFeedForwardInControlFrame = positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame
+                                                                   + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame
                                                                    + positionFootAtLiftOffToHipOnTerrainInControlFrame;
 
   return positionDesiredFootOnTerrainFeedForwardInControlFrame;
