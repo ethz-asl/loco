@@ -36,6 +36,10 @@ FootPlacementStrategyStaticGait::~FootPlacementStrategyStaticGait() {
 
 }
 
+/*
+ * Foot holds are evaluated with respect to the foot positions at liftoff.
+ *
+ */
 
 Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
@@ -56,6 +60,9 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   Position validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame
                                                                          - positionWorldToFootOnTerrainAtLiftOffInWorldFrame;
 
+  /*
+   * Interpolate on the x-y plane
+   */
   double interpolationParameter = getInterpolationPhase(*leg);
   Position positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame = Position(
                                                                                         // x
@@ -72,8 +79,13 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
                                                                                         0.0
                                                                                         );
 
+  /*
+   * Interpolate height trajectory
+   */
   Position positionDesiredFootOnTerrainToDesiredFootInControlFrame =  getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(*leg,
                                                                                                        orientationWorldToControl.rotate(positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame) ); // z
+
+
   Position positionWorldToDesiredFootInWorldFrame = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
                                                     + positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame);
