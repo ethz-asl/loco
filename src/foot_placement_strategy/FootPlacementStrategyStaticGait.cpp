@@ -69,17 +69,22 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
                                                       + positionFootAtLiftOffToDesiredFootHoldInWorldFrame;
 
+  Position positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
+  validateFootHold(positionWorldToFootHoldInWorldFrame);
+  Position validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame
+                                                                         - positionWorldToFootOnTerrainAtLiftOffInWorldFrame;
+
   double interpolationParameter = getInterpolationPhase(*leg);
   Position positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame = Position(
                                                                                         // x
                                                                                         getHeadingComponentOfFootStep(interpolationParameter,
                                                                                         0.0,
-                                                                                        positionFootAtLiftOffToDesiredFootHoldInWorldFrame.x(),
+                                                                                        validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame.x(),
                                                                                         const_cast<LegBase*>(leg)),
                                                                                         // y
                                                                                         getLateralComponentOfFootStep(interpolationParameter,
                                                                                         0.0,
-                                                                                        positionFootAtLiftOffToDesiredFootHoldInWorldFrame.y(),
+                                                                                        validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame.y(),
                                                                                         const_cast<LegBase*>(leg)),
                                                                                         // z
                                                                                         0.0
@@ -92,6 +97,11 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame);
   return positionWorldToDesiredFootInWorldFrame;
   //---
+}
+
+
+void FootPlacementStrategyStaticGait::validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame) {
+  // todo: check if foot hold is feasible
 }
 
 
@@ -135,6 +145,10 @@ Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOnTerrainFee
   Position headingAxisOfControlFrame = Position::UnitX();
   Position positionDesiredFootOnTerrainVelocityOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(headingAxisOfControlFrame.toImplementation()))
                                                                       *stanceDuration*0.5;
+
+//  Position headingAxisOfControlFrame = Position::UnitY();
+//  Position positionDesiredFootOnTerrainVelocityOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(headingAxisOfControlFrame.toImplementation()))
+//                                                                      *stanceDuration*0.5;
 
   Position positionDesiredFootOnTerrainFeedForwardInControlFrame = positionDesiredFootOnTerrainVelocityOffsetInControlFrame
                                                                    + positionFootAtLiftOffToHipOnTerrainInControlFrame;

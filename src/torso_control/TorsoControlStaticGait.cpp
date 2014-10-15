@@ -15,7 +15,12 @@ namespace loco {
 TorsoControlStaticGait::TorsoControlStaticGait(LegGroup* legs, TorsoBase* torso, TerrainModelBase* terrain):
   TorsoControlDynamicGaitFreePlane(legs, torso, terrain)
 {
+  delete comControl_;
   comControl_ = new CoMOverSupportPolygonControlStaticGait(legs, torso);
+
+  const double defaultHeight = 0.36;
+  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
+
 }
 
 

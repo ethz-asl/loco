@@ -124,7 +124,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   Eigen::Vector2d desiredLinearVelocity;
   desiredLinearVelocity << desiredLinearVelocityInWorldFrame.x(),
                            desiredLinearVelocityInWorldFrame.y();
-  comStep_ = desiredLinearVelocity*legs_->getLeftForeLeg()->getStanceDuration();
+  comStep_ = 0.5*desiredLinearVelocity*legs_->getLeftForeLeg()->getStanceDuration();
 
   // update current configuration
   for (auto leg: *legs_) {

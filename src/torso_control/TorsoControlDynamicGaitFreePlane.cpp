@@ -17,6 +17,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   legs_(legs),
   torso_(torso),
   terrain_(terrain),
+  comControl_(nullptr),
   maxDesiredPitchRadians_(5.0*M_PI/180.0),
   desiredPitchSlope_(1.0),
   maxDesiredRollRadians_(5.0*M_PI/180.0),
@@ -54,7 +55,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
 
 TorsoControlDynamicGaitFreePlane::~TorsoControlDynamicGaitFreePlane() {
   if (firstOrderFilter_) delete firstOrderFilter_;
-  if (comControl_) delete comControl_;
+  delete comControl_;
 }
 
 
