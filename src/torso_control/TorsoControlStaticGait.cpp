@@ -18,7 +18,7 @@ TorsoControlStaticGait::TorsoControlStaticGait(LegGroup* legs, TorsoBase* torso,
   delete comControl_;
   comControl_ = new CoMOverSupportPolygonControlStaticGait(legs, torso);
 
-  const double defaultHeight = 0.36;
+  const double defaultHeight = 0.39;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
 }
