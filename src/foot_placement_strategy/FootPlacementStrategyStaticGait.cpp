@@ -45,7 +45,7 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   Position positionWorldToFootOnTerrainAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
   terrain_->getHeight(positionWorldToFootOnTerrainAtLiftOffInWorldFrame);
 
-  Position positionFootAtLiftOffToDesiredFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(getPositionFootAtLiftOffToDesiredFootHoldInWorldFrame(*leg));
+  Position positionFootAtLiftOffToDesiredFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(getPositionFootAtLiftOffToDesiredFootHoldInControlFrame(*leg));
 
   // x-y offset
   Position positionWorldToFootHoldInWorldFrame = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
@@ -113,7 +113,7 @@ Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOrientationO
 
 
 // Evaluate feed forward component
-Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootHoldInWorldFrame(const LegBase& leg)   {
+Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootHoldInControlFrame(const LegBase& leg)   {
   double stanceDuration = leg.getStanceDuration();
 
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
@@ -145,11 +145,11 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
                                                                       *stanceDuration*0.5;
 
   // build the desired foot step displacement
-  Position positionDesiredFootOnTerrainFeedForwardInControlFrame = positionFootAtLiftOffToDefaultFootInControlFrame                     // default position
-                                                                   + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame    // heading
-                                                                   + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;   // lateral
+  Position positionFootAtLiftOffToDesiredFootHoldInControlFrame = positionFootAtLiftOffToDefaultFootInControlFrame                    // default position
+                                                                  + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame   // heading
+                                                                  + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;  // lateral
 
-  return positionDesiredFootOnTerrainFeedForwardInControlFrame;
+  return positionFootAtLiftOffToDesiredFootHoldInControlFrame;
 }
 
 

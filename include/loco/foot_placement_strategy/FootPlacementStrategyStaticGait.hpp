@@ -23,7 +23,7 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
   virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
-  virtual Position getPositionFootAtLiftOffToDesiredFootHoldInWorldFrame(const LegBase& leg);
+  virtual Position getPositionFootAtLiftOffToDesiredFootHoldInControlFrame(const LegBase& leg);
 
   virtual Position getPositionDesiredFootHoldOrientationOffsetInWorldFrame(const LegBase& leg, const Position& positionWorldToDesiredFootHoldBeforeOrientationOffsetInWorldFrame);
 
