@@ -29,6 +29,10 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual void validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame);
 
+
+  virtual Position getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const;
+
+
   virtual bool initialize(double dt);
 
  protected:

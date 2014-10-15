@@ -33,6 +33,7 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
   for (auto leg: *legs_) {
     positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()].setZero();
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()].setZero();
+    positionWorldToFootHoldInWorldFrame_[leg->getId()].setZero();
   }
 
 }
@@ -45,10 +46,14 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 
     positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
     terrain_->getHeight(positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()]);
+
+    positionWorldToCenterOfFeetAtLiftOffInWorldFrame_ += positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()]/legs_->size();
+
+    positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()];
+
   }
 
   return true;
-
 }
 
 
@@ -80,7 +85,8 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   // validate the foot step
   positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
   validateFootHold(positionWorldToFootHoldInWorldFrame);
-  Position validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame
+  positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootHoldInWorldFrame;
+  Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame
                                                                          - positionWorldToFootOnTerrainAtLiftOffInWorldFrame;
 
   /*
@@ -91,12 +97,12 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
                                                                                         // x
                                                                                         getHeadingComponentOfFootStep(interpolationParameter,
                                                                                         0.0,
-                                                                                        validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame.x(),
+                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame.x(),
                                                                                         const_cast<LegBase*>(leg)),
                                                                                         // y
                                                                                         getLateralComponentOfFootStep(interpolationParameter,
                                                                                         0.0,
-                                                                                        validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame.y(),
+                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame.y(),
                                                                                         const_cast<LegBase*>(leg)),
                                                                                         // z
                                                                                         0.0
@@ -119,6 +125,12 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
 
 void FootPlacementStrategyStaticGait::validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame) {
   // todo: check if foot hold is feasible
+}
+
+
+Position FootPlacementStrategyStaticGait::getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const {
+  // todo: check if legId is in admissible range
+  return positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId];
 }
 
 
