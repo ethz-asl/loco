@@ -83,7 +83,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
 
   maxComStep_ = 0.5;
-  delta_ = 0.05;
+  delta_ = 0.03;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
