@@ -117,21 +117,22 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
   double stanceDuration = leg.getStanceDuration();
 
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
-  Position positionBaseOnTerrainToDefaultFootInWorldFrame = orientationWorldToControl.inverseRotate(positionBaseOnTerrainToDefaultFootInControlFrame_[leg.getId()]);
+  Position positionCenterOfFeetAtLiftOffToDefaultFootInWorldFrame = orientationWorldToControl.inverseRotate(positionBaseOnTerrainToDefaultFootInControlFrame_[leg.getId()]);
 
   /* Update center of feet at lift off */
-  Position positionWorldToConterOfFeetAtLiftOffInWorldFrame = Position();
+  Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame = Position();
   for (auto legAuto: *legs_) {
-    positionWorldToConterOfFeetAtLiftOffInWorldFrame += legAuto->getStateLiftOff()->getPositionWorldToFootInWorldFrame()/legs_->size();
+    positionWorldToCenterOfFeetAtLiftOffInWorldFrame += legAuto->getStateLiftOff()->getPositionWorldToFootInWorldFrame()/legs_->size();
   }
-  terrain_->getHeight(positionWorldToConterOfFeetAtLiftOffInWorldFrame);
-  positionWorldToCenterOfFeetAtLiftOffInWorldFrame_ = positionWorldToConterOfFeetAtLiftOffInWorldFrame;
+  terrain_->getHeight(positionWorldToCenterOfFeetAtLiftOffInWorldFrame);
+  positionWorldToCenterOfFeetAtLiftOffInWorldFrame_ = positionWorldToCenterOfFeetAtLiftOffInWorldFrame;
 
-  positionBaseOnTerrainToDefaultFootInWorldFrame += positionWorldToConterOfFeetAtLiftOffInWorldFrame;
+  Position positionWorldToDefafultFootInWorldFrame = positionCenterOfFeetAtLiftOffToDefaultFootInWorldFrame
+                                                    + positionWorldToCenterOfFeetAtLiftOffInWorldFrame;
 
-  Position positionFootAtLiftOffToHipOnTerrainInWorldFrame = positionBaseOnTerrainToDefaultFootInWorldFrame
-                                                             - leg.getStateLiftOff().getPositionWorldToFootInWorldFrame();
-  Position positionFootAtLiftOffToHipOnTerrainInControlFrame = orientationWorldToControl.rotate(positionFootAtLiftOffToHipOnTerrainInWorldFrame);
+  Position positionFootAtLiftOffToDefaultFootInWorldFrame = positionWorldToDefafultFootInWorldFrame
+                                                            - leg.getStateLiftOff().getPositionWorldToFootInWorldFrame();
+  Position positionFootAtLiftOffToDefaultFootInControlFrame = orientationWorldToControl.rotate(positionFootAtLiftOffToDefaultFootInWorldFrame);
 
   // heading component
   Position headingAxisOfControlFrame = Position::UnitX();
@@ -144,9 +145,9 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
                                                                       *stanceDuration*0.5;
 
   // build the desired foot step displacement
-  Position positionDesiredFootOnTerrainFeedForwardInControlFrame = positionFootAtLiftOffToHipOnTerrainInControlFrame                      // default position
-                                                                   + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame      // heading
-                                                                   + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;     // lateral
+  Position positionDesiredFootOnTerrainFeedForwardInControlFrame = positionFootAtLiftOffToDefaultFootInControlFrame                     // default position
+                                                                   + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame    // heading
+                                                                   + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;   // lateral
 
   return positionDesiredFootOnTerrainFeedForwardInControlFrame;
 }
