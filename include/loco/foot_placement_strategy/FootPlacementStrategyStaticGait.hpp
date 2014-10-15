@@ -25,11 +25,14 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
   virtual Position getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(const LegBase& leg);
 
-  virtual Position getPositionDesiredFootHoldOrientationOffsetInControlFrame(const LegBase& leg);
+  virtual Position getPositionDesiredFootHoldOrientationOffsetInWorldFrame(const LegBase& leg, const Position& positionWorldToDesiredFootHoldBeforeOrientationOffsetInWorldFrame);
 
   virtual void validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame);
 
  protected:
+
+  Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame_;
+  std::vector<Position> positionBaseOnTerrainToDefaultFootInControlFrame_;
 
 };
 
