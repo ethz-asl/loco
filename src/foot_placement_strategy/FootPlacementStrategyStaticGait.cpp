@@ -13,7 +13,8 @@ namespace loco {
 
 FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain) :
     FootPlacementStrategyFreePlane(legs, torso, terrain),
-    positionBaseOnTerrainToDefaultFootInControlFrame_(legs_->size())
+    positionBaseOnTerrainToDefaultFootInControlFrame_(legs_->size()),
+    positionWorldToValidatedDesiredFootHoldInWorldFrame_(legs_->size())
 {
 
   stepInterpolationFunction_.clear();
@@ -24,10 +25,29 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
 
   positionWorldToCenterOfFeetAtLiftOffInWorldFrame_ = Position();
 
-  positionBaseOnTerrainToDefaultFootInControlFrame_[0] = Position(0.25, 0.18, 0.0);
-  positionBaseOnTerrainToDefaultFootInControlFrame_[1] = Position(0.25, -0.18, 0.0);
-  positionBaseOnTerrainToDefaultFootInControlFrame_[2] = Position(-0.25, 0.18, 0.0);
-  positionBaseOnTerrainToDefaultFootInControlFrame_[3] = Position(-0.25, -0.18, 0.0);
+//  positionBaseOnTerrainToDefaultFootInControlFrame_[0] = Position(0.25, 0.18, 0.0);
+//  positionBaseOnTerrainToDefaultFootInControlFrame_[1] = Position(0.25, -0.18, 0.0);
+//  positionBaseOnTerrainToDefaultFootInControlFrame_[2] = Position(-0.25, 0.18, 0.0);
+//  positionBaseOnTerrainToDefaultFootInControlFrame_[3] = Position(-0.25, -0.18, 0.0);
+
+  for (auto leg: *legs_) {
+    positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()].setZero();
+    positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()].setZero();
+  }
+
+}
+
+bool FootPlacementStrategyStaticGait::initialize(double dt) {
+  FootPlacementStrategyFreePlane::initialize(dt);
+
+  for (auto leg: *legs_) {
+    positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
+
+    positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
+    terrain_->getHeight(positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()]);
+  }
+
+  return true;
 
 }
 
@@ -51,9 +71,13 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   Position positionWorldToFootHoldInWorldFrame = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
                                                  + positionFootAtLiftOffToDesiredFootHoldInWorldFrame;
 
-  // orientation offset
+  // orientation offset - rotate foothold position vector around world z axis according to desired angular velocity
   positionWorldToFootHoldInWorldFrame_[leg->getId()] = getPositionDesiredFootHoldOrientationOffsetInWorldFrame(*leg, positionWorldToFootHoldInWorldFrame);
 
+  // get correct terrain height at foot hold
+  terrain_->getHeight(positionWorldToFootHoldInWorldFrame_[leg->getId()]);
+
+  // validate the foot step
   positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
   validateFootHold(positionWorldToFootHoldInWorldFrame);
   Position validatedPositionFootAtLiftOffToDesiredFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame

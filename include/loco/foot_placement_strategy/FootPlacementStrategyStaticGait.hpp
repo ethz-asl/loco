@@ -29,10 +29,13 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual void validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame);
 
+  virtual bool initialize(double dt);
+
  protected:
 
   Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame_;
   std::vector<Position> positionBaseOnTerrainToDefaultFootInControlFrame_;
+  std::vector<Position> positionWorldToValidatedDesiredFootHoldInWorldFrame_;
 
 };
 
