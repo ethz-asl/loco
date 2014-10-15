@@ -230,6 +230,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
 //                                                  0.0;
 //  }
   else {
+    makeShift_ = true;
     comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
   }
 
