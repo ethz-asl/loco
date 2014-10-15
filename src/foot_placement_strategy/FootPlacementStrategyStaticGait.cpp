@@ -40,13 +40,12 @@ FootPlacementStrategyStaticGait::~FootPlacementStrategyStaticGait() {
  * Foot holds are evaluated with respect to the foot positions at liftoff.
  *
  */
-
 Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   Position positionWorldToFootOnTerrainAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
   terrain_->getHeight(positionWorldToFootOnTerrainAtLiftOffInWorldFrame);
 
-  Position positionFootAtLiftOffToDesiredFootHoldInWorldFrame = torso_->getMeasuredState().getOrientationWorldToControl().inverseRotate(getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(*leg));
+  Position positionFootAtLiftOffToDesiredFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(getPositionFootAtLiftOffToDesiredFootHoldInWorldFrame(*leg));
 
   // x-y offset
   Position positionWorldToFootHoldInWorldFrame = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
@@ -114,7 +113,7 @@ Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOrientationO
 
 
 // Evaluate feed forward component
-Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(const LegBase& leg)   {
+Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootHoldInWorldFrame(const LegBase& leg)   {
   double stanceDuration = leg.getStanceDuration();
 
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
