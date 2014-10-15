@@ -9,6 +9,7 @@
 #define LOCO_COMOVERSUPPORTPOLYGONCONTROLSTATICGAIT_HPP_
 
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlBase.hpp"
+#include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
 #include "loco/common/TorsoBase.hpp"
 #include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
 
@@ -42,10 +43,12 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
 
+  virtual void setFootPlacementStrategy(FootPlacementStrategyBase* footPlacementStrategy);
 
  protected:
 
   TorsoBase* torso_;
+  FootPlacementStrategyBase* footPlacementStrategy_;
 
   int swingLegIndexOld_;
   int swingLegIndexNow_;

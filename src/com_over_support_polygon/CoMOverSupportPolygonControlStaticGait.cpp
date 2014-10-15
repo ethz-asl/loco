@@ -6,6 +6,7 @@
  */
 
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlStaticGait.hpp"
+#include "loco/foot_placement_strategy/FootPlacementStrategyStaticGait.hpp"
 #include <Eigen/LU>
 //#include <algorithm>
 
@@ -27,7 +28,8 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     filterInputCoMY_(0),
     filterOutputCoMX_(0),
     filterOutputCoMY_(0),
-    makeShift_(false)
+    makeShift_(false),
+    footPlacementStrategy_(nullptr)
 {
   // Reset Eigen variables
   homePos_.setZero();
@@ -63,6 +65,10 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
   delete filterCoMY_;
 }
 
+
+void CoMOverSupportPolygonControlStaticGait::setFootPlacementStrategy(FootPlacementStrategyBase* footPlacementStrategy) {
+  footPlacementStrategy_ = footPlacementStrategy;
+}
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
 

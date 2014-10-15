@@ -41,7 +41,6 @@ bool CoMOverSupportPolygonControlBase::loadParameters(TiXmlHandle &hParameterSet
   TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
 
 
-
   pElem = handle.FirstChild("Weight").Element();
   if (!pElem) {
     printf("Could not find CoMOverSupportPolygonControl:Weight\n");
