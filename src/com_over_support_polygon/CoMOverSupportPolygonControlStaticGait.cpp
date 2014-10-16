@@ -130,6 +130,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   Eigen::Vector2d desiredLinearVelocity;
   desiredLinearVelocity << desiredLinearVelocityInWorldFrame.x(),
                            desiredLinearVelocityInWorldFrame.y();
+
   comStep_ = 0.5*desiredLinearVelocity*legs_->getLeftForeLeg()->getStanceDuration();
 
   // update current configuration
@@ -257,12 +258,13 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       updateSafeSupportTriangles();
     }
 
+    /*
+     * Set CoM desired position
+     */
     filterInputCoMX_ = comTarget_.x();
     filterInputCoMY_ = comTarget_.y();
-
     filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);
     filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
-
     if (makeShift_) {
       positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
                                                         filterOutputCoMY_,

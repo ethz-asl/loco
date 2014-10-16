@@ -14,7 +14,8 @@ namespace loco {
 FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain) :
     FootPlacementStrategyFreePlane(legs, torso, terrain),
     positionBaseOnTerrainToDefaultFootInControlFrame_(legs_->size()),
-    positionWorldToValidatedDesiredFootHoldInWorldFrame_(legs_->size())
+    positionWorldToValidatedDesiredFootHoldInWorldFrame_(legs_->size()),
+    allFeetGrounded_(false)
 {
 
   stepInterpolationFunction_.clear();
@@ -57,9 +58,109 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 }
 
 
+bool FootPlacementStrategyStaticGait::areAllFeetGrounded() {
+  bool allFeetGrounded = true;
+  for (auto leg: *legs_) {
+    allFeetGrounded *= leg->isGrounded();
+  }
+
+  std::string response = allFeetGrounded ? std::string{"yes"} : std::string{"no"};
+  std::cout << "all feet are grounded: " << response << std::endl;
+
+  return allFeetGrounded;
+}
+
+
+Position FootPlacementStrategyStaticGait::generateFootHold() {
+  return Position();
+}
+
+
+bool FootPlacementStrategyStaticGait::advance(double dt) {
+
+  allFeetGrounded_ = areAllFeetGrounded();
+
+  for (auto leg : *legs_) {
+  // save the hip position at lift off for trajectory generation
+  if (leg->shouldBeGrounded() ||
+      (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
+  ) {
+    Position positionWorldToHipAtLiftOffInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
+    positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+    Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
+
+    Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
+    terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+
+    /*
+     * WARNING: these were also updated by the event detector
+     */
+    leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+    leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
+    leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
+    leg->setSwingPhase(leg->getSwingPhase());
+  }
+
+  if (!leg->isSupportLeg()) {
+    StateSwitcher* stateSwitcher = leg->getStateSwitcher();
+
+    switch(stateSwitcher->getState()) {
+      case(StateSwitcher::States::StanceSlipping):
+      case(StateSwitcher::States::StanceLostContact):
+        regainContact(leg, dt); break;
+
+      case(StateSwitcher::States::SwingNormal):
+      case(StateSwitcher::States::SwingLateLiftOff):
+//        case(StateSwitcher::States::SwingBumpedIntoObstacle):
+        setFootTrajectory(leg); break;
+
+      default:
+        break;
+    }
+  }
+
+}
+return true;
+}
+
+
 FootPlacementStrategyStaticGait::~FootPlacementStrategyStaticGait() {
 
 }
+
+
+
+void FootPlacementStrategyStaticGait::setFootTrajectory(LegBase* leg) {
+    const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
+    leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
+    const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+    const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
+
+    leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
+}
+
+
+void FootPlacementStrategyStaticGait::regainContact(LegBase* leg, double dt) {
+  Position positionWorldToFootInWorldFrame =  leg->getPositionWorldToFootInWorldFrame();
+  double loweringSpeed = 0.05;
+
+  loco::Vector normalInWorldFrame;
+  if (terrain_->getNormal(positionWorldToFootInWorldFrame,normalInWorldFrame)) {
+    positionWorldToFootInWorldFrame -= 0.01*(loco::Position)normalInWorldFrame;
+    //positionWorldToFootInWorldFrame -= (loweringSpeed*dt) * (loco::Position)normalInWorldFrame;
+  }
+  else  {
+    throw std::runtime_error("FootPlacementStrategyInvertedPendulum::advance cannot get terrain normal.");
+  }
+
+  leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
+  const Position positionWorldToBaseInWorldFrame = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+  const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
+  const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
+  leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
+
+}
+
 
 /*
  * Foot holds are evaluated with respect to the foot positions at liftoff.

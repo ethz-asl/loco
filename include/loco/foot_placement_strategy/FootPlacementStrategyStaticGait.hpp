@@ -21,6 +21,9 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   FootPlacementStrategyStaticGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
   virtual ~FootPlacementStrategyStaticGait();
 
+  virtual bool advance(double dt);
+  virtual bool initialize(double dt);
+
   virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
   virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
   virtual Position getPositionFootAtLiftOffToDesiredFootHoldInControlFrame(const LegBase& leg);
@@ -29,17 +32,21 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual void validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame);
 
-
   virtual Position getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const;
-
-
-  virtual bool initialize(double dt);
 
  protected:
 
   Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame_;
   std::vector<Position> positionBaseOnTerrainToDefaultFootInControlFrame_;
   std::vector<Position> positionWorldToValidatedDesiredFootHoldInWorldFrame_;
+
+  virtual void setFootTrajectory(LegBase* leg);
+  virtual void regainContact(LegBase* leg, double dt);
+
+  virtual bool areAllFeetGrounded();
+  virtual Position generateFootHold();
+
+  bool allFeetGrounded_;
 
 };
 
