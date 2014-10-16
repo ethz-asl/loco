@@ -77,8 +77,8 @@ bool FootPlacementStrategyStaticGait::areAllFeetGrounded() {
     allFeetGrounded *= leg->isGrounded();
   }
 
-  std::string response = allFeetGrounded ? std::string{"yes"} : std::string{"no"};
-  std::cout << "all feet are grounded: " << response << std::endl;
+//  std::string response = allFeetGrounded ? std::string{"yes"} : std::string{"no"};
+//  std::cout << "all feet are grounded: " << response << std::endl;
 
   return allFeetGrounded;
 }

@@ -45,6 +45,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual void setFootPlacementStrategy(FootPlacementStrategyBase* footPlacementStrategy);
 
+  virtual int getNextSwingLeg();
+
  protected:
 
   TorsoBase* torso_;
@@ -64,9 +66,10 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   Eigen::Vector2d comStep_;
   double maxComStep_;
-  FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_, feetConfigurationOverNext_, homePos_;
+  FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_, homePos_;
 
   bool swingFootChanged_;
+  bool allFeetGrounded_;
 
   //! The swing sequence based on the gait plan
   std::vector<int> swingOrder_;

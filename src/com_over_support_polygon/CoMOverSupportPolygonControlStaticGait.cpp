@@ -29,15 +29,16 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     filterOutputCoMX_(0),
     filterOutputCoMY_(0),
     makeShift_(false),
+    allFeetGrounded_(false),
     footPlacementStrategy_(nullptr)
 {
   // Reset Eigen variables
   homePos_.setZero();
   comStep_.setZero();
+  comTarget_.setZero();
 
   feetConfigurationCurrent_.setZero();
   feetConfigurationNext_.setZero();
-  feetConfigurationOverNext_.setZero();
 
   supportTriangleOld_.setZero();
   supportTriangleCurrent_.setZero();
@@ -51,8 +52,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
 
   maxComStep_ = 0.5;
   delta_ = 0.05;
-
-  comTarget_.setZero();
 
   filterCoMX_ = new robotUtils::FirstOrderFilter();
   filterCoMY_ = new robotUtils::FirstOrderFilter();
@@ -90,7 +89,6 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   feetConfigurationCurrent_.setZero();
   feetConfigurationNext_.setZero();
-  feetConfigurationOverNext_.setZero();
 
   // Leg swing order
   swingOrder_[0] = 0;
@@ -111,12 +109,14 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   feetConfigurationCurrent_ = homePos_;
   feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexNext_);
-  feetConfigurationOverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexOverNext_);
 
   updateSafeSupportTriangles();
 
   return true;
 }
+
+
+int CoMOverSupportPolygonControlStaticGait::getNextSwingLeg() { return swingLegIndexNext_; }
 
 
 const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
@@ -139,28 +139,9 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
     feetConfigurationCurrent_.col(leg->getId()) << positionWorldToFootInWorldFrame.x(), positionWorldToFootInWorldFrame.y();
   }
 
-  feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexLast_);
-  feetConfigurationOverNext_ = getNextStanceConfig(feetConfigurationNext_, swingLegIndexNext_);
+  feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexNext_);
 
   int j=0;
-
-  //---
-  FeetConfiguration oldStanceConfig;
-  int oldSwingLed = getNextSwingFoot(swingLegIndexOverNext_);
-  oldStanceConfig = feetConfigurationCurrent_;
-  oldStanceConfig.col(oldSwingLed) -= comStep_;
-  for (int k=0; k<legs_->size(); k++) {
-    if (k != oldSwingLed) {
-      supportTriangleOld_.col(j) = oldStanceConfig.col(k);
-      j++;
-    }
-  }
-  safeTriangleOld_ = getSafeTriangle(supportTriangleOld_);
-  //---
-
-
-
-
 
   // Get support triangles
   j=0;
@@ -175,7 +156,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   j=0;
   for (int k=0; k<legs_->size(); k++) {
     if (k != swingLegIndexNext_) {
-      supportTriangleNext_.col(j) = feetConfigurationNext_.col(k);
+      supportTriangleNext_.col(j) = feetConfigurationCurrent_.col(k);
       j++;
     }
   }
@@ -184,15 +165,13 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   j=0;
   for (int k=0; k<legs_->size(); k++) {
     if (k != swingLegIndexOverNext_) {
-      supportTriangleOverNext_.col(j) = feetConfigurationOverNext_.col(k);
+      supportTriangleOverNext_.col(j) = feetConfigurationNext_.col(k);
       j++;
     }
   }
   safeTriangleOverNext_ = getSafeTriangle(supportTriangleOverNext_);
 
-
-  std::vector<int> diagonalSwingLegsOld(2), diagonalSwingLegsLast(2), diagonalSwingLegsNext(2), diagonalSwingLegsOverNext(2);
-  diagonalSwingLegsOld = getDiagonalElements(oldSwingLed);
+  std::vector<int> diagonalSwingLegsLast(2), diagonalSwingLegsNext(2), diagonalSwingLegsOverNext(2);
   diagonalSwingLegsLast = getDiagonalElements(swingLegIndexLast_);
   diagonalSwingLegsNext = getDiagonalElements(swingLegIndexNext_);
   diagonalSwingLegsOverNext = getDiagonalElements(swingLegIndexOverNext_);
@@ -200,9 +179,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   Pos2d intersection;
   intersection.setZero();
 
-  Line lineSafeOld, lineSafeLast, lineSafeNext, lineSafeOverNext;
-  lineSafeOld << safeTriangleOld_.col(diagonalSwingLegsOld[0]),
-                 safeTriangleOld_.col(diagonalSwingLegsOld[1]);
+  Line lineSafeLast, lineSafeNext, lineSafeOverNext;
 
   lineSafeLast << safeTriangleCurrent_.col(diagonalSwingLegsLast[0]),
                   safeTriangleCurrent_.col(diagonalSwingLegsLast[1]);
@@ -213,29 +190,14 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   lineSafeOverNext << safeTriangleOverNext_.col(diagonalSwingLegsOverNext[0]),
                       safeTriangleOverNext_.col(diagonalSwingLegsOverNext[1]);
 
-//  if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
-//    comTarget_ = intersection;
-//    makeShift_ = false;
-//  }
-//  else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
-//    comTarget_ = intersection;
-//    makeShift_ = true;
-//  }
-
-  if (lineIntersect(lineSafeOld, lineSafeLast, intersection)) {
+  if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
     comTarget_ = intersection;
     makeShift_ = false;
   }
-  else if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
+  else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
     comTarget_ = intersection;
     makeShift_ = true;
   }
-
-//  else if (lineIntersect(lineSafeLast, lineSafeOverNext, intersection)) {
-//        positionWorldToDesiredCoMInWorldFrame_ << intersection[0],
-//                                                  intersection[1],
-//                                                  0.0;
-//  }
   else {
     makeShift_ = true;
     comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
@@ -252,10 +214,17 @@ bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupp
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     updateSwingLegsIndexes();
 
-    if (swingFootChanged_) {
+    if (allFeetGrounded_ && swingFootChanged_) {
       // reset flag
       swingFootChanged_ = false;
       updateSafeSupportTriangles();
+
+//      std::cout << "*******************" << std::endl;
+//      std::cout << "last:  " << swingLegIndexLast_ << std::endl;
+//      std::cout << "now:   " << swingLegIndexNow_ << std::endl;
+//      std::cout << "next:  " << swingLegIndexNext_ << std::endl;
+//      std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
+
     }
 
     /*
@@ -392,25 +361,24 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangl
 void CoMOverSupportPolygonControlStaticGait::updateSwingLegsIndexes() {
   swingLegIndexNow_ = getIndexOfSwingLeg();
 
-  if (swingLegIndexNow_ != -1) {
-//    swingLegIndexLast_ = swingLegIndexNow_;
-//    swingLegIndexNext_ = getNextSwingFoot(swingLegIndexNow_);
+  int swingLeg = getIndexOfSwingLeg();
 
-    swingLegIndexLast_ = getNextSwingFoot(swingLegIndexNow_);
-    swingLegIndexNext_ = getNextSwingFoot(swingLegIndexLast_);
+  if (swingLeg != -1) {
+    swingLegIndexLast_ = swingLegIndexNow_;
+    swingLegIndexNext_ = getNextSwingFoot(swingLegIndexNow_);
+    swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 
-  }
-  else {
     swingFootChanged_ = true;
+//    swingLegIndexLast_ = getNextSwingFoot(swingLegIndexNow_);
+//    swingLegIndexNext_ = getNextSwingFoot(swingLegIndexLast_);
+
   }
+//  else {
+//    swingFootChanged_ = true;
+//  }
 
-  swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
+//  swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 
-//  std::cout << "*******************" << std::endl;
-//  std::cout << "last:  " << swingLegIndexLast_ << std::endl;
-//  std::cout << "now:   " << swingLegIndexNow_ << std::endl;
-//  std::cout << "next:  " << swingLegIndexNext_ << std::endl;
-//  std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
 }
 
 
@@ -422,6 +390,14 @@ int CoMOverSupportPolygonControlStaticGait::getIndexOfSwingLeg() {
       swingLeg = leg->getId();
     }
   }
+
+  if (swingLeg == -1) {
+    allFeetGrounded_ = true;
+  }
+  else {
+    allFeetGrounded_ = false;
+  }
+
   return swingLeg;
 }
 
