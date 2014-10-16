@@ -33,8 +33,6 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual Position getPositionDesiredFootHoldOrientationOffsetInWorldFrame(const LegBase& leg, const Position& positionWorldToDesiredFootHoldBeforeOrientationOffsetInWorldFrame);
 
-  virtual void validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame);
-
   virtual Position getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const;
 
   virtual void setCoMControl(CoMOverSupportPolygonControlBase* comControl);
@@ -54,6 +52,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual bool areAllFeetGrounded();
   virtual Position generateFootHold(LegBase* leg);
+
+  virtual Position getValidatedFootHold(const Position& positionWorldToDesiredFootHoldInWorldFrame);
 
   bool allFeetGrounded_;
 

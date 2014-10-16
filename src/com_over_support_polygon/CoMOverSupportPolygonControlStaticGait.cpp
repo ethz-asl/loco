@@ -376,15 +376,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSwingLegsIndexes() {
     swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 
     swingFootChanged_ = true;
-//    swingLegIndexLast_ = getNextSwingFoot(swingLegIndexNow_);
-//    swingLegIndexNext_ = getNextSwingFoot(swingLegIndexLast_);
-
   }
-//  else {
-//    swingFootChanged_ = true;
-//  }
-
-//  swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 
 }
 

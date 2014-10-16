@@ -37,6 +37,7 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()].setZero();
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()].setZero();
     positionWorldToFootHoldInWorldFrame_[leg->getId()].setZero();
+    newFootHolds_[leg->getId()].setZero();
   }
 
 }
@@ -57,14 +58,11 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 
   for (auto leg: *legs_) {
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
-
     positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
     terrain_->getHeight(positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()]);
-
     positionWorldToCenterOfFeetAtLiftOffInWorldFrame_ += positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()]/legs_->size();
-
     positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionBaseOnTerrainToDefaultFootInControlFrame_[leg->getId()];
-
+    newFootHolds_[leg->getId()] = positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()];
   }
 
   return true;
@@ -199,9 +197,9 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
 
   // validate the foot step
   positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
-  validateFootHold(positionWorldToFootHoldInWorldFrame);
-  positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootHoldInWorldFrame;
-  Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame
+  Position positionWorldToValidatedFootHoldInWorldFrame = getValidatedFootHold(positionWorldToFootHoldInWorldFrame);
+  positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = positionWorldToValidatedFootHoldInWorldFrame;
+  Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToValidatedFootHoldInWorldFrame
                                                                          - positionWorldToFootAtLiftOffInWorldFrame;
 
   /*
@@ -238,8 +236,11 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
 }
 
 
-void FootPlacementStrategyStaticGait::validateFootHold(Position& positionWorldToDesiredFootHoldInWorldFrame) {
+Position FootPlacementStrategyStaticGait::getValidatedFootHold(const Position& positionWorldToDesiredFootHoldInWorldFrame) {
   // todo: check if foot hold is feasible
+  Position validated = positionWorldToDesiredFootHoldInWorldFrame;
+  return validated;
+
 }
 
 
