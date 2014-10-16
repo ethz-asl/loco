@@ -101,7 +101,7 @@ bool MissionControlDemo::advance(double dt) {
   }
 
   if (joyStick->getButtonOneClick(2)) {
-    gaitSwitcher_->transitToGait("StaticLateralWalk");
+//    gaitSwitcher_->transitToGait("StaticLateralWalk");
   }
 
   if (joyStick->getButtonOneClick(3)) {
