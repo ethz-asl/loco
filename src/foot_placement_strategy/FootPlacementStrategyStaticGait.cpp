@@ -183,7 +183,7 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
   positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootHoldInWorldFrame;
   terrain_->getHeight(positionWorldToFootHoldInWorldFrame_[leg->getId()]);
 
-  return positionWorldToFootHoldInWorldFrame;
+  return positionWorldToFootHoldInWorldFrame_[leg->getId()];
 }
 
 
