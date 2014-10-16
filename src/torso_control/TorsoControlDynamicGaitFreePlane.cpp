@@ -24,7 +24,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   adaptToTerrain_(CompleteAdaption),
   comControl_(nullptr)
 {
-  const double defaultHeight = 0.41;
+  const double defaultHeight = 0.44; // 0.41
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
