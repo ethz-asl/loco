@@ -47,10 +47,14 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual int getNextSwingLeg();
 
+  virtual void setFootHold(int legId, Position footHold);
+
  protected:
 
   TorsoBase* torso_;
   FootPlacementStrategyBase* footPlacementStrategy_;
+
+  std::vector<Position> plannedFootHolds_;
 
   int swingLegIndexOld_;
   int swingLegIndexNow_;

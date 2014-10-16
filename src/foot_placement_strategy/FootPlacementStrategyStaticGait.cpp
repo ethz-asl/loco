@@ -84,11 +84,6 @@ bool FootPlacementStrategyStaticGait::areAllFeetGrounded() {
 }
 
 
-Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
-  return Position();
-}
-
-
 bool FootPlacementStrategyStaticGait::advance(double dt) {
 
   allFeetGrounded_ = areAllFeetGrounded();
@@ -167,15 +162,10 @@ void FootPlacementStrategyStaticGait::regainContact(LegBase* leg, double dt) {
   const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - positionWorldToBaseInWorldFrame;
   const Position positionBaseToFootInBaseFrame = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
   leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
-
 }
 
 
-/*
- * Foot holds are evaluated with respect to the foot positions at liftoff.
- *
- */
-Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
+Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   Position positionWorldToFootOnTerrainAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
   terrain_->getHeight(positionWorldToFootOnTerrainAtLiftOffInWorldFrame);
@@ -187,17 +177,32 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
                                                  + positionFootAtLiftOffToDesiredFootHoldInWorldFrame;
 
   // orientation offset - rotate foothold position vector around world z axis according to desired angular velocity
-  positionWorldToFootHoldInWorldFrame_[leg->getId()] = getPositionDesiredFootHoldOrientationOffsetInWorldFrame(*leg, positionWorldToFootHoldInWorldFrame);
+  positionWorldToFootHoldInWorldFrame = getPositionDesiredFootHoldOrientationOffsetInWorldFrame(*leg, positionWorldToFootHoldInWorldFrame);
 
-  // get correct terrain height at foot hold
+
+  // update class member and get correct terrain height at foot hold
+  positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootHoldInWorldFrame;
   terrain_->getHeight(positionWorldToFootHoldInWorldFrame_[leg->getId()]);
+
+  return positionWorldToFootHoldInWorldFrame;
+}
+
+
+/*
+ * Foot holds are evaluated with respect to the foot positions at liftoff.
+ *
+ */
+Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
+  RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+  Position positionWorldToFootAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
+  Position positionWorldToFootHoldInWorldFrame = generateFootHold(leg);
 
   // validate the foot step
   positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
   validateFootHold(positionWorldToFootHoldInWorldFrame);
   positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootHoldInWorldFrame;
   Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame
-                                                                         - positionWorldToFootOnTerrainAtLiftOffInWorldFrame;
+                                                                         - positionWorldToFootAtLiftOffInWorldFrame;
 
   /*
    * Interpolate on the x-y plane
@@ -225,7 +230,7 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
                                                                                                        orientationWorldToControl.rotate(positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame) ); // z
 
 
-  Position positionWorldToDesiredFootInWorldFrame = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
+  Position positionWorldToDesiredFootInWorldFrame = positionWorldToFootAtLiftOffInWorldFrame
                                                     + positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame);
   return positionWorldToDesiredFootInWorldFrame;

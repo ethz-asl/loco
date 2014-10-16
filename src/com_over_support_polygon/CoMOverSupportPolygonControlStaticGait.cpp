@@ -30,7 +30,8 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     filterOutputCoMY_(0),
     makeShift_(false),
     allFeetGrounded_(false),
-    footPlacementStrategy_(nullptr)
+    footPlacementStrategy_(nullptr),
+    plannedFootHolds_(legs_->size())
 {
   // Reset Eigen variables
   homePos_.setZero();
@@ -105,6 +106,8 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   for (auto leg: *legs_) {
     Position positionWorldToFootInFrame = leg->getPositionWorldToFootInWorldFrame();
     homePos_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
+
+    plannedFootHolds_[leg->getId()] = positionWorldToFootInFrame;
   }
 
   feetConfigurationCurrent_ = homePos_;
@@ -113,6 +116,10 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   updateSafeSupportTriangles();
 
   return true;
+}
+
+void CoMOverSupportPolygonControlStaticGait::setFootHold(int legId, Position footHold) {
+  plannedFootHolds_[legId] = footHold;
 }
 
 
