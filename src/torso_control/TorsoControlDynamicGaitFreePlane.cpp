@@ -142,7 +142,8 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 
   Position positionControlToTargetBaseInWorldFrame = positionHorizontalControlToHorizontalBaseInWorldFrame
                                               + (heightOfTerrainInWorldFrame + heightOverTerrain)*Position::UnitZ();
-  positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionControlToTargetBaseInWorldFrame);
+  positionControlToTargetBaseInControlFrame = orientationWorldToControl.rotate(positionControlToTargetBaseInWorldFrame)
+                                              + orientationWorldToControl.rotate(desiredPositionOffsetInWorldFrame_);
 
   /********************************************************************************************************
    * End set desired CoM position in world frame *
