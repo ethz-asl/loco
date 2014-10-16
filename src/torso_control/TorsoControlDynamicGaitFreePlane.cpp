@@ -378,9 +378,9 @@ bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle)
 //  return comControl_;
 //}
 //
-//CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMControl() {
-//  return comControl_;
-//}
+CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMControl() {
+  return comControl_;
+}
 
 const CoMOverSupportPolygonControlBase& TorsoControlDynamicGaitFreePlane::getCoMOverSupportPolygonControl() const {
   return *comControl_;

@@ -32,6 +32,7 @@ namespace loco {
   virtual bool loadParameters(const TiXmlHandle& handle);
 
   const CoMOverSupportPolygonControlBase& getCoMOverSupportPolygonControl() const;
+  CoMOverSupportPolygonControlBase* getCoMControl();
 
   virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
 

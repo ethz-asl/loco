@@ -37,6 +37,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual Position getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const;
 
+  virtual void setCoMControl(CoMOverSupportPolygonControlBase* comControl);
+
  protected:
 
   CoMOverSupportPolygonControlStaticGait* comControl_;

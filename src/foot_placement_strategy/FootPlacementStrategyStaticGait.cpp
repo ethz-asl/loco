@@ -41,6 +41,17 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
 
 }
 
+
+FootPlacementStrategyStaticGait::~FootPlacementStrategyStaticGait() {
+
+}
+
+
+void FootPlacementStrategyStaticGait::setCoMControl(CoMOverSupportPolygonControlBase* comControl) {
+  comControl_ = static_cast<CoMOverSupportPolygonControlStaticGait*>(comControl);
+}
+
+
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   FootPlacementStrategyFreePlane::initialize(dt);
 
@@ -126,12 +137,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   }
   return true;
 }
-
-
-FootPlacementStrategyStaticGait::~FootPlacementStrategyStaticGait() {
-
-}
-
 
 
 void FootPlacementStrategyStaticGait::setFootTrajectory(LegBase* leg) {
