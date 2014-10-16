@@ -249,6 +249,14 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 }
 
 
+
+bool CoMOverSupportPolygonControlStaticGait::getSwingFootChanged() {
+  return swingFootChanged_;
+}
+bool CoMOverSupportPolygonControlStaticGait::getAllFeetGrounded() {
+  return allFeetGrounded_;
+}
+
 Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleOld() const {
   return supportTriangleOld_;
 }

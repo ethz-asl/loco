@@ -15,7 +15,6 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     FootPlacementStrategyFreePlane(legs, torso, terrain),
     positionBaseOnTerrainToDefaultFootInControlFrame_(legs_->size()),
     positionWorldToValidatedDesiredFootHoldInWorldFrame_(legs_->size()),
-    allFeetGrounded_(false),
     comControl_(nullptr),
     newFootHolds_(legs_->size())
 {
@@ -69,22 +68,7 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 }
 
 
-bool FootPlacementStrategyStaticGait::areAllFeetGrounded() {
-  bool allFeetGrounded = true;
-  for (auto leg: *legs_) {
-    allFeetGrounded *= leg->isGrounded();
-  }
-
-//  std::string response = allFeetGrounded ? std::string{"yes"} : std::string{"no"};
-//  std::cout << "all feet are grounded: " << response << std::endl;
-
-  return allFeetGrounded;
-}
-
-
 bool FootPlacementStrategyStaticGait::advance(double dt) {
-
-  allFeetGrounded_ = areAllFeetGrounded();
 
   for (auto leg : *legs_) {
     // save the hip position at lift off for trajectory generation
@@ -106,6 +90,15 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
       leg->setSwingPhase(leg->getSwingPhase());
     }
+
+    /*
+     * Generate a foothold if all feet are grounded
+     */
+    if (comControl_->getSwingFootChanged()) {
+      int swingLeg = comControl_->getNextSwingLeg();
+      generateFootHold(legs_->getLegById(swingLeg));
+    }
+
 
     if (!leg->isSupportLeg()) {
       StateSwitcher* stateSwitcher = leg->getStateSwitcher();
@@ -193,10 +186,9 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   Position positionWorldToFootAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
-  Position positionWorldToFootHoldInWorldFrame = generateFootHold(leg);
 
   // validate the foot step
-  positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
+  Position positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
   Position positionWorldToValidatedFootHoldInWorldFrame = getValidatedFootHold(positionWorldToFootHoldInWorldFrame);
   positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = positionWorldToValidatedFootHoldInWorldFrame;
   Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToValidatedFootHoldInWorldFrame
@@ -271,13 +263,16 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   Position positionCenterOfFeetAtLiftOffToDefaultFootInWorldFrame = orientationWorldToControl.inverseRotate(positionBaseOnTerrainToDefaultFootInControlFrame_[leg.getId()]);
 
+
   /* Update center of feet at lift off */
   Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame = Position();
   for (auto legAuto: *legs_) {
-    positionWorldToCenterOfFeetAtLiftOffInWorldFrame += legAuto->getStateLiftOff()->getPositionWorldToFootInWorldFrame()/legs_->size();
+    //positionWorldToCenterOfFeetAtLiftOffInWorldFrame += legAuto->getStateLiftOff()->getPositionWorldToFootInWorldFrame()/legs_->size();
+    positionWorldToCenterOfFeetAtLiftOffInWorldFrame += positionWorldToValidatedDesiredFootHoldInWorldFrame_[legAuto->getId()]/legs_->size();
   }
   terrain_->getHeight(positionWorldToCenterOfFeetAtLiftOffInWorldFrame);
   positionWorldToCenterOfFeetAtLiftOffInWorldFrame_ = positionWorldToCenterOfFeetAtLiftOffInWorldFrame;
+
 
   Position positionWorldToDefafultFootInWorldFrame = positionCenterOfFeetAtLiftOffToDefaultFootInWorldFrame
                                                     + positionWorldToCenterOfFeetAtLiftOffInWorldFrame;

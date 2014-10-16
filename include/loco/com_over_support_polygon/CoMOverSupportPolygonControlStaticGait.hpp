@@ -49,6 +49,10 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual void setFootHold(int legId, Position footHold);
 
+
+  virtual bool getSwingFootChanged();
+  virtual bool getAllFeetGrounded();
+
  protected:
 
   TorsoBase* torso_;

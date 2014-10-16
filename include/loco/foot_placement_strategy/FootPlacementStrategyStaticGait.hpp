@@ -50,12 +50,9 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   virtual void setFootTrajectory(LegBase* leg);
   virtual void regainContact(LegBase* leg, double dt);
 
-  virtual bool areAllFeetGrounded();
   virtual Position generateFootHold(LegBase* leg);
 
   virtual Position getValidatedFootHold(const Position& positionWorldToDesiredFootHoldInWorldFrame);
-
-  bool allFeetGrounded_;
 
 };
 
