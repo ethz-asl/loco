@@ -16,7 +16,8 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     positionBaseOnTerrainToDefaultFootInControlFrame_(legs_->size()),
     positionWorldToValidatedDesiredFootHoldInWorldFrame_(legs_->size()),
     comControl_(nullptr),
-    newFootHolds_(legs_->size())
+    newFootHolds_(legs_->size()),
+    footHoldPlanned_(false)
 {
 
   stepInterpolationFunction_.clear();
@@ -91,13 +92,20 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       leg->setSwingPhase(leg->getSwingPhase());
     }
 
-    /*
-     * Generate a foothold if all feet are grounded
-     */
-    if (comControl_->getSwingFootChanged()) {
+
+    /************************************************
+     * Generate a foothold if all feet are grounded *
+     ************************************************/
+    if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
       int swingLeg = comControl_->getNextSwingLeg();
       generateFootHold(legs_->getLegById(swingLeg));
+      footHoldPlanned_ = true;
+      std::cout << "planning foot hold" << std::endl;
     }
+    if (comControl_->getAllFeetGrounded()) {
+      footHoldPlanned_ = false;
+    }
+    /************************************************/
 
 
     if (!leg->isSupportLeg()) {

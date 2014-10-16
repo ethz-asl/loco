@@ -39,6 +39,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
  protected:
 
+  bool footHoldPlanned_;
+
   CoMOverSupportPolygonControlStaticGait* comControl_;
 
   Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame_;
