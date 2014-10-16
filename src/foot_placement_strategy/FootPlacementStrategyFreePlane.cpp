@@ -57,10 +57,12 @@ bool FootPlacementStrategyFreePlane::advance(double dt) {
     if (leg->shouldBeGrounded() ||
         (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
     ) {
+      // Project the hip at lift off along the normal to the plane that models the ground
       Position positionWorldToHipAtLiftOffInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
       positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
       Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
 
+      // Project the hip at lift off along the z axis in world frame
       Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
       terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
 
@@ -73,8 +75,8 @@ bool FootPlacementStrategyFreePlane::advance(double dt) {
       leg->setSwingPhase(leg->getSwingPhase());
     }
 
+    // Decide what to do based on the current state
     if (!leg->isSupportLeg()) {
-
       StateSwitcher* stateSwitcher = leg->getStateSwitcher();
 
       switch(stateSwitcher->getState()) {
@@ -90,10 +92,10 @@ bool FootPlacementStrategyFreePlane::advance(double dt) {
         default:
           break;
       }
-
     }
 
   }
+
   return true;
 }
 
