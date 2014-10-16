@@ -15,7 +15,9 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     FootPlacementStrategyFreePlane(legs, torso, terrain),
     positionBaseOnTerrainToDefaultFootInControlFrame_(legs_->size()),
     positionWorldToValidatedDesiredFootHoldInWorldFrame_(legs_->size()),
-    allFeetGrounded_(false)
+    allFeetGrounded_(false),
+    comControl_(nullptr),
+    newFootHolds_(legs_->size())
 {
 
   stepInterpolationFunction_.clear();
@@ -71,7 +73,7 @@ bool FootPlacementStrategyStaticGait::areAllFeetGrounded() {
 }
 
 
-Position FootPlacementStrategyStaticGait::generateFootHold() {
+Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
   return Position();
 }
 
@@ -81,46 +83,48 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   allFeetGrounded_ = areAllFeetGrounded();
 
   for (auto leg : *legs_) {
-  // save the hip position at lift off for trajectory generation
-  if (leg->shouldBeGrounded() ||
-      (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
-  ) {
-    Position positionWorldToHipAtLiftOffInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
-    positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
-    Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
+    // save the hip position at lift off for trajectory generation
+    if (leg->shouldBeGrounded() ||
+        (!leg->shouldBeGrounded() && leg->isGrounded() && leg->getSwingPhase() < 0.25)
+    ) {
+      Position positionWorldToHipAtLiftOffInWorldFrame = leg->getPositionWorldToHipInWorldFrame();
+      positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
+      Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
 
-    Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
-    terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+      Position positionWorldToHipOnTerrainAlongWorldZInWorldFrame = positionWorldToHipAtLiftOffInWorldFrame;
+      terrain_->getHeight(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
 
-    /*
-     * WARNING: these were also updated by the event detector
-     */
-    leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
-    leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
-    leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
-    leg->setSwingPhase(leg->getSwingPhase());
-  }
-
-  if (!leg->isSupportLeg()) {
-    StateSwitcher* stateSwitcher = leg->getStateSwitcher();
-
-    switch(stateSwitcher->getState()) {
-      case(StateSwitcher::States::StanceSlipping):
-      case(StateSwitcher::States::StanceLostContact):
-        regainContact(leg, dt); break;
-
-      case(StateSwitcher::States::SwingNormal):
-      case(StateSwitcher::States::SwingLateLiftOff):
-//        case(StateSwitcher::States::SwingBumpedIntoObstacle):
-        setFootTrajectory(leg); break;
-
-      default:
-        break;
+      /*
+       * WARNING: these were also updated by the event detector
+       */
+      leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
+      leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
+      leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
+      leg->setSwingPhase(leg->getSwingPhase());
     }
-  }
 
-}
-return true;
+    if (!leg->isSupportLeg()) {
+      StateSwitcher* stateSwitcher = leg->getStateSwitcher();
+
+      switch(stateSwitcher->getState()) {
+        case(StateSwitcher::States::StanceSlipping):
+        case(StateSwitcher::States::StanceLostContact):
+          regainContact(leg, dt); break;
+
+        case(StateSwitcher::States::SwingNormal):
+        case(StateSwitcher::States::SwingLateLiftOff):
+        /*case(StateSwitcher::States::SwingBumpedIntoObstacle):*/ {
+          setFootTrajectory(leg);
+        }
+        break;
+
+        default:
+          break;
+      }
+    }
+
+  }
+  return true;
 }
 
 

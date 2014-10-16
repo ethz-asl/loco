@@ -10,6 +10,9 @@
 
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyFreePlane.hpp"
+
+#include "loco/com_over_support_polygon/CoMOverSupportPolygonControlStaticGait.hpp"
+
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/TerrainModelBase.hpp"
 #include "loco/common/LegGroup.hpp"
@@ -36,15 +39,19 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
  protected:
 
+  CoMOverSupportPolygonControlStaticGait* comControl_;
+
   Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame_;
   std::vector<Position> positionBaseOnTerrainToDefaultFootInControlFrame_;
   std::vector<Position> positionWorldToValidatedDesiredFootHoldInWorldFrame_;
+
+  std::vector<Position> newFootHolds_;
 
   virtual void setFootTrajectory(LegBase* leg);
   virtual void regainContact(LegBase* leg, double dt);
 
   virtual bool areAllFeetGrounded();
-  virtual Position generateFootHold();
+  virtual Position generateFootHold(LegBase* leg);
 
   bool allFeetGrounded_;
 
