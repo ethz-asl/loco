@@ -221,24 +221,30 @@ Position FootPlacementStrategyFreePlane::getOffsetDesiredFootOnTerrainToCorrecte
 }
 
 
-// Interpolate height
+/*
+ * Interpolate height: get the vector pointing from the current interpolated foot hold to the height of the desired foot based on the interpolation phase
+ */
 Position FootPlacementStrategyFreePlane::getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(const LegBase& leg, const Position& positionHipOnTerrainToDesiredFootOnTerrainInControlFrame)  {
   const double interpolationParameter = getInterpolationPhase(leg);
   const double desiredFootHeight = const_cast<SwingFootHeightTrajectory*>(&swingFootHeightTrajectory_)->evaluate(interpolationParameter);
 
-  /* TODO this is wrong. position must be expressed relative to world frame */
+  RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+  Position positionHipOnTerrainToDesiredFootOnTerrainInWorldFrame = orientationWorldToControl.inverseRotate(positionHipOnTerrainToDesiredFootOnTerrainInControlFrame);
+
   Vector normalToPlaneAtCurrentFootPositionInWorldFrame;
-  terrain_->getNormal(positionHipOnTerrainToDesiredFootOnTerrainInControlFrame,
+  terrain_->getNormal(positionHipOnTerrainToDesiredFootOnTerrainInWorldFrame,
                       normalToPlaneAtCurrentFootPositionInWorldFrame);
 
-  Vector normalToPlaneAtCurrentFootPositionInControlFrame = torso_->getMeasuredState().getOrientationWorldToControl().rotate(normalToPlaneAtCurrentFootPositionInWorldFrame);
+  Vector normalToPlaneAtCurrentFootPositionInControlFrame = orientationWorldToControl.rotate(normalToPlaneAtCurrentFootPositionInWorldFrame);
 
   Position positionDesiredFootOnTerrainToDesiredFootInControlFrame = desiredFootHeight*Position(normalToPlaneAtCurrentFootPositionInControlFrame);
   return positionDesiredFootOnTerrainToDesiredFootInControlFrame;
 }
 
 
-// Evaluate feed forward component and default offset
+/*
+ * Evaluate ***feed forward component*** and ***default offset***
+ */
 Position FootPlacementStrategyFreePlane::getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(const LegBase& leg)   {
   double stanceDuration = leg.getStanceDuration();
 
@@ -343,7 +349,6 @@ Position FootPlacementStrategyFreePlane::getPositionHipOnTerrainAlongNormalToDes
   //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
 
   Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getPositionWorldToHipInWorldFrame();
-
   terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
 
   positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame

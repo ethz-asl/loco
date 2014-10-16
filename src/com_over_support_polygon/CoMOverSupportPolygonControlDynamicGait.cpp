@@ -29,6 +29,7 @@ CoMOverSupportPolygonControlDynamicGait::~CoMOverSupportPolygonControlDynamicGai
 
 
 void CoMOverSupportPolygonControlDynamicGait::advance(double dt) {
+
   const int nLegs = legs_->size();
   double legWeights[nLegs];
   for (int i=0;i<nLegs;i++) {
