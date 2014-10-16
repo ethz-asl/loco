@@ -19,12 +19,7 @@ namespace loco {
 CoMOverSupportPolygonControlDynamicGait::CoMOverSupportPolygonControlDynamicGait(LegGroup* legs) :
     CoMOverSupportPolygonControlBase(legs)
 {
-	// trot
-//	minSwingLegWeight_ = 0.15;
-//	startShiftAwayFromLegAtStancePhase_ = 0.7;
-//	startShiftTowardsLegAtSwingPhase_ = 0.7;
-//	headingOffset_ = 0;
-//	lateralOffset_ = 0;
+
 }
 
 

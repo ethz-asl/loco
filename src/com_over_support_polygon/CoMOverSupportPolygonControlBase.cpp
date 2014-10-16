@@ -13,19 +13,15 @@
 namespace loco {
 
 CoMOverSupportPolygonControlBase::CoMOverSupportPolygonControlBase(LegGroup* legs):
-  legs_(legs){
-  // trot
-//    minSwingLegWeight_ = 0.15;
-//    startShiftAwayFromLegAtStancePhase_ = 0.7;
-//    startShiftTowardsLegAtSwingPhase_ = 0.7;
-//    headingOffset_ = 0;
-//    lateralOffset_ = 0;
+  legs_(legs) {
 
   minSwingLegWeight_ = 0.0;
   startShiftAwayFromLegAtStancePhase_ = 0.0;
   startShiftTowardsLegAtSwingPhase_ = 0.0;
   headingOffset_ = 0.0;
   lateralOffset_ = 0.0;
+
+  positionWorldToDesiredCoMInWorldFrame_.setZero();
 
 }
 
