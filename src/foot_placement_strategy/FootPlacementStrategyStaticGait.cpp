@@ -104,15 +104,18 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
     std::cout << "plan for leg id: " << nextSwingLegId << std::endl;
 
     // generate foothold
-    std::cout << "generating foot hold..." << std::endl;
+//    std::cout << "generating foot hold..." << std::endl;
     generateFootHold(nextSwingLeg);
-    std::cout << "...done!" << std::endl;
+//    std::cout << "...done!" << std::endl;
     footHoldPlanned_ = true;
 
     // validate foothold
-    std::cout << "validating foot hold..." << std::endl;
+//    std::cout << "validating foot hold..." << std::endl;
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId] = getValidatedFootHold(positionWorldToFootHoldInWorldFrame_[nextSwingLegId]);
-    std::cout << "...done!" << std::endl;
+//    std::cout << "...done!" << std::endl;
+
+    std::cout << "lift off to validate: " << (positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId]
+                                             - nextSwingLeg->getStateLiftOff()->getPositionWorldToFootInWorldFrame()).norm() << std::endl;
 
     // send validated foothold to static com control
     comControl_->setFootHold(nextSwingLegId, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId]);

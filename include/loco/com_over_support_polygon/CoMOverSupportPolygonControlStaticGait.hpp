@@ -31,12 +31,10 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual const Position& getPositionWorldToDesiredCoMInWorldFrame() const;
 
-  Eigen::Matrix<double,2,3> getSupportTriangleOld() const;
   Eigen::Matrix<double,2,3> getSupportTriangleCurrent() const;
   Eigen::Matrix<double,2,3> getSupportTriangleNext() const;
   Eigen::Matrix<double,2,3> getSupportTriangleOverNext() const;
 
-  Eigen::Matrix<double,2,3> getSafeTriangleOld() const;
   Eigen::Matrix<double,2,3> getSafeTriangleCurrent() const;
   Eigen::Matrix<double,2,3> getSafeTriangleNext() const;
   Eigen::Matrix<double,2,3> getSafeTriangleOverNext() const;
@@ -60,7 +58,6 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   std::vector<Position> plannedFootHolds_;
 
-  int swingLegIndexOld_;
   int swingLegIndexNow_;
   int swingLegIndexNext_;
   int swingLegIndexLast_;
@@ -69,8 +66,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   bool makeShift_;
   Pos2d comTarget_;
 
-  Eigen::Matrix<double,2,3> supportTriangleOld_, supportTriangleCurrent_, supportTriangleNext_, supportTriangleOverNext_;
-  Eigen::Matrix<double,2,3> safeTriangleOld_, safeTriangleCurrent_, safeTriangleNext_, safeTriangleOverNext_;
+  Eigen::Matrix<double,2,3> supportTriangleCurrent_, supportTriangleNext_, supportTriangleOverNext_;
+  Eigen::Matrix<double,2,3> safeTriangleCurrent_, safeTriangleNext_, safeTriangleOverNext_;
 
   FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_, homePos_;
 

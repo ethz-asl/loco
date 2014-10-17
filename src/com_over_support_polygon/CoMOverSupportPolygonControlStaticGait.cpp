@@ -17,7 +17,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     torso_(torso),
     swingOrder_(legs_->size()),
     delta_(0.0),
-    swingLegIndexOld_(-1),
     swingLegIndexNow_(-1),
     swingLegIndexNext_(-1),
     swingLegIndexLast_(-1),
@@ -39,12 +38,10 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   feetConfigurationCurrent_.setZero();
   feetConfigurationNext_.setZero();
 
-  supportTriangleOld_.setZero();
   supportTriangleCurrent_.setZero();
   supportTriangleNext_.setZero();
   supportTriangleOverNext_.setZero();
 
-  safeTriangleOld_.setZero();
   safeTriangleCurrent_.setZero();
   safeTriangleNext_.setZero();
   safeTriangleOverNext_.setZero();
@@ -220,6 +217,7 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       swingFootChanged_ = false;
       updateSafeSupportTriangles();
 
+
 //      std::cout << "*******************" << std::endl;
 //      std::cout << "last:  " << swingLegIndexLast_ << std::endl;
 //      std::cout << "now:   " << swingLegIndexNow_ << std::endl;
@@ -251,10 +249,6 @@ bool CoMOverSupportPolygonControlStaticGait::getAllFeetGrounded() {
   return allFeetGrounded_;
 }
 
-Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleOld() const {
-  return supportTriangleOld_;
-}
-
 
 Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTriangleCurrent() const {
   return supportTriangleCurrent_;
@@ -270,10 +264,6 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSupportTria
   return supportTriangleOverNext_;
 }
 
-
-Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangleOld() const {
-  return safeTriangleOld_;
-}
 
 Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangleCurrent() const {
   return safeTriangleCurrent_;
@@ -344,8 +334,6 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangl
   Pos2d v1, v2;
 
   for (int k=0; k<3; k++) {
-    Pos2d v1, v2;
-
     int vertex1, vertex2;
     if (k==0) {
       vertex1 = 1;
@@ -358,8 +346,10 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangl
       vertex2 = 1;
     }
 
-    v1 = supportTriangle.col(vertex1) - supportTriangle.col(k); v1 = v1/v1.norm();
-    v2 = supportTriangle.col(vertex2) - supportTriangle.col(k); v2 = v2/v2.norm();
+    v1 = supportTriangle.col(vertex1) - supportTriangle.col(k);
+    v1 = v1/v1.norm();
+    v2 = supportTriangle.col(vertex2) - supportTriangle.col(k);
+    v2 = v2/v2.norm();
 
     double phiv1v2 = acos(v1.dot(v2));
     safeTriangle.col(k) = supportTriangle.col(k)+delta_/sin(phiv1v2)*(v1+v2);
