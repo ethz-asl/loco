@@ -40,7 +40,8 @@ bool TorsoControlStaticGait::initialize(double dt) {
 }
 
 bool TorsoControlStaticGait::advance(double dt) {
-  TorsoControlDynamicGaitFreePlane::advance(dt);
+  bool advanced = true;
+  advanced *= TorsoControlDynamicGaitFreePlane::advance(dt);
 
   //  RotationQuaternion orientationWorldToHeadingOnTerrain = getOrientationWorldToHeadingOnTerrainSurface(getOrientationWorldToHeadingBasedOnHipLocations());
   //  RotationQuaternion orientationControlToHeadingOnTerrain = orientationWorldToControl*orientationWorldToHeadingOnTerrain.inverted();
@@ -48,6 +49,8 @@ bool TorsoControlStaticGait::advance(double dt) {
   LocalAngularVelocity angularVelocityBaseInControlFrame;
   torso_->getDesiredState().setLinearVelocityBaseInControlFrame(linearVelocityBaseInControlFrame);
   torso_->getDesiredState().setAngularVelocityBaseInControlFrame(angularVelocityBaseInControlFrame);
+
+  return advanced;
 
 }
 
