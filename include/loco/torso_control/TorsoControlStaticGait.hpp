@@ -20,7 +20,7 @@ class TorsoControlStaticGait: public TorsoControlDynamicGaitFreePlane {
   virtual ~TorsoControlStaticGait();
 
   virtual bool initialize(double dt);
-
+  virtual bool advance(double dt);
 
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual bool loadParametersTorsoConfiguration(const TiXmlHandle& hParameterSet);

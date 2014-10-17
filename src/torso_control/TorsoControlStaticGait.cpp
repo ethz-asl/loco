@@ -39,6 +39,18 @@ bool TorsoControlStaticGait::initialize(double dt) {
   return true;
 }
 
+bool TorsoControlStaticGait::advance(double dt) {
+  TorsoControlDynamicGaitFreePlane::advance(dt);
+
+  //  RotationQuaternion orientationWorldToHeadingOnTerrain = getOrientationWorldToHeadingOnTerrainSurface(getOrientationWorldToHeadingBasedOnHipLocations());
+  //  RotationQuaternion orientationControlToHeadingOnTerrain = orientationWorldToControl*orientationWorldToHeadingOnTerrain.inverted();
+  LinearVelocity linearVelocityBaseInControlFrame;
+  LocalAngularVelocity angularVelocityBaseInControlFrame;
+  torso_->getDesiredState().setLinearVelocityBaseInControlFrame(linearVelocityBaseInControlFrame);
+  torso_->getDesiredState().setAngularVelocityBaseInControlFrame(angularVelocityBaseInControlFrame);
+
+}
+
 bool TorsoControlStaticGait::loadParameters(const TiXmlHandle& handle) {
   TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
   if (!comControl_->loadParameters(hDynGait)) {

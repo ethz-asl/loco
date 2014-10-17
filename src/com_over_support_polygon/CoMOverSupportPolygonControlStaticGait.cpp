@@ -16,7 +16,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     CoMOverSupportPolygonControlBase(legs),
     torso_(torso),
     swingOrder_(legs_->size()),
-    delta_(0.0),
     swingLegIndexNow_(-1),
     swingLegIndexNext_(-1),
     swingLegIndexLast_(-1),
@@ -46,7 +45,7 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   safeTriangleNext_.setZero();
   safeTriangleOverNext_.setZero();
 
-  delta_ = 0.05;
+
 
   filterCoMX_ = new robotUtils::FirstOrderFilter();
   filterCoMY_ = new robotUtils::FirstOrderFilter();
@@ -76,7 +75,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
   filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
 
-  delta_ = 0.05;
+  delta_ = 0.05; // 0.05
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
