@@ -91,39 +91,40 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
       leg->setSwingPhase(leg->getSwingPhase());
     }
+  }
+
+  /************************************************
+   * Generate a foothold if all feet are grounded *
+   ************************************************/
+  if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
+
+    // get pointer to next swing leg
+    int nextSwingLegId = comControl_->getNextSwingLeg();
+    LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId);
+    std::cout << "plan for leg id: " << nextSwingLegId << std::endl;
+
+    // generate foothold
+    std::cout << "generating foot hold..." << std::endl;
+    generateFootHold(nextSwingLeg);
+    std::cout << "...done!" << std::endl;
+    footHoldPlanned_ = true;
+
+    // validate foothold
+    std::cout << "validating foot hold..." << std::endl;
+    positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId] = getValidatedFootHold(positionWorldToFootHoldInWorldFrame_[nextSwingLegId]);
+    std::cout << "...done!" << std::endl;
+
+    // send validated foothold to static com control
+    comControl_->setFootHold(nextSwingLegId, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId]);
+
+  }
+  if (comControl_->getAllFeetGrounded()) {
+    footHoldPlanned_ = false;
+  }
+  /************************************************/
 
 
-    /************************************************
-     * Generate a foothold if all feet are grounded *
-     ************************************************/
-    if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
-
-      // get pointer to next swing leg
-      int swingLegId = comControl_->getNextSwingLeg();
-      LegBase* swingLeg = legs_->getLegById(swingLegId);
-      std::cout << "plan for leg id: " << swingLegId << std::endl;
-
-      // generate foothold
-      std::cout << "generating foot hold..." << std::endl;
-      generateFootHold(swingLeg);
-      std::cout << "...done!" << std::endl;
-      footHoldPlanned_ = true;
-
-      // validate foothold
-      std::cout << "validating foot hold..." << std::endl;
-      positionWorldToValidatedDesiredFootHoldInWorldFrame_[swingLegId] = getValidatedFootHold(positionWorldToFootHoldInWorldFrame_[swingLegId]);
-      std::cout << "...done!" << std::endl;
-
-      // send validated foothold to static com control
-      comControl_->setFootHold(swingLegId, positionWorldToValidatedDesiredFootHoldInWorldFrame_[swingLegId]);
-
-    }
-    if (comControl_->getAllFeetGrounded()) {
-      footHoldPlanned_ = false;
-    }
-    /************************************************/
-
-
+  for (auto leg : *legs_) {
     if (!leg->isSupportLeg()) {
       StateSwitcher* stateSwitcher = leg->getStateSwitcher();
 
