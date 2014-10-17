@@ -2,7 +2,7 @@
  * FootPlacementStrategyStaticGait.hpp
  *
  *  Created on: Oct 6, 2014
- *      Author: dario
+ *      Author: Dario Bellicoso
  */
 
 #ifndef LOCO_FOOTPLACEMENTSTRATEGYSTATICGAIT_HPP_

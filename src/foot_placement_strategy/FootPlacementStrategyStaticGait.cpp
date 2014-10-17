@@ -2,7 +2,7 @@
  * FootPlacementStrategyStaticGait.cpp
  *
  *  Created on: Oct 6, 2014
- *      Author: dario
+ *      Author: Dario Bellicoso
  */
 
 
@@ -97,10 +97,23 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
      * Generate a foothold if all feet are grounded *
      ************************************************/
     if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
-      int swingLeg = comControl_->getNextSwingLeg();
-      generateFootHold(legs_->getLegById(swingLeg));
+
+      // get pointer to next swing leg
+      int swingLegId = comControl_->getNextSwingLeg();
+      LegBase* swingLeg = legs_->getLegById(swingLegId);
+      std::cout << "plan for leg id: " << swingLegId << std::endl;
+
+      // generate foothold
+      std::cout << "generating foot hold..." << std::endl;
+      generateFootHold(swingLeg);
+      std::cout << "...done!" << std::endl;
       footHoldPlanned_ = true;
-      std::cout << "planning foot hold" << std::endl;
+
+      // validate foothold
+      std::cout << "validating foot hold..." << std::endl;
+      positionWorldToValidatedDesiredFootHoldInWorldFrame_[swingLegId] = getValidatedFootHold(positionWorldToFootHoldInWorldFrame_[swingLegId]);
+      std::cout << "...done!" << std::endl;
+
     }
     if (comControl_->getAllFeetGrounded()) {
       footHoldPlanned_ = false;
@@ -153,7 +166,7 @@ void FootPlacementStrategyStaticGait::regainContact(LegBase* leg, double dt) {
     //positionWorldToFootInWorldFrame -= (loweringSpeed*dt) * (loco::Position)normalInWorldFrame;
   }
   else  {
-    throw std::runtime_error("FootPlacementStrategyInvertedPendulum::advance cannot get terrain normal.");
+    throw std::runtime_error("FootPlacementStrategyStaticGait::advance cannot get terrain normal.");
   }
 
   leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
@@ -163,7 +176,9 @@ void FootPlacementStrategyStaticGait::regainContact(LegBase* leg, double dt) {
   leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
 }
 
-
+/*
+ * Generate a candidate foothold for a leg. Result will be saved in class member and returned as a Position variable.
+ */
 Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   Position positionWorldToFootOnTerrainAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
@@ -188,6 +203,16 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 
 
 /*
+ * Check if a desired foothold is valid. Return a validated foothold.
+ */
+Position FootPlacementStrategyStaticGait::getValidatedFootHold(const Position& positionWorldToDesiredFootHoldInWorldFrame) {
+  // todo: check if foot hold is feasible
+  Position validated = positionWorldToDesiredFootHoldInWorldFrame;
+  return validated;
+}
+
+
+/*
  * Foot holds are evaluated with respect to the foot positions at liftoff.
  *
  */
@@ -195,10 +220,8 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
   Position positionWorldToFootAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
 
-  // validate the foot step
-  Position positionWorldToFootHoldInWorldFrame = positionWorldToFootHoldInWorldFrame_[leg->getId()];
-  Position positionWorldToValidatedFootHoldInWorldFrame = getValidatedFootHold(positionWorldToFootHoldInWorldFrame);
-  positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = positionWorldToValidatedFootHoldInWorldFrame;
+  // get the actual (validated) step that must be taken
+  Position positionWorldToValidatedFootHoldInWorldFrame = positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()];
   Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToValidatedFootHoldInWorldFrame
                                                                          - positionWorldToFootAtLiftOffInWorldFrame;
 
@@ -233,14 +256,6 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame);
   return positionWorldToDesiredFootInWorldFrame;
   //---
-}
-
-
-Position FootPlacementStrategyStaticGait::getValidatedFootHold(const Position& positionWorldToDesiredFootHoldInWorldFrame) {
-  // todo: check if foot hold is feasible
-  Position validated = positionWorldToDesiredFootHoldInWorldFrame;
-  return validated;
-
 }
 
 
