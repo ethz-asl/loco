@@ -28,7 +28,10 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     makeShift_(false),
     allFeetGrounded_(false),
     footPlacementStrategy_(nullptr),
-    plannedFootHolds_(legs_->size())
+    plannedFootHolds_(legs_->size()),
+    defaultDeltaForward_(0.0),
+    defaultDeltaBackward_(0.0),
+    delta_(0.0)
 {
   // Reset Eigen variables
   homePos_.setZero();
@@ -67,6 +70,9 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   makeShift_ = false;
 
+  defaultDeltaForward_ = 0.0;
+  defaultDeltaBackward_ = 0.0;
+
   comTarget_.setZero();
 
   double filterTimeConstant = 0.01;
@@ -75,7 +81,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
   filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
 
-  delta_ = 0.05; // 0.05
+  delta_ = defaultDeltaForward_;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
@@ -110,6 +116,63 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   return true;
 }
 
+
+/*! Loads the parameters from the XML object
+ * @param hParameterSet   handle
+ * @return  true if all parameters could be loaded
+ */
+bool CoMOverSupportPolygonControlStaticGait::loadParameters(TiXmlHandle &hParameterSet) {
+  TiXmlElement* pElem;
+    TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
+
+    /**********
+     * Wirght *
+     **********/
+    pElem = handle.FirstChild("Weight").Element();
+    if (!pElem) {
+      printf("Could not find CoMOverSupportPolygonControl:Weight\n");
+      return false;
+    }
+    if (pElem->QueryDoubleAttribute("minSwingLegWeight", &this->minSwingLegWeight_)
+        != TIXML_SUCCESS) {
+      printf("Could not find CoMOverSupportPolygonControl:Weight:minSwingLegWeight!\n");
+      return false;
+    }
+
+    /**********
+     * Timing *
+     **********/
+    pElem = handle.FirstChild("Timing").Element();
+    if (pElem->QueryDoubleAttribute("startShiftAwayFromLegAtStancePhase",
+        &this->startShiftAwayFromLegAtStancePhase_) != TIXML_SUCCESS) {
+      printf("Could not find CoMOverSupportPolygonControl:Timing:startShiftAwayFromLegAtStancePhase!\n");
+      return false;
+    }
+    if (pElem->QueryDoubleAttribute("startShiftTowardsLegAtSwingPhase",
+        &this->startShiftTowardsLegAtSwingPhase_) != TIXML_SUCCESS) {
+      printf("Could not find SupportPolygon:startShiftTowardsLegAtSwingPhase!\n");
+      return false;
+    }
+
+    /*********
+     * Delta *
+     *********/
+    pElem = handle.FirstChild("Delta").Element();
+    if (pElem->QueryDoubleAttribute("forward",
+        &this->defaultDeltaForward_) != TIXML_SUCCESS) {
+      printf("Could not find SupportPolygon:delta forward!\n");
+      return false;
+    }
+    if (pElem->QueryDoubleAttribute("backward",
+        &this->defaultDeltaBackward_) != TIXML_SUCCESS) {
+      printf("Could not find SupportPolygon:delta backward!\n");
+      return false;
+    }
+
+    return true;
+}
+
+
 void CoMOverSupportPolygonControlStaticGait::setFootHold(int legId, Position footHold) {
   plannedFootHolds_[legId] = footHold;
 }
@@ -120,6 +183,22 @@ int CoMOverSupportPolygonControlStaticGait::getNextSwingLeg() { return swingLegI
 
 const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
   return positionWorldToDesiredCoMInWorldFrame_;
+}
+
+
+void CoMOverSupportPolygonControlStaticGait::setDelta(double delta) {
+  delta_ = delta;
+}
+
+void CoMOverSupportPolygonControlStaticGait::setDelta(DefaultSafeTriangleDelta defaultSafeTriangle) {
+  switch (defaultSafeTriangle) {
+    case (DefaultSafeTriangleDelta::DeltaForward):
+        delta_ = 0.05;
+    break;
+    case (DefaultSafeTriangleDelta::DeltaBackward):
+        delta_ = 0.03;
+    break;
+  }
 }
 
 
@@ -215,19 +294,11 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       // reset flag
       swingFootChanged_ = false;
       updateSafeSupportTriangles();
-
-
-//      std::cout << "*******************" << std::endl;
-//      std::cout << "last:  " << swingLegIndexLast_ << std::endl;
-//      std::cout << "now:   " << swingLegIndexNow_ << std::endl;
-//      std::cout << "next:  " << swingLegIndexNext_ << std::endl;
-//      std::cout << "next2: " << swingLegIndexOverNext_ << std::endl;
-
     }
 
-    /*
-     * Set CoM desired position
-     */
+    /****************************
+     * Set CoM desired position *
+     ****************************/
     filterInputCoMX_ = comTarget_.x();
     filterInputCoMY_ = comTarget_.y();
     filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);

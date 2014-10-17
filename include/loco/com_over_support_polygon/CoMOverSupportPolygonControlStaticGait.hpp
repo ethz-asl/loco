@@ -18,6 +18,8 @@ namespace loco {
 class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonControlBase {
  public:
 
+  enum DefaultSafeTriangleDelta {DeltaForward, DeltaBackward};
+
   typedef Eigen::Matrix<double,2,4> FeetConfiguration;
   typedef Eigen::Matrix<double,2,3> SupportTriangle;
   typedef Eigen::Matrix<double,2,2> Line;
@@ -51,6 +53,15 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool getSwingFootChanged();
   virtual bool getAllFeetGrounded();
 
+  virtual void setDelta(double delta);
+  virtual void setDelta(DefaultSafeTriangleDelta defaultSafeTriangle);
+
+  /*! Loads the parameters from the XML object
+   * @param hParameterSet   handle
+   * @return  true if all parameters could be loaded
+   */
+  virtual bool loadParameters(TiXmlHandle &hParameterSet);
+
  protected:
 
   TorsoBase* torso_;
@@ -62,6 +73,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int swingLegIndexNext_;
   int swingLegIndexLast_;
   int swingLegIndexOverNext_;
+
+  double defaultDeltaForward_, defaultDeltaBackward_;
 
   bool makeShift_;
   Pos2d comTarget_;

@@ -33,7 +33,7 @@ bool TorsoControlStaticGait::initialize(double dt) {
   const Position hindHipPosition = legs_->getLeg(2)->getPositionWorldToHipInBaseFrame();
   headingDistanceFromForeToHindInBaseFrame_ = foreHipPosition.x()-hindHipPosition.x();
 
-  CoMOverSupportPolygonControlStaticGait* comStatic = (CoMOverSupportPolygonControlStaticGait*)comControl_;
+  CoMOverSupportPolygonControlStaticGait* comStatic = static_cast<CoMOverSupportPolygonControlStaticGait*>(comControl_);
   comStatic->initialize();
 
   return true;

@@ -8,8 +8,9 @@
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyStaticGait.hpp"
 
-namespace loco {
+const bool DEBUG_FPS = false;
 
+namespace loco {
 
 FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain) :
     FootPlacementStrategyFreePlane(legs, torso, terrain),
@@ -39,7 +40,6 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     positionWorldToFootHoldInWorldFrame_[leg->getId()].setZero();
     newFootHolds_[leg->getId()].setZero();
   }
-
 }
 
 
@@ -101,24 +101,32 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
     // get pointer to next swing leg
     int nextSwingLegId = comControl_->getNextSwingLeg();
     LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId);
-    std::cout << "plan for leg id: " << nextSwingLegId << std::endl;
+    if (DEBUG_FPS) std::cout << "plan for leg id: " << nextSwingLegId << std::endl;
 
     // generate foothold
-//    std::cout << "generating foot hold..." << std::endl;
+    if (DEBUG_FPS) std::cout << "generating foot hold..." << std::endl;
     generateFootHold(nextSwingLeg);
-//    std::cout << "...done!" << std::endl;
+    if (DEBUG_FPS) std::cout << "...done!" << std::endl;
     footHoldPlanned_ = true;
 
     // validate foothold
-//    std::cout << "validating foot hold..." << std::endl;
+    if (DEBUG_FPS) std::cout << "validating foot hold..." << std::endl;
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId] = getValidatedFootHold(positionWorldToFootHoldInWorldFrame_[nextSwingLegId]);
-//    std::cout << "...done!" << std::endl;
-
-    std::cout << "lift off to validate: " << (positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId]
-                                             - nextSwingLeg->getStateLiftOff()->getPositionWorldToFootInWorldFrame()).norm() << std::endl;
+    if (DEBUG_FPS) std::cout << "...done!" << std::endl;
 
     // send validated foothold to static com control
     comControl_->setFootHold(nextSwingLegId, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId]);
+
+    /**********************************************************************************************************************************
+     * temporary solution:        when going backwards, use a smaller distance for safe triangle evaluation.                          *
+     * possible better solution:  transition to new gait sequence, or push the center of mass nearer to the support triangle diagonal *
+     **********************************************************************************************************************************/
+    if (torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x() >= 0.0 ) {
+      comControl_->setDelta(CoMOverSupportPolygonControlStaticGait::DefaultSafeTriangleDelta::DeltaForward);
+    }
+    else if (torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x() < 0.0) {
+      comControl_->setDelta(CoMOverSupportPolygonControlStaticGait::DefaultSafeTriangleDelta::DeltaBackward);
+    }
 
   }
   if (comControl_->getAllFeetGrounded()) {
@@ -191,9 +199,9 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
   Position positionWorldToFootOnTerrainAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
   terrain_->getHeight(positionWorldToFootOnTerrainAtLiftOffInWorldFrame);
 
+  // x-y offset
   Position positionFootAtLiftOffToDesiredFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(getPositionFootAtLiftOffToDesiredFootHoldInControlFrame(*leg));
 
-  // x-y offset
   Position positionWorldToFootHoldInWorldFrame = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
                                                  + positionFootAtLiftOffToDesiredFootHoldInWorldFrame;
 
