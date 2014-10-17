@@ -229,20 +229,22 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
   Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToValidatedFootHoldInWorldFrame
                                                                          - positionWorldToFootAtLiftOffInWorldFrame;
 
+  Position positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame = orientationWorldToControl.rotate(positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame);
+
   /*
    * Interpolate on the x-y plane
    */
   double interpolationParameter = getInterpolationPhase(*leg);
-  Position positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame = Position(
+  Position positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInControlFrame = Position(
                                                                                         // x
                                                                                         getHeadingComponentOfFootStep(interpolationParameter,
                                                                                         0.0,
-                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame.x(),
+                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame.x(),
                                                                                         const_cast<LegBase*>(leg)),
                                                                                         // y
                                                                                         getLateralComponentOfFootStep(interpolationParameter,
                                                                                         0.0,
-                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame.y(),
+                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame.y(),
                                                                                         const_cast<LegBase*>(leg)),
                                                                                         // z
                                                                                         0.0
@@ -252,11 +254,11 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
    * Interpolate height trajectory
    */
   Position positionDesiredFootOnTerrainToDesiredFootInControlFrame =  getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(*leg,
-                                                                                                       orientationWorldToControl.rotate(positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame) ); // z
+                                                                                                                                 positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInControlFrame); // z
 
 
   Position positionWorldToDesiredFootInWorldFrame = positionWorldToFootAtLiftOffInWorldFrame
-                                                    + positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInWorldFrame
+                                                    + orientationWorldToControl.inverseRotate(positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInControlFrame)
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame);
   return positionWorldToDesiredFootInWorldFrame;
   //---
