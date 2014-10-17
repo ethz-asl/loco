@@ -17,7 +17,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     torso_(torso),
     swingOrder_(legs_->size()),
     delta_(0.0),
-    maxComStep_(0.0),
     swingLegIndexOld_(-1),
     swingLegIndexNow_(-1),
     swingLegIndexNext_(-1),
@@ -35,7 +34,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
 {
   // Reset Eigen variables
   homePos_.setZero();
-  comStep_.setZero();
   comTarget_.setZero();
 
   feetConfigurationCurrent_.setZero();
@@ -51,7 +49,6 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   safeTriangleNext_.setZero();
   safeTriangleOverNext_.setZero();
 
-  maxComStep_ = 0.5;
   delta_ = 0.05;
 
   filterCoMX_ = new robotUtils::FirstOrderFilter();
@@ -82,8 +79,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
   filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
 
-  maxComStep_ = 0.5;
-  delta_ = 0.03;
+  delta_ = 0.05;
 
   positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
   positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
@@ -137,8 +133,6 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   Eigen::Vector2d desiredLinearVelocity;
   desiredLinearVelocity << desiredLinearVelocityInWorldFrame.x(),
                            desiredLinearVelocityInWorldFrame.y();
-
-  comStep_ = 0.5*desiredLinearVelocity*legs_->getLeftForeLeg()->getStanceDuration();
 
   // update current configuration
   for (auto leg: *legs_) {
@@ -297,7 +291,9 @@ Eigen::Matrix<double,2,3> CoMOverSupportPolygonControlStaticGait::getSafeTriangl
 Eigen::Matrix<double,2,4> CoMOverSupportPolygonControlStaticGait::getNextStanceConfig(const FeetConfiguration& currentStanceConfig, int steppingFoot) {
 
   FeetConfiguration nextStanceConfig = currentStanceConfig;
-  nextStanceConfig.col(steppingFoot) += comStep_;
+  Pos2d footStep;
+  footStep << plannedFootHolds_[steppingFoot].x(),plannedFootHolds_[steppingFoot].y();
+  nextStanceConfig.col(steppingFoot) = footStep;
 
   return nextStanceConfig;
 }

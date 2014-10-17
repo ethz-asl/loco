@@ -72,8 +72,6 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   Eigen::Matrix<double,2,3> supportTriangleOld_, supportTriangleCurrent_, supportTriangleNext_, supportTriangleOverNext_;
   Eigen::Matrix<double,2,3> safeTriangleOld_, safeTriangleCurrent_, safeTriangleNext_, safeTriangleOverNext_;
 
-  Eigen::Vector2d comStep_;
-  double maxComStep_;
   FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_, homePos_;
 
   bool swingFootChanged_;

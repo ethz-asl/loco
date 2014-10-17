@@ -43,8 +43,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   CoMOverSupportPolygonControlStaticGait* comControl_;
 
-  Position positionWorldToCenterOfFeetAtLiftOffInWorldFrame_;
-  std::vector<Position> positionBaseOnTerrainToDefaultFootInControlFrame_;
+  Position positionWorldToCenterOfValidatedFeetInWorldFrame_;
+  std::vector<Position> positionCenterOfValidatedFeetToDefaultFootInControlFrame_;
   std::vector<Position> positionWorldToValidatedDesiredFootHoldInWorldFrame_;
 
   std::vector<Position> newFootHolds_;
