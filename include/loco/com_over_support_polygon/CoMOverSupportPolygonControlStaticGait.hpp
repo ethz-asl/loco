@@ -61,6 +61,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
    * @return  true if all parameters could be loaded
    */
   virtual bool loadParameters(TiXmlHandle &hParameterSet);
+  virtual bool loadParametersStaticGait(TiXmlHandle &hParameterSet);
 
  protected:
 

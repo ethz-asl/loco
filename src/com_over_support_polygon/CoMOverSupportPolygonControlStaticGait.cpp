@@ -123,53 +123,61 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
  */
 bool CoMOverSupportPolygonControlStaticGait::loadParameters(TiXmlHandle &hParameterSet) {
   TiXmlElement* pElem;
-    TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
+  TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
 
-    /**********
-     * Wirght *
-     **********/
-    pElem = handle.FirstChild("Weight").Element();
-    if (!pElem) {
-      printf("Could not find CoMOverSupportPolygonControl:Weight\n");
-      return false;
-    }
-    if (pElem->QueryDoubleAttribute("minSwingLegWeight", &this->minSwingLegWeight_)
-        != TIXML_SUCCESS) {
-      printf("Could not find CoMOverSupportPolygonControl:Weight:minSwingLegWeight!\n");
-      return false;
-    }
+  /**********
+   * Weight *
+   **********/
+  pElem = handle.FirstChild("Weight").Element();
+  if (!pElem) {
+    printf("Could not find CoMOverSupportPolygonControl:Weight\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("minSwingLegWeight", &this->minSwingLegWeight_)
+      != TIXML_SUCCESS) {
+    printf("Could not find CoMOverSupportPolygonControl:Weight:minSwingLegWeight!\n");
+    return false;
+  }
 
-    /**********
-     * Timing *
-     **********/
-    pElem = handle.FirstChild("Timing").Element();
-    if (pElem->QueryDoubleAttribute("startShiftAwayFromLegAtStancePhase",
-        &this->startShiftAwayFromLegAtStancePhase_) != TIXML_SUCCESS) {
-      printf("Could not find CoMOverSupportPolygonControl:Timing:startShiftAwayFromLegAtStancePhase!\n");
-      return false;
-    }
-    if (pElem->QueryDoubleAttribute("startShiftTowardsLegAtSwingPhase",
-        &this->startShiftTowardsLegAtSwingPhase_) != TIXML_SUCCESS) {
-      printf("Could not find SupportPolygon:startShiftTowardsLegAtSwingPhase!\n");
-      return false;
-    }
+  /**********
+   * Timing *
+   **********/
+  pElem = handle.FirstChild("Timing").Element();
+  if (pElem->QueryDoubleAttribute("startShiftAwayFromLegAtStancePhase",
+      &this->startShiftAwayFromLegAtStancePhase_) != TIXML_SUCCESS) {
+    printf("Could not find CoMOverSupportPolygonControl:Timing:startShiftAwayFromLegAtStancePhase!\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("startShiftTowardsLegAtSwingPhase",
+      &this->startShiftTowardsLegAtSwingPhase_) != TIXML_SUCCESS) {
+    printf("Could not find SupportPolygon:startShiftTowardsLegAtSwingPhase!\n");
+    return false;
+  }
 
-    /*********
-     * Delta *
-     *********/
-    pElem = handle.FirstChild("Delta").Element();
-    if (pElem->QueryDoubleAttribute("forward",
-        &this->defaultDeltaForward_) != TIXML_SUCCESS) {
-      printf("Could not find SupportPolygon:delta forward!\n");
-      return false;
-    }
-    if (pElem->QueryDoubleAttribute("backward",
-        &this->defaultDeltaBackward_) != TIXML_SUCCESS) {
-      printf("Could not find SupportPolygon:delta backward!\n");
-      return false;
-    }
+  return true;
 
-    return true;
+}
+
+bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandle &hParameterSet) {
+  TiXmlElement* pElem;
+  TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
+
+  /*********
+   * Delta *
+   *********/
+  pElem = handle.FirstChild("Delta").Element();
+  if (pElem->QueryDoubleAttribute("forward",
+      &this->defaultDeltaForward_) != TIXML_SUCCESS) {
+    printf("Could not find SupportPolygon:delta forward!\n");
+    return false;
+  }
+  if (pElem->QueryDoubleAttribute("backward",
+      &this->defaultDeltaBackward_) != TIXML_SUCCESS) {
+    printf("Could not find SupportPolygon:delta backward!\n");
+    return false;
+  }
+
+  return true;
 }
 
 

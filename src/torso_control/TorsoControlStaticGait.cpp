@@ -64,6 +64,10 @@ bool TorsoControlStaticGait::loadParameters(const TiXmlHandle& handle) {
   if (!loadParametersTorsoConfiguration(hStGait)) {
     return false;
   }
+  CoMOverSupportPolygonControlStaticGait* staticComControl = static_cast<CoMOverSupportPolygonControlStaticGait*>(comControl_);
+  if (!staticComControl->loadParametersStaticGait(hStGait)) {
+    return false;
+  }
 
   return true;
 }
