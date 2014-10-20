@@ -68,7 +68,7 @@ void FootPlacementStrategyStaticGait::setCoMControl(CoMOverSupportPolygonControl
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   FootPlacementStrategyFreePlane::initialize(dt);
 
-  nextSwingLegId_ = 3;
+  nextSwingLegId_ = comControl_->getNextSwingLeg();
 
   for (auto leg: *legs_) {
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
@@ -230,7 +230,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 
 
 
-
   /*************************************************
    * Check if the validation service has an answer *
    *************************************************/
@@ -239,7 +238,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   getValidatedFootHold(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
   if (DEBUG_FPS) std::cout << "...done!" << std::endl;
   /*************************************************/
-
 
 
 
