@@ -135,7 +135,7 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame) {
   bool success = false;
 
-//#ifdef USE_ROS_SERVICE
+#ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
   if (footholdRosService_.hasReceivedResponse()) {
     bool isValid;
@@ -202,7 +202,7 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
     }
   }
   serviceTestCounter_++;
-//#endif
+#endif
 
   return success;
 }
