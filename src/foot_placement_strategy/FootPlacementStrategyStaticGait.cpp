@@ -135,7 +135,7 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame) {
   bool success = false;
 
-#ifdef USE_ROS_SERVICE
+//#ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
   if (footholdRosService_.hasReceivedResponse()) {
     bool isValid;
@@ -156,6 +156,8 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
 
          int legId = -1;
 
+         std::string dataField = srv.response.adaptedFootholds[0].type.data;
+
          switch(srv.response.adaptedFootholds[0].flag) {
            case(0):
                std::cout << "unknown" << std::endl;
@@ -166,13 +168,13 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
            case(2):{
 //             std::cout << "verified" << std::endl;
 //             std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
-              if (srv.response.adaptedFootholds[0].type.data == "LF") {
+              if ( dataField.compare("LF") == 0 ) {
                 legId = 0;
-              } else if (srv.response.adaptedFootholds[0].type.data == "RF") {
+              } else if ( dataField.compare("RF") == 0 ) {
                 legId = 1;
-              } else if (srv.response.adaptedFootholds[0].type.data == "LH") {
+              } else if ( dataField.compare("LH") == 0 ) {
                 legId = 2;
-              } else if (srv.response.adaptedFootholds[0].type.data == "RH") {
+              } else if ( dataField.compare("RH") == 0 ) {
                 legId = 3;
               }
 //              std::cout << "leg id: " << legId << std::endl;
@@ -200,7 +202,7 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
     }
   }
   serviceTestCounter_++;
-#endif
+//#endif
 
   return success;
 }
