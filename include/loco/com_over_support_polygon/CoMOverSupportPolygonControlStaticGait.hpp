@@ -43,8 +43,6 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
 
-  virtual void setFootPlacementStrategy(FootPlacementStrategyBase* footPlacementStrategy);
-
   virtual int getNextSwingLeg();
 
   virtual void setFootHold(int legId, Position footHold);
@@ -118,9 +116,9 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   void updateSafeSupportTriangles();
 
-  robotUtils::FirstOrderFilter *filterCoMX_, *filterCoMY_;
-  double filterInputCoMX_, filterInputCoMY_;
-  double filterOutputCoMX_, filterOutputCoMY_;
+//  robotUtils::FirstOrderFilter *filterCoMX_, *filterCoMY_;
+//  double filterInputCoMX_, filterInputCoMY_;
+//  double filterOutputCoMX_, filterOutputCoMY_;
 
 };
 

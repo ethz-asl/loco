@@ -88,7 +88,7 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
    *  evaluate desired CoM position in control frame
    */
   Position positionWorldToDesiredHorizontalBaseInWorldFrame = comControl_->getPositionWorldToDesiredCoMInWorldFrame();
-//  std::cout << "des com: " << positionWorldToDesiredHorizontalBaseInWorldFrame << std::endl;
+  std::cout << "des com: " << positionWorldToDesiredHorizontalBaseInWorldFrame << std::endl;
 
   // this is the desired location of the base location relative to the origin of the control frame projected on the x-y plane of the world frame and expressed in the world frame
   Position positionHorizontalControlToHorizontalBaseInWorldFrame = positionWorldToDesiredHorizontalBaseInWorldFrame
