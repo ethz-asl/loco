@@ -87,7 +87,7 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
     if (footholdRosService_.isReadyForRequest())  {
-      std::cout << "validating position: " << positionWorldToDesiredFootHoldInWorldFrame << " for leg: " << legId << std::endl;
+//      std::cout << "validating position: " << positionWorldToDesiredFootHoldInWorldFrame << " for leg: " << legId << std::endl;
         foothold_finding_msg::Foothold foothold;
         foothold.header.seq = serviceTestCounter_;
         foothold.header.frame_id = "/starleth/odometry";
@@ -106,7 +106,7 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
           default: break;
         }
 
-        std::cout << "legname: " <<legName << std::endl;
+//        std::cout << "legname: " <<legName << std::endl;
 
         foothold.type.data = legName;
         foothold.pose.position.x = positionWorldToDesiredFootHoldInWorldFrame.x(); // required
@@ -142,12 +142,12 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
     if (footholdRosService_.receiveResponse(srv, isValid)) {
       if (isValid) {
         success = true;
-        std::cout << "Received request:\n";
+//        std::cout << "Received request:\n";
 
        if (!srv.response.adaptedFootholds.empty() ){
-         std::cout << "header.seq: " << srv.response.adaptedFootholds[0].header.seq << std::endl;
-         std::cout << "header.stamp: " << srv.response.adaptedFootholds[0].header.stamp.sec << "." << srv.response.adaptedFootholds[0].header.stamp.nsec << std::endl;
-         std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
+//         std::cout << "header.seq: " << srv.response.adaptedFootholds[0].header.seq << std::endl;
+//         std::cout << "header.stamp: " << srv.response.adaptedFootholds[0].header.stamp.sec << "." << srv.response.adaptedFootholds[0].header.stamp.nsec << std::endl;
+//         std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
 
          // save validated foothold
          positionWorldToValidatedFootHoldInWorldFrame.x() = srv.response.adaptedFootholds[0].pose.position.x;
