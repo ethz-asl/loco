@@ -70,8 +70,8 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   makeShift_ = false;
 
-  defaultDeltaForward_ = 0.0;
-  defaultDeltaBackward_ = 0.0;
+  defaultDeltaForward_ = 0.05;
+  defaultDeltaBackward_ = 0.03;
 
   comTarget_.setZero();
 
@@ -176,6 +176,9 @@ bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandl
     printf("Could not find SupportPolygon:delta backward!\n");
     return false;
   }
+
+//  std::cout << "delta fw: " << defaultDeltaForward_
+//            << "delta bw: " << defaultDeltaBackward_ << std::endl;
 
   return true;
 }

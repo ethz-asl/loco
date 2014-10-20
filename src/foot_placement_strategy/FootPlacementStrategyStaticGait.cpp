@@ -17,7 +17,7 @@
 #include <chrono>
 /****************************/
 
-const bool DEBUG_FPS = false;
+const bool DEBUG_FPS = true;
 
 namespace loco {
 
@@ -84,7 +84,7 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 
 
 void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame) {
-//#ifdef USE_ROS_SERVICE
+#ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
     if (footholdRosService_.isReadyForRequest())  {
       std::cout << "validating position: " << positionWorldToDesiredFootHoldInWorldFrame << " for leg: " << legId << std::endl;
@@ -128,14 +128,14 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
     else {
       std::cout << "Service is not ready for request!" << std::endl;
     }
-//#endif
+#endif
 }
 
 
 bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame) {
+  bool success = true;
 
-  bool success = false;
-
+#ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
   if (footholdRosService_.hasReceivedResponse()) {
     bool isValid;
@@ -157,6 +157,7 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
     }
   }
   serviceTestCounter_++;
+#endif
 
   return success;
 }

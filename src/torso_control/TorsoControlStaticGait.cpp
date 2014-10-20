@@ -20,7 +20,6 @@ TorsoControlStaticGait::TorsoControlStaticGait(LegGroup* legs, TorsoBase* torso,
 
   const double defaultHeight = 0.39;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
-
 }
 
 
@@ -41,7 +40,7 @@ bool TorsoControlStaticGait::initialize(double dt) {
 
 bool TorsoControlStaticGait::advance(double dt) {
   bool advanced = true;
-  advanced *= TorsoControlDynamicGaitFreePlane::advance(dt);
+  advanced &= TorsoControlDynamicGaitFreePlane::advance(dt);
 
   //  RotationQuaternion orientationWorldToHeadingOnTerrain = getOrientationWorldToHeadingOnTerrainSurface(getOrientationWorldToHeadingBasedOnHipLocations());
   //  RotationQuaternion orientationControlToHeadingOnTerrain = orientationWorldToControl*orientationWorldToHeadingOnTerrain.inverted();
@@ -51,7 +50,6 @@ bool TorsoControlStaticGait::advance(double dt) {
   torso_->getDesiredState().setAngularVelocityBaseInControlFrame(angularVelocityBaseInControlFrame);
 
   return advanced;
-
 }
 
 bool TorsoControlStaticGait::loadParameters(const TiXmlHandle& handle) {

@@ -21,10 +21,9 @@
 /****************************
  * Includes for ROS service *
  ****************************/
-//#define USE_ROS_SERVICE
-//#ifdef USE_ROS_SERVICE
+#ifdef USE_ROS_SERVICE
 #include "RosService.hpp"
-//#endif
+#endif
 /****************************/
 
 
@@ -48,9 +47,9 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual void setCoMControl(CoMOverSupportPolygonControlBase* comControl);
 
-//#ifdef USE_ROS_SERVICE
+#ifdef USE_ROS_SERVICE
   robotUtils::RosService footholdRosService_;
-//#endif
+#endif
   int serviceTestCounter_;
 
  protected:
