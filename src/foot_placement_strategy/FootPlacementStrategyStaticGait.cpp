@@ -154,15 +154,42 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
          positionWorldToValidatedFootHoldInWorldFrame.y() = srv.response.adaptedFootholds[0].pose.position.y;
          positionWorldToValidatedFootHoldInWorldFrame.z() = srv.response.adaptedFootholds[0].pose.position.z;
 
-//         if (srv.response.adaptedFootholds[0].type.data == "LF") {
-//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[0] = positionWorldToValidatedFootHoldInWorldFrame;
-//         } else if (srv.response.adaptedFootholds[0].type.data == "RF") {
-//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[1] = positionWorldToValidatedFootHoldInWorldFrame;
-//         } else if (srv.response.adaptedFootholds[0].type.data ==  "LH") {
-//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[2] = positionWorldToValidatedFootHoldInWorldFrame;
-//         } else if (srv.response.adaptedFootholds[0].type.data ==  "RH") {
-//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[3] = positionWorldToValidatedFootHoldInWorldFrame;
-//         }
+         int legId = -1;
+
+         switch(srv.response.adaptedFootholds[0].flag) {
+           case(0):
+               std::cout << "unknown" << std::endl;
+           break;
+           case(1):
+                std::cout << "do not change" << std::endl;
+           break;
+           case(2):{
+//             std::cout << "verified" << std::endl;
+//             std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
+              if (srv.response.adaptedFootholds[0].type.data == "LF") {
+                legId = 0;
+              } else if (srv.response.adaptedFootholds[0].type.data == "RF") {
+                legId = 1;
+              } else if (srv.response.adaptedFootholds[0].type.data == "LH") {
+                legId = 2;
+              } else if (srv.response.adaptedFootholds[0].type.data == "RH") {
+                legId = 3;
+              }
+//              std::cout << "leg id: " << legId << std::endl;
+           }
+           break;
+           case(3):
+               std::cout << "bad" << std::endl;
+           break;
+           default: break;
+         }
+
+         if (legId != -1) {
+//           std::cout << "leg id:    " << legId << std::endl;
+//           std::cout << "rec state: " << (int)srv.response.adaptedFootholds[0].flag << std::endl;
+           positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId] = positionWorldToValidatedFootHoldInWorldFrame;
+           comControl_->setFootHold(legId, positionWorldToValidatedFootHoldInWorldFrame);
+         }
 
        }
 
@@ -349,10 +376,8 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 Position FootPlacementStrategyStaticGait::getValidatedFootHold(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame) {
   Position positionWorldToValidatedFootHoldInWorldFrame = positionWorldToDesiredFootHoldInWorldFrame;
 
-  if (getValidationResponse(positionWorldToValidatedFootHoldInWorldFrame)) {
-    // send validated foothold to static com control
-    positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId] = positionWorldToValidatedFootHoldInWorldFrame;
-    comControl_->setFootHold(legId, positionWorldToValidatedFootHoldInWorldFrame);
+  if (!getValidationResponse(positionWorldToValidatedFootHoldInWorldFrame)) {
+//    std::cout << "" << std::endl;
   }
 
   return positionWorldToValidatedFootHoldInWorldFrame;
