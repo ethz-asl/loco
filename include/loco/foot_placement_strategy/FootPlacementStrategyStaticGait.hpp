@@ -49,7 +49,7 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   virtual void setCoMControl(CoMOverSupportPolygonControlBase* comControl);
 
 //#ifdef USE_ROS_SERVICE
-  robotUtils::RosService serviceTest_;
+  robotUtils::RosService footholdRosService_;
 //#endif
   int serviceTestCounter_;
 
@@ -74,7 +74,6 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual void sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
   virtual bool getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame);
-  robotUtils::RosService::ServiceType srv_;
   int nextSwingLegId_;
 
 };
