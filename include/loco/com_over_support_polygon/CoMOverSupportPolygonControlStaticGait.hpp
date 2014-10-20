@@ -116,9 +116,9 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   void updateSafeSupportTriangles();
 
-//  robotUtils::FirstOrderFilter *filterCoMX_, *filterCoMY_;
-//  double filterInputCoMX_, filterInputCoMY_;
-//  double filterOutputCoMX_, filterOutputCoMY_;
+  robotUtils::FirstOrderFilter *filterCoMX_, *filterCoMY_;
+  double filterInputCoMX_, filterInputCoMY_;
+  double filterOutputCoMX_, filterOutputCoMY_;
 
 };
 

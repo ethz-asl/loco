@@ -21,19 +21,19 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingLegIndexLast_(-1),
     swingLegIndexOverNext_(-1),
     swingFootChanged_(false),
-//    filterInputCoMX_(0),
-//    filterInputCoMY_(0),
-//    filterOutputCoMX_(0),
-//    filterOutputCoMY_(0),
+    filterInputCoMX_(0),
+    filterInputCoMY_(0),
+    filterOutputCoMX_(0),
+    filterOutputCoMY_(0),
     makeShift_(false),
     allFeetGrounded_(false),
     footPlacementStrategy_(nullptr),
     plannedFootHolds_(legs_->size()),
     defaultDeltaForward_(0.0),
     defaultDeltaBackward_(0.0),
-    delta_(0.0)//,
-//    filterCoMX_(nullptr),
-//    filterCoMY_(nullptr)
+    delta_(0.0),
+    filterCoMX_(nullptr),
+    filterCoMY_(nullptr)
 {
   // Reset Eigen variables
   homePos_.setZero();
@@ -50,15 +50,15 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
   safeTriangleNext_.setZero();
   safeTriangleOverNext_.setZero();
 
-//  filterCoMX_ = new robotUtils::FirstOrderFilter();
-//  filterCoMY_ = new robotUtils::FirstOrderFilter();
+  filterCoMX_ = new robotUtils::FirstOrderFilter();
+  filterCoMY_ = new robotUtils::FirstOrderFilter();
 
 }
 
 
 CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait() {
-//  delete filterCoMX_;
-//  delete filterCoMY_;
+  delete filterCoMX_;
+  delete filterCoMY_;
 }
 
 
@@ -74,8 +74,8 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   double filterTimeConstant = 0.01;
   double filterGain = 1.0;
 
-//  filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
-//  filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
+  filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
+  filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
 
   delta_ = defaultDeltaForward_;
 
@@ -306,13 +306,13 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     /****************************
      * Set CoM desired position *
      ****************************/
-//    filterInputCoMX_ = comTarget_.x();
-//    filterInputCoMY_ = comTarget_.y();
-//    filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);
-//    filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
+    filterInputCoMX_ = comTarget_.x();
+    filterInputCoMY_ = comTarget_.y();
+    filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);
+    filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
     if (makeShift_) {
-      positionWorldToDesiredCoMInWorldFrame_ = Position(comTarget_.x(),
-                                                        comTarget_.y(),
+      positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
+                                                        filterOutputCoMY_,
                                                         0.0);
     }
 }

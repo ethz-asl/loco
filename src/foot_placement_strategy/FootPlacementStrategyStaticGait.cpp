@@ -17,7 +17,7 @@
 #include <chrono>
 /****************************/
 
-const bool DEBUG_FPS = true;
+const bool DEBUG_FPS = false;
 
 namespace loco {
 
@@ -99,14 +99,14 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 
         std::string legName;
         switch(legId) {
-          case(0): legName = "1LF"; break;
-          case(1): legName = "2RF"; break;
-          case(2): legName = "3LH"; break;
-          case(3): legName = "4RH"; break;
+          case(0): legName = "LF"; break;
+          case(1): legName = "RF"; break;
+          case(2): legName = "LH"; break;
+          case(3): legName = "RH"; break;
           default: break;
         }
 
-        std::cout << "leganme: " <<legName << std::endl;
+        std::cout << "legname: " <<legName << std::endl;
 
         foothold.type.data = legName;
         foothold.pose.position.x = positionWorldToDesiredFootHoldInWorldFrame.x(); // required
@@ -133,7 +133,7 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 
 
 bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame) {
-  bool success = true;
+  bool success = false;
 
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
@@ -148,6 +148,22 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
          std::cout << "header.seq: " << srv.response.adaptedFootholds[0].header.seq << std::endl;
          std::cout << "header.stamp: " << srv.response.adaptedFootholds[0].header.stamp.sec << "." << srv.response.adaptedFootholds[0].header.stamp.nsec << std::endl;
          std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
+
+         // save validated foothold
+         positionWorldToValidatedFootHoldInWorldFrame.x() = srv.response.adaptedFootholds[0].pose.position.x;
+         positionWorldToValidatedFootHoldInWorldFrame.y() = srv.response.adaptedFootholds[0].pose.position.y;
+         positionWorldToValidatedFootHoldInWorldFrame.z() = srv.response.adaptedFootholds[0].pose.position.z;
+
+//         if (srv.response.adaptedFootholds[0].type.data == "LF") {
+//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[0] = positionWorldToValidatedFootHoldInWorldFrame;
+//         } else if (srv.response.adaptedFootholds[0].type.data == "RF") {
+//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[1] = positionWorldToValidatedFootHoldInWorldFrame;
+//         } else if (srv.response.adaptedFootholds[0].type.data ==  "LH") {
+//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[2] = positionWorldToValidatedFootHoldInWorldFrame;
+//         } else if (srv.response.adaptedFootholds[0].type.data ==  "RH") {
+//           positionWorldToValidatedDesiredFootHoldInWorldFrame_[3] = positionWorldToValidatedFootHoldInWorldFrame;
+//         }
+
        }
 
       }
@@ -212,6 +228,10 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
     // send the generated foothold to the ROS validation service
     sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
 
+    // old code
+//    positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_] = positionWorldToFootHoldInWorldFrame_[nextSwingLegId_];
+//    comControl_->setFootHold(nextSwingLegId_, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_]);
+
     /**********************************************************************************************************************************
      * temporary solution:        when going backwards, use a smaller distance for safe triangle evaluation.                          *
      * possible better solution:  transition to new gait sequence, or push the center of mass nearer to the support triangle diagonal *
@@ -230,7 +250,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /************************************************/
 
 
-
   /*************************************************
    * Check if the validation service has an answer *
    *************************************************/
@@ -239,8 +258,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   getValidatedFootHold(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
   if (DEBUG_FPS) std::cout << "...done!" << std::endl;
   /*************************************************/
-
-
 
 
   for (auto leg : *legs_) {
@@ -344,7 +361,6 @@ Position FootPlacementStrategyStaticGait::getValidatedFootHold(const int legId, 
 
 /*
  * Foot holds are evaluated with respect to the foot positions at liftoff.
- *
  */
 Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
@@ -361,20 +377,20 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
    * Interpolate on the x-y plane
    */
   double interpolationParameter = getInterpolationPhase(*leg);
-  Position positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInControlFrame = Position(
-                                                                                        // x
-                                                                                        getHeadingComponentOfFootStep(interpolationParameter,
-                                                                                        0.0,
-                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame.x(),
-                                                                                        const_cast<LegBase*>(leg)),
-                                                                                        // y
-                                                                                        getLateralComponentOfFootStep(interpolationParameter,
-                                                                                        0.0,
-                                                                                        positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame.y(),
-                                                                                        const_cast<LegBase*>(leg)),
-                                                                                        // z
-                                                                                        0.0
-                                                                                        );
+  Position positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInControlFrame =
+      Position(
+      // x
+          getHeadingComponentOfFootStep(
+              interpolationParameter, 0.0,
+              positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame.x(),
+              const_cast<LegBase*>(leg)),
+          // y
+          getLateralComponentOfFootStep(
+              interpolationParameter, 0.0,
+              positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame.y(),
+              const_cast<LegBase*>(leg)),
+          // z
+          0.0);
 
   /*
    * Interpolate height trajectory
