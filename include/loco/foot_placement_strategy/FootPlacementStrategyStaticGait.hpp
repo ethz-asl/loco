@@ -17,6 +17,17 @@
 #include "loco/common/TerrainModelBase.hpp"
 #include "loco/common/LegGroup.hpp"
 
+
+/****************************
+ * Includes for ROS service *
+ ****************************/
+//#define USE_ROS_SERVICE
+//#ifdef USE_ROS_SERVICE
+#include "RosService.hpp"
+//#endif
+/****************************/
+
+
 namespace loco {
 
 class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
@@ -37,6 +48,11 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual void setCoMControl(CoMOverSupportPolygonControlBase* comControl);
 
+//#ifdef USE_ROS_SERVICE
+  robotUtils::RosService serviceTest_;
+//#endif
+  int serviceTestCounter_;
+
  protected:
 
   bool footHoldPlanned_;
@@ -54,7 +70,12 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual Position generateFootHold(LegBase* leg);
 
-  virtual Position getValidatedFootHold(const Position& positionWorldToDesiredFootHoldInWorldFrame);
+  virtual Position getValidatedFootHold(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
+
+  virtual void sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
+  virtual bool getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame);
+  robotUtils::RosService::ServiceType srv_;
+  int nextSwingLegId_;
 
 };
 
