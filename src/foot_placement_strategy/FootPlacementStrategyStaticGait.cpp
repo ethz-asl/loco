@@ -28,7 +28,7 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     comControl_(nullptr),
     newFootHolds_(legs_->size()),
     footHoldPlanned_(false),
-    nextSwingLegId_(0)
+    nextSwingLegId_(3)
 {
 
   stepInterpolationFunction_.clear();
@@ -68,6 +68,8 @@ void FootPlacementStrategyStaticGait::setCoMControl(CoMOverSupportPolygonControl
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   FootPlacementStrategyFreePlane::initialize(dt);
 
+  nextSwingLegId_ = 3;
+
   for (auto leg: *legs_) {
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
     positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
@@ -96,12 +98,14 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 
         std::string legName;
         switch(legId) {
-          case(0): legName = "LF"; break;
-          case(1): legName = "RF"; break;
-          case(2): legName = "LH"; break;
-          case(3): legName = "RH"; break;
+          case(0): legName = "1LF"; break;
+          case(1): legName = "2RF"; break;
+          case(2): legName = "3LH"; break;
+          case(3): legName = "4RH"; break;
           default: break;
         }
+
+        std::cout << "leganme: " <<legName << std::endl;
 
         foothold.type.data = legName;
         foothold.pose.position.x = positionWorldToDesiredFootHoldInWorldFrame.x(); // required
@@ -109,9 +113,9 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
         foothold.pose.position.z = positionWorldToDesiredFootHoldInWorldFrame.z();
 
         foothold.pose.orientation.w = 1.0; // surface normal
-        foothold.pose.orientation.x = 0.00;
-        foothold.pose.orientation.y = 0.00;
-        foothold.pose.orientation.z = 0.00;
+        foothold.pose.orientation.x = 0.0;
+        foothold.pose.orientation.y = 0.0;
+        foothold.pose.orientation.z = 0.0;
 
         foothold.flag = 0;      // 0: unknown, 1: do not change position, 2: verified, 3: bad)
         srv_.request.initialFootholds.push_back(foothold);
@@ -119,13 +123,10 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
         if (!serviceTest_.sendRequest(srv_)) {
           std::cout << "Could not send request!\n";
         }
-
-//      }
     }// if serviceTestCounter
     else {
       std::cout << "Service is not ready for request!" << std::endl;
     }
-
 //#endif
 }
 
@@ -141,18 +142,15 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
     bool isValid;
     if (serviceTest_.receiveResponse(srv_, isValid)) {
       if (isValid) {
-
         success = true;
-
         std::cout << "Received request:\n";
-#ifdef ROS_SERVICE_DEBUG
-        std::cout << std::to_string(srv_.request.a)<< " + " << std::to_string(srv_.request.b) <<" = " <<  std::to_string(srv_.response.sum) << "!\n";
-#else
+
        if (!srv_.response.adaptedFootholds.empty() ){
          std::cout << "header.seq: " << srv_.response.adaptedFootholds[0].header.seq << std::endl;
          std::cout << "header.stamp: " << srv_.response.adaptedFootholds[0].header.stamp.sec << "." << srv_.response.adaptedFootholds[0].header.stamp.nsec << std::endl;
+         std::cout << "data: " << srv_.response.adaptedFootholds[0].type.data << std::endl;
        }
-#endif
+
       }
       else {
         std::cout << "Received error!\n";
@@ -162,7 +160,6 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
   serviceTestCounter_++;
 
   return success;
-
 }
 
 
@@ -326,8 +323,8 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 
 
   // update class member and get correct terrain height at foot hold
-  //positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootHoldInWorldFrame;
-  //terrain_->getHeight(positionWorldToFootHoldInWorldFrame_[leg->getId()]);
+  positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionWorldToFootHoldInWorldFrame;
+  terrain_->getHeight(positionWorldToFootHoldInWorldFrame_[leg->getId()]);
 
   return positionWorldToFootHoldInWorldFrame_[leg->getId()];
 }
@@ -341,7 +338,7 @@ Position FootPlacementStrategyStaticGait::getValidatedFootHold(const int legId, 
 
   if (getValidationResponse(positionWorldToValidatedFootHoldInWorldFrame)) {
     // send validated foothold to static com control
-    comControl_->setFootHold(nextSwingLegId_, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_]);
+    comControl_->setFootHold(legId, positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId]);
   }
 
   return positionWorldToValidatedFootHoldInWorldFrame;
