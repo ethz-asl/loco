@@ -347,7 +347,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 
 
   for (auto leg : *legs_) {
-    if (!leg->isSupportLeg() && !leg->isInStandConfiguration()) {
+    if (!leg->isSupportLeg() /*&& !leg->isInStandConfiguration()*/) {
       StateSwitcher* stateSwitcher = leg->getStateSwitcher();
 
       switch(stateSwitcher->getState()) {
