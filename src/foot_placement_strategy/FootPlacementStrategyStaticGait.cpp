@@ -28,7 +28,9 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     comControl_(nullptr),
     newFootHolds_(legs_->size()),
     footHoldPlanned_(false),
-    nextSwingLegId_(3)
+    nextSwingLegId_(3),
+    goToStand_(true),
+    resumeWalking_(false)
 {
 
   stepInterpolationFunction_.clear();
@@ -67,6 +69,9 @@ void FootPlacementStrategyStaticGait::setCoMControl(CoMOverSupportPolygonControl
 
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   FootPlacementStrategyFreePlane::initialize(dt);
+
+  goToStand_ = true;
+  resumeWalking_ = false;
 
   nextSwingLegId_ = comControl_->getNextSwingLeg();
 
@@ -208,6 +213,22 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
 }
 
 
+bool FootPlacementStrategyStaticGait::goToStand() {
+  resumeWalking_ = false;
+  goToStand_ = true;
+
+  return true;
+}
+
+
+bool FootPlacementStrategyStaticGait::resumeWalking() {
+  goToStand_ = false;
+  resumeWalking_ = true;
+
+  return true;
+}
+
+
 bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*******************
    * Update leg data *
@@ -308,8 +329,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       }
     }
   } // for auto leg
-
-
 
 
   return true;
@@ -438,6 +457,37 @@ Position FootPlacementStrategyStaticGait::getPositionWorldToValidatedDesiredFoot
   // todo: check if legId is in admissible range
   return positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId];
 }
+
+
+
+/*
+ * Interpolate height: get the vector pointing from the current interpolated foot hold to the height of the desired foot based on the interpolation phase
+ */
+Position FootPlacementStrategyStaticGait::getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(const LegBase& leg, const Position& positionHipOnTerrainToDesiredFootOnTerrainInControlFrame)  {
+  const double interpolationParameter = getInterpolationPhase(leg);
+
+  double desiredFootHeight = 0.0;
+
+  if (resumeWalking_) {
+    desiredFootHeight = const_cast<SwingFootHeightTrajectory*>(&swingFootHeightTrajectory_)->evaluate(interpolationParameter);
+  }
+
+//  const double desiredFootHeight = const_cast<SwingFootHeightTrajectory*>(&swingFootHeightTrajectory_)->evaluate(interpolationParameter);
+
+  RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+  Position positionHipOnTerrainToDesiredFootOnTerrainInWorldFrame = orientationWorldToControl.inverseRotate(positionHipOnTerrainToDesiredFootOnTerrainInControlFrame);
+
+  Vector normalToPlaneAtCurrentFootPositionInWorldFrame;
+  terrain_->getNormal(positionHipOnTerrainToDesiredFootOnTerrainInWorldFrame,
+                      normalToPlaneAtCurrentFootPositionInWorldFrame);
+
+  Vector normalToPlaneAtCurrentFootPositionInControlFrame = orientationWorldToControl.rotate(normalToPlaneAtCurrentFootPositionInWorldFrame);
+
+  Position positionDesiredFootOnTerrainToDesiredFootInControlFrame = desiredFootHeight*Position(normalToPlaneAtCurrentFootPositionInControlFrame);
+  return positionDesiredFootOnTerrainToDesiredFootInControlFrame;
+}
+
+
 
 
 Position FootPlacementStrategyStaticGait::getPositionDesiredFootHoldOrientationOffsetInWorldFrame(const LegBase& leg,

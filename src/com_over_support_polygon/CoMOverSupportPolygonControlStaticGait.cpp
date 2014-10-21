@@ -294,7 +294,17 @@ bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupp
 }
 
 
+void CoMOverSupportPolygonControlStaticGait::setIsInStandConfiguration(bool isInStandConfiguration) {
+  isInStandConfiguration_ = isInStandConfiguration;
+}
+
+bool CoMOverSupportPolygonControlStaticGait::getIsInStandConfiguration() const {
+  return isInStandConfiguration_;
+}
+
+
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
+
     updateSwingLegsIndexes();
 
     if (allFeetGrounded_ && swingFootChanged_) {
@@ -310,11 +320,27 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     filterInputCoMY_ = comTarget_.y();
     filterOutputCoMX_ = filterCoMX_->advance(dt,filterInputCoMX_);
     filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
-    if (makeShift_) {
-      positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
-                                                        filterOutputCoMY_,
+
+    if (isInStandConfiguration_) {
+      Pos2d centerOfCurrentStanceConfig;
+      centerOfCurrentStanceConfig.setZero();
+
+      for (int k=0; k<(int)legs_->size(); k++) {
+        centerOfCurrentStanceConfig += feetConfigurationCurrent_.col(k)/legs_->size();
+      }
+
+      positionWorldToDesiredCoMInWorldFrame_ = Position(centerOfCurrentStanceConfig(0),
+                                                        centerOfCurrentStanceConfig(1),
                                                         0.0);
     }
+    else {
+      if (makeShift_) {
+        positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
+                                                          filterOutputCoMY_,
+                                                          0.0);
+      }
+    }
+
 }
 
 

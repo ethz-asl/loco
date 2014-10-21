@@ -38,6 +38,9 @@ public:
 
 	virtual bool advance(double dt) = 0;
 
+	virtual bool goToStand();
+	virtual bool resumeWalking();
+
   /*! Computes an interpolated version of the two controllers passed in as parameters.
    *  If t is 0, the current setting is set to footPlacementStrategy1, 1 -> footPlacementStrategy2, and values in between
    *  correspond to interpolated parameter set.

@@ -61,6 +61,9 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool loadParameters(TiXmlHandle &hParameterSet);
   virtual bool loadParametersStaticGait(TiXmlHandle &hParameterSet);
 
+  virtual void setIsInStandConfiguration(bool isInStandConfiguration);
+  virtual bool getIsInStandConfiguration() const;
+
  protected:
 
   TorsoBase* torso_;
@@ -74,6 +77,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int swingLegIndexOverNext_;
 
   double defaultDeltaForward_, defaultDeltaBackward_;
+
+  bool isInStandConfiguration_;
 
   bool makeShift_;
   Pos2d comTarget_;

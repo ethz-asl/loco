@@ -25,8 +25,15 @@ class TorsoControlStaticGait: public TorsoControlDynamicGaitFreePlane {
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual bool loadParametersTorsoConfiguration(const TiXmlHandle& hParameterSet);
 
+  virtual bool setCoMDelta(double delta);
+
+  virtual void setIsInStandConfiguration(bool isInStandConfiguration);
+  virtual bool getIsInStandConfiguration() const;
+
  protected:
 //  CoMOverSupportPolygonControlStaticGait* comControl_;
+
+  bool isInStandConfiguration_;
 
 };
 

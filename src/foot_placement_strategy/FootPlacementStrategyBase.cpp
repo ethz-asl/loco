@@ -25,5 +25,13 @@ bool FootPlacementStrategyBase::setToInterpolated(const FootPlacementStrategyBas
   return false;
 }
 
+bool FootPlacementStrategyBase::goToStand() {
+  return false;
+}
+
+bool FootPlacementStrategyBase::resumeWalking() {
+  return false;
+}
+
 
 } // namespace loco
