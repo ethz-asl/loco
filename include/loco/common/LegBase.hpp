@@ -203,6 +203,10 @@ class LegBase {
 
 	virtual StateSwitcher* getStateSwitcher() const;
 
+
+	void setIsInStandConfiguration(bool isInStandConfiguration);
+	bool isInStandConfiguration() const;
+
 protected:
 	/*! This is the name of the leg.
 	 */
@@ -313,6 +317,8 @@ protected:
   /*! Reference to the state switcher.
    */
   StateSwitcher* stateSwitcher_;
+
+  bool isInStandConfiguration_;
 
 };
 

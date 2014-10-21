@@ -26,7 +26,8 @@ LegBase::LegBase() :
     previousStancePhase_(0.0),
     previousSwingPhase_(0.0),
     isLosingContact_(false),
-    stateSwitcher_(nullptr)
+    stateSwitcher_(nullptr),
+    isInStandConfiguration_(true)
 {
 
 }
@@ -48,7 +49,8 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     previousStancePhase_(0.0),
     previousSwingPhase_(0.0),
     isLosingContact_(false),
-    stateSwitcher_(nullptr)
+    stateSwitcher_(nullptr),
+    isInStandConfiguration_(true)
 {
 
 }
@@ -302,6 +304,14 @@ void LegBase::setDesireWorldToFootPositionInWorldFrame(const Position& position)
   positionWorldToDesiredFootInWorldFrame_ = position;
 }
 
+
+void LegBase::setIsInStandConfiguration(bool isInStandConfiguration) {
+  isInStandConfiguration_ = isInStandConfiguration;
+}
+
+bool LegBase::isInStandConfiguration() const {
+  return isInStandConfiguration_;
+}
 
 
 } /* namespace loco */

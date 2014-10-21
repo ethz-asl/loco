@@ -28,7 +28,9 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     comControl_(nullptr),
     newFootHolds_(legs_->size()),
     footHoldPlanned_(false),
-    nextSwingLegId_(3)
+    nextSwingLegId_(3),
+    goToStand_(true),
+    resumeWalking_(false)
 {
 
   stepInterpolationFunction_.clear();
@@ -72,6 +74,9 @@ void FootPlacementStrategyStaticGait::setCoMControl(CoMOverSupportPolygonControl
 
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   FootPlacementStrategyFreePlane::initialize(dt);
+
+  goToStand_ = true;
+  resumeWalking_ = false;
 
   nextSwingLegId_ = comControl_->getNextSwingLeg();
 
@@ -222,6 +227,22 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
 }
 
 
+bool FootPlacementStrategyStaticGait::goToStand() {
+  resumeWalking_ = false;
+  goToStand_ = true;
+
+  return true;
+}
+
+
+bool FootPlacementStrategyStaticGait::resumeWalking() {
+  goToStand_ = false;
+  resumeWalking_ = true;
+
+  return true;
+}
+
+
 bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*******************
    * Update leg data *
@@ -250,41 +271,50 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*******************/
 
 
-
-
   /************************************************
    * Generate a foothold if all feet are grounded *
    ************************************************/
   if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
 
-    // get pointer to next swing leg
-    nextSwingLegId_ = comControl_->getNextSwingLeg();
-    LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
-    if (DEBUG_FPS) std::cout << "plan for leg id: " << nextSwingLegId_ << std::endl;
+    if (resumeWalking_) {
+      // get pointer to next swing leg
+      nextSwingLegId_ = comControl_->getNextSwingLeg();
+      LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
 
-    // generate foothold
-    if (DEBUG_FPS) std::cout << "generating foot hold..." << std::endl;
-    generateFootHold(nextSwingLeg);
-    if (DEBUG_FPS) std::cout << "...done!" << std::endl;
-    footHoldPlanned_ = true;
+      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(false);
 
-    // send the generated foothold to the ROS validation service
-    sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
+      if (DEBUG_FPS) std::cout << "plan for leg id: " << nextSwingLegId_ << std::endl;
 
-    // old code
-//    positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_] = positionWorldToFootHoldInWorldFrame_[nextSwingLegId_];
-//    comControl_->setFootHold(nextSwingLegId_, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_]);
+      // generate foothold
+      if (DEBUG_FPS) std::cout << "generating foot hold..." << std::endl;
+      generateFootHold(nextSwingLeg);
+      if (DEBUG_FPS) std::cout << "...done!" << std::endl;
+      footHoldPlanned_ = true;
 
-    /**********************************************************************************************************************************
-     * temporary solution:        when going backwards, use a smaller distance for safe triangle evaluation.                          *
-     * possible better solution:  transition to new gait sequence, or push the center of mass nearer to the support triangle diagonal *
-     **********************************************************************************************************************************/
-    if (torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x() >= 0.0 ) {
-      comControl_->setDelta(CoMOverSupportPolygonControlStaticGait::DefaultSafeTriangleDelta::DeltaForward);
-    }
-    else if (torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x() < 0.0) {
-      comControl_->setDelta(CoMOverSupportPolygonControlStaticGait::DefaultSafeTriangleDelta::DeltaBackward);
-    }
+      // send the generated foothold to the ROS validation service
+      sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
+
+      // old code
+#ifndef USE_ROS_SERVICE
+      positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_] = positionWorldToFootHoldInWorldFrame_[nextSwingLegId_];
+      comControl_->setFootHold(nextSwingLegId_, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_]);
+#endif
+
+      /**********************************************************************************************************************************
+       * temporary solution:        when going backwards, use a smaller distance for safe triangle evaluation.                          *
+       * possible better solution:  transition to new gait sequence, or push the center of mass nearer to the support triangle diagonal *
+       **********************************************************************************************************************************/
+      if (torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x() >= 0.0 ) {
+        comControl_->setDelta(CoMOverSupportPolygonControlStaticGait::DefaultSafeTriangleDelta::DeltaForward);
+      }
+      else if (torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x() < 0.0) {
+        comControl_->setDelta(CoMOverSupportPolygonControlStaticGait::DefaultSafeTriangleDelta::DeltaBackward);
+      }
+    } // if resume walking
+
+    if (goToStand_) {
+      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(true);
+    } // if go to stand
 
   }
   if (comControl_->getAllFeetGrounded()) {
@@ -296,15 +326,17 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*************************************************
    * Check if the validation service has an answer *
    *************************************************/
-  // validate foothold
-  if (DEBUG_FPS) std::cout << "validating foot hold..." << std::endl;
-  getValidatedFootHold(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
-  if (DEBUG_FPS) std::cout << "...done!" << std::endl;
+  if (resumeWalking_) {
+    // validate foothold
+    if (DEBUG_FPS) std::cout << "validating foot hold..." << std::endl;
+    getValidatedFootHold(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
+    if (DEBUG_FPS) std::cout << "...done!" << std::endl;
+  }
   /*************************************************/
 
 
   for (auto leg : *legs_) {
-    if (!leg->isSupportLeg()) {
+    if (!leg->isSupportLeg() && !leg->isInStandConfiguration()) {
       StateSwitcher* stateSwitcher = leg->getStateSwitcher();
 
       switch(stateSwitcher->getState()) {
@@ -322,8 +354,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       }
     }
   } // for auto leg
-
-
 
 
   return true;
@@ -451,6 +481,27 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
 Position FootPlacementStrategyStaticGait::getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const {
   // todo: check if legId is in admissible range
   return positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId];
+}
+
+
+/*
+ * Interpolate height: get the vector pointing from the current interpolated foot hold to the height of the desired foot based on the interpolation phase
+ */
+Position FootPlacementStrategyStaticGait::getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(const LegBase& leg, const Position& positionHipOnTerrainToDesiredFootOnTerrainInControlFrame)  {
+  const double interpolationParameter = getInterpolationPhase(leg);
+  const double desiredFootHeight = const_cast<SwingFootHeightTrajectory*>(&swingFootHeightTrajectory_)->evaluate(interpolationParameter);
+
+  RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
+  Position positionHipOnTerrainToDesiredFootOnTerrainInWorldFrame = orientationWorldToControl.inverseRotate(positionHipOnTerrainToDesiredFootOnTerrainInControlFrame);
+
+  Vector normalToPlaneAtCurrentFootPositionInWorldFrame;
+  terrain_->getNormal(positionHipOnTerrainToDesiredFootOnTerrainInWorldFrame,
+                      normalToPlaneAtCurrentFootPositionInWorldFrame);
+
+  Vector normalToPlaneAtCurrentFootPositionInControlFrame = orientationWorldToControl.rotate(normalToPlaneAtCurrentFootPositionInWorldFrame);
+
+  Position positionDesiredFootOnTerrainToDesiredFootInControlFrame = desiredFootHeight*Position(normalToPlaneAtCurrentFootPositionInControlFrame);
+  return positionDesiredFootOnTerrainToDesiredFootInControlFrame;
 }
 
 

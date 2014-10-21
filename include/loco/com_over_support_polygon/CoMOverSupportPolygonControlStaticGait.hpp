@@ -44,6 +44,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
 
   virtual int getNextSwingLeg();
+  virtual int getLastSwingLeg();
 
   virtual void setFootHold(int legId, Position footHold);
 
@@ -61,6 +62,9 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool loadParameters(TiXmlHandle &hParameterSet);
   virtual bool loadParametersStaticGait(TiXmlHandle &hParameterSet);
 
+  virtual void setIsInStandConfiguration(bool isInStandConfiguration);
+  virtual bool getIsInStandConfiguration() const;
+
  protected:
 
   TorsoBase* torso_;
@@ -74,6 +78,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int swingLegIndexOverNext_;
 
   double defaultDeltaForward_, defaultDeltaBackward_;
+
+  bool isInStandConfiguration_;
 
   bool makeShift_;
   Pos2d comTarget_;

@@ -52,6 +52,25 @@ bool TorsoControlStaticGait::advance(double dt) {
   return advanced;
 }
 
+
+bool TorsoControlStaticGait::setCoMDelta(double delta) {
+  CoMOverSupportPolygonControlStaticGait* comStatic = static_cast<CoMOverSupportPolygonControlStaticGait*>(comControl_);
+  comStatic->setDelta(delta);
+  return true;
+}
+
+
+void TorsoControlStaticGait::setIsInStandConfiguration(bool isInStandConfiguration) {
+  isInStandConfiguration_ = isInStandConfiguration;
+  CoMOverSupportPolygonControlStaticGait* comStatic = static_cast<CoMOverSupportPolygonControlStaticGait*>(comControl_);
+  comStatic->setIsInStandConfiguration(isInStandConfiguration);
+}
+
+bool TorsoControlStaticGait::getIsInStandConfiguration() const {
+  return isInStandConfiguration_;
+}
+
+
 bool TorsoControlStaticGait::loadParameters(const TiXmlHandle& handle) {
   TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
   if (!comControl_->loadParameters(hDynGait)) {

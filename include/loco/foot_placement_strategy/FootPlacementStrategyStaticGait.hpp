@@ -45,7 +45,14 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual Position getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const;
 
+  virtual Position getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(const LegBase& leg, const Position& positionHipOnTerrainToDesiredFootOnTerrainInControlFrame);
+
   virtual void setCoMControl(CoMOverSupportPolygonControlBase* comControl);
+
+
+  virtual bool goToStand();
+  virtual bool resumeWalking();
+
 
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService footholdRosService_;
@@ -53,6 +60,11 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   int serviceTestCounter_;
 
  protected:
+
+
+  bool goToStand_, resumeWalking_;
+
+
 
   bool footHoldPlanned_;
 
