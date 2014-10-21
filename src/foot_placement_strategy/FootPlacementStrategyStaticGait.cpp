@@ -579,8 +579,8 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
   Position positionFootAtLiftOffToDesiredFootHoldInControlFrame;
   if (!leg.isInStandConfiguration()) {
     positionFootAtLiftOffToDesiredFootHoldInControlFrame = positionFootAtLiftOffToDefaultFootInControlFrame                    // default position
-                                                          + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame   // heading
-                                                          + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;  // lateral
+                                                           + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame   // heading
+                                                           + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;  // lateral
 
     double footStepNorm = positionFootAtLiftOffToDesiredFootHoldInControlFrame.norm();
     if ( footStepNorm > defaultMaxStepLength_) {
