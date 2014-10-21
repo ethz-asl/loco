@@ -345,9 +345,11 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
         centerOfCurrentStanceConfig += feetConfigurationCurrent_.col(k)/legs_->size();
       }
 
-      positionWorldToDesiredCoMInWorldFrame_ = Position(centerOfCurrentStanceConfig(0),
-                                                        centerOfCurrentStanceConfig(1),
-                                                        0.0);
+      if (allFeetGrounded_) {
+        positionWorldToDesiredCoMInWorldFrame_ = Position(centerOfCurrentStanceConfig(0),
+                                                          centerOfCurrentStanceConfig(1),
+                                                         0.0);
+      }
     }
     else {
       if (makeShift_) {
