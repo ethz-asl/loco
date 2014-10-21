@@ -33,7 +33,9 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     defaultDeltaBackward_(0.0),
     delta_(0.0),
     filterCoMX_(nullptr),
-    filterCoMY_(nullptr)
+    filterCoMY_(nullptr),
+    isInStandConfiguration_(true),
+    wasInStandConfiguration_(true)
 {
   // Reset Eigen variables
   homePos_.setZero();
@@ -65,13 +67,15 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   makeShift_ = false;
+  isInStandConfiguration_ = true;
+  wasInStandConfiguration_ = true;
 
   defaultDeltaForward_ = 0.05;
   defaultDeltaBackward_ = 0.03;
 
   comTarget_.setZero();
 
-  double filterTimeConstant = 0.3; //0.1;
+  double filterTimeConstant = 0.1; //0.3; //0.1;
   double filterGain = 1.0;
 
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
@@ -187,6 +191,7 @@ void CoMOverSupportPolygonControlStaticGait::setFootHold(int legId, Position foo
 
 int CoMOverSupportPolygonControlStaticGait::getNextSwingLeg() { return swingLegIndexNext_; }
 int CoMOverSupportPolygonControlStaticGait::getLastSwingLeg() { return swingLegIndexLast_; }
+int CoMOverSupportPolygonControlStaticGait::getOverNextSwingLeg() { return swingLegIndexOverNext_; }
 
 
 const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
@@ -313,6 +318,11 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       swingFootChanged_ = false;
       updateSafeSupportTriangles();
     }
+
+//    if (!isInStandConfiguration_ && allFeetGrounded_) {
+//      std::cout << "updating" << std::endl;
+//      updateSafeSupportTriangles();
+//    }
 
     /****************************
      * Set CoM desired position *

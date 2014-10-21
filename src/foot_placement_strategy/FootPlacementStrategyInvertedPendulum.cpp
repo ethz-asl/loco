@@ -354,6 +354,7 @@ bool FootPlacementStrategyInvertedPendulum::loadParameters(const TiXmlHandle& ha
   return true;
 }
 
+
 bool FootPlacementStrategyInvertedPendulum::loadHeightTrajectory(const TiXmlHandle &hTrajectory)
 {
   TiXmlElement* pElem;

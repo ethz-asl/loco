@@ -45,6 +45,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual int getNextSwingLeg();
   virtual int getLastSwingLeg();
+  virtual int getOverNextSwingLeg();
 
   virtual void setFootHold(int legId, Position footHold);
 
@@ -80,6 +81,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   double defaultDeltaForward_, defaultDeltaBackward_;
 
   bool isInStandConfiguration_;
+  bool wasInStandConfiguration_;
 
   bool makeShift_;
   Pos2d comTarget_;

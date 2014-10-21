@@ -30,7 +30,9 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     footHoldPlanned_(false),
     nextSwingLegId_(3),
     goToStand_(true),
-    resumeWalking_(false)
+    resumeWalking_(false),
+    defaultMaxStepLength_(0.0),
+    firstFootHoldAfterStand_(legs_->size())
 {
 
   stepInterpolationFunction_.clear();
@@ -51,6 +53,7 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()].setZero();
     positionWorldToFootHoldInWorldFrame_[leg->getId()].setZero();
     newFootHolds_[leg->getId()].setZero();
+    firstFootHoldAfterStand_[leg->getId()] = leg->isInStandConfiguration();
   }
 
   serviceTestCounter_ = 0;
@@ -74,6 +77,8 @@ void FootPlacementStrategyStaticGait::setCoMControl(CoMOverSupportPolygonControl
 
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   FootPlacementStrategyFreePlane::initialize(dt);
+
+//  defaultMaxStepLength_ = 0.05;
 
   goToStand_ = true;
   resumeWalking_ = false;
@@ -544,7 +549,7 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
   /* Update center of feet at lift off */
   Position positionWorldToCenterOfValidatedFeetInWorldFrame = Position();
   for (auto legAuto: *legs_) {
-    //positionWorldToCenterOfFeetAtLiftOffInWorldFrame += legAuto->getStateLiftOff()->getPositionWorldToFootInWorldFrame()/legs_->size();
+    //positionWorldToCenterOfFeetAtLif;tOffInWorldFrame += legAuto->getStateLiftOff()->getPositionWorldToFootInWorldFrame()/legs_->size();
     positionWorldToCenterOfValidatedFeetInWorldFrame += positionWorldToValidatedDesiredFootHoldInWorldFrame_[legAuto->getId()]/legs_->size();
   }
   terrain_->getHeight(positionWorldToCenterOfValidatedFeetInWorldFrame);
@@ -575,11 +580,10 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
                                                           + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame   // heading
                                                           + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;  // lateral
 
-    double maxStepLength = 0.15;
     double footStepNorm = positionFootAtLiftOffToDesiredFootHoldInControlFrame.norm();
-    if ( footStepNorm > maxStepLength) {
+    if ( footStepNorm > defaultMaxStepLength_) {
       Position unitVectorFootAtLiftOffToDesiredFootHoldInControlFrame = positionFootAtLiftOffToDesiredFootHoldInControlFrame/footStepNorm;
-      positionFootAtLiftOffToDesiredFootHoldInControlFrame = unitVectorFootAtLiftOffToDesiredFootHoldInControlFrame*maxStepLength;
+      positionFootAtLiftOffToDesiredFootHoldInControlFrame = unitVectorFootAtLiftOffToDesiredFootHoldInControlFrame*defaultMaxStepLength_;
     }
 
   }
@@ -640,6 +644,31 @@ Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDe
                                                                                   );
 
   return positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame;
+}
+
+
+bool FootPlacementStrategyStaticGait::loadParameters(const TiXmlHandle& handle) {
+
+  bool success = FootPlacementStrategyInvertedPendulum::loadParameters(handle);
+
+  TiXmlElement* pElem;
+
+  /* desired */
+  TiXmlHandle hFPS(handle.FirstChild("FootPlacementStrategy").FirstChild("StaticGait"));
+  pElem = hFPS.Element();
+  if (!pElem) {
+    printf("*******Could not find FootPlacementStrategy:StaticGait\n");
+    return false;
+  }
+
+  pElem = hFPS.FirstChild("FootHoldLimits").Element();
+  if (pElem->QueryDoubleAttribute("defaultMaxStepLength", &defaultMaxStepLength_)!=TIXML_SUCCESS) {
+    printf("*******Could not find FootHoldLimits:defaultMaxStepLength\n");
+    return false;
+  }
+
+  return success;
+
 }
 
 

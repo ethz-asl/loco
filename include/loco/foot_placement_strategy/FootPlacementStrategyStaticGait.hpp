@@ -53,6 +53,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   virtual bool goToStand();
   virtual bool resumeWalking();
 
+  virtual bool loadParameters(const TiXmlHandle& handle);
+
 
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService footholdRosService_;
@@ -65,7 +67,7 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   bool goToStand_, resumeWalking_;
 
 
-
+  std::vector<bool> firstFootHoldAfterStand_;
   bool footHoldPlanned_;
 
   CoMOverSupportPolygonControlStaticGait* comControl_;
@@ -86,6 +88,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   virtual void sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
   virtual bool getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame);
   int nextSwingLegId_;
+
+  double defaultMaxStepLength_;
 
 };
 
