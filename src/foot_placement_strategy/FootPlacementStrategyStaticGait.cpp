@@ -271,17 +271,25 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*******************/
 
 
+
+  // get pointer to next swing leg
+  nextSwingLegId_ = comControl_->getNextSwingLeg();
+  LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
+
+  if (resumeWalking_) {
+    if (legs_->getLegById(comControl_->getLastSwingLeg())->getSwingPhase() == -1 ) {
+      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(false);
+    }
+  }
+
+
   /************************************************
    * Generate a foothold if all feet are grounded *
    ************************************************/
   if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
 
     if (resumeWalking_) {
-      // get pointer to next swing leg
-      nextSwingLegId_ = comControl_->getNextSwingLeg();
-      LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
 
-      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(false);
 
       if (DEBUG_FPS) std::cout << "plan for leg id: " << nextSwingLegId_ << std::endl;
 
