@@ -267,6 +267,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
       leg->setSwingPhase(leg->getSwingPhase());
     }
+
   } // for auto leg
   /*******************/
 
@@ -277,8 +278,12 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
 
   if (resumeWalking_) {
-    if (legs_->getLegById(comControl_->getLastSwingLeg())->getSwingPhase() == -1 ) {
-      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(false);
+//    if (legs_->getLegById(comControl_->getLastSwingLeg())->getSwingPhase() == -1 ) {
+//      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(false);
+//    }
+
+    if (nextSwingLeg->getSwingPhase() == -1) {
+      nextSwingLeg->setIsInStandConfiguration(false);
     }
   }
 
@@ -289,7 +294,6 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
 
     if (resumeWalking_) {
-
 
       if (DEBUG_FPS) std::cout << "plan for leg id: " << nextSwingLegId_ << std::endl;
 

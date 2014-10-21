@@ -146,8 +146,11 @@ bool LimbCoordinatorDynamicGait::advance(double dt) {
 	  }
     //---
 
+	  // Override support leg flag
+	  if (leg->isInStandConfiguration()) leg->setIsSupportLeg(true);
+
 	  //--- Set control mode
-    if (leg->isSupportLeg() /*|| leg->isInStandConfiguration()*/) {
+    if (leg->isSupportLeg()) {
       desiredJointControlModes.setConstant(robotModel::AM_Torque);
     }
     else {
