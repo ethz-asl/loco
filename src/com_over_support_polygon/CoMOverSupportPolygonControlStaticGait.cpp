@@ -186,6 +186,7 @@ void CoMOverSupportPolygonControlStaticGait::setFootHold(int legId, Position foo
 
 
 int CoMOverSupportPolygonControlStaticGait::getNextSwingLeg() { return swingLegIndexNext_; }
+int CoMOverSupportPolygonControlStaticGait::getLastSwingLeg() { return swingLegIndexLast_; }
 
 
 const Position& CoMOverSupportPolygonControlStaticGait::getPositionWorldToDesiredCoMInWorldFrame() const {
