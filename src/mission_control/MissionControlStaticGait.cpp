@@ -101,21 +101,19 @@ bool MissionControlStaticGait::advance(double dt) {
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().x() = robotModel_->sensors().getDesRobotVelocity()->getDesSagittalVelocity();
     desiredBaseTwistInHeadingFrame.getTranslationalVelocity().y() = robotModel_->sensors().getDesRobotVelocity()->getDesCoronalVelocity();
     desiredBaseTwistInHeadingFrame.getRotationalVelocity().z() = robotModel_->sensors().getDesRobotVelocity()->getDesTurningRate();
-    speedFilter_.setUnfilteredDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
-  }
-  else {
 
   }
 
+  speedFilter_.setUnfilteredDesiredBaseTwistInHeadingFrame(desiredBaseTwistInHeadingFrame);
   speedFilter_.advance(dt);
-  if (standing) {
-    desiredBaseTwistInHeadingFrame = speedFilter_.getDesiredBaseTwistInHeadingFrame();
-  }
+//  if (standing) {
+   Twist desiredTwist = speedFilter_.getDesiredBaseTwistInHeadingFrame();
+//  }
 
-  loco::LinearVelocity desLinearVelocityBaseInControlFrame = desiredBaseTwistInHeadingFrame.getTranslationalVelocity();
-  loco::LocalAngularVelocity desAngularVelocityBaseInControlFrame = desiredBaseTwistInHeadingFrame.getRotationalVelocity();
+  loco::LinearVelocity desLinearVelocityBaseInControlFrame = desiredTwist.getTranslationalVelocity();
+  loco::LocalAngularVelocity desAngularVelocityBaseInControlFrame = desiredTwist.getRotationalVelocity();
 
-  std::cout << "speed: " <<desLinearVelocityBaseInControlFrame << std::endl;
+//  std::cout << "speed: " <<desLinearVelocityBaseInControlFrame << std::endl;
 
   locomotionController_->getTorso()->getDesiredState().setLinearVelocityBaseInControlFrame(desLinearVelocityBaseInControlFrame);
   locomotionController_->getTorso()->getDesiredState().setAngularVelocityBaseInControlFrame(desAngularVelocityBaseInControlFrame);
