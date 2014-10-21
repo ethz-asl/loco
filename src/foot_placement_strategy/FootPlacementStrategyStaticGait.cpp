@@ -298,9 +298,12 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       }
     } // if resume walking
 
+
     if (goToStand_) {
       legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(true);
+      legs_->getLegById(comControl_->getLastSwingLeg())->setIsSupportLeg(true);
     } // if go to stand
+
 
   }
   if (comControl_->getAllFeetGrounded()) {
@@ -400,7 +403,6 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 
   return positionWorldToFootHoldInWorldFrame_[leg->getId()];
 }
-
 
 /*
  * Check if a desired foothold is valid. Return a validated foothold.
@@ -541,9 +543,16 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
                                                                       *stanceDuration*0.5;
 
   // build the desired foot step displacement
-  Position positionFootAtLiftOffToDesiredFootHoldInControlFrame = positionFootAtLiftOffToDefaultFootInControlFrame                    // default position
-                                                                  + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame   // heading
-                                                                  + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;  // lateral
+  Position positionFootAtLiftOffToDesiredFootHoldInControlFrame;
+  if (!leg.isInStandConfiguration()) {
+    positionFootAtLiftOffToDesiredFootHoldInControlFrame = positionFootAtLiftOffToDefaultFootInControlFrame                    // default position
+                                                          + positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame   // heading
+                                                          + positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame;  // lateral
+  }
+  else {
+    positionFootAtLiftOffToDesiredFootHoldInControlFrame = positionFootAtLiftOffToDefaultFootInControlFrame;
+  }
+
 
   return positionFootAtLiftOffToDesiredFootHoldInControlFrame;
 }
