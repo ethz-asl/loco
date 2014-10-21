@@ -35,7 +35,7 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     filterCoMX_(nullptr),
     filterCoMY_(nullptr),
     isInStandConfiguration_(true),
-    wasInStandConfiguration_(true)
+    isSafeToResumeWalking_(false)
 {
   // Reset Eigen variables
   homePos_.setZero();
@@ -68,7 +68,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   makeShift_ = false;
   isInStandConfiguration_ = true;
-  wasInStandConfiguration_ = true;
+  isSafeToResumeWalking_ = false;
 
   defaultDeltaForward_ = 0.05;
   defaultDeltaBackward_ = 0.03;
@@ -309,6 +309,10 @@ bool CoMOverSupportPolygonControlStaticGait::getIsInStandConfiguration() const {
 }
 
 
+bool CoMOverSupportPolygonControlStaticGait::isSafeToResumeWalking() {
+  return isSafeToResumeWalking_;
+}
+
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 
     updateSwingLegsIndexes();
@@ -333,6 +337,7 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     filterOutputCoMY_ = filterCoMY_->advance(dt,filterInputCoMY_);
 
     if (isInStandConfiguration_) {
+      isSafeToResumeWalking_ = false;
       Pos2d centerOfCurrentStanceConfig;
       centerOfCurrentStanceConfig.setZero();
 
@@ -349,6 +354,7 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
         positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
                                                           filterOutputCoMY_,
                                                           0.0);
+        isSafeToResumeWalking_ = true;
       }
     }
 

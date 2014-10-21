@@ -66,6 +66,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual void setIsInStandConfiguration(bool isInStandConfiguration);
   virtual bool getIsInStandConfiguration() const;
 
+  virtual bool isSafeToResumeWalking();
+
  protected:
 
   TorsoBase* torso_;
@@ -81,7 +83,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   double defaultDeltaForward_, defaultDeltaBackward_;
 
   bool isInStandConfiguration_;
-  bool wasInStandConfiguration_;
+  bool isSafeToResumeWalking_;
 
   bool makeShift_;
   Pos2d comTarget_;

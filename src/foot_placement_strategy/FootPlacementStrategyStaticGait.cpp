@@ -282,11 +282,13 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   nextSwingLegId_ = comControl_->getNextSwingLeg();
   LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
 
-  if (resumeWalking_) {
+  int overNextSwingLegId = comControl_->getOverNextSwingLeg();
+  LegBase* overNextSwingLeg = legs_->getLegById(overNextSwingLegId);
+
+  if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
 //    if (legs_->getLegById(comControl_->getLastSwingLeg())->getSwingPhase() == -1 ) {
 //      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(false);
 //    }
-
     if (nextSwingLeg->getSwingPhase() == -1) {
       nextSwingLeg->setIsInStandConfiguration(false);
     }
@@ -298,7 +300,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
    ************************************************/
   if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
 
-    if (resumeWalking_) {
+    if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
 
       if (DEBUG_FPS) std::cout << "plan for leg id: " << nextSwingLegId_ << std::endl;
 
@@ -346,7 +348,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*************************************************
    * Check if the validation service has an answer *
    *************************************************/
-  if (resumeWalking_) {
+  if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
     // validate foothold
     if (DEBUG_FPS) std::cout << "validating foot hold..." << std::endl;
     getValidatedFootHold(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
