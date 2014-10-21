@@ -262,6 +262,9 @@ const TorsoControlBase& LocomotionControllerDynamicGait::getTorsoController() co
   return *torsoController_;
 }
 
+TorsoControlBase& LocomotionControllerDynamicGait::getTorsoController()  {
+  return *torsoController_;
+}
 
 const VirtualModelController& LocomotionControllerDynamicGait::getVirtualModelController() const {
   return *virtualModelController_;

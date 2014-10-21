@@ -73,6 +73,7 @@ class LocomotionControllerDynamicGait: public LocomotionControllerBase {
   LimbCoordinatorBase* getLimbCoordinator();
   const LimbCoordinatorBase& getLimbCoordinator() const;
   const TorsoControlBase& getTorsoController() const;
+  TorsoControlBase& getTorsoController();
   const VirtualModelController& getVirtualModelController() const;
   TerrainPerceptionBase* getTerrainPerception();
   TerrainModelBase* getTerrainModel();
