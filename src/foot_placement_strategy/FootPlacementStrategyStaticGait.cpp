@@ -54,6 +54,11 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
   }
 
   serviceTestCounter_ = 0;
+
+
+#ifdef USE_ROS_SERVICE
+   printf("FootPlacementStrategyStaticGait: uses ros service\n");
+#endif
 }
 
 
@@ -92,7 +97,7 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
     if (footholdRosService_.isReadyForRequest())  {
-//      std::cout << "validating position: " << positionWorldToDesiredFootHoldInWorldFrame << " for leg: " << legId << std::endl;
+      std::cout << "validating position: " << positionWorldToDesiredFootHoldInWorldFrame << " for leg: " << legId << std::endl;
         foothold_finding_msg::Foothold foothold;
         foothold.header.seq = serviceTestCounter_;
         foothold.header.frame_id = "/starleth/odometry";
@@ -166,12 +171,21 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
          switch(srv.response.adaptedFootholds[0].flag) {
            case(0):
                std::cout << "unknown" << std::endl;
+		if ( dataField.compare("LF") == 0 ) {
+                legId = 0;
+              } else if ( dataField.compare("RF") == 0 ) {
+                legId = 1;
+              } else if ( dataField.compare("LH") == 0 ) {
+                legId = 2;
+              } else if ( dataField.compare("RH") == 0 ) {
+                legId = 3;
+              }
            break;
            case(1):
                 std::cout << "do not change" << std::endl;
            break;
            case(2):{
-//             std::cout << "verified" << std::endl;
+		std::cout << "verified" << std::endl;
 //             std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
               if ( dataField.compare("LF") == 0 ) {
                 legId = 0;
