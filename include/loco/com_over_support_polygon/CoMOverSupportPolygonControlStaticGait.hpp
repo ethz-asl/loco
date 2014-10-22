@@ -80,7 +80,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   int swingLegIndexLast_;
   int swingLegIndexOverNext_;
 
-  double defaultDeltaForward_, defaultDeltaBackward_;
+  double defaultDeltaForward_, defaultDeltaBackward_,
+         defaultFilterTimeConstant_;
 
   bool isInStandConfiguration_;
   bool isSafeToResumeWalking_;

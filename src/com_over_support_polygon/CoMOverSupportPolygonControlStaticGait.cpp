@@ -31,6 +31,7 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     plannedFootHolds_(legs_->size()),
     defaultDeltaForward_(0.0),
     defaultDeltaBackward_(0.0),
+    defaultFilterTimeConstant_(0.0),
     delta_(0.0),
     filterCoMX_(nullptr),
     filterCoMY_(nullptr),
@@ -70,16 +71,10 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   isInStandConfiguration_ = true;
   isSafeToResumeWalking_ = false;
 
-  defaultDeltaForward_ = 0.05;
-  defaultDeltaBackward_ = 0.03;
-
   comTarget_.setZero();
 
-  double filterTimeConstant = 0.1; //0.3; //0.1;
-  double filterGain = 1.0;
-
-  filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
-  filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
+  filterCoMX_->initialize(filterInputCoMX_, defaultFilterTimeConstant_, 1.0);
+  filterCoMY_->initialize(filterInputCoMY_, defaultFilterTimeConstant_, 1.0);
 
   delta_ = defaultDeltaForward_;
 
@@ -158,6 +153,7 @@ bool CoMOverSupportPolygonControlStaticGait::loadParameters(TiXmlHandle &hParame
 
 }
 
+
 bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandle &hParameterSet) {
   TiXmlElement* pElem;
   TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
@@ -176,6 +172,19 @@ bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandl
     printf("Could not find SupportPolygon:delta backward!\n");
     return false;
   }
+  /**********/
+
+  /**************
+   * CoM Filter *
+   **************/
+  pElem = handle.FirstChild("CoMFilter").Element();
+  if (pElem->QueryDoubleAttribute("timeConstant",
+      &this->defaultFilterTimeConstant_) != TIXML_SUCCESS) {
+    printf("Could not find CoMFilter:timeConstant!\n");
+    return false;
+  }
+  /**************/
+
 
 //  std::cout << "delta fw: " << defaultDeltaForward_
 //            << "delta bw: " << defaultDeltaBackward_ << std::endl;
