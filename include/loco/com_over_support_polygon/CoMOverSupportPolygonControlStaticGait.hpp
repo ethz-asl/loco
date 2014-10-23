@@ -44,7 +44,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
 
   virtual int getNextSwingLeg();
-  virtual int getLastSwingLeg();
+  virtual int getBeforeLandingSwingLeg();
   virtual int getOverNextSwingLeg();
 
   virtual void setFootHold(int legId, Position footHold);
@@ -77,7 +77,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   int swingLegIndexNow_;
   int swingLegIndexNext_;
-  int swingLegIndexLast_;
+  int swingLegIndexBeforeLanding_;
   int swingLegIndexOverNext_;
 
   double defaultDeltaForward_, defaultDeltaBackward_,

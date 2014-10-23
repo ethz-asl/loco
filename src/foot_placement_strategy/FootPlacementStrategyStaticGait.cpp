@@ -333,8 +333,8 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 
 
     if (goToStand_) {
-      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(true);
-      legs_->getLegById(comControl_->getLastSwingLeg())->setIsSupportLeg(true);
+      legs_->getLegById(comControl_->getBeforeLandingSwingLeg())->setIsInStandConfiguration(true);
+      legs_->getLegById(comControl_->getBeforeLandingSwingLeg())->setIsSupportLeg(true);
     } // if go to stand
 
 
