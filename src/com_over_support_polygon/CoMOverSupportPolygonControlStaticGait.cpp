@@ -322,9 +322,10 @@ bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupp
 
 void CoMOverSupportPolygonControlStaticGait::setIsInStandConfiguration(bool isInStandConfiguration) {
   isInStandConfiguration_ = isInStandConfiguration;
+  makeShift_ = true;
 }
 
-bool CoMOverSupportPolygonControlStaticGait::getIsInStandConfiguration() const {
+bool CoMOverSupportPolygonControlStaticGait::isInStandConfiguration() const {
   return isInStandConfiguration_;
 }
 
@@ -332,6 +333,7 @@ bool CoMOverSupportPolygonControlStaticGait::getIsInStandConfiguration() const {
 bool CoMOverSupportPolygonControlStaticGait::isSafeToResumeWalking() {
   return isSafeToResumeWalking_;
 }
+
 
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 
@@ -368,15 +370,14 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       if (allFeetGrounded_) {
         positionWorldToDesiredCoMInWorldFrame_ = Position(centerOfCurrentStanceConfig(0),
                                                           centerOfCurrentStanceConfig(1),
-                                                         0.0);
+                                                          0.0);
       }
     }
     else {
       if (makeShift_) {
-        positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
-                                                          filterOutputCoMY_,
-                                                          0.0);
-        isSafeToResumeWalking_ = true;
+      positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
+                                                        filterOutputCoMY_, 0.0);
+      isSafeToResumeWalking_ = true;
       }
     }
 

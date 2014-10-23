@@ -277,28 +277,23 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*******************/
 
 
-
   // get pointer to next swing leg
   nextSwingLegId_ = comControl_->getNextSwingLeg();
   LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
 
-  int overNextSwingLegId = comControl_->getOverNextSwingLeg();
-  LegBase* overNextSwingLeg = legs_->getLegById(overNextSwingLegId);
-
   if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
-//    if (legs_->getLegById(comControl_->getLastSwingLeg())->getSwingPhase() == -1 ) {
-//      legs_->getLegById(comControl_->getLastSwingLeg())->setIsInStandConfiguration(false);
-//    }
-    if (nextSwingLeg->getSwingPhase() == -1) {
+    if (nextSwingLeg->getStancePhase() < 0.75 && nextSwingLeg->getStancePhase() != -1) {
       nextSwingLeg->setIsInStandConfiguration(false);
     }
   }
-
 
   /************************************************
    * Generate a foothold if all feet are grounded *
    ************************************************/
   if (comControl_->getSwingFootChanged() && !footHoldPlanned_) {
+    /*
+     * This section will be evaluated only once for each stand phase
+     */
 
     if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
 
@@ -333,8 +328,11 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 
 
     if (goToStand_) {
-      legs_->getLegById(comControl_->getBeforeLandingSwingLeg())->setIsInStandConfiguration(true);
-      legs_->getLegById(comControl_->getBeforeLandingSwingLeg())->setIsSupportLeg(true);
+      for (auto leg: *legs_) {
+        leg->setIsInStandConfiguration(true);
+      }
+//      legs_->getLegById(comControl_->getBeforeLandingSwingLeg())->setIsInStandConfiguration(true);
+//      legs_->getLegById(comControl_->getBeforeLandingSwingLeg())->setIsSupportLeg(true);
     } // if go to stand
 
 
@@ -344,7 +342,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   }
   /************************************************/
 
-
+#ifdef USE_ROS_SERVICE
   /*************************************************
    * Check if the validation service has an answer *
    *************************************************/
@@ -355,7 +353,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
     if (DEBUG_FPS) std::cout << "...done!" << std::endl;
   }
   /*************************************************/
-
+#endif
 
   for (auto leg : *legs_) {
     if (!leg->isSupportLeg() /*&& !leg->isInStandConfiguration()*/) {

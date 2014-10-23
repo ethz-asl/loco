@@ -64,7 +64,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool loadParametersStaticGait(TiXmlHandle &hParameterSet);
 
   virtual void setIsInStandConfiguration(bool isInStandConfiguration);
-  virtual bool getIsInStandConfiguration() const;
+  virtual bool isInStandConfiguration() const;
 
   virtual bool isSafeToResumeWalking();
 
