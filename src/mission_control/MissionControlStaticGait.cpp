@@ -11,6 +11,19 @@
 #include "loco/torso_control/TorsoControlStaticGait.hpp"
 #include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
 
+
+//colored strings
+const std::string black     = "\033[0;30m";
+const std::string red       = "\033[0;31m";
+const std::string green     = "\033[0;32m";
+const std::string yellow    = "\033[0;33m";
+const std::string blue      = "\033[0;34m";
+const std::string magenta   = "\033[0;35m";
+const std::string cyan      = "\033[0;36m";
+const std::string white     = "\033[0;37m";
+const std::string def       = "\033[0m";
+
+
 namespace loco {
 
 MissionControlStaticGait::MissionControlStaticGait(robotModel::RobotModel* robotModel,   LocomotionControllerDynamicGait* locomotionController):
@@ -75,14 +88,18 @@ bool MissionControlStaticGait::advance(double dt) {
 
 
   if (joyStick->getButtonOneClick(1)) {
-    std::cout << "[LocoCrawlingTask/run] Going to stand configuration." << std::endl;
+    std::cout << magenta << "[MissionController/advance] "
+              << blue << "Going to stand configuration."
+              << def << std::endl;
     locomotionController_->getFootPlacementStrategy()->goToStand();
     loco::TorsoControlStaticGait& torsoController = static_cast<loco::TorsoControlStaticGait&>(locomotionController_->getTorsoController());
     torsoController.setIsInStandConfiguration(true);
   }
 
   if (joyStick->getButtonOneClick(2)) {
-    std::cout << "[LocoCrawlingTask/run] Going to walk configuration." << std::endl;
+    std::cout << magenta << "[MissionController/advance] "
+              << blue << "Going to walk configuration."
+              << def << std::endl;
     locomotionController_->getFootPlacementStrategy()->resumeWalking();
     loco::TorsoControlStaticGait& torsoController = static_cast<loco::TorsoControlStaticGait&>(locomotionController_->getTorsoController());
     torsoController.setIsInStandConfiguration(false);

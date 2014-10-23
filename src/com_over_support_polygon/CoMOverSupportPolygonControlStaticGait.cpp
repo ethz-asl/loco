@@ -186,16 +186,17 @@ bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandl
   }
   /**************/
 
-
-//  std::cout << "delta fw: " << defaultDeltaForward_
-//            << "delta bw: " << defaultDeltaBackward_ << std::endl;
-
   return true;
 }
 
 
 void CoMOverSupportPolygonControlStaticGait::setFootHold(int legId, Position footHold) {
-  plannedFootHolds_[legId] = footHold;
+  if (legId < 0 || legId > (int)legs_->size()) {
+    std::cout << "[CoMOverSupportPolygonControlStaticGait/setFootHold] Out of range error: legId was " << legId << std::endl;
+  }
+  else {
+    plannedFootHolds_[legId] = footHold;
+  }
 }
 
 
