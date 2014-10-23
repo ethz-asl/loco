@@ -10,6 +10,12 @@
 #include <Eigen/LU>
 //#include <algorithm>
 
+//colored strings
+const std::string red       = "\033[0;31m";
+const std::string blue      = "\033[0;34m";
+const std::string magenta   = "\033[0;35m";
+const std::string def       = "\033[0m";
+
 namespace loco {
 
 CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(LegGroup *legs, TorsoBase* torso):
@@ -191,8 +197,11 @@ bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandl
 
 
 void CoMOverSupportPolygonControlStaticGait::setFootHold(int legId, Position footHold) {
-  if (legId < 0 || legId > (int)legs_->size()) {
-    std::cout << "[CoMOverSupportPolygonControlStaticGait/setFootHold] Out of range error: legId was " << legId << std::endl;
+  if (legId < 0 || legId >= (int)legs_->size()) {
+    std::cout << magenta << "[CoMOverSupportPolygonControlStaticGait/setFootHold] "
+              << red << "Out of range error: legId was " << legId
+              << " (admissible range is 0-" << (int)legs_->size()-1 << ")"
+              << def << std::endl;
   }
   else {
     plannedFootHolds_[legId] = footHold;
@@ -290,20 +299,15 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   lineSafeOverNext << safeTriangleOverNext_.col(diagonalSwingLegsOverNext[0]),
                       safeTriangleOverNext_.col(diagonalSwingLegsOverNext[1]);
 
-  std::cout << "intersecting" << std::endl;
-
   if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
-    std::cout << "no" << std::endl;
     comTarget_ = intersection;
     makeShift_ = false;
   }
   else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
-    std::cout << "yes" << std::endl;
     comTarget_ = intersection;
     makeShift_ = true;
   }
   else {
-    std::cout << "center" << std::endl;
     makeShift_ = true;
     comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
   }
