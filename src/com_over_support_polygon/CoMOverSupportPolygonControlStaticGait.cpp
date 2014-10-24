@@ -27,10 +27,10 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingLegIndexBeforeLanding_(-1),
     swingLegIndexOverNext_(-1),
     swingFootChanged_(false),
-    filterInputCoMX_(0),
-    filterInputCoMY_(0),
-    filterOutputCoMX_(0),
-    filterOutputCoMY_(0),
+    filterInputCoMX_(0.0),
+    filterInputCoMY_(0.0),
+    filterOutputCoMX_(0.0),
+    filterOutputCoMY_(0.0),
     makeShift_(false),
     allFeetGrounded_(false),
     footPlacementStrategy_(nullptr),
@@ -44,8 +44,9 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     isInStandConfiguration_(true),
     isSafeToResumeWalking_(false)
 {
+
+
   // Reset Eigen variables
-  homePos_.setZero();
   comTarget_.setZero();
 
   feetConfigurationCurrent_.setZero();
@@ -72,10 +73,9 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
-
-  makeShift_ = false;
   isInStandConfiguration_ = true;
   isSafeToResumeWalking_ = false;
+  makeShift_ = false;
 
   comTarget_.setZero();
 
@@ -83,12 +83,6 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   filterCoMY_->initialize(filterInputCoMY_, defaultFilterTimeConstant_, 1.0);
 
   delta_ = defaultDeltaForward_;
-
-  positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
-  positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
-
-  feetConfigurationCurrent_.setZero();
-  feetConfigurationNext_.setZero();
 
   // Leg swing order
   swingOrder_[0] = 0;
@@ -104,16 +98,32 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   // save home feet positions
   for (auto leg: *legs_) {
     Position positionWorldToFootInFrame = leg->getPositionWorldToFootInWorldFrame();
-    homePos_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
+    feetConfigurationCurrent_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
 
     plannedFootHolds_[leg->getId()] = positionWorldToFootInFrame;
   }
 
-  feetConfigurationCurrent_ = homePos_;
-  feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexNext_);
-
   updateSafeSupportTriangles();
-  makeShift_ = true;
+
+  std::vector<int> diagonalSwingLegsLast(2), diagonalSwingLegsNext(2);
+  diagonalSwingLegsLast = getDiagonalElements(swingLegIndexBeforeLanding_);
+  diagonalSwingLegsNext = getDiagonalElements(swingLegIndexNext_);
+
+  Pos2d intersection;
+  intersection.setZero();
+
+  Line lineSafeLast, lineSafeNext;
+
+  lineSafeLast << safeTriangleCurrent_.col(diagonalSwingLegsLast[0]),
+                  safeTriangleCurrent_.col(diagonalSwingLegsLast[1]);
+
+  lineSafeNext << safeTriangleNext_.col(diagonalSwingLegsNext[0]),
+                  safeTriangleNext_.col(diagonalSwingLegsNext[1]);
+
+  lineIntersect(lineSafeLast, lineSafeNext, intersection);
+  comTarget_ = intersection;
+
+  positionWorldToDesiredCoMInWorldFrame_ = Position(comTarget_.x(), comTarget_.y(), 0.0);
 
   return true;
 }
@@ -299,15 +309,20 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   lineSafeOverNext << safeTriangleOverNext_.col(diagonalSwingLegsOverNext[0]),
                       safeTriangleOverNext_.col(diagonalSwingLegsOverNext[1]);
 
+  std::cout << red << "getting intersection" << def << std::endl;
+
   if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
     comTarget_ = intersection;
     makeShift_ = false;
+    std::cout << red << "1 2" << def << std::endl;
   }
   else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
     comTarget_ = intersection;
     makeShift_ = true;
+    std::cout << red << "2 3" << def << std::endl;
   }
   else {
+    std::cout << red << "none" << def << std::endl;
     makeShift_ = true;
     comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
   }

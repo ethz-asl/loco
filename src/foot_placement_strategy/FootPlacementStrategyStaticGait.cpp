@@ -32,6 +32,7 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     goToStand_(true),
     resumeWalking_(false),
     defaultMaxStepLength_(0.0),
+    footStepNumber_(0),
     firstFootHoldAfterStand_(legs_->size())
 {
 
@@ -80,14 +81,20 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 
 //  defaultMaxStepLength_ = 0.05;
 
+  footStepNumber_ = 0;
+
   goToStand_ = true;
   resumeWalking_ = false;
 
   nextSwingLegId_ = comControl_->getNextSwingLeg();
 
   for (auto leg: *legs_) {
-    positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
-    positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
+//    positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
+//    positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()] = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
+
+    positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] = leg->getPositionWorldToFootInWorldFrame();
+    positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()] = leg->getPositionWorldToFootInWorldFrame();
+
     terrain_->getHeight(positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()]);
     positionWorldToCenterOfValidatedFeetInWorldFrame_ += positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()]/legs_->size();
     positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()];
@@ -110,7 +117,7 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
         gettimeofday(&timeofday,NULL);
         foothold.header.stamp.sec  = timeofday.tv_sec;
         foothold.header.stamp.nsec = timeofday.tv_usec * 1000;
-        foothold.stepNumber = 2;   // step number
+        foothold.stepNumber = ++footStepNumber_;   // step number
 
         std::string legName;
         switch(legId) {

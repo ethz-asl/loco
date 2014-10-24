@@ -21,6 +21,7 @@
 /****************************
  * Includes for ROS service *
  ****************************/
+#undef USE_ROS_SERVICE
 #ifdef USE_ROS_SERVICE
 #include "RosService.hpp"
 #endif
@@ -65,6 +66,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
 
   bool goToStand_, resumeWalking_;
+
+  int footStepNumber_;
 
 
   std::vector<bool> firstFootHoldAfterStand_;
