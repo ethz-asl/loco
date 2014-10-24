@@ -31,8 +31,13 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     nextSwingLegId_(3),
     goToStand_(true),
     resumeWalking_(false),
+    mustValidateNextFootHold_(false),
+    validationRequestSent_(false),
+    validationReceived_(false),
     defaultMaxStepLength_(0.0),
     footStepNumber_(0),
+    rosWatchdogCounter_(0.0),
+    rosWatchdogLimit_(0.125*(legs_->getLeftForeLeg()->getStanceDuration()+legs_->getLeftForeLeg()->getStanceDuration())),
     firstFootHoldAfterStand_(legs_->size())
 {
 
@@ -81,10 +86,17 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 
 //  defaultMaxStepLength_ = 0.05;
 
+  rosWatchdogCounter_ = 0.0;
+  rosWatchdogLimit_ = 0.125*7.0*0.5;
+  std::cout << "ros wd limit: " << rosWatchdogLimit_ << std::endl;
+
   footStepNumber_ = 0;
 
   goToStand_ = true;
   resumeWalking_ = false;
+  mustValidateNextFootHold_ = false;
+  validationRequestSent_ = false;
+  validationReceived_ = false;
 
   nextSwingLegId_ = comControl_->getNextSwingLeg();
 
@@ -105,10 +117,13 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
 }
 
 
-void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame) {
+bool FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame) {
+  bool ready = true;
+
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService::ServiceType srv;
-    if (footholdRosService_.isReadyForRequest())  {
+  ready = footholdRosService_.isReadyForRequest();
+    if (ready) {
       std::cout << "validating position: " << positionWorldToDesiredFootHoldInWorldFrame << " for leg: " << legId << std::endl;
         foothold_finding_msg::Foothold foothold;
         foothold.header.seq = serviceTestCounter_;
@@ -128,8 +143,6 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
           default: break;
         }
 
-//        std::cout << "legname: " <<legName << std::endl;
-
         foothold.type.data = legName;
         foothold.pose.position.x = positionWorldToDesiredFootHoldInWorldFrame.x(); // required
         foothold.pose.position.y = positionWorldToDesiredFootHoldInWorldFrame.y(); // required
@@ -145,12 +158,15 @@ void FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
 
         if (!footholdRosService_.sendRequest(srv)) {
           std::cout << "Could not send request!\n";
+          return false;
         }
     }// if serviceTestCounter
     else {
-      std::cout << "Service is not ready for request!" << std::endl;
+//      std::cout << "Service is not ready for request!" << std::endl;
     }
 #endif
+
+  return ready;
 }
 
 
@@ -167,29 +183,32 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
 //        std::cout << "Received request:\n";
 
        if (!srv.response.adaptedFootholds.empty() ){
-//         std::cout << "header.seq: " << srv.response.adaptedFootholds[0].header.seq << std::endl;
-//         std::cout << "header.stamp: " << srv.response.adaptedFootholds[0].header.stamp.sec << "." << srv.response.adaptedFootholds[0].header.stamp.nsec << std::endl;
-//         std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
+
+         foothold_finding_msg::Foothold receviedFoothold = srv.response.adaptedFootholds[0];
+
+//         std::cout << "header.seq: " << receviedFoothold.header.seq << std::endl;
+//         std::cout << "header.stamp: " << receviedFoothold.header.stamp.sec << "." << receviedFoothold.header.stamp.nsec << std::endl;
+//         std::cout << "data: " << receviedFoothold.type.data << std::endl;
 
          // save validated foothold
-         positionWorldToValidatedFootHoldInWorldFrame.x() = srv.response.adaptedFootholds[0].pose.position.x;
-         positionWorldToValidatedFootHoldInWorldFrame.y() = srv.response.adaptedFootholds[0].pose.position.y;
-         positionWorldToValidatedFootHoldInWorldFrame.z() = srv.response.adaptedFootholds[0].pose.position.z;
+         positionWorldToValidatedFootHoldInWorldFrame.x() = receviedFoothold.pose.position.x;
+         positionWorldToValidatedFootHoldInWorldFrame.y() = receviedFoothold.pose.position.y;
+         positionWorldToValidatedFootHoldInWorldFrame.z() = receviedFoothold.pose.position.z;
 
          int legId = -1;
 
-         std::string dataField = srv.response.adaptedFootholds[0].type.data;
+         std::string dataField = receviedFoothold.type.data;
 
-         switch(srv.response.adaptedFootholds[0].flag) {
+         switch(receviedFoothold.flag) {
            case(0):
-               std::cout << "unknown" << std::endl;
-		if ( dataField.compare("LF") == 0 ) {
+              std::cout << "unknown" << std::endl;
+              if (dataField.compare("LF") == 0) {
                 legId = 0;
-              } else if ( dataField.compare("RF") == 0 ) {
+              } else if (dataField.compare("RF") == 0) {
                 legId = 1;
-              } else if ( dataField.compare("LH") == 0 ) {
+              } else if (dataField.compare("LH") == 0) {
                 legId = 2;
-              } else if ( dataField.compare("RH") == 0 ) {
+              } else if (dataField.compare("RH") == 0) {
                 legId = 3;
               }
            break;
@@ -198,7 +217,7 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
            break;
            case(2):{
 		std::cout << "verified" << std::endl;
-//             std::cout << "data: " << srv.response.adaptedFootholds[0].type.data << std::endl;
+//             std::cout << "data: " << receviedFoothold.type.data << std::endl;
               if ( dataField.compare("LF") == 0 ) {
                 legId = 0;
               } else if ( dataField.compare("RF") == 0 ) {
@@ -219,7 +238,7 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
 
          if (legId != -1) {
 //           std::cout << "leg id:    " << legId << std::endl;
-//           std::cout << "rec state: " << (int)srv.response.adaptedFootholds[0].flag << std::endl;
+//           std::cout << "rec state: " << (int)receviedFoothold.flag << std::endl;
            positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId] = positionWorldToValidatedFootHoldInWorldFrame;
            comControl_->setFootHold(legId, positionWorldToValidatedFootHoldInWorldFrame);
          }
@@ -309,11 +328,19 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       // generate foothold
       if (DEBUG_FPS) std::cout << "generating foot hold..." << std::endl;
       generateFootHold(nextSwingLeg);
-      if (DEBUG_FPS) std::cout << "...done!" << std::endl;
+
+
+      // Reset ROS flags after foothold generation
+      mustValidateNextFootHold_ = true;
+      rosWatchdogCounter_ = 0.0;
+      validationRequestSent_ = false;
+      validationReceived_ = false;
+//      if (DEBUG_FPS) std::cout << "...done!" << std::endl;
       footHoldPlanned_ = true;
 
+
       // send the generated foothold to the ROS validation service
-      sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
+//      sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
 
       // old code
 #ifndef USE_ROS_SERVICE
@@ -349,19 +376,42 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   }
   /************************************************/
 
-#ifdef USE_ROS_SERVICE
-  /*************************************************
-   * Check if the validation service has an answer *
-   *************************************************/
-  if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
-    // validate foothold
-    if (DEBUG_FPS) std::cout << "validating foot hold..." << std::endl;
-    getValidatedFootHold(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
-    if (DEBUG_FPS) std::cout << "...done!" << std::endl;
-  }
-  /*************************************************/
-#endif
 
+  /*********************
+   * Query ROS service *
+   *********************/
+#ifdef USE_ROS_SERVICE
+  if (mustValidateNextFootHold_) {
+
+    if (!validationRequestSent_) {
+      validationRequestSent_ = sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
+      if (validationRequestSent_) {
+        std::cout << "sent request!" << std::endl;
+      }
+    }
+
+    if (validationRequestSent_ && !validationReceived_) {
+      if (getValidatedFootHold(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_])) {
+        std::cout << "got validation! time: " << rosWatchdogCounter_ << std::endl;
+        validationReceived_ = true;
+        mustValidateNextFootHold_ = false;
+      }
+    }
+
+    if (rosWatchdogCounter_ >= rosWatchdogLimit_) {
+      std::cout << "*******ros watchdog limit: " << rosWatchdogCounter_ << std::endl;
+      mustValidateNextFootHold_ = false;
+    }
+    rosWatchdogCounter_ += dt;
+
+  }
+#endif
+  /*********************/
+
+
+  /*********************************************
+   * Decide what to do with leg based on state *
+   *********************************************/
   for (auto leg : *legs_) {
     if (!leg->isSupportLeg() /*&& !leg->isInStandConfiguration()*/) {
       StateSwitcher* stateSwitcher = leg->getStateSwitcher();
@@ -381,6 +431,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       }
     }
   } // for auto leg
+  /*********************************************/
 
 
   return true;
@@ -445,14 +496,14 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 /*
  * Check if a desired foothold is valid. Return a validated foothold.
  */
-Position FootPlacementStrategyStaticGait::getValidatedFootHold(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame) {
+bool FootPlacementStrategyStaticGait::getValidatedFootHold(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame) {
   Position positionWorldToValidatedFootHoldInWorldFrame = positionWorldToDesiredFootHoldInWorldFrame;
-
   if (!getValidationResponse(positionWorldToValidatedFootHoldInWorldFrame)) {
 //    std::cout << "" << std::endl;
+    return false;
   }
 
-  return positionWorldToValidatedFootHoldInWorldFrame;
+  return true;
 }
 
 
