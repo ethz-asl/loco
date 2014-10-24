@@ -85,10 +85,10 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   delta_ = defaultDeltaForward_;
 
   // Leg swing order
-  swingOrder_[0] = 0;
-  swingOrder_[1] = 3;
-  swingOrder_[2] = 1;
-  swingOrder_[3] = 2;
+  swingOrder_[0] = 3;
+  swingOrder_[1] = 1;
+  swingOrder_[2] = 2;
+  swingOrder_[3] = 0;
 
   swingLegIndexBeforeLanding_ = swingOrder_[3];
   swingLegIndexNow_ = swingLegIndexBeforeLanding_;
@@ -98,32 +98,10 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
   // save home feet positions
   for (auto leg: *legs_) {
     Position positionWorldToFootInFrame = leg->getPositionWorldToFootInWorldFrame();
-    feetConfigurationCurrent_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
-
     plannedFootHolds_[leg->getId()] = positionWorldToFootInFrame;
   }
 
   updateSafeSupportTriangles();
-
-  std::vector<int> diagonalSwingLegsLast(2), diagonalSwingLegsNext(2);
-  diagonalSwingLegsLast = getDiagonalElements(swingLegIndexBeforeLanding_);
-  diagonalSwingLegsNext = getDiagonalElements(swingLegIndexNext_);
-
-  Pos2d intersection;
-  intersection.setZero();
-
-  Line lineSafeLast, lineSafeNext;
-
-  lineSafeLast << safeTriangleCurrent_.col(diagonalSwingLegsLast[0]),
-                  safeTriangleCurrent_.col(diagonalSwingLegsLast[1]);
-
-  lineSafeNext << safeTriangleNext_.col(diagonalSwingLegsNext[0]),
-                  safeTriangleNext_.col(diagonalSwingLegsNext[1]);
-
-  lineIntersect(lineSafeLast, lineSafeNext, intersection);
-  comTarget_ = intersection;
-
-  positionWorldToDesiredCoMInWorldFrame_ = Position(comTarget_.x(), comTarget_.y(), 0.0);
 
   return true;
 }
