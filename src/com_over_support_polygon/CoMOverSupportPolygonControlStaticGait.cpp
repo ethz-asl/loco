@@ -309,20 +309,15 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   lineSafeOverNext << safeTriangleOverNext_.col(diagonalSwingLegsOverNext[0]),
                       safeTriangleOverNext_.col(diagonalSwingLegsOverNext[1]);
 
-  std::cout << red << "getting intersection" << def << std::endl;
-
   if (lineIntersect(lineSafeLast, lineSafeNext, intersection)) {
     comTarget_ = intersection;
     makeShift_ = false;
-    std::cout << red << "1 2" << def << std::endl;
   }
   else if (lineIntersect(lineSafeNext, lineSafeOverNext, intersection)) {
     comTarget_ = intersection;
     makeShift_ = true;
-    std::cout << red << "2 3" << def << std::endl;
   }
   else {
-    std::cout << red << "none" << def << std::endl;
     makeShift_ = true;
     comTarget_ = (safeTriangleCurrent_.col(0)+safeTriangleCurrent_.col(1)+safeTriangleCurrent_.col(2))/3.0;
   }
