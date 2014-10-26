@@ -348,6 +348,7 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 
     if (isInStandConfiguration_) {
       isSafeToResumeWalking_ = false;
+      makeShift_ = false;
       Pos2d centerOfCurrentStanceConfig;
       centerOfCurrentStanceConfig.setZero();
 

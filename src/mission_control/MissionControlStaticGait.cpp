@@ -100,7 +100,7 @@ bool MissionControlStaticGait::advance(double dt) {
 
   if (joyStick->getButtonOneClick(1)) {
     std::cout << magenta << "[MissionController/advance] "
-              << blue << "Going to stand configuration."
+              << blue << "Going to " << red << "stand" << blue << " configuration."
               << def << std::endl;
     locomotionController_->getFootPlacementStrategy()->goToStand();
     loco::TorsoControlStaticGait& torsoController = static_cast<loco::TorsoControlStaticGait&>(locomotionController_->getTorsoController());
@@ -109,7 +109,7 @@ bool MissionControlStaticGait::advance(double dt) {
 
   if (joyStick->getButtonOneClick(2)) {
     std::cout << magenta << "[MissionController/advance] "
-              << blue << "Going to walk configuration."
+              << blue << "Going to " << red << "walk" << blue << " configuration."
               << def << std::endl;
     locomotionController_->getFootPlacementStrategy()->resumeWalking();
     loco::TorsoControlStaticGait& torsoController = static_cast<loco::TorsoControlStaticGait&>(locomotionController_->getTorsoController());
