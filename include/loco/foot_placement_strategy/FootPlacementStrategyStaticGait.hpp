@@ -22,7 +22,7 @@
  * Includes for ROS service *
  ****************************/
 //#undef USE_ROS_SERVICE
-#define USE_ROS_SERVICE
+//#define USE_ROS_SERVICE
 #ifdef USE_ROS_SERVICE
 #include "RosService.hpp"
 #endif
@@ -57,6 +57,9 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual bool loadParameters(const TiXmlHandle& handle);
 
+  virtual bool isUsingRosService();
+  virtual void setUseRosService(bool useRosService);
+
 
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService footholdRosService_;
@@ -69,6 +72,7 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   bool goToStand_, resumeWalking_;
   bool mustValidateNextFootHold_;
   bool validationRequestSent_,validationReceived_;
+  bool useRosService_;
   double rosWatchdogCounter_;
   double rosWatchdogLimit_;
 

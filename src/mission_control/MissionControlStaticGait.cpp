@@ -11,6 +11,8 @@
 #include "loco/torso_control/TorsoControlStaticGait.hpp"
 #include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
 
+#include "loco/foot_placement_strategy/FootPlacementStrategyStaticGait.hpp"
+
 
 //colored strings
 const std::string black     = "\033[0;30m";
@@ -30,7 +32,8 @@ MissionControlStaticGait::MissionControlStaticGait(robotModel::RobotModel* robot
     robotModel_(robotModel),
     isExternallyVelocityControlled_(false),
     locomotionController_(locomotionController),
-    speedFilter_()
+    speedFilter_(),
+    useRosService_(false)
 {
 
 }
@@ -41,6 +44,14 @@ MissionControlStaticGait::~MissionControlStaticGait() {
 
 bool MissionControlStaticGait::initialize(double dt) {
   isExternallyVelocityControlled_ = false;
+  loco::FootPlacementStrategyStaticGait* fps = static_cast<loco::FootPlacementStrategyStaticGait*>(locomotionController_->getFootPlacementStrategy());
+  useRosService_ = fps->isUsingRosService();
+
+  std::cout << magenta << "[MissionController/init] "
+            << blue << "ROS foothold service is: "
+            << red << ( useRosService_ ? std::string{"enabled"} : std::string{"disabled"} )
+            << def << std::endl;
+
   return true;
 }
 
@@ -103,6 +114,17 @@ bool MissionControlStaticGait::advance(double dt) {
     locomotionController_->getFootPlacementStrategy()->resumeWalking();
     loco::TorsoControlStaticGait& torsoController = static_cast<loco::TorsoControlStaticGait&>(locomotionController_->getTorsoController());
     torsoController.setIsInStandConfiguration(false);
+  }
+
+  if (joyStick->getButtonOneClick(3)) {
+    loco::FootPlacementStrategyStaticGait* fps = static_cast<loco::FootPlacementStrategyStaticGait*>(locomotionController_->getFootPlacementStrategy());
+    useRosService_ = !useRosService_;
+    fps->setUseRosService(useRosService_);
+
+    std::cout << magenta << "[MissionController/advance] "
+              << blue << "ROS foothold service is now: "
+              << red << ( fps->isUsingRosService() ? std::string{"enabled"} : std::string{"disabled"} )
+              << def << std::endl;
   }
 
   if (joyStick->getButtonOneClick(4)) {

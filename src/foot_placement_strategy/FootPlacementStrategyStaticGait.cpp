@@ -34,6 +34,7 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     mustValidateNextFootHold_(false),
     validationRequestSent_(false),
     validationReceived_(false),
+    useRosService_(false),
     defaultMaxStepLength_(0.0),
     footStepNumber_(0),
     rosWatchdogCounter_(0.0),
@@ -66,7 +67,9 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
 
 
 #ifdef USE_ROS_SERVICE
-   printf("FootPlacementStrategyStaticGait: uses ros service\n");
+  if (useRosService_) {
+    printf("FootPlacementStrategyStaticGait: uses ros service\n");
+  }
 #endif
 }
 
@@ -80,11 +83,21 @@ void FootPlacementStrategyStaticGait::setCoMControl(CoMOverSupportPolygonControl
   comControl_ = static_cast<CoMOverSupportPolygonControlStaticGait*>(comControl);
 }
 
+bool FootPlacementStrategyStaticGait::isUsingRosService() {
+  return useRosService_;
+}
+
+void FootPlacementStrategyStaticGait::setUseRosService(bool useRosService) {
+  useRosService_ = useRosService;
+}
+
 
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   FootPlacementStrategyFreePlane::initialize(dt);
 
 //  defaultMaxStepLength_ = 0.05;
+
+  useRosService_ = false;
 
   rosWatchdogCounter_ = 0.0;
   rosWatchdogLimit_ = 0.125*7.0*0.5;
@@ -323,30 +336,26 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 
     if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
 
-      if (DEBUG_FPS) std::cout << "plan for leg id: " << nextSwingLegId_ << std::endl;
-
       // generate foothold
-      if (DEBUG_FPS) std::cout << "generating foot hold..." << std::endl;
       generateFootHold(nextSwingLeg);
-
 
       // Reset ROS flags after foothold generation
       mustValidateNextFootHold_ = true;
       rosWatchdogCounter_ = 0.0;
       validationRequestSent_ = false;
       validationReceived_ = false;
-//      if (DEBUG_FPS) std::cout << "...done!" << std::endl;
       footHoldPlanned_ = true;
-
 
       // send the generated foothold to the ROS validation service
 //      sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
 
       // old code
-#ifndef USE_ROS_SERVICE
-      positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_] = positionWorldToFootHoldInWorldFrame_[nextSwingLegId_];
-      comControl_->setFootHold(nextSwingLegId_, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_]);
-#endif
+//#ifndef USE_ROS_SERVICE
+      if (!useRosService_) {
+        positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_] = positionWorldToFootHoldInWorldFrame_[nextSwingLegId_];
+        comControl_->setFootHold(nextSwingLegId_, positionWorldToValidatedDesiredFootHoldInWorldFrame_[nextSwingLegId_]);
+      }
+//#endif
 
       /**********************************************************************************************************************************
        * temporary solution:        when going backwards, use a smaller distance for safe triangle evaluation.                          *
@@ -380,8 +389,8 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*********************
    * Query ROS service *
    *********************/
-#ifdef USE_ROS_SERVICE
-  if (mustValidateNextFootHold_) {
+//#ifdef USE_ROS_SERVICE
+  if (useRosService_ && mustValidateNextFootHold_) {
 
     if (!validationRequestSent_) {
       validationRequestSent_ = sendValidationRequest(nextSwingLegId_, positionWorldToFootHoldInWorldFrame_[nextSwingLegId_]);
@@ -405,7 +414,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
     rosWatchdogCounter_ += dt;
 
   }
-#endif
+//#endif
   /*********************/
 
 
