@@ -51,8 +51,8 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
 //    terrainPerception_.reset(new loco::TerrainPerceptionHorizontalPlane((loco::TerrainModelHorizontalPlane*)terrainModel_.get(), legs_.get(), torso_.get()));
 
     /* create locomotion controller */
-    contactDetector_.reset(new loco::ContactDetectorFeedThrough());
-    //contactDetector_.reset(new loco::ContactDetectorConstantDuringStance(legs_.get()));
+    //contactDetector_.reset(new loco::ContactDetectorFeedThrough());
+    contactDetector_.reset(new loco::ContactDetectorConstantDuringStance(legs_.get()));
     gaitPatternAPS_.reset(new loco::GaitPatternAPS);
     gaitPatternFlightPhases_.reset(new loco::GaitPatternFlightPhases);
     limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPatternFlightPhases_.get()));
