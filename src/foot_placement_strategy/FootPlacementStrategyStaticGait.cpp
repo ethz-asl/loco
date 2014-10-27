@@ -229,7 +229,7 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
                 std::cout << "do not change" << std::endl;
            break;
            case(2):{
-		std::cout << "verified" << std::endl;
+                std::cout << "verified" << std::endl;
 //             std::cout << "data: " << receviedFoothold.type.data << std::endl;
               if ( dataField.compare("LF") == 0 ) {
                 legId = 0;
@@ -398,7 +398,9 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
         std::cout << "sent request!" << std::endl;
       }
       else {
-        std::cout << "service was not ready. state: " << footholdRosService_.getState() << std::endl;
+#ifdef USE_ROS_SERVICE
+//        std::cout << "service was not ready. state: " << footholdRosService_.getState() << std::endl;
+#endif
       }
     }
 
@@ -409,7 +411,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
         mustValidateNextFootHold_ = false;
       }
     }
-
+    rosWatchdogCounter_ += dt;
 //    if (rosWatchdogCounter_ >= rosWatchdogLimit_) {
 //      std::cout << "*******ros watchdog limit: " << rosWatchdogCounter_ << std::endl;
 //
@@ -417,12 +419,11 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 //
 //      mustValidateNextFootHold_ = false;
 //
-//      rosWatchdogCounter_ = 0.0;
 //      validationRequestSent_ = false;
+//      rosWatchdogCounter_ = 0.0;
 //      validationReceived_ = false;
 //      footHoldPlanned_ = true;
 //    }
-//    rosWatchdogCounter_ += dt;
 
   }
 //#endif
