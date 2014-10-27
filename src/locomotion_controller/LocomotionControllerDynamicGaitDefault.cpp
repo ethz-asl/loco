@@ -7,7 +7,9 @@
 
 #include "loco/locomotion_controller/LocomotionControllerDynamicGaitDefault.hpp"
 #include "loco/common/TerrainModelHorizontalPlane.hpp"
+#include "loco/common/TerrainModelFreePlane.hpp"
 #include "loco/terrain_perception/TerrainPerceptionHorizontalPlane.hpp"
+#include "loco/terrain_perception/TerrainPerceptionFreePlane.hpp"
 #include "loco/common/LegLinkGroup.hpp"
 
 #include "loco/contact_detection/ContactDetectorConstantDuringStance.hpp"
@@ -31,8 +33,8 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
 
 
     /* create terrain */
-    terrainModel_.reset(new loco::TerrainModelHorizontalPlane);
-
+    terrainModel_.reset(new loco::TerrainModelFreePlane);
+    //terrainModel_.reset(new loco::TerrainModelHorizontalPlane);
 
     /* create legs */
     leftForeLeg_.reset(new loco::LegStarlETH("leftFore", 0,  robotModel));
@@ -45,14 +47,17 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
 
     /* create torso */
     torso_.reset(new loco::TorsoStarlETH(robotModel));
-    terrainPerception_.reset(new loco::TerrainPerceptionHorizontalPlane((loco::TerrainModelHorizontalPlane*)terrainModel_.get(), legs_.get(), torso_.get()));
+    terrainPerception_.reset(new loco::TerrainPerceptionFreePlane((loco::TerrainModelFreePlane*)terrainModel_.get(), legs_.get(), torso_.get()));
+//    terrainPerception_.reset(new loco::TerrainPerceptionHorizontalPlane((loco::TerrainModelHorizontalPlane*)terrainModel_.get(), legs_.get(), torso_.get()));
 
     /* create locomotion controller */
-    contactDetector_.reset(new loco::ContactDetectorFeedThrough());
+    //contactDetector_.reset(new loco::ContactDetectorFeedThrough());
+    contactDetector_.reset(new loco::ContactDetectorConstantDuringStance(legs_.get()));
     gaitPatternAPS_.reset(new loco::GaitPatternAPS);
     gaitPatternFlightPhases_.reset(new loco::GaitPatternFlightPhases);
     limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPatternFlightPhases_.get()));
-    footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), terrainModel_.get()));
+    //footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), terrainModel_.get()));
+    footPlacementStrategy_.reset(new loco::FootPlacementStrategyFreePlane(legs_.get(), torso_.get(), terrainModel_.get()));
     torsoController_.reset(new loco::TorsoControlDynamicGaitFreePlane(legs_.get(), torso_.get(), terrainModel_.get()));
     contactForceDistribution_.reset(new loco::ContactForceDistribution(torso_, legs_, terrainModel_));
     virtualModelController_.reset(new loco::VirtualModelController(legs_, torso_, contactForceDistribution_));
