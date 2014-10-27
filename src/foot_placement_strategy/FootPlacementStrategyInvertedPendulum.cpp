@@ -260,6 +260,7 @@ double FootPlacementStrategyInvertedPendulum::getLateralComponentOfFootStep(doub
   return result;
 }
 
+
 double FootPlacementStrategyInvertedPendulum::getHeadingComponentOfFootStep(double phase, double initialStepOffset, double stepGuess, LegBase* leg)
 {
 	phase = stepInterpolationFunction_.evaluate_linear(phase);
@@ -270,6 +271,7 @@ double FootPlacementStrategyInvertedPendulum::getHeadingComponentOfFootStep(doub
   boundToRange(&result, -legLength * sagittalMaxLegLengthScale, legLength * sagittalMaxLegLengthScale);
   return result;
 }
+
 
 bool FootPlacementStrategyInvertedPendulum::loadParameters(const TiXmlHandle& handle) {
   TiXmlElement* pElem;

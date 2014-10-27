@@ -21,6 +21,8 @@
 /****************************
  * Includes for ROS service *
  ****************************/
+//#undef USE_ROS_SERVICE
+//#define USE_ROS_SERVICE
 #ifdef USE_ROS_SERVICE
 #include "RosService.hpp"
 #endif
@@ -55,6 +57,9 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual bool loadParameters(const TiXmlHandle& handle);
 
+  virtual bool isUsingRosService();
+  virtual void setUseRosService(bool useRosService);
+
 
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService footholdRosService_;
@@ -65,6 +70,13 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
 
   bool goToStand_, resumeWalking_;
+  bool mustValidateNextFootHold_;
+  bool validationRequestSent_,validationReceived_;
+  bool useRosService_;
+  double rosWatchdogCounter_;
+  double rosWatchdogLimit_;
+
+  int footStepNumber_;
 
 
   std::vector<bool> firstFootHoldAfterStand_;
@@ -83,9 +95,9 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual Position generateFootHold(LegBase* leg);
 
-  virtual Position getValidatedFootHold(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
+  virtual bool getValidatedFootHold(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
 
-  virtual void sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
+  virtual bool sendValidationRequest(const int legId, const Position& positionWorldToDesiredFootHoldInWorldFrame);
   virtual bool getValidationResponse(Position& positionWorldToValidatedFootHoldInWorldFrame);
   int nextSwingLegId_;
 

@@ -10,6 +10,12 @@
 #include <Eigen/LU>
 //#include <algorithm>
 
+//colored strings
+const std::string red       = "\033[0;31m";
+const std::string blue      = "\033[0;34m";
+const std::string magenta   = "\033[0;35m";
+const std::string def       = "\033[0m";
+
 namespace loco {
 
 CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(LegGroup *legs, TorsoBase* torso):
@@ -18,27 +24,29 @@ CoMOverSupportPolygonControlStaticGait::CoMOverSupportPolygonControlStaticGait(L
     swingOrder_(legs_->size()),
     swingLegIndexNow_(-1),
     swingLegIndexNext_(-1),
-    swingLegIndexLast_(-1),
+    swingLegIndexBeforeLanding_(-1),
     swingLegIndexOverNext_(-1),
     swingFootChanged_(false),
-    filterInputCoMX_(0),
-    filterInputCoMY_(0),
-    filterOutputCoMX_(0),
-    filterOutputCoMY_(0),
+    filterInputCoMX_(0.0),
+    filterInputCoMY_(0.0),
+    filterOutputCoMX_(0.0),
+    filterOutputCoMY_(0.0),
     makeShift_(false),
     allFeetGrounded_(false),
     footPlacementStrategy_(nullptr),
     plannedFootHolds_(legs_->size()),
     defaultDeltaForward_(0.0),
     defaultDeltaBackward_(0.0),
+    defaultFilterTimeConstant_(0.0),
     delta_(0.0),
     filterCoMX_(nullptr),
     filterCoMY_(nullptr),
     isInStandConfiguration_(true),
     isSafeToResumeWalking_(false)
 {
+
+
   // Reset Eigen variables
-  homePos_.setZero();
   comTarget_.setZero();
 
   feetConfigurationCurrent_.setZero();
@@ -65,51 +73,33 @@ CoMOverSupportPolygonControlStaticGait::~CoMOverSupportPolygonControlStaticGait(
 
 
 bool CoMOverSupportPolygonControlStaticGait::initialize() {
-
-  makeShift_ = false;
   isInStandConfiguration_ = true;
   isSafeToResumeWalking_ = false;
-
-  defaultDeltaForward_ = 0.05;
-  defaultDeltaBackward_ = 0.03;
+  makeShift_ = false;
 
   comTarget_.setZero();
 
-  double filterTimeConstant = 0.05; //0.3; //0.1;
-  double filterGain = 1.0;
-
-  filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
-  filterCoMY_->initialize(filterInputCoMY_, filterTimeConstant, filterGain);
+  filterCoMX_->initialize(filterInputCoMX_, defaultFilterTimeConstant_, 1.0);
+  filterCoMY_->initialize(filterInputCoMY_, defaultFilterTimeConstant_, 1.0);
 
   delta_ = defaultDeltaForward_;
 
-  positionWorldToDesiredCoMInWorldFrame_ = torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
-  positionWorldToDesiredCoMInWorldFrame_.z() = 0.0;
-
-  feetConfigurationCurrent_.setZero();
-  feetConfigurationNext_.setZero();
-
   // Leg swing order
-  swingOrder_[0] = 0;
-  swingOrder_[1] = 3;
-  swingOrder_[2] = 1;
-  swingOrder_[3] = 2;
+  swingOrder_[0] = 3;
+  swingOrder_[1] = 1;
+  swingOrder_[2] = 2;
+  swingOrder_[3] = 0;
 
-  swingLegIndexLast_ = swingOrder_[0];
-  swingLegIndexNow_ = swingLegIndexLast_;
-  swingLegIndexNext_ = getNextSwingFoot(swingLegIndexLast_);
+  swingLegIndexBeforeLanding_ = swingOrder_[3];
+  swingLegIndexNow_ = swingLegIndexBeforeLanding_;
+  swingLegIndexNext_ = getNextSwingFoot(swingLegIndexBeforeLanding_);
   swingLegIndexOverNext_= getNextSwingFoot(swingLegIndexNext_);
 
   // save home feet positions
   for (auto leg: *legs_) {
     Position positionWorldToFootInFrame = leg->getPositionWorldToFootInWorldFrame();
-    homePos_.col(leg->getId()) << positionWorldToFootInFrame.x(), positionWorldToFootInFrame.y();
-
     plannedFootHolds_[leg->getId()] = positionWorldToFootInFrame;
   }
-
-  feetConfigurationCurrent_ = homePos_;
-  feetConfigurationNext_ = getNextStanceConfig(feetConfigurationCurrent_, swingLegIndexNext_);
 
   updateSafeSupportTriangles();
 
@@ -158,6 +148,7 @@ bool CoMOverSupportPolygonControlStaticGait::loadParameters(TiXmlHandle &hParame
 
 }
 
+
 bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandle &hParameterSet) {
   TiXmlElement* pElem;
   TiXmlHandle handle(hParameterSet.FirstChild("CoMOverSupportPolygonControl"));
@@ -176,21 +167,38 @@ bool CoMOverSupportPolygonControlStaticGait::loadParametersStaticGait(TiXmlHandl
     printf("Could not find SupportPolygon:delta backward!\n");
     return false;
   }
+  /**********/
 
-//  std::cout << "delta fw: " << defaultDeltaForward_
-//            << "delta bw: " << defaultDeltaBackward_ << std::endl;
+  /**************
+   * CoM Filter *
+   **************/
+  pElem = handle.FirstChild("CoMFilter").Element();
+  if (pElem->QueryDoubleAttribute("timeConstant",
+      &this->defaultFilterTimeConstant_) != TIXML_SUCCESS) {
+    printf("Could not find CoMFilter:timeConstant!\n");
+    return false;
+  }
+  /**************/
 
   return true;
 }
 
 
 void CoMOverSupportPolygonControlStaticGait::setFootHold(int legId, Position footHold) {
-  plannedFootHolds_[legId] = footHold;
+  if (legId < 0 || legId >= (int)legs_->size()) {
+    std::cout << magenta << "[CoMOverSupportPolygonControlStaticGait/setFootHold] "
+              << red << "Out of range error: legId was " << legId
+              << " (admissible range is 0-" << (int)legs_->size()-1 << ")"
+              << def << std::endl;
+  }
+  else {
+    plannedFootHolds_[legId] = footHold;
+  }
 }
 
 
 int CoMOverSupportPolygonControlStaticGait::getNextSwingLeg() { return swingLegIndexNext_; }
-int CoMOverSupportPolygonControlStaticGait::getLastSwingLeg() { return swingLegIndexLast_; }
+int CoMOverSupportPolygonControlStaticGait::getBeforeLandingSwingLeg() { return swingLegIndexBeforeLanding_; }
 int CoMOverSupportPolygonControlStaticGait::getOverNextSwingLeg() { return swingLegIndexOverNext_; }
 
 
@@ -206,10 +214,12 @@ void CoMOverSupportPolygonControlStaticGait::setDelta(double delta) {
 void CoMOverSupportPolygonControlStaticGait::setDelta(DefaultSafeTriangleDelta defaultSafeTriangle) {
   switch (defaultSafeTriangle) {
     case (DefaultSafeTriangleDelta::DeltaForward):
-        delta_ = 0.05;
+        //delta_ = 0.05;
+        delta_ = defaultDeltaForward_;
     break;
     case (DefaultSafeTriangleDelta::DeltaBackward):
-        delta_ = 0.03;
+        //delta_ = 0.03;
+        delta_ = defaultDeltaBackward_;
     break;
   }
 }
@@ -235,7 +245,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   // Get support triangles
   j=0;
   for (int k=0; k<legs_->size(); k++) {
-    if (k != swingLegIndexLast_) {
+    if (k != swingLegIndexBeforeLanding_) {
       supportTriangleCurrent_.col(j) = feetConfigurationCurrent_.col(k);
       j++;
     }
@@ -261,7 +271,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSafeSupportTriangles() {
   safeTriangleOverNext_ = getSafeTriangle(supportTriangleOverNext_);
 
   std::vector<int> diagonalSwingLegsLast(2), diagonalSwingLegsNext(2), diagonalSwingLegsOverNext(2);
-  diagonalSwingLegsLast = getDiagonalElements(swingLegIndexLast_);
+  diagonalSwingLegsLast = getDiagonalElements(swingLegIndexBeforeLanding_);
   diagonalSwingLegsNext = getDiagonalElements(swingLegIndexNext_);
   diagonalSwingLegsOverNext = getDiagonalElements(swingLegIndexOverNext_);
 
@@ -302,9 +312,10 @@ bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupp
 
 void CoMOverSupportPolygonControlStaticGait::setIsInStandConfiguration(bool isInStandConfiguration) {
   isInStandConfiguration_ = isInStandConfiguration;
+  makeShift_ = true;
 }
 
-bool CoMOverSupportPolygonControlStaticGait::getIsInStandConfiguration() const {
+bool CoMOverSupportPolygonControlStaticGait::isInStandConfiguration() const {
   return isInStandConfiguration_;
 }
 
@@ -312,6 +323,7 @@ bool CoMOverSupportPolygonControlStaticGait::getIsInStandConfiguration() const {
 bool CoMOverSupportPolygonControlStaticGait::isSafeToResumeWalking() {
   return isSafeToResumeWalking_;
 }
+
 
 void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 
@@ -338,6 +350,7 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
 
     if (isInStandConfiguration_) {
       isSafeToResumeWalking_ = false;
+      makeShift_ = false;
       Pos2d centerOfCurrentStanceConfig;
       centerOfCurrentStanceConfig.setZero();
 
@@ -348,15 +361,14 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
       if (allFeetGrounded_) {
         positionWorldToDesiredCoMInWorldFrame_ = Position(centerOfCurrentStanceConfig(0),
                                                           centerOfCurrentStanceConfig(1),
-                                                         0.0);
+                                                          0.0);
       }
     }
     else {
       if (makeShift_) {
-        positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
-                                                          filterOutputCoMY_,
-                                                          0.0);
-        isSafeToResumeWalking_ = true;
+      positionWorldToDesiredCoMInWorldFrame_ = Position(filterOutputCoMX_,
+                                                        filterOutputCoMY_, 0.0);
+      isSafeToResumeWalking_ = true;
       }
     }
 
@@ -487,7 +499,7 @@ void CoMOverSupportPolygonControlStaticGait::updateSwingLegsIndexes() {
   int swingLeg = getIndexOfSwingLeg();
 
   if (swingLeg != -1) {
-    swingLegIndexLast_ = swingLegIndexNow_;
+    swingLegIndexBeforeLanding_ = swingLegIndexNow_;
     swingLegIndexNext_ = getNextSwingFoot(swingLegIndexNow_);
     swingLegIndexOverNext_ = getNextSwingFoot(swingLegIndexNext_);
 

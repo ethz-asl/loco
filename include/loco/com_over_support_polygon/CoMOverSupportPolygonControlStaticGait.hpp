@@ -44,7 +44,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool setToInterpolated(const CoMOverSupportPolygonControlBase& supportPolygon1, const CoMOverSupportPolygonControlBase& supportPolygon2, double t);
 
   virtual int getNextSwingLeg();
-  virtual int getLastSwingLeg();
+  virtual int getBeforeLandingSwingLeg();
   virtual int getOverNextSwingLeg();
 
   virtual void setFootHold(int legId, Position footHold);
@@ -64,7 +64,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual bool loadParametersStaticGait(TiXmlHandle &hParameterSet);
 
   virtual void setIsInStandConfiguration(bool isInStandConfiguration);
-  virtual bool getIsInStandConfiguration() const;
+  virtual bool isInStandConfiguration() const;
 
   virtual bool isSafeToResumeWalking();
 
@@ -77,10 +77,11 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   int swingLegIndexNow_;
   int swingLegIndexNext_;
-  int swingLegIndexLast_;
+  int swingLegIndexBeforeLanding_;
   int swingLegIndexOverNext_;
 
-  double defaultDeltaForward_, defaultDeltaBackward_;
+  double defaultDeltaForward_, defaultDeltaBackward_,
+         defaultFilterTimeConstant_;
 
   bool isInStandConfiguration_;
   bool isSafeToResumeWalking_;
@@ -91,7 +92,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   Eigen::Matrix<double,2,3> supportTriangleCurrent_, supportTriangleNext_, supportTriangleOverNext_;
   Eigen::Matrix<double,2,3> safeTriangleCurrent_, safeTriangleNext_, safeTriangleOverNext_;
 
-  FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_, homePos_;
+  FeetConfiguration feetConfigurationCurrent_, feetConfigurationNext_;
 
   bool swingFootChanged_;
   bool allFeetGrounded_;

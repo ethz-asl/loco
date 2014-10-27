@@ -31,6 +31,9 @@ class MissionControlStaticGait : public MissionControlBase {
   bool isExternallyVelocityControlled_;
   MissionControlSpeedFilter speedFilter_;
   LocomotionControllerDynamicGait* locomotionController_;
+
+  bool useRosService_;
+
 };
 
 } /* namespace loco */
