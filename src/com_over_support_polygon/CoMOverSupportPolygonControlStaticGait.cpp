@@ -214,10 +214,12 @@ void CoMOverSupportPolygonControlStaticGait::setDelta(double delta) {
 void CoMOverSupportPolygonControlStaticGait::setDelta(DefaultSafeTriangleDelta defaultSafeTriangle) {
   switch (defaultSafeTriangle) {
     case (DefaultSafeTriangleDelta::DeltaForward):
-        delta_ = 0.05;
+        //delta_ = 0.05;
+        delta_ = defaultDeltaForward_;
     break;
     case (DefaultSafeTriangleDelta::DeltaBackward):
-        delta_ = 0.03;
+        //delta_ = 0.03;
+        delta_ = defaultDeltaBackward_;
     break;
   }
 }
