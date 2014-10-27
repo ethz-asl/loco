@@ -101,7 +101,7 @@ class LocomotionControllerDynamicGaitDefault: public LocomotionControllerBase {
   std::shared_ptr<GaitPatternAPS> gaitPatternAPS_;
   std::shared_ptr<GaitPatternFlightPhases> gaitPatternFlightPhases_;
   std::shared_ptr<LimbCoordinatorDynamicGait> limbCoordinator_;
-  std::shared_ptr<FootPlacementStrategyInvertedPendulum> footPlacementStrategy_;
+  std::shared_ptr<FootPlacementStrategyBase> footPlacementStrategy_;
   std::shared_ptr<TorsoControlDynamicGaitFreePlane> torsoController_;
   std::shared_ptr<ContactForceDistribution> contactForceDistribution_;
   std::shared_ptr<VirtualModelController> virtualModelController_;
