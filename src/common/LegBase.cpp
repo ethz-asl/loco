@@ -27,7 +27,7 @@ LegBase::LegBase() :
     previousSwingPhase_(0.0),
     isLosingContact_(false),
     stateSwitcher_(nullptr),
-    isInStandConfiguration_(true)
+    isInStandConfiguration_(false)
 {
 
 }
@@ -50,7 +50,7 @@ LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
     previousSwingPhase_(0.0),
     isLosingContact_(false),
     stateSwitcher_(nullptr),
-    isInStandConfiguration_(true)
+    isInStandConfiguration_(false)
 {
 
 }
