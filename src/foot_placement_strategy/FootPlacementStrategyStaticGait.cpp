@@ -397,6 +397,9 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       if (validationRequestSent_) {
         std::cout << "sent request!" << std::endl;
       }
+      else {
+        std::cout << "service was not ready. state: " << footholdRosService_.getState() << std::endl;
+      }
     }
 
     if (validationRequestSent_ && !validationReceived_) {
@@ -407,11 +410,19 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       }
     }
 
-    if (rosWatchdogCounter_ >= rosWatchdogLimit_) {
-      std::cout << "*******ros watchdog limit: " << rosWatchdogCounter_ << std::endl;
-      mustValidateNextFootHold_ = false;
-    }
-    rosWatchdogCounter_ += dt;
+//    if (rosWatchdogCounter_ >= rosWatchdogLimit_) {
+//      std::cout << "*******ros watchdog limit: " << rosWatchdogCounter_ << std::endl;
+//
+//      std::cout << "state: " << footholdRosService_.getState() << std::endl;
+//
+//      mustValidateNextFootHold_ = false;
+//
+//      rosWatchdogCounter_ = 0.0;
+//      validationRequestSent_ = false;
+//      validationReceived_ = false;
+//      footHoldPlanned_ = true;
+//    }
+//    rosWatchdogCounter_ += dt;
 
   }
 //#endif
