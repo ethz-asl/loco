@@ -56,7 +56,7 @@ bool MissionControlStaticGait::advance(double dt) {
 
 //    printf("sag: %lf \t cor: %lf  \t yaw: %lf\n", joyStick->getSagittal(), joyStick->getCoronal(), joyStick->getYaw());
     EulerAnglesZyx desEulerAnglesZyx;
-    desEulerAnglesZyx.setRoll(interpolateJoystickAxis(joyStick->getCoronal(), speedFilter_.getMinimalDesiredOrientationOffset().getUnique().roll(), speedFilter_.getMaximalDesiredOrientationOffset().getUnique().roll()));
+    desEulerAnglesZyx.setRoll(interpolateJoystickAxis(-joyStick->getCoronal(), speedFilter_.getMinimalDesiredOrientationOffset().getUnique().roll(), speedFilter_.getMaximalDesiredOrientationOffset().getUnique().roll()));
     desEulerAnglesZyx.setPitch(interpolateJoystickAxis(joyStick->getSagittal(), speedFilter_.getMinimalDesiredOrientationOffset().getUnique().pitch(), speedFilter_.getMaximalDesiredOrientationOffset().getUnique().pitch()));
     desEulerAnglesZyx.setYaw(interpolateJoystickAxis(joyStick->getYaw(), speedFilter_.getMinimalDesiredOrientationOffset().getUnique().yaw(), speedFilter_.getMaximalDesiredOrientationOffset().getUnique().yaw()));
     orientationOffset(desEulerAnglesZyx.getUnique());

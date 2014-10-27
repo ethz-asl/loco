@@ -75,7 +75,7 @@ bool CoMOverSupportPolygonControlStaticGait::initialize() {
 
   comTarget_.setZero();
 
-  double filterTimeConstant = 0.1; //0.3; //0.1;
+  double filterTimeConstant = 0.05; //0.3; //0.1;
   double filterGain = 1.0;
 
   filterCoMX_->initialize(filterInputCoMX_, filterTimeConstant, filterGain);
