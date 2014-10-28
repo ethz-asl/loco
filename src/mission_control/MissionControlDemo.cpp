@@ -48,7 +48,7 @@ bool MissionControlDemo::advance(double dt) {
 
 //    printf("sag: %lf \t cor: %lf  \t yaw: %lf\n", joyStick->getSagittal(), joyStick->getCoronal(), joyStick->getYaw());
     EulerAnglesZyx desEulerAnglesZyx;
-    desEulerAnglesZyx.setRoll(interpolateJoystickAxis(joyStick->getCoronal(), missionController.getMinimalDesiredOrientationOffset().getUnique().roll(), missionController.getMaximalDesiredOrientationOffset().getUnique().roll()));
+    desEulerAnglesZyx.setRoll(interpolateJoystickAxis(-joyStick->getCoronal(), missionController.getMinimalDesiredOrientationOffset().getUnique().roll(), missionController.getMaximalDesiredOrientationOffset().getUnique().roll()));
     desEulerAnglesZyx.setPitch(interpolateJoystickAxis(joyStick->getSagittal(), missionController.getMinimalDesiredOrientationOffset().getUnique().pitch(), missionController.getMaximalDesiredOrientationOffset().getUnique().pitch()));
     desEulerAnglesZyx.setYaw(interpolateJoystickAxis(joyStick->getYaw(), missionController.getMinimalDesiredOrientationOffset().getUnique().yaw(), missionController.getMaximalDesiredOrientationOffset().getUnique().yaw()));
     orientationOffset(desEulerAnglesZyx.getUnique());
