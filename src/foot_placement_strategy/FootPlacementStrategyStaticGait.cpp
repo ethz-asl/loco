@@ -252,6 +252,8 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
          if (legId != -1) {
 //           std::cout << "leg id:    " << legId << std::endl;
 //           std::cout << "rec state: " << (int)receviedFoothold.flag << std::endl;
+           std::cout << "Setting validated foothold to leg: " << legId << std::endl
+                     << "difference: " << positionWorldToValidatedFootHoldInWorldFrame - positionWorldToFootHoldInWorldFrame_[legId] << std::endl;
            positionWorldToValidatedDesiredFootHoldInWorldFrame_[legId] = positionWorldToValidatedFootHoldInWorldFrame;
            comControl_->setFootHold(legId, positionWorldToValidatedFootHoldInWorldFrame);
          }
