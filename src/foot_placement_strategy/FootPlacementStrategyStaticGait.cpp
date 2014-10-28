@@ -260,7 +260,7 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
 
       }
       else {
-        std::cout << "Received error!\n";
+        std::cout << "Received error!\n" << std::endl;
       }
     }
   }
@@ -319,6 +319,16 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   // get pointer to next swing leg
   nextSwingLegId_ = comControl_->getNextSwingLeg();
   LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
+
+
+  // get pointer to current swing leg
+  int currentSwingLegId = comControl_->getCurrentSwingLeg();
+  LegBase* currentSwingLeg;
+  if (currentSwingLegId != -1) {
+    currentSwingLeg = legs_->getLegById(currentSwingLegId);
+  } else {
+    currentSwingLeg = legs_->getLegById(nextSwingLegId_);
+  }
 
   if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
     if (nextSwingLeg->getStancePhase() < 0.75 && nextSwingLeg->getStancePhase() != -1) {
@@ -389,7 +399,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*********************
    * Query ROS service *
    *********************/
-//#ifdef USE_ROS_SERVICE
+#ifdef USE_ROS_SERVICE
   if (useRosService_ && mustValidateNextFootHold_) {
 
     if (!validationRequestSent_) {
@@ -412,6 +422,14 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       }
     }
     rosWatchdogCounter_ += dt;
+
+
+    if (currentSwingLeg->getSwingPhase() > 0.5 && !validationReceived_) {
+      std::cout << "leg id: " << currentSwingLeg->getId() << ". valid not received and swing phase is: " << currentSwingLeg->getSwingPhase() << std::endl;
+      footholdRosService_.resetState();
+      validationReceived_ = true;
+      mustValidateNextFootHold_ = false;
+    }
 //    if (rosWatchdogCounter_ >= rosWatchdogLimit_) {
 //      std::cout << "*******ros watchdog limit: " << rosWatchdogCounter_ << std::endl;
 //
@@ -426,7 +444,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 //    }
 
   }
-//#endif
+#endif
   /*********************/
 
 
@@ -644,8 +662,12 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
 
   // heading component
   Position headingAxisOfControlFrame = Position::UnitX();
-  Position positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(headingAxisOfControlFrame.toImplementation()))
-                                                                      *stanceDuration*0.5;
+  double desiredHeadingVelocity = torso_->getDesiredState().getLinearVelocityBaseInControlFrame().x();
+  double correctingFactor = 1.0;
+  if (desiredHeadingVelocity < 0.0) {
+    correctingFactor = 0.5;
+  }
+  Position positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame = Position(desiredHeadingVelocity, 0.0, 0.0)*stanceDuration*0.5*correctingFactor;
 
   // lateral component
   Position lateralAxisOfControlFrame = Position::UnitY();

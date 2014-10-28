@@ -46,6 +46,7 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
   virtual int getNextSwingLeg();
   virtual int getBeforeLandingSwingLeg();
   virtual int getOverNextSwingLeg();
+  virtual int getCurrentSwingLeg();
 
   virtual void setFootHold(int legId, Position footHold);
 
