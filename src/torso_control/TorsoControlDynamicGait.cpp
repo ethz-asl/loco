@@ -11,15 +11,10 @@
 #include <exception>
 namespace loco {
 
-TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
-  TorsoControlBase(),
-  legs_(legs),
-  torso_(torso),
-  terrain_(terrain)
+TorsoControlDynamicGait::TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso,  TerrainModelBase* terrain):
+  TorsoControlGaitContainer(legs, torso, terrain)
 {
-
     comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs);
-
 }
 
 TorsoControlDynamicGait::~TorsoControlDynamicGait() {

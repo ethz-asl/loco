@@ -9,7 +9,7 @@
 #ifndef LOCO_BASECONTROLDYNAMICGAIT_HPP_
 #define LOCO_BASECONTROLDYNAMICGAIT_HPP_
 
-#include "loco/torso_control/TorsoControlBase.hpp"
+#include "loco/torso_control/TorsoControlGaitContainer.hpp"
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlDynamicGait.hpp"
 
 #include "loco/common/LegGroup.hpp"
@@ -20,7 +20,7 @@
 
 namespace loco {
 
-class TorsoControlDynamicGait: public TorsoControlBase {
+class TorsoControlDynamicGait: public TorsoControlGaitContainer {
  public:
   TorsoControlDynamicGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
   virtual ~TorsoControlDynamicGait();

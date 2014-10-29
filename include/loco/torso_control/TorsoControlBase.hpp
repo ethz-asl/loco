@@ -1,5 +1,5 @@
 /*!
-* @file     BaseControlBase.hpp
+* @file     TorsoControlBase.hpp
 * @author   Christian Gehring
 * @date     Feb, 2014
 * @version  1.0
@@ -7,8 +7,8 @@
 * @brief
 */
 
-#ifndef LOCO_BASECONTROLBASE_HPP_
-#define LOCO_BASECONTROLBASE_HPP_
+#ifndef LOCO_TORSOCONTROLBASE_HPP_
+#define LOCO_TORSOCONTROLBASE_HPP_
 
 #include "tinyxml.h"
 #include "PeriodicRBF1DC1.hpp"
@@ -18,15 +18,13 @@
 namespace loco {
 
 class TorsoControlBase {
+
  public:
   TorsoControlBase();
   virtual ~TorsoControlBase();
   virtual bool initialize(double dt) = 0;
   virtual bool advance(double dt) = 0;
   virtual bool loadParameters(const TiXmlHandle& handle) = 0;
-
-  virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Vector& axis);
-  RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Vector& vB);
 
   /*! Computes an interpolated version of the two controllers passed in as parameters.
    *  if t is 0, the current setting is set to controller1, 1 -> controller2, and values in between
@@ -38,41 +36,18 @@ class TorsoControlBase {
    */
   virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) = 0;
 
-  double getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const;
-  double getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const;
-
   /*! Set a position offset to the CoM in world frame (used by the mission controller to move the robot while standing)
    * @param[in] positionOffsetInWorldFrame The position offset
    */
-  virtual void setDesiredPositionOffsetInWorldFrame(const Position& positionOffsetInWorldFrame);
+  virtual void setDesiredPositionOffsetInWorldFrame(const Position& positionOffsetInWorldFrame) = 0;
 
   /*! Set an attitude offset to the CoM w.r.t. world frame (used by the mission controller to change the robot attitude while standing)
    * @param[in] orientationOffset The orientation offset
    */
-  virtual void setDesiredOrientationOffset(const RotationQuaternion& orientationOffset);
-
- protected:
-  double headingDistanceFromForeToHindInBaseFrame_;
-  double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
-  double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
-  double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
-  rbf::PeriodicRBF1DC1 desiredTorsoForeHeightAboveGroundInWorldFrame_;
-  rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
-  Position desiredPositionOffsetInWorldFrame_;
-  RotationQuaternion desiredOrientationOffset_;
-
-  /*! Load torso parameters from parameter file
-   * @param hTorsoConfiguration A handle to the torso configuration section in the parameter file
-   * @returns true if successful
-   */
-  virtual bool loadParametersTorsoConfiguration(const TiXmlHandle& hTorsoConfiguration);
-
-  virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);
-  virtual bool loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory);
-  bool interpolateHeightTrajectory(rbf::PeriodicRBF1DC1& interpolatedTrajectory, const rbf::PeriodicRBF1DC1& trajectory1, const rbf::PeriodicRBF1DC1& trajectory2, double t);
+  virtual void setDesiredOrientationOffset(const RotationQuaternion& orientationOffset) = 0;
 
 };
 
 } /* namespace loco */
 
-#endif /* BASECONTROLBASE_HPP_ */
+#endif /* LOCO_TORSOCONTROLBASE_HPP_ */

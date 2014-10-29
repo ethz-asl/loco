@@ -9,12 +9,12 @@
 #define LOCO_TORSOCONTROLSTATICGAIT_HPP_
 
 
-#include "loco/torso_control/TorsoControlDynamicGaitFreePlane.hpp"
+#include "loco/torso_control/TorsoControlGaitContainer.hpp"
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlStaticGait.hpp"
 
 namespace loco {
 
-class TorsoControlStaticGait: public TorsoControlDynamicGaitFreePlane {
+class TorsoControlStaticGait: public TorsoControlGaitContainer {
  public:
   TorsoControlStaticGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
   virtual ~TorsoControlStaticGait();
@@ -24,14 +24,12 @@ class TorsoControlStaticGait: public TorsoControlDynamicGaitFreePlane {
 
   virtual bool loadParameters(const TiXmlHandle& handle);
 
-  virtual bool setCoMDelta(double delta);
-
   virtual void setIsInStandConfiguration(bool isInStandConfiguration);
   virtual bool getIsInStandConfiguration() const;
 
- protected:
-//  CoMOverSupportPolygonControlStaticGait* comControl_;
+  virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
 
+ protected:
   bool isInStandConfiguration_;
 
 };
