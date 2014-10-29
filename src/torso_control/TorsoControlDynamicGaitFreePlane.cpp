@@ -27,7 +27,7 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
   comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
 
-  const double defaultHeight = 0.41;
+  const double defaultHeight = 0.42;
   desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 }
 
