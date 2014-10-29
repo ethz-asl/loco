@@ -42,8 +42,6 @@ namespace loco {
   loco::TerrainModelBase* terrain_;
   CoMOverSupportPolygonControlBase* comControl_;
 
-  double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
-
   //--- Terrain adaptation parameters
   double maxDesiredPitchRadians_;
   double desiredPitchSlope_;

@@ -10,6 +10,17 @@
 #include "loco/temp_helpers/math.hpp"
 #include <exception>
 
+//colored strings
+const std::string black     = "\033[0;30m";
+const std::string red       = "\033[0;31m";
+const std::string green     = "\033[0;32m";
+const std::string yellow    = "\033[0;33m";
+const std::string blue      = "\033[0;34m";
+const std::string magenta   = "\033[0;35m";
+const std::string cyan      = "\033[0;36m";
+const std::string white     = "\033[0;37m";
+const std::string def       = "\033[0m";
+
 namespace loco {
 
 
@@ -20,6 +31,7 @@ TorsoControlBase::TorsoControlBase():
   const double defaultHeight = 0.42;
   desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
   desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = defaultHeight;
+  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_ = defaultHeight;
   tValues.push_back(0.00); xValues.push_back(0.0);
   tValues.push_back(0.25); xValues.push_back(0.0);
   tValues.push_back(0.50); xValues.push_back(0.0);
@@ -128,6 +140,59 @@ bool TorsoControlBase::interpolateHeightTrajectory(rbf::PeriodicRBF1DC1& interpo
 }
 
 
+bool TorsoControlBase::loadParametersTorsoConfiguration(const TiXmlHandle& hTorsoConfiguration) {
+
+  // Check if "TorsoConfiguration" exists in parameter file
+  TiXmlElement* pElem;
+  pElem = hTorsoConfiguration.Element();
+  if (!pElem) {
+    printf("Could not find TorsoConfiguration\n");
+    std::cout << magenta << "[TorsoControlBase/loadParametersTorsoConfiguration] "
+              << red << "Error: "
+              << blue << "could not find section 'TorsoConfiguration'."
+              << def << std::endl;
+    return false;
+  }
+
+  TiXmlElement* child = hTorsoConfiguration.FirstChild().ToElement();
+  for(; child; child=child->NextSiblingElement()) {
+    // If "TorsoHeight" element is found, try to read "torsoHeight" value
+    if (child->ValueStr().compare("TorsoHeight") == 0) {
+      bool isFore = false;
+      bool isHind = false;
+      double defaultTorsoHeight = 0.0;
+      if (child->QueryDoubleAttribute("torsoHeight", &defaultTorsoHeight) != TIXML_SUCCESS) {
+        /*
+         * Note: desiredTorsoCoMHeightAboveGroundInControlFrameOffset_ is set in the constructor
+         */
+        std::cout << magenta << "[TorsoControlBase/loadParametersTorsoConfiguration] "
+                  << red << "Warning: "
+                  << blue << "could not find parameter 'torsoHeight' in section 'TorsoHeight'. Setting height to default value: "
+                  << red << desiredTorsoCoMHeightAboveGroundInControlFrameOffset_
+                  << def << std::endl;
+      }
+      else {
+        desiredTorsoCoMHeightAboveGroundInControlFrameOffset_ = defaultTorsoHeight;
+        std::cout << magenta << "[TorsoControlBase/loadParametersTorsoConfiguration] "
+                  << blue << "Torso height is set to: "
+                  << red << desiredTorsoCoMHeightAboveGroundInControlFrameOffset_
+                  << def << std::endl;
+      }
+    }
+    else {
+      std::cout << magenta << "[TorsoControlBase/loadParametersTorsoConfiguration] "
+                << red << "Warning: "
+                << blue << "could not find section 'TorsoHeight'. Setting height to default value: "
+                << red << desiredTorsoCoMHeightAboveGroundInControlFrameOffset_
+                << def << std::endl;
+    }
+
+  }
+
+  return true;
+}
+
+
 bool TorsoControlBase::loadParametersHipConfiguration(const TiXmlHandle &hParameterSet) {
 
   int iKnot;
@@ -182,6 +247,12 @@ bool TorsoControlBase::loadParametersHipConfiguration(const TiXmlHandle &hParame
           }
 
        }
+
+       //desiredTorsoCoMHeightAboveGroundInControlFrameOffset_ =
+
+
+
+
 //
 //      /* front leg frame */
 //      pElem = hParameterSet.FirstChild("HipConfiguration").FirstChild("Fore").Element();

@@ -27,8 +27,8 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
   comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
 
-  const double defaultHeight = 0.42;
-  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
+//  const double defaultHeight = 0.42;
+//  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 }
 
 TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs,
@@ -363,11 +363,18 @@ void TorsoControlDynamicGaitFreePlane::getDesiredBaseRollFromTerrainRoll(const d
 
 
 bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle) {
-  TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
-  if (!comControl_->loadParameters(hDynGait)) {
+  TiXmlHandle handleTorsoConfiguration(handle.FirstChild("TorsoControl").FirstChild("TorsoConfiguration"));
+  TiXmlHandle handleDynamicGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
+
+  if (!comControl_->loadParameters(handleDynamicGait)) {
     return false;
   }
-  if (!loadParametersHipConfiguration(hDynGait)) {
+
+  if (!loadParametersTorsoConfiguration(handleTorsoConfiguration)) {
+    return false;
+  }
+
+  if (!loadParametersHipConfiguration(handleDynamicGait)) {
     return false;
   }
 

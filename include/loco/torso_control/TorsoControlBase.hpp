@@ -41,17 +41,24 @@ class TorsoControlBase {
   double getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const;
   double getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const;
 
-  void setDesiredPositionOffetInWorldFrame(const Position& positionOffsetInWorldFrame);
-  void setDesiredOrientationOffset(const RotationQuaternion& orientationOffset);
+  virtual void setDesiredPositionOffetInWorldFrame(const Position& positionOffsetInWorldFrame);
+  virtual void setDesiredOrientationOffset(const RotationQuaternion& orientationOffset);
 
  protected:
   double headingDistanceFromForeToHindInBaseFrame_;
   double desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
   double desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
+  double desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
   rbf::PeriodicRBF1DC1 desiredTorsoForeHeightAboveGroundInWorldFrame_;
   rbf::PeriodicRBF1DC1 desiredTorsoHindHeightAboveGroundInWorldFrame_;
   Position desiredPositionOffsetInWorldFrame_;
   RotationQuaternion desiredOrientationOffset_;
+
+  /*! Load torso parameters from parameter file
+   * @param hTorsoConfiguration A handle to the torso configuration section in the parameter file
+   * @returns true if successful
+   */
+  virtual bool loadParametersTorsoConfiguration(const TiXmlHandle& hTorsoConfiguration);
 
   virtual bool loadParametersHipConfiguration(const TiXmlHandle &hParameterSet);
   virtual bool loadHeightTrajectory(const TiXmlHandle &hTrajectory,  rbf::PeriodicRBF1DC1& trajectory);

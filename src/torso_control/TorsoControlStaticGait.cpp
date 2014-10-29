@@ -72,53 +72,22 @@ bool TorsoControlStaticGait::getIsInStandConfiguration() const {
 
 
 bool TorsoControlStaticGait::loadParameters(const TiXmlHandle& handle) {
-  TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
-  if (!comControl_->loadParameters(hDynGait)) {
-    return false;
-  }
-  if (!loadParametersHipConfiguration(hDynGait)) {
+//  TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
+//  if (!comControl_->loadParameters(hDynGait)) {
+//    return false;
+//  }
+//  if (!loadParametersHipConfiguration(hDynGait)) {
+//    return false;
+//  }
+
+  if (!TorsoControlDynamicGaitFreePlane::loadParameters(handle)) {
     return false;
   }
 
   TiXmlHandle hStGait(handle.FirstChild("TorsoControl").FirstChild("StaticGait"));
-  if (!loadParametersTorsoConfiguration(hStGait)) {
-    return false;
-  }
   CoMOverSupportPolygonControlStaticGait* staticComControl = static_cast<CoMOverSupportPolygonControlStaticGait*>(comControl_);
   if (!staticComControl->loadParametersStaticGait(hStGait)) {
     return false;
-  }
-
-  return true;
-}
-
-
-bool TorsoControlStaticGait::loadParametersTorsoConfiguration(const TiXmlHandle& hParameterSet) {
-
-  TiXmlElement* pElem;
-
-  // Check if "TorsoConfiguration" exists in parameter file
-  pElem = hParameterSet.FirstChild("TorsoConfiguration").Element();
-  if (!pElem) {
-    printf("Could not find TorsoConfiguration\n");
-    return false;
-  }
-
-  TiXmlElement* child = hParameterSet.FirstChild("TorsoConfiguration").FirstChild().ToElement();
-  for(; child; child=child->NextSiblingElement()) {
-    // If "TorsoHeight" element is found, try to read "torsoHeight" value
-    if (child->ValueStr().compare("TorsoHeight") == 0) {
-      bool isFore = false;
-      bool isHind = false;
-      double defaultTorsoHeight = 0.0;
-      if (child->QueryDoubleAttribute("torsoHeight", &defaultTorsoHeight)!=TIXML_SUCCESS) {
-        printf("Could not find offset!\n");
-      }
-      else {
-        desiredTorsoCoMHeightAboveGroundInControlFrameOffset_ = defaultTorsoHeight;
-      }
-    }
-
   }
 
   return true;
