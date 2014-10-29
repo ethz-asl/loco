@@ -105,7 +105,7 @@ double TorsoControlBase::getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(
 }
 
 
-void TorsoControlBase::setDesiredPositionOffetInWorldFrame(const Position& positionTargetOffsetInWorldFrame) {
+void TorsoControlBase::setDesiredPositionOffsetInWorldFrame(const Position& positionTargetOffsetInWorldFrame) {
   desiredPositionOffsetInWorldFrame_ = positionTargetOffsetInWorldFrame;
 }
 

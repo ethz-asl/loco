@@ -117,7 +117,7 @@ bool LocomotionControllerDynamicGaitDefault::advanceMeasurements(double dt) {
   torso_->getDesiredState().setLinearVelocityBaseInControlFrame(desLinearVelocityBaseInControlFrame);
   torso_->getDesiredState().setAngularVelocityBaseInControlFrame(desAngularVelocityBaseInControlFrame);
 
-  torsoController_->setDesiredPositionOffetInWorldFrame(missionController_->getDesiredPositionOffsetInWorldFrame());
+  torsoController_->setDesiredPositionOffsetInWorldFrame(missionController_->getDesiredPositionOffsetInWorldFrame());
   torsoController_->setDesiredOrientationOffset(missionController_->getDesiredOrientationOffset());
 
   if (!locomotionController_->advanceSetPoints(dt)) {

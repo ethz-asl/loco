@@ -160,7 +160,7 @@ bool MissionControlStaticGait::advance(double dt) {
 //  std::cout << "pos offset:" << speedFilter_.getDesiredPositionOffsetInWorldFrame() << std::endl;
 
   loco::TorsoControlStaticGait& torsoController = (loco::TorsoControlStaticGait&)locomotionController_->getTorsoController();
-  torsoController.setDesiredPositionOffetInWorldFrame(speedFilter_.getDesiredPositionOffsetInWorldFrame());
+  torsoController.setDesiredPositionOffsetInWorldFrame(speedFilter_.getDesiredPositionOffsetInWorldFrame());
   torsoController.setDesiredOrientationOffset(speedFilter_.getDesiredOrientationOffset());
 
   return true;

@@ -41,7 +41,14 @@ class TorsoControlBase {
   double getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const;
   double getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const;
 
-  virtual void setDesiredPositionOffetInWorldFrame(const Position& positionOffsetInWorldFrame);
+  /*! Set a position offset to the CoM in world frame (used by the mission controller to move the robot while standing)
+   * @param[in] positionOffsetInWorldFrame The position offset
+   */
+  virtual void setDesiredPositionOffsetInWorldFrame(const Position& positionOffsetInWorldFrame);
+
+  /*! Set an attitude offset to the CoM w.r.t. world frame (used by the mission controller to change the robot attitude while standing)
+   * @param[in] orientationOffset The orientation offset
+   */
   virtual void setDesiredOrientationOffset(const RotationQuaternion& orientationOffset);
 
  protected:
