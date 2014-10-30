@@ -80,7 +80,7 @@ set(TASK_LIBS ${TASK_LIBS} ${LOCO_LIBS}
 PARENT_SCOPE)
 
 
-add_library(loco ${LOCO_SRCS})
+add_library(loco STATIC ${LOCO_SRCS})
 target_link_libraries(loco ${LOCO_LIBS})
 
 # Add Doxygen documentation
