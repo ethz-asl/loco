@@ -491,7 +491,7 @@ void FootPlacementStrategyStaticGait::setFootTrajectory(LegBase* leg) {
 
 void FootPlacementStrategyStaticGait::regainContact(LegBase* leg, double dt) {
   Position positionWorldToFootInWorldFrame =  leg->getPositionWorldToFootInWorldFrame();
-  double loweringSpeed = 0.05;
+//  double loweringSpeed = 0.05;
 
   loco::Vector normalInWorldFrame;
   if (terrain_->getNormal(positionWorldToFootInWorldFrame,normalInWorldFrame)) {
@@ -533,6 +533,7 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 
   return positionWorldToFootHoldInWorldFrame_[leg->getId()];
 }
+
 
 /*
  * Check if a desired foothold is valid. Return a validated foothold.
@@ -696,57 +697,6 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
 
 
   return positionFootAtLiftOffToDesiredFootHoldInControlFrame;
-}
-
-
-Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg) {
-  const RotationQuaternion& orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
-
-  positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg.getId()] = getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(leg);
-//  positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()] = getPositionDesiredFootHoldOnTerrainFeedBackInControlFrame(leg);
-
-  Position positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame = positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg.getId()]
-                                                                                     /*+ positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()]*/;
-
-  //--- save for debug
-  //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
-
-  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getPositionWorldToHipInWorldFrame();
-//  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
-  terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
-
-  positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame
-                                                      + orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame);
-
-//  std::cout << "foothold components for leg: " << leg.getId() << std::endl
-//            << "world to hip on t: " << positionWorldToHipVerticalOnPlaneInWorldFrame << std::endl
-//            << "hip on t to foot: " << orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame) << std::endl;
-  //---
-
-  //--- starting point for trajectory interpolation
-  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame = leg.getStateLiftOff().getPositionWorldToFootInWorldFrame()
-                                                                              -leg.getStateLiftOff().getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame();
-  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame = orientationWorldToControl.rotate(positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame);
-  //---
-
-  double interpolationParameter = getInterpolationPhase(leg);
-
-  Position positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame = Position(
-                                                                                  // x
-                                                                                  getHeadingComponentOfFootStep(interpolationParameter,
-                                                                                  positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame.x(),
-                                                                                  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame.x(),
-                                                                                  const_cast<LegBase*>(&leg)),
-                                                                                  // y
-                                                                                  getLateralComponentOfFootStep(interpolationParameter,
-                                                                                  positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame.y(),
-                                                                                  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame.y(),
-                                                                                  const_cast<LegBase*>(&leg)),
-                                                                                  // z
-                                                                                  0.0
-                                                                                  );
-
-  return positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame;
 }
 
 

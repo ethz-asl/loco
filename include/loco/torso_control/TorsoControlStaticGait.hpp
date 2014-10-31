@@ -16,7 +16,7 @@ namespace loco {
 
 class TorsoControlStaticGait: public TorsoControlGaitContainer {
  public:
-  TorsoControlStaticGait(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain);
+  TorsoControlStaticGait(LegGroup* legs, TorsoBase* torso, TerrainModelBase* terrain);
   virtual ~TorsoControlStaticGait();
 
   virtual bool initialize(double dt);
