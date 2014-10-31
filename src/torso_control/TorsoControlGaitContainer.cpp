@@ -170,10 +170,11 @@ bool TorsoControlGaitContainer::loadParametersTorsoConfiguration(const TiXmlHand
   if (!pElem) {
     printf("Could not find TorsoConfiguration\n");
     std::cout << magenta << "[TorsoControlGaitContainer/loadParametersTorsoConfiguration] "
-              << red << "Error: "
-              << blue << "could not find section 'TorsoConfiguration'."
+              << red << "Warning: "
+              << blue << "could not find parameter 'torsoHeight' in section 'TorsoHeight'. Setting height to default value: "
+              << red << desiredTorsoCoMHeightAboveGroundInControlFrameOffset_
               << def << std::endl;
-    return false;
+//    return false;
   }
 
   TiXmlElement* child = hTorsoConfiguration.FirstChild().ToElement();

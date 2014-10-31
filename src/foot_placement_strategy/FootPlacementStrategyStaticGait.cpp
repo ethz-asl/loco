@@ -333,7 +333,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   }
 
   if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
-    if (nextSwingLeg->getStancePhase() < 0.75 && nextSwingLeg->getStancePhase() != -1) {
+    if (nextSwingLeg->getStancePhase() < 0.9 && nextSwingLeg->getStancePhase() != -1) {
       nextSwingLeg->setIsInStandConfiguration(false);
     }
   }

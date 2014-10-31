@@ -35,11 +35,18 @@ bool MissionControlSpeedFilter::initialize(double dt) {
   return true;
 }
 
+template<typename T>
+T mapInRange (T x, T in_min, T in_max, T out_min, T out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+
 bool MissionControlSpeedFilter::advance(double dt) {
   const double maxHeadingVel = maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().x();
   filteredVelocities_[0].update(unfilteredBaseTwistInHeadingFrame_.getTranslationalVelocity().x());
   double headingVel = filteredVelocities_[0].val();
-  boundToRange(&headingVel, -maxHeadingVel, maxHeadingVel);
+//  boundToRange(&headingVel, -maxHeadingVel, maxHeadingVel);
+  headingVel = mapInRange(headingVel, -1.0, 1.0, -maxHeadingVel, maxHeadingVel);
 
   const double maxLateralVel = maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().y();
   filteredVelocities_[1].update(unfilteredBaseTwistInHeadingFrame_.getTranslationalVelocity().y());
