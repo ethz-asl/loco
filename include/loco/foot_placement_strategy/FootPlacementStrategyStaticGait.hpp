@@ -55,6 +55,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   virtual bool isUsingRosService();
   virtual void setUseRosService(bool useRosService);
 
+  std::vector<Position> positionWorldToInterpolatedFootPositionInWorldFrame_;
+
 
 #ifdef USE_ROS_SERVICE
   robotUtils::RosService footholdRosService_;
@@ -82,6 +84,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   Position positionWorldToCenterOfValidatedFeetInWorldFrame_;
   std::vector<Position> positionCenterOfValidatedFeetToDefaultFootInControlFrame_;
   std::vector<Position> positionWorldToValidatedDesiredFootHoldInWorldFrame_;
+
+  std::vector<Position> positionWorldToStartOfFootTrajectoryInWorldFrame_;
 
   std::vector<Position> newFootHolds_;
 
