@@ -52,13 +52,18 @@ bool MissionControlSpeedFilter::advance(double dt) {
   filteredVelocities_[1].update(unfilteredBaseTwistInHeadingFrame_.getTranslationalVelocity().y());
 
   double lateralVel = filteredVelocities_[1].val();
-  boundToRange(&lateralVel, -maxLateralVel, maxLateralVel);
+//  boundToRange(&lateralVel, -maxLateralVel, maxLateralVel);
+  lateralVel = mapInRange(lateralVel, -1.0, 1.0, -maxLateralVel, maxLateralVel);
+
+
   LinearVelocity linearVelocity(headingVel, lateralVel, 0.0);
 
   const double maxTurningVel = maximumBaseTwistInHeadingFrame_.getRotationalVelocity().z();
   filteredVelocities_[2].update(unfilteredBaseTwistInHeadingFrame_.getRotationalVelocity().z());
   double turningVel = filteredVelocities_[2].val();
-  boundToRange(&turningVel, -maxTurningVel, maxTurningVel);
+  //boundToRange(&turningVel, -maxTurningVel, maxTurningVel);
+  turningVel = mapInRange(turningVel, -1.0, 1.0, -maxTurningVel, maxTurningVel);
+
   LocalAngularVelocity angularVelocity(0.0, 0.0, turningVel);
 
   baseTwistInHeadingFrame_ = Twist(linearVelocity, angularVelocity);
