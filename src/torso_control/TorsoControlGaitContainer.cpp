@@ -111,9 +111,12 @@ double TorsoControlGaitContainer::getDesiredTorsoForeHeightAboveGroundInWorldFra
   return desiredTorsoForeHeightAboveGroundInWorldFrameOffset_;
 }
 
-
 double TorsoControlGaitContainer::getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const {
   return desiredTorsoHindHeightAboveGroundInWorldFrameOffset_;
+}
+
+double TorsoControlGaitContainer::getDesiredTorsoCoMHeightAboveGroundInControlFrameOffset() const {
+  return desiredTorsoCoMHeightAboveGroundInControlFrameOffset_;
 }
 
 

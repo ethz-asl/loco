@@ -241,7 +241,11 @@ bool TorsoControlDynamicGaitFreePlane::setToInterpolated(const TorsoControlBase&
                                                                              0.0,
                                                                              1.0,
                                                                              t);
-
+  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoCoMHeightAboveGroundInControlFrameOffset(),
+                                                                              controller2.getDesiredTorsoCoMHeightAboveGroundInControlFrameOffset(),
+                                                                              0.0,
+                                                                              1.0,
+                                                                              t);
 
   if(!interpolateHeightTrajectory(desiredTorsoForeHeightAboveGroundInWorldFrame_, controller1.desiredTorsoForeHeightAboveGroundInWorldFrame_, controller2.desiredTorsoForeHeightAboveGroundInWorldFrame_, t)) {
     return false;

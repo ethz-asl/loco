@@ -27,18 +27,20 @@ class TorsoControlGaitContainer : public TorsoControlBase {
   virtual bool advance(double dt);
   virtual bool loadParameters(const TiXmlHandle& handle);
 
-  virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Vector& axis);
-  virtual RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Vector& vB);
-
-  /*! Set a position offset to the CoM in world frame (used by the mission controller to move the robot while standing)
-   * @param[in] positionOffsetInWorldFrame The position offset
+  /*! Return the default fore torso height as defined in parameter file.
+   * @returns the default height
    */
-  double getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const;
+  virtual double getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset() const;
 
-  /*! Set a position offset to the CoM in world frame (used by the mission controller to move the robot while standing)
-   * @param[in] positionOffsetInWorldFrame The position offset
+  /*! Return the default hind torso height as defined in parameter file.
+   * @returns the default height
    */
-  double getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const;
+  virtual double getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset() const;
+
+  /*! Return default Center of Mass height as defined in parameter file.
+   * @returns the default height
+   */
+  virtual double getDesiredTorsoCoMHeightAboveGroundInControlFrameOffset() const;
 
   /*! Set a position offset to the CoM in world frame (used by the mission controller to move the robot while standing)
    * @param[in] positionOffsetInWorldFrame The position offset
@@ -52,7 +54,6 @@ class TorsoControlGaitContainer : public TorsoControlBase {
 
   const CoMOverSupportPolygonControlBase& getCoMOverSupportPolygonControl() const;
   CoMOverSupportPolygonControlBase* getCoMControl();
-
 
  protected:
   LegGroup* legs_;
@@ -90,6 +91,9 @@ class TorsoControlGaitContainer : public TorsoControlBase {
   RotationQuaternion getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(const Position& positionWorldToDesiredHorizontalBaseInWorldFrame) const;
   RotationQuaternion getOrientationWorldToHeadingOnTerrainSurface(const RotationQuaternion& orientationWorldToHeading) const;
   RotationQuaternion getOrientationWorldToHeadingBasedOnHipLocations() const;
+
+  virtual RotationQuaternion computeHeading(const RotationQuaternion& rquat, const Vector& axis);
+  virtual RotationQuaternion decomposeRotation(const RotationQuaternion& q_BA, const Vector& vB);
 
 };
 
