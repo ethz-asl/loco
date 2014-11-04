@@ -322,6 +322,17 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   /*******************/
 
 
+  for (auto leg: *legs_) {
+    if (leg->getStateTouchDown()->isNow()) {
+      std::cout << "leg: " << leg->getId() << " did touchdown. " << std::endl
+                << "des fh: " << positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] << std::endl
+                << "td  fh: " << leg->getStateTouchDown()->getFootPositionInWorldFrame() << std::endl
+                << "diff:   " << positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] - leg->getStateTouchDown()->getFootPositionInWorldFrame() << std::endl;
+    }
+  }
+
+
+
   // get pointer to next swing leg
   nextSwingLegId_ = comControl_->getNextSwingLeg();
   LegBase* nextSwingLeg = legs_->getLegById(nextSwingLegId_);
@@ -430,7 +441,8 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
     rosWatchdogCounter_ += dt;
 
 
-    if (currentSwingLeg->getSwingPhase() > 0.5 && !validationReceived_) {
+    //if (currentSwingLeg->getSwingPhase() > 0.5 && !validationReceived_) {
+    if (currentSwingLeg->getSwingPhase() > 0.8 && !validationReceived_) {
       std::cout << "leg id: " << currentSwingLeg->getId() << ". valid not received and swing phase is: " << currentSwingLeg->getSwingPhase() << std::endl;
       footholdRosService_.resetState();
       validationReceived_ = true;
