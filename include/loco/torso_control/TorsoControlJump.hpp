@@ -23,6 +23,11 @@ class TorsoControlJump: public TorsoControlBase
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
   virtual bool loadParameters(const TiXmlHandle& handle);
+
+  virtual bool setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t);
+  virtual void setDesiredPositionOffsetInWorldFrame(const Position& positionOffsetInWorldFrame);
+  virtual void setDesiredOrientationOffset(const RotationQuaternion& orientationOffset);
+
  protected:
   LegGroup* legs_;
   TorsoBase* torso_;

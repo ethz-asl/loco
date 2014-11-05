@@ -10,13 +10,17 @@
 
 #include "loco/gait_pattern/GaitPatternBase.hpp"
 #include "loco/gait_pattern/FootFallPattern.hpp"
+
+#include "loco/common/TorsoBase.hpp"
+#include "loco/common/LegGroup.hpp"
+
 #include <vector>
 
 namespace loco {
 
 class GaitPatternFlightPhases: public GaitPatternBase {
  public:
-  GaitPatternFlightPhases();
+  GaitPatternFlightPhases(LegGroup* legs, TorsoBase* torso);
   virtual ~GaitPatternFlightPhases();
 
   /*! @returns the stride duration in seconds
@@ -150,6 +154,10 @@ class GaitPatternFlightPhases: public GaitPatternBase {
       values in between) and -1 if the phase is not in the range.
     */
     double getRelativePhaseFromAbsolutePhaseInRange(double phase, double start, double end) const;
+    virtual void updateGaitPattern(double dt);
+
+    LegGroup* legs_;
+    TorsoBase* torso_;
 
 
     int getStepPatternIndexForLeg(int legId) const;

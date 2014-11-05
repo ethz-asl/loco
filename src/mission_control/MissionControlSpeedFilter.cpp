@@ -35,23 +35,35 @@ bool MissionControlSpeedFilter::initialize(double dt) {
   return true;
 }
 
+template<typename T>
+T mapInRange (T x, T in_min, T in_max, T out_min, T out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+
 bool MissionControlSpeedFilter::advance(double dt) {
   const double maxHeadingVel = maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().x();
   filteredVelocities_[0].update(unfilteredBaseTwistInHeadingFrame_.getTranslationalVelocity().x());
   double headingVel = filteredVelocities_[0].val();
-  boundToRange(&headingVel, -maxHeadingVel, maxHeadingVel);
+//  boundToRange(&headingVel, -maxHeadingVel, maxHeadingVel);
+  headingVel = mapInRange(headingVel, -1.0, 1.0, -maxHeadingVel, maxHeadingVel);
 
   const double maxLateralVel = maximumBaseTwistInHeadingFrame_.getTranslationalVelocity().y();
   filteredVelocities_[1].update(unfilteredBaseTwistInHeadingFrame_.getTranslationalVelocity().y());
 
   double lateralVel = filteredVelocities_[1].val();
-  boundToRange(&lateralVel, -maxLateralVel, maxLateralVel);
+//  boundToRange(&lateralVel, -maxLateralVel, maxLateralVel);
+  lateralVel = mapInRange(lateralVel, -1.0, 1.0, -maxLateralVel, maxLateralVel);
+
+
   LinearVelocity linearVelocity(headingVel, lateralVel, 0.0);
 
   const double maxTurningVel = maximumBaseTwistInHeadingFrame_.getRotationalVelocity().z();
   filteredVelocities_[2].update(unfilteredBaseTwistInHeadingFrame_.getRotationalVelocity().z());
   double turningVel = filteredVelocities_[2].val();
-  boundToRange(&turningVel, -maxTurningVel, maxTurningVel);
+  //boundToRange(&turningVel, -maxTurningVel, maxTurningVel);
+  turningVel = mapInRange(turningVel, -1.0, 1.0, -maxTurningVel, maxTurningVel);
+
   LocalAngularVelocity angularVelocity(0.0, 0.0, turningVel);
 
   baseTwistInHeadingFrame_ = Twist(linearVelocity, angularVelocity);

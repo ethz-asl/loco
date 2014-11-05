@@ -72,7 +72,7 @@ bool FootPlacementStrategyFreePlane::advance(double dt) {
       leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
       leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
       leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
-      leg->setSwingPhase(leg->getSwingPhase());
+//      leg->setSwingPhase(leg->getSwingPhase());
     }
 
     // Decide what to do based on the current state

@@ -40,17 +40,12 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   virtual bool initialize(double dt);
 
   virtual Position getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep);
-  virtual Position getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg);
   virtual Position getPositionFootAtLiftOffToDesiredFootHoldInControlFrame(const LegBase& leg);
-
   virtual Position getPositionDesiredFootHoldOrientationOffsetInWorldFrame(const LegBase& leg, const Position& positionWorldToDesiredFootHoldBeforeOrientationOffsetInWorldFrame);
-
   virtual Position getPositionWorldToValidatedDesiredFootHoldInWorldFrame(int legId) const;
-
   virtual Position getPositionDesiredFootOnTerrainToDesiredFootInControlFrame(const LegBase& leg, const Position& positionHipOnTerrainToDesiredFootOnTerrainInControlFrame);
 
   virtual void setCoMControl(CoMOverSupportPolygonControlBase* comControl);
-
 
   virtual bool goToStand();
   virtual bool resumeWalking();
@@ -59,6 +54,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
   virtual bool isUsingRosService();
   virtual void setUseRosService(bool useRosService);
+
+  std::vector<Position> positionWorldToInterpolatedFootPositionInWorldFrame_;
 
 
 #ifdef USE_ROS_SERVICE
@@ -87,6 +84,8 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
   Position positionWorldToCenterOfValidatedFeetInWorldFrame_;
   std::vector<Position> positionCenterOfValidatedFeetToDefaultFootInControlFrame_;
   std::vector<Position> positionWorldToValidatedDesiredFootHoldInWorldFrame_;
+
+  std::vector<Position> positionWorldToStartOfFootTrajectoryInWorldFrame_;
 
   std::vector<Position> newFootHolds_;
 

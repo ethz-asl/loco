@@ -25,6 +25,8 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     FootPlacementStrategyFreePlane(legs, torso, terrain),
     positionCenterOfValidatedFeetToDefaultFootInControlFrame_(legs_->size()),
     positionWorldToValidatedDesiredFootHoldInWorldFrame_(legs_->size()),
+    positionWorldToStartOfFootTrajectoryInWorldFrame_(legs_->size()),
+    positionWorldToInterpolatedFootPositionInWorldFrame_(legs_->size()),
     comControl_(nullptr),
     newFootHolds_(legs_->size()),
     footHoldPlanned_(false),
@@ -59,6 +61,7 @@ FootPlacementStrategyStaticGait::FootPlacementStrategyStaticGait(LegGroup* legs,
     positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()].setZero();
     positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()].setZero();
     positionWorldToFootHoldInWorldFrame_[leg->getId()].setZero();
+    positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()].setZero();
     newFootHolds_[leg->getId()].setZero();
     firstFootHoldAfterStand_[leg->getId()] = leg->isInStandConfiguration();
   }
@@ -123,6 +126,7 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
     terrain_->getHeight(positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()]);
     positionWorldToCenterOfValidatedFeetInWorldFrame_ += positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()]/legs_->size();
     positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()];
+    positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()] =  leg->getPositionWorldToFootInWorldFrame();
     newFootHolds_[leg->getId()] = positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()];
   }
 
@@ -311,11 +315,22 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
       leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
       leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
-      leg->setSwingPhase(leg->getSwingPhase());
+//      leg->setSwingPhase(leg->getSwingPhase());
     }
 
   } // for auto leg
   /*******************/
+
+
+  for (auto leg: *legs_) {
+    if (leg->getStateTouchDown()->isNow()) {
+      std::cout << "leg: " << leg->getId() << " did touchdown. " << std::endl
+                << "des fh: " << positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] << std::endl
+                << "td  fh: " << leg->getStateTouchDown()->getFootPositionInWorldFrame() << std::endl
+                << "diff:   " << positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()] - leg->getStateTouchDown()->getFootPositionInWorldFrame() << std::endl;
+    }
+  }
+
 
 
   // get pointer to next swing leg
@@ -333,7 +348,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
   }
 
   if (resumeWalking_ && comControl_->isSafeToResumeWalking()) {
-    if (nextSwingLeg->getStancePhase() < 0.75 && nextSwingLeg->getStancePhase() != -1) {
+    if (nextSwingLeg->getStancePhase() < 0.9 && nextSwingLeg->getStancePhase() != -1) {
       nextSwingLeg->setIsInStandConfiguration(false);
     }
   }
@@ -426,7 +441,8 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
     rosWatchdogCounter_ += dt;
 
 
-    if (currentSwingLeg->getSwingPhase() > 0.5 && !validationReceived_) {
+    //if (currentSwingLeg->getSwingPhase() > 0.5 && !validationReceived_) {
+    if (currentSwingLeg->getSwingPhase() > 0.8 && !validationReceived_) {
       std::cout << "leg id: " << currentSwingLeg->getId() << ". valid not received and swing phase is: " << currentSwingLeg->getSwingPhase() << std::endl;
       footholdRosService_.resetState();
       validationReceived_ = true;
@@ -480,18 +496,18 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
 
 
 void FootPlacementStrategyStaticGait::setFootTrajectory(LegBase* leg) {
-    const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
-    leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
-    const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
-    const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
+  const Position positionWorldToFootInWorldFrame = getDesiredWorldToFootPositionInWorldFrame(leg, 0.0);
+  leg->setDesireWorldToFootPositionInWorldFrame(positionWorldToFootInWorldFrame); // for debugging
+  const Position positionBaseToFootInWorldFrame = positionWorldToFootInWorldFrame - torso_->getMeasuredState().getPositionWorldToBaseInWorldFrame();
+  const Position positionBaseToFootInBaseFrame  = torso_->getMeasuredState().getOrientationWorldToBase().rotate(positionBaseToFootInWorldFrame);
 
-    leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
+  leg->setDesiredJointPositions(leg->getJointPositionsFromPositionBaseToFootInBaseFrame(positionBaseToFootInBaseFrame));
 }
 
 
 void FootPlacementStrategyStaticGait::regainContact(LegBase* leg, double dt) {
   Position positionWorldToFootInWorldFrame =  leg->getPositionWorldToFootInWorldFrame();
-  double loweringSpeed = 0.05;
+//  double loweringSpeed = 0.05;
 
   loco::Vector normalInWorldFrame;
   if (terrain_->getNormal(positionWorldToFootInWorldFrame,normalInWorldFrame)) {
@@ -515,13 +531,13 @@ void FootPlacementStrategyStaticGait::regainContact(LegBase* leg, double dt) {
  */
 Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
-  Position positionWorldToFootOnTerrainAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
-  terrain_->getHeight(positionWorldToFootOnTerrainAtLiftOffInWorldFrame);
+  positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()] =  leg->getPositionWorldToFootInWorldFrame();
+  terrain_->getHeight(positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()]);
 
   // x-y offset
   Position positionFootAtLiftOffToDesiredFootHoldInWorldFrame = orientationWorldToControl.inverseRotate(getPositionFootAtLiftOffToDesiredFootHoldInControlFrame(*leg));
 
-  Position positionWorldToFootHoldInWorldFrame = positionWorldToFootOnTerrainAtLiftOffInWorldFrame
+  Position positionWorldToFootHoldInWorldFrame = positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()]
                                                  + positionFootAtLiftOffToDesiredFootHoldInWorldFrame;
 
   // orientation offset - rotate foothold position vector around world z axis according to desired angular velocity
@@ -533,6 +549,7 @@ Position FootPlacementStrategyStaticGait::generateFootHold(LegBase* leg) {
 
   return positionWorldToFootHoldInWorldFrame_[leg->getId()];
 }
+
 
 /*
  * Check if a desired foothold is valid. Return a validated foothold.
@@ -549,16 +566,15 @@ bool FootPlacementStrategyStaticGait::getValidatedFootHold(const int legId, cons
 
 
 /*
- * Foot holds are evaluated with respect to the foot positions at liftoff.
+ * Foot holds are evaluated with respect to the foot positions at generation time.
  */
 Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
-  Position positionWorldToFootAtLiftOffInWorldFrame = leg->getStateLiftOff()->getPositionWorldToFootInWorldFrame();
 
   // get the actual (validated) step that must be taken
   Position positionWorldToValidatedFootHoldInWorldFrame = positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()];
   Position positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame = positionWorldToValidatedFootHoldInWorldFrame
-                                                                         - positionWorldToFootAtLiftOffInWorldFrame;
+                                                                         - positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()];
 
   Position positionFootAtLiftOffToValidatedDesiredFootHoldInControlFrame = orientationWorldToControl.rotate(positionFootAtLiftOffToValidatedDesiredFootHoldInWorldFrame);
 
@@ -588,9 +604,12 @@ Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFr
                                                                                                                                  positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInControlFrame); // z
 
 
-  Position positionWorldToDesiredFootInWorldFrame = positionWorldToFootAtLiftOffInWorldFrame
+  Position positionWorldToDesiredFootInWorldFrame = positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()]
                                                     + orientationWorldToControl.inverseRotate(positionFootOnTerrainAtLiftOffToDesiredFootOnTerrainInControlFrame)
                                                     + orientationWorldToControl.inverseRotate(positionDesiredFootOnTerrainToDesiredFootInControlFrame);
+  positionWorldToInterpolatedFootPositionInWorldFrame_[leg->getId()] = positionWorldToDesiredFootInWorldFrame;
+  terrain_->getHeight(positionWorldToInterpolatedFootPositionInWorldFrame_[leg->getId()]);
+
   return positionWorldToDesiredFootInWorldFrame;
   //---
 }
@@ -659,7 +678,7 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
                                                     + positionWorldToCenterOfValidatedFeetInWorldFrame;
 
   Position positionFootAtLiftOffToDefaultFootInWorldFrame = positionWorldToDefafultFootInWorldFrame
-                                                            - leg.getStateLiftOff().getPositionWorldToFootInWorldFrame();
+                                                            - positionWorldToStartOfFootTrajectoryInWorldFrame_[leg.getId()];
   Position positionFootAtLiftOffToDefaultFootInControlFrame = orientationWorldToControl.rotate(positionFootAtLiftOffToDefaultFootInWorldFrame);
 
   // heading component
@@ -669,12 +688,12 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
   if (desiredHeadingVelocity < 0.0) {
     correctingFactor = 0.5;
   }
-  Position positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame = Position(desiredHeadingVelocity, 0.0, 0.0)*stanceDuration*0.5*correctingFactor;
+  Position positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame = Position(desiredHeadingVelocity, 0.0, 0.0)*0.5*correctingFactor;
 
   // lateral component
   Position lateralAxisOfControlFrame = Position::UnitY();
   Position positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(lateralAxisOfControlFrame.toImplementation()))
-                                                                      *stanceDuration*0.5;
+                                                                      *0.5;
 
   // build the desired foot step displacement
   Position positionFootAtLiftOffToDesiredFootHoldInControlFrame;
@@ -696,57 +715,6 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
 
 
   return positionFootAtLiftOffToDesiredFootHoldInControlFrame;
-}
-
-
-Position FootPlacementStrategyStaticGait::getPositionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame(const LegBase& leg) {
-  const RotationQuaternion& orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();
-
-  positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg.getId()] = getPositionDesiredFootHoldOnTerrainFeedForwardInControlFrame(leg);
-//  positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()] = getPositionDesiredFootHoldOnTerrainFeedBackInControlFrame(leg);
-
-  Position positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame = positionDesiredFootHoldOnTerrainFeedForwardInControlFrame_[leg.getId()]
-                                                                                     /*+ positionDesiredFootHoldOnTerrainFeedBackInControlFrame_[leg.getId()]*/;
-
-  //--- save for debug
-  //Position positionWorldToHipOnPlaneAlongNormalInWorldFrame = getPositionProjectedOnPlaneAlongSurfaceNormal(leg.getWorldToHipPositionInWorldFrame());
-
-  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getStateLiftOff().getPositionWorldToHipInWorldFrame();
-//  Position positionWorldToHipVerticalOnPlaneInWorldFrame = leg.getWorldToHipPositionInWorldFrame();
-  terrain_->getHeight(positionWorldToHipVerticalOnPlaneInWorldFrame);
-
-  positionWorldToFootHoldInWorldFrame_[leg.getId()] = positionWorldToHipVerticalOnPlaneInWorldFrame
-                                                      + orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame);
-
-//  std::cout << "foothold components for leg: " << leg.getId() << std::endl
-//            << "world to hip on t: " << positionWorldToHipVerticalOnPlaneInWorldFrame << std::endl
-//            << "hip on t to foot: " << orientationWorldToControl.inverseRotate(positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame) << std::endl;
-  //---
-
-  //--- starting point for trajectory interpolation
-  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame = leg.getStateLiftOff().getPositionWorldToFootInWorldFrame()
-                                                                              -leg.getStateLiftOff().getPositionWorldToHipOnTerrainAlongNormalToSurfaceAtLiftOffInWorldFrame();
-  const Position positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame = orientationWorldToControl.rotate(positionHipOnTerrainAlongNormalToFootAtLiftOffInWorldFrame);
-  //---
-
-  double interpolationParameter = getInterpolationPhase(leg);
-
-  Position positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame = Position(
-                                                                                  // x
-                                                                                  getHeadingComponentOfFootStep(interpolationParameter,
-                                                                                  positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame.x(),
-                                                                                  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame.x(),
-                                                                                  const_cast<LegBase*>(&leg)),
-                                                                                  // y
-                                                                                  getLateralComponentOfFootStep(interpolationParameter,
-                                                                                  positionHipOnTerrainAlongNormalToFootAtLiftOffInControlFrame.y(),
-                                                                                  positionHipOnTerrainAlongNormalToDesiredFootHoldOnTerrainInControlFrame.y(),
-                                                                                  const_cast<LegBase*>(&leg)),
-                                                                                  // z
-                                                                                  0.0
-                                                                                  );
-
-  return positionHipOnTerrainAlongNormalToDesiredFootOnTerrainInControlFrame;
 }
 
 

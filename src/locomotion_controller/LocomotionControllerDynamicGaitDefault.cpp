@@ -54,7 +54,7 @@ LocomotionControllerDynamicGaitDefault::LocomotionControllerDynamicGaitDefault(c
     //contactDetector_.reset(new loco::ContactDetectorFeedThrough());
     contactDetector_.reset(new loco::ContactDetectorConstantDuringStance(legs_.get()));
     gaitPatternAPS_.reset(new loco::GaitPatternAPS);
-    gaitPatternFlightPhases_.reset(new loco::GaitPatternFlightPhases);
+    gaitPatternFlightPhases_.reset(new loco::GaitPatternFlightPhases(legs_.get(), torso_.get()));
     limbCoordinator_.reset(new loco::LimbCoordinatorDynamicGait(legs_.get(), torso_.get(), gaitPatternFlightPhases_.get()));
     //footPlacementStrategy_.reset(new loco::FootPlacementStrategyInvertedPendulum(legs_.get(), torso_.get(), terrainModel_.get()));
     footPlacementStrategy_.reset(new loco::FootPlacementStrategyFreePlane(legs_.get(), torso_.get(), terrainModel_.get()));
@@ -117,7 +117,7 @@ bool LocomotionControllerDynamicGaitDefault::advanceMeasurements(double dt) {
   torso_->getDesiredState().setLinearVelocityBaseInControlFrame(desLinearVelocityBaseInControlFrame);
   torso_->getDesiredState().setAngularVelocityBaseInControlFrame(desAngularVelocityBaseInControlFrame);
 
-  torsoController_->setDesiredPositionOffetInWorldFrame(missionController_->getDesiredPositionOffsetInWorldFrame());
+  torsoController_->setDesiredPositionOffsetInWorldFrame(missionController_->getDesiredPositionOffsetInWorldFrame());
   torsoController_->setDesiredOrientationOffset(missionController_->getDesiredOrientationOffset());
 
   if (!locomotionController_->advanceSetPoints(dt)) {

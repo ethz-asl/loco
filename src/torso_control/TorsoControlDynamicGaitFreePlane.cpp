@@ -12,12 +12,8 @@
 
 namespace loco {
 
-TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso,  loco::TerrainModelBase* terrain):
-  TorsoControlBase(),
-  legs_(legs),
-  torso_(torso),
-  terrain_(terrain),
-  comControl_(nullptr),
+TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs, TorsoBase* torso,  TerrainModelBase* terrain):
+  TorsoControlGaitContainer(legs, torso, terrain),
   maxDesiredPitchRadians_(5.0*M_PI/180.0),
   desiredPitchSlope_(1.0),
   maxDesiredRollRadians_(5.0*M_PI/180.0),
@@ -26,30 +22,6 @@ TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* leg
 {
   firstOrderFilter_ = new robotUtils::FirstOrderFilter();
   comControl_ = new CoMOverSupportPolygonControlDynamicGait(legs_);
-
-  const double defaultHeight = 0.42;
-  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
-}
-
-TorsoControlDynamicGaitFreePlane::TorsoControlDynamicGaitFreePlane(LegGroup* legs,
-                                                                   TorsoBase* torso,
-                                                                   loco::TerrainModelBase* terrain,
-                                                                   CoMOverSupportPolygonControlBase* comControl):
-  TorsoControlBase(),
-  legs_(legs),
-  torso_(torso),
-  terrain_(terrain),
-  maxDesiredPitchRadians_(5.0*M_PI/180.0),
-  desiredPitchSlope_(1.0),
-  maxDesiredRollRadians_(5.0*M_PI/180.0),
-  desiredRollSlope_(1.0),
-  adaptToTerrain_(CompleteAdaption),
-  comControl_(comControl)
-{
-  firstOrderFilter_ = new robotUtils::FirstOrderFilter();
-
-  const double defaultHeight = 0.41;
-  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_  = defaultHeight;
 }
 
 
@@ -234,84 +206,55 @@ bool TorsoControlDynamicGaitFreePlane::advance(double dt) {
 }
 
 
-RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationWorldToHeadingOnTerrainSurface(const RotationQuaternion& orientationWorldToHeading) const {
-    double terrainPitch, terrainRoll, controlFrameYaw;
-    loco::Vector normalInWorldFrame;
-    terrain_->getNormal(loco::Position::Zero(), normalInWorldFrame);
+bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle) {
+  TiXmlHandle handleTorsoConfiguration(handle.FirstChild("TorsoControl").FirstChild("TorsoConfiguration"));
+  TiXmlHandle handleDynamicGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
 
-
-
-    loco::Vector normalInHeadingControlFrame = orientationWorldToHeading.rotate(normalInWorldFrame);
-    terrainPitch = atan2(normalInHeadingControlFrame.x(), normalInHeadingControlFrame.z());
-    terrainRoll = atan2(normalInHeadingControlFrame.y(), normalInHeadingControlFrame.z());
-
-    return RotationQuaternion(AngleAxis(terrainRoll, -1.0, 0.0, 0.0))
-                                                   * RotationQuaternion(AngleAxis(terrainPitch, 0.0, 1.0, 0.0))
-                                                   * orientationWorldToHeading;
-
-}
-
-RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationWorldToHeadingBasedOnHipLocations() const {
-  //--- Get current heading direction
-  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToHipInWorldFrame())*0.5;
-  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToHipInWorldFrame())*0.5;
-  Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
-  currentHeadingDirectionInWorldFrame.z() = 0.0;
-
-  RotationQuaternion orientationWorldToControlHeading;
-  Eigen::Vector3d axisX = Eigen::Vector3d::UnitX();
-  orientationWorldToControlHeading.setFromVectors(axisX, currentHeadingDirectionInWorldFrame.toImplementation());
-  //---
-  return orientationWorldToControlHeading;
-}
-
-RotationQuaternion TorsoControlDynamicGaitFreePlane::getOrientationHeadingToDesiredHeadingBasedOnFeetLocations(const Position& positionWorldToDesiredHorizontalBaseInWorldFrame) const {
-
-  // this is the center of the feet projected on the x-y plane of the world frame
-  loco::Position positionWorldToMiddleOfFeetInWorldFrame;
-  for (auto leg : *legs_) {
-    positionWorldToMiddleOfFeetInWorldFrame += leg->getPositionWorldToFootInWorldFrame();
-  }
-  positionWorldToMiddleOfFeetInWorldFrame /= legs_->size();
-  positionWorldToMiddleOfFeetInWorldFrame.z() = 0.0;
-
-  // this is the error vector between the desired and measured location of the base projected on the x-y plane of the world frame and expressed in the world frame
-  const Position horizontalPositionErrorInWorldFrame = positionWorldToDesiredHorizontalBaseInWorldFrame
-                                                       - positionWorldToMiddleOfFeetInWorldFrame;
-
-
-  //--- Get desired heading direction with respect to the current feet
-  const Position positionForeFeetMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToFootInWorldFrame())*0.5;
-  const Position positionHindFeetMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToFootInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToFootInWorldFrame())*0.5;
-
-  Position positionWorldToDesiredForeFeetMidPointInWorldFrame = positionForeFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;
-  Position positionWorldToDesiredHindFeetMidPointInWorldFrame = positionHindFeetMidPointInWorldFrame+horizontalPositionErrorInWorldFrame;// + positionControlToTargetBaseInControlFrame;
-
-  Vector desiredHeadingDirectionInWorldFrame = Vector(positionWorldToDesiredForeFeetMidPointInWorldFrame-positionWorldToDesiredHindFeetMidPointInWorldFrame);
-  desiredHeadingDirectionInWorldFrame.z() = 0.0;
-  //---
-
-  //--- Get current heading direction defined by the mid hip points
-  const Position positionForeHipsMidPointInWorldFrame = (legs_->getLeftForeLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightForeLeg()->getPositionWorldToHipInWorldFrame())*0.5;
-  const Position positionHindHipsMidPointInWorldFrame = (legs_->getLeftHindLeg()->getPositionWorldToHipInWorldFrame() + legs_->getRightHindLeg()->getPositionWorldToHipInWorldFrame())*0.5;
-  Vector currentHeadingDirectionInWorldFrame = Vector(positionForeHipsMidPointInWorldFrame-positionHindHipsMidPointInWorldFrame);
-  currentHeadingDirectionInWorldFrame.z() = 0.0;
-  //---
-
-  // Yaw angle in world frame
-  RotationQuaternion orientationCurrentHeadingToDesiredHeading;
-
-  try {
-    orientationCurrentHeadingToDesiredHeading.setFromVectors(currentHeadingDirectionInWorldFrame.toImplementation(),
-                                                             desiredHeadingDirectionInWorldFrame.toImplementation());
-  } catch (std::exception& e) {
-    std::cout << e.what() << '\n';
-    std::cout << "currentHeadingDirectionInWorldFrame: " << currentHeadingDirectionInWorldFrame <<std::endl;
-    std::cout << "desiredHeadingDirectionInWorldFrame: " << desiredHeadingDirectionInWorldFrame <<std::endl;
-    orientationCurrentHeadingToDesiredHeading.setIdentity();
+  if (!comControl_->loadParameters(handleDynamicGait)) {
+    return false;
   }
 
-  return orientationCurrentHeadingToDesiredHeading;
+  if (!loadParametersTorsoConfiguration(handleTorsoConfiguration)) {
+    return false;
+  }
+
+  if (!loadParametersHipConfiguration(handleDynamicGait)) {
+    return false;
+  }
+
+  return true;
+}
+
+
+bool TorsoControlDynamicGaitFreePlane::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
+  const TorsoControlDynamicGaitFreePlane& controller1 = static_cast<const TorsoControlDynamicGaitFreePlane&>(torsoController1);
+  const TorsoControlDynamicGaitFreePlane& controller2 = static_cast<const TorsoControlDynamicGaitFreePlane&>(torsoController2);
+
+  this->comControl_->setToInterpolated(controller1.getCoMOverSupportPolygonControl(), controller2.getCoMOverSupportPolygonControl(), t);
+  desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
+                                                                             controller2.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
+                                                                             0.0,
+                                                                             1.0,
+                                                                             t);
+  desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
+                                                                             controller2.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
+                                                                             0.0,
+                                                                             1.0,
+                                                                             t);
+  desiredTorsoCoMHeightAboveGroundInControlFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoCoMHeightAboveGroundInControlFrameOffset(),
+                                                                              controller2.getDesiredTorsoCoMHeightAboveGroundInControlFrameOffset(),
+                                                                              0.0,
+                                                                              1.0,
+                                                                              t);
+
+  if(!interpolateHeightTrajectory(desiredTorsoForeHeightAboveGroundInWorldFrame_, controller1.desiredTorsoForeHeightAboveGroundInWorldFrame_, controller2.desiredTorsoForeHeightAboveGroundInWorldFrame_, t)) {
+    return false;
+  }
+  if(!interpolateHeightTrajectory(desiredTorsoHindHeightAboveGroundInWorldFrame_, controller1.desiredTorsoHindHeightAboveGroundInWorldFrame_, controller2.desiredTorsoHindHeightAboveGroundInWorldFrame_, t)) {
+    return false;
+  }
+
+  return true;
 }
 
 
@@ -359,58 +302,6 @@ void TorsoControlDynamicGaitFreePlane::getDesiredBaseRollFromTerrainRoll(const d
        */
       desiredBaseRoll = terrainRoll;
     }
-}
-
-
-bool TorsoControlDynamicGaitFreePlane::loadParameters(const TiXmlHandle& handle) {
-  TiXmlHandle hDynGait(handle.FirstChild("TorsoControl").FirstChild("DynamicGait"));
-  if (!comControl_->loadParameters(hDynGait)) {
-    return false;
-  }
-  if (!loadParametersHipConfiguration(hDynGait)) {
-    return false;
-  }
-
-  return true;
-}
-
-//CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMOverSupportPolygonControl() {
-//  return comControl_;
-//}
-//
-CoMOverSupportPolygonControlBase* TorsoControlDynamicGaitFreePlane::getCoMControl() {
-  return comControl_;
-}
-
-const CoMOverSupportPolygonControlBase& TorsoControlDynamicGaitFreePlane::getCoMOverSupportPolygonControl() const {
-  return *comControl_;
-}
-
-bool TorsoControlDynamicGaitFreePlane::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
-  const TorsoControlDynamicGaitFreePlane& controller1 = static_cast<const TorsoControlDynamicGaitFreePlane&>(torsoController1);
-  const TorsoControlDynamicGaitFreePlane& controller2 = static_cast<const TorsoControlDynamicGaitFreePlane&>(torsoController2);
-
-  this->comControl_->setToInterpolated(controller1.getCoMOverSupportPolygonControl(), controller2.getCoMOverSupportPolygonControl(), t);
-  desiredTorsoForeHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
-                                                                             controller2.getDesiredTorsoForeHeightAboveGroundInWorldFrameOffset(),
-                                                                             0.0,
-                                                                             1.0,
-                                                                             t);
-  desiredTorsoHindHeightAboveGroundInWorldFrameOffset_ = linearlyInterpolate(controller1.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
-                                                                             controller2.getDesiredTorsoHindHeightAboveGroundInWorldFrameOffset(),
-                                                                             0.0,
-                                                                             1.0,
-                                                                             t);
-
-
-  if(!interpolateHeightTrajectory(desiredTorsoForeHeightAboveGroundInWorldFrame_, controller1.desiredTorsoForeHeightAboveGroundInWorldFrame_, controller2.desiredTorsoForeHeightAboveGroundInWorldFrame_, t)) {
-    return false;
-  }
-  if(!interpolateHeightTrajectory(desiredTorsoHindHeightAboveGroundInWorldFrame_, controller1.desiredTorsoHindHeightAboveGroundInWorldFrame_, controller2.desiredTorsoHindHeightAboveGroundInWorldFrame_, t)) {
-    return false;
-  }
-
-  return true;
 }
 
 

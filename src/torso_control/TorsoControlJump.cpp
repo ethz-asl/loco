@@ -44,4 +44,14 @@ bool TorsoControlJump::loadParameters(const TiXmlHandle& handle) {
   return true;
 }
 
+bool TorsoControlJump::setToInterpolated(const TorsoControlBase& torsoController1, const TorsoControlBase& torsoController2, double t) {
+  return true;
+}
+void TorsoControlJump::setDesiredPositionOffsetInWorldFrame(const Position& positionOffsetInWorldFrame) {
+
+}
+void TorsoControlJump::setDesiredOrientationOffset(const RotationQuaternion& orientationOffset) {
+
+}
+
 } /* namespace loco */

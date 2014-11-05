@@ -12,16 +12,19 @@
 
 namespace loco {
 
-GaitPatternFlightPhases::GaitPatternFlightPhases():
-    isInitialized_(false),
-    initCyclePhase_(0.0),
-    cyclePhase_(0.0),
-    numGaitCycles_(0),
-    strideDuration_(0.0)
+
+GaitPatternFlightPhases::GaitPatternFlightPhases(LegGroup* legs, TorsoBase* torso):
+  isInitialized_(false),
+  initCyclePhase_(0.0),
+  cyclePhase_(0.0),
+  numGaitCycles_(0),
+  strideDuration_(0.0),
+  torso_(torso),
+  legs_(legs)
 {
 
-
 }
+
 
 GaitPatternFlightPhases::~GaitPatternFlightPhases() {
 
@@ -131,16 +134,44 @@ bool loco::GaitPatternFlightPhases::isInitialized()
   return isInitialized_;
 }
 
-bool loco::GaitPatternFlightPhases::advance(double dt) {
+
+void loco::GaitPatternFlightPhases::updateGaitPattern(double dt) {
   if (strideDuration_ == 0.0) {
     cyclePhase_ = 0.0;
-    return true;
+    return;
   }
   cyclePhase_ += dt/strideDuration_;
   if (cyclePhase_ > 1.0) {
     cyclePhase_ = 0.0;
     numGaitCycles_++;
   }
+}
+
+
+bool loco::GaitPatternFlightPhases::advance(double dt) {
+
+  updateGaitPattern(dt);
+
+  torso_->setStridePhase(getStridePhase());
+
+  int iLeg =0;
+  for (auto leg : *legs_) {
+    //--- defined by the "planning" / timing
+    leg->setShouldBeGrounded(shouldBeLegGrounded(iLeg));
+    leg->setStanceDuration(getStanceDuration(iLeg));
+    leg->setSwingDuration(getStrideDuration()-getStanceDuration(iLeg));
+    //---
+
+    //--- timing measurements
+    leg->setPreviousSwingPhase(leg->getSwingPhase());
+    leg->setSwingPhase(getSwingPhaseForLeg(iLeg));
+    leg->setPreviousStancePhase(leg->getStancePhase());
+    leg->setStancePhase(getStancePhaseForLeg(iLeg));
+    //---
+
+    iLeg++;
+  }
+
   return true;
 
 }
