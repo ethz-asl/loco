@@ -315,7 +315,7 @@ bool FootPlacementStrategyStaticGait::advance(double dt) {
       leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(positionWorldToHipOnTerrainAlongWorldZInWorldFrame);
       leg->getStateLiftOff()->setPositionWorldToFootInWorldFrame(leg->getPositionWorldToFootInWorldFrame());
       leg->getStateLiftOff()->setPositionWorldToHipInWorldFrame(leg->getPositionWorldToHipInWorldFrame());
-      leg->setSwingPhase(leg->getSwingPhase());
+//      leg->setSwingPhase(leg->getSwingPhase());
     }
 
   } // for auto leg
@@ -566,7 +566,7 @@ bool FootPlacementStrategyStaticGait::getValidatedFootHold(const int legId, cons
 
 
 /*
- * Foot holds are evaluated with respect to the foot positions at liftoff.
+ * Foot holds are evaluated with respect to the foot positions at generation time.
  */
 Position FootPlacementStrategyStaticGait::getDesiredWorldToFootPositionInWorldFrame(LegBase* leg, double tinyTimeStep) {
   RotationQuaternion orientationWorldToControl = torso_->getMeasuredState().getOrientationWorldToControl();

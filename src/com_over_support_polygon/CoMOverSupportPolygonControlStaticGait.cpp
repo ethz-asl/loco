@@ -313,6 +313,7 @@ bool CoMOverSupportPolygonControlStaticGait::setToInterpolated(const CoMOverSupp
 
 void CoMOverSupportPolygonControlStaticGait::setIsInStandConfiguration(bool isInStandConfiguration) {
   isInStandConfiguration_ = isInStandConfiguration;
+//  if (allFeetGrounded_) updateSafeSupportTriangles();
   makeShift_ = true;
 }
 
@@ -333,6 +334,7 @@ void CoMOverSupportPolygonControlStaticGait::advance(double dt) {
     if (allFeetGrounded_ && swingFootChanged_) {
       // reset flag
       swingFootChanged_ = false;
+      printState();
       updateSafeSupportTriangles();
     }
 
@@ -587,4 +589,16 @@ std::vector<int> CoMOverSupportPolygonControlStaticGait::getDiagonalElements(int
 }
 
 
+void CoMOverSupportPolygonControlStaticGait::printState() {
+  std::cout << "****" << std::endl;
+  std::cout << "Swing legs:" << std::endl
+            << "before landing: " << getBeforeLandingSwingLeg() << std::endl
+            << "next:           " << getNextSwingLeg() << std::endl
+            << "over next:      " << getOverNextSwingLeg() << std::endl;
+  std::cout << "****" << std::endl << std::endl;
+}
+
+
 } /* namespace loco */
+
+

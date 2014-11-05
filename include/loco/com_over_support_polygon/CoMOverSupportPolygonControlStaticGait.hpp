@@ -69,6 +69,8 @@ class CoMOverSupportPolygonControlStaticGait: public CoMOverSupportPolygonContro
 
   virtual bool isSafeToResumeWalking();
 
+  virtual void printState();
+
  protected:
 
   TorsoBase* torso_;

@@ -163,26 +163,14 @@ bool LocomotionControllerDynamicGait::advanceSetPoints(double dt) {
 
   //--- Update timing.
   gaitPattern_->advance(dt);
-  torso_->setStridePhase(gaitPattern_->getStridePhase());
 
-  int iLeg =0;
-  for (auto leg : *legs_) {
-	//--- defined by the "planning" / timing
-    leg->setShouldBeGrounded(gaitPattern_->shouldBeLegGrounded(iLeg));
-    leg->setStanceDuration(gaitPattern_->getStanceDuration(iLeg));
-    leg->setSwingDuration(gaitPattern_->getStrideDuration()-gaitPattern_->getStanceDuration(iLeg));
-    //---
-
-    //--- timing measurements
-    leg->setPreviousSwingPhase(leg->getSwingPhase());
-    leg->setSwingPhase(gaitPattern_->getSwingPhaseForLeg(iLeg));
-    leg->setPreviousStancePhase(leg->getStancePhase());
-    leg->setStancePhase(gaitPattern_->getStancePhaseForLeg(iLeg));
-    //---
-
-
-    iLeg++;
-  }
+//  bool standing = true;
+//  for (auto leg: *legs_) {
+//    standing &= leg->isInStandConfiguration();
+//  }
+//  if (standing) {
+//    gaitPattern_->setStridePhase(0.0);
+//  }
 
   //---
 
