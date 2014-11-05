@@ -688,12 +688,12 @@ Position FootPlacementStrategyStaticGait::getPositionFootAtLiftOffToDesiredFootH
   if (desiredHeadingVelocity < 0.0) {
     correctingFactor = 0.5;
   }
-  Position positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame = Position(desiredHeadingVelocity, 0.0, 0.0)*stanceDuration*0.5*correctingFactor;
+  Position positionDesiredFootOnTerrainVelocityHeadingOffsetInControlFrame = Position(desiredHeadingVelocity, 0.0, 0.0)*0.5*correctingFactor;
 
   // lateral component
   Position lateralAxisOfControlFrame = Position::UnitY();
   Position positionDesiredFootOnTerrainVelocityLateralOffsetInControlFrame = Position(torso_->getDesiredState().getLinearVelocityBaseInControlFrame().toImplementation().cwiseProduct(lateralAxisOfControlFrame.toImplementation()))
-                                                                      *stanceDuration*0.5;
+                                                                      *0.5;
 
   // build the desired foot step displacement
   Position positionFootAtLiftOffToDesiredFootHoldInControlFrame;
