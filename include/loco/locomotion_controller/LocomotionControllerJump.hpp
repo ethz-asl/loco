@@ -24,7 +24,7 @@
 #include "loco/common/TorsoBase.hpp"
 #include "loco/common/ParameterSet.hpp"
 
-#include "GaussianKernelJumpPropagator.hpp"
+#include "robotUtils/function_approximators/dynamicMovementPrimitive/GaussianKernelJumpPropagator.hpp"
 
 namespace loco {
 

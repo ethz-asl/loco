@@ -13,7 +13,7 @@
 #include "loco/common/LegGroup.hpp"
 #include "loco/common/TorsoStarlETH.hpp"
 
-#include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
+#include "robotUtils/filters/FirstOrderFilter.hpp"
 
 namespace loco {
 

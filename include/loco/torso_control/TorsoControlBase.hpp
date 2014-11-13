@@ -11,7 +11,7 @@
 #define LOCO_TORSOCONTROLBASE_HPP_
 
 #include "tinyxml.h"
-#include "PeriodicRBF1DC1.hpp"
+#include "robotUtils/function_approximators/polyharmonicSplines/PeriodicRBF1DC1.hpp"
 #include "loco/common/TypeDefs.hpp"
 #include "kindr/rotations/RotationEigen.hpp"
 
