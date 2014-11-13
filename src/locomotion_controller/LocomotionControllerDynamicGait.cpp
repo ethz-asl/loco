@@ -8,7 +8,7 @@
 */
 #include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
 //#include "Rotations.hpp"
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 namespace loco {
 
 LocomotionControllerDynamicGait::LocomotionControllerDynamicGait(LegGroup* legs, TorsoBase* torso,

@@ -11,7 +11,7 @@
 
 #include "loco/common/LegPropertiesBase.hpp"
 
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 
