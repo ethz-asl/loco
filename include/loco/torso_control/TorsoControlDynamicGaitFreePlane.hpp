@@ -9,7 +9,7 @@
 #define LOCO_TORSOCONTROLDYNAMICGAITFREEPLANE_HPP_
 
 #include "loco/torso_control/TorsoControlGaitContainer.hpp"
-#include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
+#include "robotUtils/filters/FirstOrderFilter.hpp"
 
 namespace loco {
 

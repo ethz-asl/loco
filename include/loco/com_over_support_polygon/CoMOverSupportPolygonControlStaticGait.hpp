@@ -11,7 +11,7 @@
 #include "loco/com_over_support_polygon/CoMOverSupportPolygonControlBase.hpp"
 #include "loco/foot_placement_strategy/FootPlacementStrategyBase.hpp"
 #include "loco/common/TorsoBase.hpp"
-#include "../robotBase/robotUtils/filters/lowpass/FirstOrderFilter.hpp"
+#include "robotUtils/filters/FirstOrderFilter.hpp"
 
 namespace loco {
 

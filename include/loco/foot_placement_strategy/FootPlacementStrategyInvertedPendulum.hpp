@@ -27,7 +27,7 @@
 
 //#include "PeriodicRBF1DC3.hpp"
 //#include "PeriodicRBF1DC1.hpp"
-#include "BoundedRBF1D.hpp"
+#include "robotUtils/function_approximators/polyharmonicSplines/BoundedRBF1D.hpp"
 
 namespace loco {
 
