@@ -61,7 +61,7 @@ include_directories(../starlethModel/include)
 include_directories(../starlethUtils/ros/ros_srv)
 include_directories(${LOCO_INCL}) 
 include_directories(${TASK_INCL})
-
+include_directories(../starlethUtils/ros/ros_srv)
 
 set(LOCO_LIBS ${LOCO_LIBS}
   starlethRobotModel robotUtils starlethUtils tinyxml 
