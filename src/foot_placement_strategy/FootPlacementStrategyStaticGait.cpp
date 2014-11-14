@@ -160,7 +160,8 @@ bool FootPlacementStrategyStaticGait::sendValidationRequest(const int legId, con
           default: break;
         }
 
-        foothold.type.data = legName;
+        //foothold.type.data = legName;
+	foothold.type = legName;
         foothold.pose.position.x = positionWorldToDesiredFootHoldInWorldFrame.x(); // required
         foothold.pose.position.y = positionWorldToDesiredFootHoldInWorldFrame.y(); // required
         foothold.pose.position.z = positionWorldToDesiredFootHoldInWorldFrame.z();
@@ -214,7 +215,8 @@ bool FootPlacementStrategyStaticGait::getValidationResponse(Position& positionWo
 
          int legId = -1;
 
-         std::string dataField = receviedFoothold.type.data;
+         //std::string dataField = receviedFoothold.type.data;
+	std::string dataField = receviedFoothold.type;
 
          switch(receviedFoothold.flag) {
            case(0):
