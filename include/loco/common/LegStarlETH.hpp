@@ -13,7 +13,7 @@
 
 #include <string>
 
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 

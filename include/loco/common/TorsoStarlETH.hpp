@@ -17,7 +17,7 @@
 #include "kindr/poses/PoseEigen.hpp"
 #include <Eigen/Core>
 
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 

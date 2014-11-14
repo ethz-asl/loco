@@ -6,7 +6,7 @@
  */
 
 #include "loco/limb_coordinator/LimbCoordinatorJump.hpp"
-#include "RobotModel_common.hpp"
+#include "starlethModel/RobotModel_common.hpp"
 
 namespace loco {
 

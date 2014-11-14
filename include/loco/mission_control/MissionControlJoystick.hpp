@@ -9,7 +9,7 @@
 #define LOCO_MISSIONCONTROLJOYSTICK_HPP_
 
 #include "loco/mission_control/MissionControlBase.hpp"
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 #include "loco/temp_helpers/FilteredVariable.hpp"
 
 namespace loco {

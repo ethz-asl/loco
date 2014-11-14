@@ -11,7 +11,7 @@
 #include "loco/mission_control/MissionControlBase.hpp"
 #include "loco/mission_control/MissionControlSpeedFilter.hpp"
 #include "loco/locomotion_controller/LocomotionControllerDynamicGait.hpp"
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 

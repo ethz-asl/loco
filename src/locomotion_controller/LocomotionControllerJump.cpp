@@ -7,7 +7,7 @@
  * @brief
  */
 #include "loco/locomotion_controller/LocomotionControllerJump.hpp"
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 namespace loco {
 
 LocomotionControllerJump::LocomotionControllerJump(

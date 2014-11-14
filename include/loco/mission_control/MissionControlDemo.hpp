@@ -10,7 +10,7 @@
 
 #include "loco/mission_control/MissionControlBase.hpp"
 #include "loco/gait_switcher/GaitSwitcherDynamicGaitDefault.hpp"
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 

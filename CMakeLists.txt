@@ -55,14 +55,13 @@ set(LOCO_INCL ${LOCO_INCL}
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
+
 include_directories(../robotUtils/include)
+include_directories(../starlethModel/include)
+include_directories(../starlethUtils/ros/ros_srv)
 include_directories(${LOCO_INCL}) 
 include_directories(${TASK_INCL})
-include_directories(../robotBase/robotUtils/function_approximators/dynamicMovementPrimitive)
-
-
 include_directories(../starlethUtils/ros/ros_srv)
-
 
 set(LOCO_LIBS ${LOCO_LIBS}
   starlethRobotModel robotUtils starlethUtils tinyxml 

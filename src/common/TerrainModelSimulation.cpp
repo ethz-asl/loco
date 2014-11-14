@@ -6,7 +6,7 @@
  */
 
 #include "loco/common/TerrainModelSimulation.hpp"
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 

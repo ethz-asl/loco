@@ -7,7 +7,7 @@
 * @brief
 */
 #include "loco/limb_coordinator/LimbCoordinatorDynamicGait.hpp"
-#include "RobotModel_common.hpp"
+#include "starlethModel/RobotModel_common.hpp"
 
 #include "loco/state_switcher/StateSwitcher.hpp"
 

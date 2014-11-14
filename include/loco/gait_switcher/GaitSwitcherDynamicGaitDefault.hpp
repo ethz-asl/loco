@@ -16,7 +16,7 @@
 #include <memory>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "RobotModel.hpp"
+#include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 
