@@ -67,7 +67,7 @@ include_directories(${TASK_INCL})
 
 
 set(LOCO_LIBS ${LOCO_LIBS}
-  starlethRobotModel robotUtils tinyxml ${OOQEI_LIBRARIES} ooqpei
+  starlethRobotModel robotUtils tinyxml ${OOQEI_LIBRARIES}
 )
 
 
@@ -83,7 +83,7 @@ PARENT_SCOPE)
 
 
 add_library(loco STATIC ${LOCO_SRCS})
-#target_link_libraries(loco ${LOCO_LIBS})
+target_link_libraries(loco ${LOCO_LIBS})
 
 # Add Doxygen documentation
 if (BUILD_DOC)
