@@ -14,6 +14,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../cmake")
 
 add_definitions(--std=c++11)
 
+find_package(OOQPEI REQUIRED)
+
 # Add CMake module path
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
@@ -53,18 +55,19 @@ add_subdirectory(src/com_over_support_polygon)
 
 set(LOCO_INCL ${LOCO_INCL}
 	${CMAKE_CURRENT_SOURCE_DIR}/include
+	$ENV{LAB_ROOT}/starlethUtils/ros/ros_srv
 )
 
 
-include_directories(../robotUtils/include)
-include_directories(../starlethModel/include)
-include_directories(../starlethUtils/ros/ros_srv)
+include_directories($ENV{LAB_ROOT}/robotUtils/include)
+include_directories($ENV{LAB_ROOT}/starlethModel/include)
+include_directories($ENV{LAB_ROOT}/starlethUtils/ros/ros_srv)
 include_directories(${LOCO_INCL}) 
 include_directories(${TASK_INCL})
-include_directories(../starlethUtils/ros/ros_srv)
+
 
 set(LOCO_LIBS ${LOCO_LIBS}
-  starlethRobotModel robotUtils tinyxml 
+  starlethRobotModel robotUtils tinyxml ${OOQEI_LIBRARIES} ooqpei
 )
 
 
@@ -74,13 +77,13 @@ PARENT_SCOPE)
 
 
 # Add this library to the task
-set(TASK_LIBS ${TASK_LIBS} ${LOCO_LIBS} 
-    loco  
+set(TASK_LIBS ${TASK_LIBS} ${LOCO_LIBS}
+    loco   
 PARENT_SCOPE)
 
 
 add_library(loco STATIC ${LOCO_SRCS})
-target_link_libraries(loco ${LOCO_LIBS})
+#target_link_libraries(loco ${LOCO_LIBS})
 
 # Add Doxygen documentation
 if (BUILD_DOC)
@@ -91,3 +94,9 @@ endif (BUILD_DOC)
 if (BUILD_TEST AND BUILD_GTEST)
 add_subdirectory(test EXCLUDE_FROM_ALL)
 endif()
+
+
+
+
+
+	
