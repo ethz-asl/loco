@@ -33,8 +33,8 @@ VirtualModelController::~VirtualModelController()
 
 bool VirtualModelController::addToLogger()
 {
-  robotUtils::addEigenMatrixToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "N", true);
-  robotUtils::addEigenMatrixToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "Nm", true);
+  robotUtils::addToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "N", true);
+  robotUtils::addToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "Nm", true);
   robotUtils::updateLogger();
   return true;
 }
