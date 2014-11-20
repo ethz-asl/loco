@@ -9,8 +9,7 @@
 #include "loco/temp_helpers/math.hpp"
 
 #include "loco/state_switcher/StateSwitcher.hpp"
-
-#include "robotUtils/loggers/Logger.hpp"
+#include "robotUtils/loggers/logger.hpp"
 
 namespace loco {
 

@@ -14,7 +14,7 @@
 //#include "sm/numerical_comparisons.hpp"
 #include "OoqpEigenInterface.hpp"
 #include "QuadraticProblemFormulation.hpp"
-#include "robotUtils/loggers/Logger.hpp"
+#include "robotUtils/loggers/logger.hpp"
 
 #include "loco/temp_helpers/math.hpp"
 

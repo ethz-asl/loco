@@ -7,7 +7,7 @@
 
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyStaticGait.hpp"
-#include "robotUtils/loggers/Logger.hpp"
+#include "robotUtils/loggers/logger.hpp"
 
 
 /****************************

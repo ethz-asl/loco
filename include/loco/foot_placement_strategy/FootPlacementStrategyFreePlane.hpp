@@ -21,7 +21,6 @@
 #include "loco/temp_helpers/Trajectory.hpp"
 
 #include "kindr/rotations/RotationEigen.hpp"
-#include "robotUtils/loggers/Logger.hpp"
 #include "loco/common/TerrainModelBase.hpp"
 
 #include "robotUtils/function_approximators/polyharmonicSplines/BoundedRBF1D.hpp"
