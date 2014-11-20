@@ -7,6 +7,7 @@
 
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyStaticGait.hpp"
+#include "robotUtils/loggers/Logger.hpp"
 
 
 /****************************
@@ -96,9 +97,7 @@ void FootPlacementStrategyStaticGait::setUseRosService(bool useRosService) {
 
 
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
-  FootPlacementStrategyFreePlane::initialize(dt);
-
-//  defaultMaxStepLength_ = 0.05;
+  //FootPlacementStrategyFreePlane::initialize(dt);
 
   useRosService_ = false;
 
@@ -128,6 +127,16 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
     positionWorldToFootHoldInWorldFrame_[leg->getId()] = positionCenterOfValidatedFeetToDefaultFootInControlFrame_[leg->getId()];
     positionWorldToStartOfFootTrajectoryInWorldFrame_[leg->getId()] =  leg->getPositionWorldToFootInWorldFrame();
     newFootHolds_[leg->getId()] = positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()];
+  }
+
+  if (isFirstTimeInit_) {
+
+    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[0].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameLF");
+    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[1].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameRF");
+    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[2].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameLH");
+    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[3].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameRH");
+
+    isFirstTimeInit_ = false;
   }
 
   return true;

@@ -10,6 +10,8 @@
 
 #include "loco/state_switcher/StateSwitcher.hpp"
 
+#include "robotUtils/loggers/Logger.hpp"
+
 namespace loco {
 
 FootPlacementStrategyFreePlane::FootPlacementStrategyFreePlane(LegGroup* legs, TorsoBase* torso, loco::TerrainModelBase* terrain) :
@@ -36,6 +38,8 @@ FootPlacementStrategyFreePlane::~FootPlacementStrategyFreePlane() {
 
 bool FootPlacementStrategyFreePlane::initialize(double dt) {
 
+  FootPlacementStrategyInvertedPendulum::initialize(dt);
+
   telescopicLeverConfiguration_ = 0.0;
 
   for (auto leg : *legs_) {
@@ -44,6 +48,15 @@ bool FootPlacementStrategyFreePlane::initialize(double dt) {
     positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()] = getPositionProjectedOnPlaneAlongSurfaceNormal(positionWorldToHipAtLiftOffInWorldFrame);
     Position positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame = positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame_[leg->getId()];
     leg->getStateLiftOff()->setPositionWorldToHipOnTerrainAlongWorldZInWorldFrame(positionWorldToHipOnTerrainAlongNormalAtLiftOffInWorldFrame);
+  }
+
+
+  /*
+   * Setup logger
+   */
+  if (isFirstTimeInit_) {
+
+    isFirstTimeInit_ = false;
   }
 
   return true;

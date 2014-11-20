@@ -11,7 +11,8 @@
 
 namespace loco  {
 
-FootPlacementStrategyBase::FootPlacementStrategyBase()
+FootPlacementStrategyBase::FootPlacementStrategyBase() :
+    isFirstTimeInit_(true)
 {
 
 }
