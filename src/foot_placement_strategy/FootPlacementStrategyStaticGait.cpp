@@ -98,6 +98,7 @@ void FootPlacementStrategyStaticGait::setUseRosService(bool useRosService) {
 
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
   //FootPlacementStrategyFreePlane::initialize(dt);
+  initLogger();
 
   useRosService_ = false;
 
@@ -129,17 +130,20 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
     newFootHolds_[leg->getId()] = positionWorldToValidatedDesiredFootHoldInWorldFrame_[leg->getId()];
   }
 
-  if (isFirstTimeInit_) {
+  return true;
+}
 
-    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[0].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameLF");
-    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[1].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameRF");
-    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[2].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameLH");
-    robotUtils::logger->addToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[3].toImplementation(), "fpsStaticWorldToValidatedPositionInWorldFrameRH");
+
+void FootPlacementStrategyStaticGait::initLogger() {
+  if (isFirstTimeInit_) {
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[0], std::string{"worldToValidatedPosInWorldFrameLF"}, std::string{"/legs/pos/"});
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[1], std::string{"worldToValidatedPosInWorldFrameRF"}, std::string{"/legs/pos/"});
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[2], std::string{"worldToValidatedPosInWorldFrameLH"}, std::string{"/legs/pos/"});
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[3], std::string{"worldToValidatedPosInWorldFrameRH"}, std::string{"/legs/pos/"});
+    robotUtils::logger->updateLogger(true);
 
     isFirstTimeInit_ = false;
   }
-
-  return true;
 }
 
 
