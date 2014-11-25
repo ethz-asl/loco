@@ -140,6 +140,7 @@ void FootPlacementStrategyStaticGait::initLogger() {
     robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[1], std::string{"worldToValidatedPosInWorldFrameRF"}, std::string{"/legs/pos/"});
     robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[2], std::string{"worldToValidatedPosInWorldFrameLH"}, std::string{"/legs/pos/"});
     robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[3], std::string{"worldToValidatedPosInWorldFrameRH"}, std::string{"/legs/pos/"});
+
     robotUtils::logger->updateLogger(true);
 
     isFirstTimeInit_ = false;

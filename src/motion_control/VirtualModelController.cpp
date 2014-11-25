@@ -36,10 +36,13 @@ bool VirtualModelController::addToLogger()
 //  robotUtils::addToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "N", true);
 //  robotUtils::addToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "Nm", true);
 
-  robotUtils::logger->addToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "VMC", "N", true);
-  robotUtils::logger->addToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "VMC", "Nm", true);
+//  robotUtils::logger->addToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "VMC", "N", true);
+//  robotUtils::logger->addToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "VMC", "Nm", true);
 
-  robotUtils::logger->updateLogger();
+  robotUtils::logger->addDoubleKindrForce(virtualForceInBaseFrame_, "des_force", "VMC", "N", true);
+  robotUtils::logger->addDoubleKindrTorque(virtualTorqueInBaseFrame_, "des_torque", "VMC", "Nm", true);
+
+  robotUtils::logger->updateLogger(true);
   return true;
 }
 
