@@ -28,6 +28,7 @@ set(LOCO_SRCS ${LOCO_SRCS}
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlSpeedFilter.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlSpeedTrajectory.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlDemo.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlDynamicGait.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/MissionControlStaticGait.cpp
 PARENT_SCOPE)
 
