@@ -592,6 +592,20 @@ bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
     return false;
   }
 
+  // Load factor
+  element = forceDistributionHandle.FirstChild("LoadFactor").Element();
+  if (!element) {
+    printf("Could not find ContactForceDistribution:Constraints\n");
+    return false;
+  }
+  double loadFactor = 1.0;
+  if (element->QueryDoubleAttribute("loadFactor", &loadFactor)!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:LoadFactor:loadFactor!\n");
+    return false;
+  }
+  for (auto& legInfo : legInfos_) {
+    legInfo.first->setDesiredLoadFactor(loadFactor);
+  }
 
 
   isParametersLoaded_ = true;
