@@ -178,12 +178,14 @@ class LegBase {
   virtual void setDesiredJointTorques(const JointTorques& jointTorques);
   virtual void setMeasuredJointPositions(const JointPositions& jointPositions);
   virtual void setMeasuredJointVelocities(const JointVelocities& jointVelocities);
+  virtual void setMeasuredJointTorques(const JointTorques& jointTorques);
 
-  virtual const JointControlModes& getDesiredJointControlModes();
-  virtual const JointPositions& getDesiredJointPositions();
-  virtual const JointPositions& getMeasuredJointPositions();
-  virtual const JointVelocities& getMeasuredJointVelocities();
-  virtual const JointTorques& getDesiredJointTorques();
+  virtual const JointControlModes& getDesiredJointControlModes() const;
+  virtual const JointPositions& getDesiredJointPositions() const;
+  virtual const JointPositions& getMeasuredJointPositions() const;
+  virtual const JointVelocities& getMeasuredJointVelocities() const;
+  virtual const JointTorques& getDesiredJointTorques() const;
+  virtual const JointTorques& getMeasuredJointTorques() const;
 
   virtual bool initialize(double dt) = 0;
   virtual bool advance(double dt) = 0;
@@ -309,6 +311,10 @@ protected:
   /*! These are the desired joint torques.
     */
   JointTorques desiredJointTorques_;
+
+  /*! These are the measured joint torques.
+    */
+  JointTorques measuredJointTorques_;
 
   /*! This is the desired foot position expressed in world frame.
    */
