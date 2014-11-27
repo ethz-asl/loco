@@ -186,4 +186,8 @@ MissionControlDynamicGait* MissionControlDemo::getMissionControlDynamicGait() {
   return &missionControlDynamicGait_;
 }
 
+void MissionControlDemo::setIsJoystickActive(bool isActive) {
+  isJoystickActive_ = isActive;
+}
+
 } /* namespace loco */

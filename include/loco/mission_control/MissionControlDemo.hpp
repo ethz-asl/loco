@@ -53,6 +53,7 @@ class MissionControlDemo : public MissionControlBase {
   virtual bool loadParameters(const TiXmlHandle& handle);
   virtual const Twist& getDesiredBaseTwistInHeadingFrame() const;
   MissionControlDynamicGait* getMissionControlDynamicGait();
+  void setIsJoystickActive(bool isActive);
  private:
   double interpolateJoystickAxis(double value, double minValue, double maxValue);
  private:
