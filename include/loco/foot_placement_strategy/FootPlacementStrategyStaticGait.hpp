@@ -65,6 +65,7 @@ class FootPlacementStrategyStaticGait: public FootPlacementStrategyFreePlane {
 
  protected:
 
+  void initLogger();
 
   bool goToStand_, resumeWalking_;
   bool mustValidateNextFootHold_;

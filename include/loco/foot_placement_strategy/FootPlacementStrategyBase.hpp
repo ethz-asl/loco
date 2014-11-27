@@ -50,6 +50,10 @@ public:
    * @returns true if successful
    */
 	virtual bool setToInterpolated(const FootPlacementStrategyBase& footPlacementStrategy1, const FootPlacementStrategyBase& footPlacementStrategy2, double t);
+
+protected:
+	bool isFirstTimeInit_;
+
 };
 
 } // namespace loco

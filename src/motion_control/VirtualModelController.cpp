@@ -7,7 +7,7 @@
  */
 
 #include "loco/motion_control/VirtualModelController.hpp"
-#include "robotUtils/loggers/Logger.hpp"
+#include "robotUtils/loggers/logger.hpp"
 #include "kindr/rotations/eigen/EulerAnglesZyx.hpp"
 
 #include "loco/temp_helpers/math.hpp"
@@ -33,9 +33,16 @@ VirtualModelController::~VirtualModelController()
 
 bool VirtualModelController::addToLogger()
 {
-  robotUtils::addEigenMatrixToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "N", true);
-  robotUtils::addEigenMatrixToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "Nm", true);
-  robotUtils::updateLogger();
+//  robotUtils::addToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "N", true);
+//  robotUtils::addToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "Nm", true);
+
+//  robotUtils::logger->addToLog(virtualForceInBaseFrame_.toImplementation(), "VMC_desired_force", "VMC", "N", true);
+//  robotUtils::logger->addToLog(virtualTorqueInBaseFrame_.toImplementation(), "VMC_desired_torque", "VMC", "Nm", true);
+
+  robotUtils::logger->addDoubleKindrForceToLog(virtualForceInBaseFrame_, "des_force", "VMC", "N", true);
+  robotUtils::logger->addDoubleKindrTorqueToLog(virtualTorqueInBaseFrame_, "des_torque", "VMC", "Nm", true);
+
+  robotUtils::logger->updateLogger(true);
   return true;
 }
 

@@ -7,6 +7,7 @@
 
 
 #include "loco/foot_placement_strategy/FootPlacementStrategyStaticGait.hpp"
+#include "robotUtils/loggers/logger.hpp"
 
 
 /****************************
@@ -96,9 +97,8 @@ void FootPlacementStrategyStaticGait::setUseRosService(bool useRosService) {
 
 
 bool FootPlacementStrategyStaticGait::initialize(double dt) {
-  FootPlacementStrategyFreePlane::initialize(dt);
-
-//  defaultMaxStepLength_ = 0.05;
+  //FootPlacementStrategyFreePlane::initialize(dt);
+  initLogger();
 
   useRosService_ = false;
 
@@ -131,6 +131,20 @@ bool FootPlacementStrategyStaticGait::initialize(double dt) {
   }
 
   return true;
+}
+
+
+void FootPlacementStrategyStaticGait::initLogger() {
+  if (isFirstTimeInit_) {
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[0], std::string{"worldToValidatedPosInWorldFrameLF"}, std::string{"/legs/pos/"});
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[1], std::string{"worldToValidatedPosInWorldFrameRF"}, std::string{"/legs/pos/"});
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[2], std::string{"worldToValidatedPosInWorldFrameLH"}, std::string{"/legs/pos/"});
+    robotUtils::logger->addDoubleKindrPositionToLog(positionWorldToValidatedDesiredFootHoldInWorldFrame_[3], std::string{"worldToValidatedPosInWorldFrameRH"}, std::string{"/legs/pos/"});
+
+    robotUtils::logger->updateLogger(true);
+
+    isFirstTimeInit_ = false;
+  }
 }
 
 
