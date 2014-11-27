@@ -10,47 +10,63 @@
 namespace loco {
 
 LegBase::LegBase() :
-    name_(""),
-    links_(nullptr),
-    stancePhase_(0.0),
-    swingPhase_(0.0),
-    stanceDuration_(0.0),
-    swingDuration_(0.0),
-    isGrounded_(false),
-    wasGrounded_(false),
-    shouldBeGrounded_(false),
-    isSlipping_(false),
-    isSupportLeg_(false),
-    didTouchDownAtLeastOnceDuringStance_(false),
-    loadFactor_(1.0),
-    previousStancePhase_(0.0),
-    previousSwingPhase_(0.0),
-    isLosingContact_(false),
-    stateSwitcher_(nullptr),
-    isInStandConfiguration_(false)
+  name_(""),
+  links_(nullptr),
+  stancePhase_(0.0),
+  previousStancePhase_(0.0),
+  swingPhase_(0.0),
+  previousSwingPhase_(0.0),
+  stanceDuration_(0.0),
+  swingDuration_(0.0),
+  isGrounded_(false),
+  wasGrounded_(false),
+  shouldBeGrounded_(false),
+  isSlipping_(false),
+  isSupportLeg_(false),
+  isLosingContact_(false),
+  didTouchDownAtLeastOnceDuringStance_(false),
+  loadFactor_(1.0),
+  stateTouchDown_(),
+  stateLiftOff_(),
+  desiredJointControlModes_(),
+  desiredJointPositions_(),
+  measuredJointPositions_(),
+  measuredJointVelocities_(),
+  desiredJointTorques_(),
+  measuredJointTorques_(),
+  stateSwitcher_(nullptr),
+  isInStandConfiguration_(false)
 {
 
 }
 
 LegBase::LegBase(const std::string& name, LegLinkGroup* links) :
-    name_(name),
-    links_(links),
-    stancePhase_(0.0),
-    swingPhase_(0.0),
-    stanceDuration_(0.0),
-    swingDuration_(0.0),
-    isGrounded_(false),
-    wasGrounded_(false),
-    shouldBeGrounded_(false),
-    isSlipping_(false),
-    isSupportLeg_(false),
-    didTouchDownAtLeastOnceDuringStance_(false),
-    loadFactor_(1.0),
-    previousStancePhase_(0.0),
-    previousSwingPhase_(0.0),
-    isLosingContact_(false),
-    stateSwitcher_(nullptr),
-    isInStandConfiguration_(false)
+  name_(name),
+  links_(links),
+  stancePhase_(0.0),
+  previousStancePhase_(0.0),
+  swingPhase_(0.0),
+  previousSwingPhase_(0.0),
+  stanceDuration_(0.0),
+  swingDuration_(0.0),
+  isGrounded_(false),
+  wasGrounded_(false),
+  shouldBeGrounded_(false),
+  isSlipping_(false),
+  isSupportLeg_(false),
+  isLosingContact_(false),
+  didTouchDownAtLeastOnceDuringStance_(false),
+  loadFactor_(1.0),
+  stateTouchDown_(),
+  stateLiftOff_(),
+  desiredJointControlModes_(),
+  desiredJointPositions_(),
+  measuredJointPositions_(),
+  measuredJointVelocities_(),
+  desiredJointTorques_(),
+  measuredJointTorques_(),
+  stateSwitcher_(nullptr),
+  isInStandConfiguration_(false)
 {
 
 }
@@ -217,23 +233,27 @@ void LegBase::setMeasuredJointVelocities(const JointVelocities& jointVelocities)
   measuredJointVelocities_ = jointVelocities;
 }
 
+void LegBase::setMeasuredJointTorques(const JointTorques& jointTorques)
+{
+  measuredJointTorques_ = jointTorques;
+}
 
 void LegBase::setDesiredJointTorques(const JointTorques& jointTorques)
 {
   desiredJointTorques_ = jointTorques;
 }
 
-const LegBase::JointPositions& LegBase::getDesiredJointPositions()
+const LegBase::JointPositions& LegBase::getDesiredJointPositions()  const
 {
   return desiredJointPositions_;
 }
 
-const LegBase::JointPositions& LegBase::getMeasuredJointPositions()
+const LegBase::JointPositions& LegBase::getMeasuredJointPositions()  const
 {
   return measuredJointPositions_;
 }
 
-const LegBase::JointVelocities& LegBase::getMeasuredJointVelocities()
+const LegBase::JointVelocities& LegBase::getMeasuredJointVelocities()  const
 {
   return measuredJointVelocities_;
 }
@@ -243,15 +263,21 @@ void LegBase::setDesiredJointControlModes(const JointControlModes& jointControlM
   desiredJointControlModes_ = jointControlMode;
 }
 
-const LegBase::JointControlModes& LegBase::getDesiredJointControlModes()
+const LegBase::JointControlModes& LegBase::getDesiredJointControlModes() const
 {
   return desiredJointControlModes_;
 }
 
-const LegBase::JointTorques& LegBase::getDesiredJointTorques()
+const LegBase::JointTorques& LegBase::getDesiredJointTorques() const
 {
   return desiredJointTorques_;
 }
+
+const LegBase::JointTorques& LegBase::getMeasuredJointTorques() const
+{
+  return measuredJointTorques_;
+}
+
 
 const std::string& LegBase::getName() const {
   return name_;

@@ -353,23 +353,35 @@ bool ContactForceDistribution::computeJointTorques()
 
   for (auto& legInfo : legInfos_)
   {
-    if (legInfo.second.isPartOfForceDistribution_)
-    {
-      LegBase::TranslationJacobian jacobian = legInfo.first->getTranslationJacobianFromBaseToFootInBaseFrame();
 
-      Force contactForce = legInfo.second.desiredContactForce_;
-      LegBase::JointTorques jointTorques = LegBase::JointTorques(jacobian.transpose() * contactForce.toImplementation());
-//      jointTorques += LegBase::JointTorques(torso_ Force(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
-      /* gravity */
-      for (auto link : *legInfo.first->getLinks()) {
-        jointTorques -= LegBase::JointTorques( link->getTranslationJacobianBaseToCoMInBaseFrame().transpose() * Force(link->getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
+    /*
+     * Torque setpoints should be updated only is leg is support leg.
+     */
+    if  (legInfo.first->isSupportLeg()) {
+
+      if (legInfo.second.isPartOfForceDistribution_)
+      {
+        LegBase::TranslationJacobian jacobian = legInfo.first->getTranslationJacobianFromBaseToFootInBaseFrame();
+
+        Force contactForce = legInfo.second.desiredContactForce_;
+        LegBase::JointTorques jointTorques = LegBase::JointTorques(jacobian.transpose() * contactForce.toImplementation());
+  //      jointTorques += LegBase::JointTorques(torso_ Force(-torso_->getProperties().getMass() * gravitationalAccelerationInBaseFrame));
+        /* gravity */
+        for (auto link : *legInfo.first->getLinks()) {
+          jointTorques -= LegBase::JointTorques( link->getTranslationJacobianBaseToCoMInBaseFrame().transpose() * Force(link->getMass() * gravitationalAccelerationInBaseFrame).toImplementation());
+        }
+        legInfo.first->setDesiredJointTorques(jointTorques);
       }
-      legInfo.first->setDesiredJointTorques(jointTorques);
+      else
+      {
+        /*
+         * True if load factor is zero.
+         */
+        legInfo.first->setDesiredJointTorques(LegBase::JointTorques::Zero());
+      }
+
     }
-    else
-    {
-      legInfo.first->setDesiredJointTorques(LegBase::JointTorques::Zero());
-    }
+
   }
 
   return true;
@@ -580,6 +592,20 @@ bool ContactForceDistribution::loadParameters(const TiXmlHandle& handle)
     return false;
   }
 
+  // Load factor
+  element = forceDistributionHandle.FirstChild("LoadFactor").Element();
+  if (!element) {
+    printf("Could not find ContactForceDistribution:Constraints\n");
+    return false;
+  }
+  double loadFactor = 1.0;
+  if (element->QueryDoubleAttribute("loadFactor", &loadFactor)!=TIXML_SUCCESS) {
+    printf("Could not find ContactForceDistribution:LoadFactor:loadFactor!\n");
+    return false;
+  }
+  for (auto& legInfo : legInfos_) {
+    legInfo.first->setDesiredLoadFactor(loadFactor);
+  }
 
 
   isParametersLoaded_ = true;

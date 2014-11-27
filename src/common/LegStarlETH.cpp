@@ -132,6 +132,7 @@ bool LegStarlETH::advance(double dt)
 
   this->setMeasuredJointPositions(robotModel_->q().getQj().block<3, 1>(iLeg_ * nJoints_, 0));
   this->setMeasuredJointVelocities(robotModel_->q().getdQj().block<3, 1>(iLeg_ * nJoints_, 0));
+  this->setMeasuredJointTorques(robotModel_->sensors().getJointTorques().block<3, 1>(iLeg_ * nJoints_, 0));
 
   positionBaseToFootInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Foot_CSmb(iLeg_)->getPos());
   positionBaseToHipInBaseFrame_ = Position(robotModel_->kin().getJacobianTByLeg_Base2Hip_CSmb(iLeg_)->getPos());
