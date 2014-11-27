@@ -26,44 +26,53 @@
  *
 */
 /*!
- * @file    MissionControlDemo.hpp
+ * @file    MissionControlDynamicGait.hpp
  * @author  Christian Gehring
- * @date    Aug 22, 2014
+ * @date    Nov 2014
  * @version 1.0
  * @ingroup loco
  */
-#ifndef LOCO_MISSIONCONTROLDEMO_HPP_
-#define LOCO_MISSIONCONTROLDEMO_HPP_
+#ifndef LOCO_MISSIONCONTROLDYNAMICGAIT_HPP_
+#define LOCO_MISSIONCONTROLDYNAMICGAIT_HPP_
 
 #include "loco/mission_control/MissionControlBase.hpp"
-#include "loco/mission_control/MissionControlDynamicGait.hpp"
-
 #include "loco/gait_switcher/GaitSwitcherDynamicGaitDefault.hpp"
 #include "starlethModel/RobotModel.hpp"
 
 namespace loco {
 
-class MissionControlDemo : public MissionControlBase {
+class MissionControlDynamicGait: public MissionControlBase
+{
  public:
-  MissionControlDemo(robotModel::RobotModel* robotModel, GaitSwitcherDynamicGaitDefault* gaitSwitcher);
-  virtual ~MissionControlDemo();
-
+  MissionControlDynamicGait(robotModel::RobotModel* robotModel, GaitSwitcherDynamicGaitDefault* gaitSwitcher);
+  virtual ~MissionControlDynamicGait();
+  virtual const Twist& getDesiredBaseTwistInHeadingFrame() const;
   virtual bool initialize(double dt);
   virtual bool advance(double dt);
   virtual bool loadParameters(const TiXmlHandle& handle);
-  virtual const Twist& getDesiredBaseTwistInHeadingFrame() const;
-  MissionControlDynamicGait* getMissionControlDynamicGait();
-  void setIsJoystickActive(bool isActive);
+  bool switchToWalkingTrot();
+  bool switchToStand();
+  bool switchToStaticLateralWalk();
+  void setDesiredPositionOffsetInControlFrame(const Position& desiredPositionOffsetInControlFrame);
+  void setDesiredOrientationOffset(const RotationQuaternion& desiredOrientationOffset);
+  void setDesiredLinearVelocityBaseInControlFrame(const LinearVelocity& desiredLinearVelocityBaseInControlFrame);
+  void setDesiredAngularVelocityBaseInControlFrame(const LocalAngularVelocity& desiredAngularVelocityBaseInControlFrame);
+  bool setStrideDuration(double strideDuration);
+  bool increaseStrideDuration();
+  bool decreaseStrideDuration();
+  double getStrideDuration() const;
  private:
-  double interpolateJoystickAxis(double value, double minValue, double maxValue);
- private:
-  MissionControlDynamicGait missionControlDynamicGait_;
   robotModel::RobotModel* robotModel_;
   GaitSwitcherDynamicGaitDefault* gaitSwitcher_;
-  bool isExternallyVelocityControlled_;
-  bool isJoystickActive_;
+  Position desiredPositionOffsetInControlFrame_;
+  RotationQuaternion desiredOrientationOffset_;
+  LinearVelocity desiredLinearVelocityBaseInControlFrame_;
+  LocalAngularVelocity desiredAngularVelocityBaseInControlFrame_;
+  double minStrideDuration_;
+  double maxStrideDuration_;
+  double stepStrideDuration_;
 };
 
 } /* namespace loco */
 
-#endif /* MISSIONCONTROLDEMO_HPP_ */
+#endif /* MISSIONCONTROLDYNAMICGAIT_HPP_ */
