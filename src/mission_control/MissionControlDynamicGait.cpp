@@ -137,4 +137,8 @@ bool MissionControlDynamicGait::decreaseStrideDuration() {
   return true;
 }
 
+double MissionControlDynamicGait::getStrideDuration() const {
+  return gaitSwitcher_->getLocomotionController()->getGaitPattern()->getStrideDuration();
+}
+
 } /* namespace loco */

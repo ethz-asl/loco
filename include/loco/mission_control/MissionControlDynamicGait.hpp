@@ -60,6 +60,7 @@ class MissionControlDynamicGait: public MissionControlBase
   bool setStrideDuration(double strideDuration);
   bool increaseStrideDuration();
   bool decreaseStrideDuration();
+  double getStrideDuration() const;
  private:
   robotModel::RobotModel* robotModel_;
   GaitSwitcherDynamicGaitDefault* gaitSwitcher_;
