@@ -43,7 +43,7 @@ class LegBase {
   static constexpr int nDofContactPoint_ = 3;
   typedef Eigen::Array<double, nJoints_, 1> JointPositions;
   typedef Eigen::Array<double, nJoints_, 1> JointVelocities;
-  typedef Eigen::Array<char, nJoints_, 1> JointControlModes;
+  typedef Eigen::Array<unsigned char, nJoints_, 1> JointControlModes;
   typedef Eigen::Array<double, nJoints_, 1> JointTorques;
   typedef Eigen::Matrix<double, nDofContactPoint_, nJoints_> TranslationJacobian;
 
