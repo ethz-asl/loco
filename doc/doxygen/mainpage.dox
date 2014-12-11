@@ -1,19 +1,22 @@
 /*!
 \mainpage Overview
 
-\section loco Loco - Locomotion Controller
-This library provides implements a locomotion controller
+\section loco Loco - Locomotion Controller for Legged Robots
+This library provides implements a locomotion controller for legged robots.
 
 \section source_code Source Code
-The source code is available at <a href="http://bitbucket.org/ethz-asl-lr/c_kindr">http://bitbucket.org/ethz-asl-lr/c_locomotion_controller</a>
+The source code is available at <a href="http://github.org/ethz-asl/loco">http://github.org/ethz-asl/loco</a>
 
 \section license License
 This library is <a href="http://www.gnu.org/philosophy/free-sw.html">Free Software</a> and is licensed under <a href="http://opensource.org/licenses/BSD-3-Clause">BSD 3-Clause</a>.
 
 \section acknowledgement Acknowledgement
 Involved people:
- - Peter Fankhauser
  - Christian Gehring
+ - Péter Fankhauser
+ - C. Dario Bellicoso
+ - Stelian Coros
+
 
  
 Contact: 
@@ -74,9 +77,6 @@ make check
 \endcode
 
 
-
-\section math_notation Mathematical Notation
-This library comes a long with a <a href="cheatsheet_latest.pdf" target="_blank"><b>Cheatsheet</b></a>, which shows the mathematical notation.
 
 \section sec_continue How to Continue
 See \ref page_users "Users" to learn how to use this library.
