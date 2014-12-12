@@ -1,7 +1,7 @@
 /*******************************************************************************************
 * Software License Agreement (BSD License)
 *
-* Copyright (c) 2014, Christian Gehring, Péter Fankhauser, C. Dario Bellicoso, Stelian Coros
+* Copyright (c) 2014, C. Dario Bellicoso, Christian Gehring, Péter Fankhauser, Stelian Coros
 * All rights reserved.
 *
 *  Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,7 @@
  * StateSwitcher.hpp
  *
  *  Created on: Oct 5, 2014
- *      Author: dario
+ *      Author: C. Dario Bellicoso
  */
 
 #ifndef LOCO_STATESWITCHER_HPP_
